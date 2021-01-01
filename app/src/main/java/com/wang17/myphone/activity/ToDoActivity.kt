@@ -77,7 +77,7 @@ class ToDoActivity : FragmentActivity() {
         listAdapter = TodoListAdapter()
     }
 
-    protected inner class TodoListAdapter : BaseAdapter() {
+    inner class TodoListAdapter : BaseAdapter() {
         override fun getCount(): Int {
             return mBankToDoList.size
         }
@@ -163,7 +163,7 @@ class ToDoActivity : FragmentActivity() {
                 }
             } catch (e: Exception) {
                 _Utils.printException(this@ToDoActivity, e)
-                Log.e("wangsc", e.message)
+                Log.e("wangsc", e.message!!)
             }
             return convertView
         }

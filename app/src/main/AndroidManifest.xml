@@ -84,6 +84,7 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
+        <activity android:name=".activity.ToDoActivity"/>
         <activity
             android:name=".activity.FuturePositionActivity"
             android:launchMode="singleTask" />
@@ -102,9 +103,6 @@
             android:label="@string/title_activity_dark_run"
             android:launchMode="singleTask"
             android:theme="@style/FullscreenTheme" />
-        <activity
-            android:name=".activity.ToDoActivity"
-            android:launchMode="singleTask" />
         <activity
             android:name=".activity.TallayRecordActivity"
             android:launchMode="singleTask" />
