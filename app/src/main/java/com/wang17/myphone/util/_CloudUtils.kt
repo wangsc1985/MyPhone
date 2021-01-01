@@ -31,6 +31,7 @@ object _CloudUtils {
                 /**
                  * token过期
                  */
+                e("本地token已过期，正在微软网站获取新的token。")
                 return loadNewTokenFromHttp((context))
             } else {
                 /**
