@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical">
+
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="@color/credit_card_background"
+        android:padding="10dp">
+
+
+        <TextView
+            android:id="@+id/textView_date"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignParentLeft="true"
+            android:layout_centerInParent="true"
+            android:layout_marginLeft="30dp"
+            android:layout_weight="1"
+            android:fontFamily="monospace"
+            android:text="09月"
+            android:textSize="20dp" />
+
+        <TextView
+            android:id="@+id/textView_monthTotal"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignParentRight="true"
+            android:layout_centerInParent="true"
+            android:layout_weight="1"
+            android:fontFamily="monospace"
+            android:text="1小时50分钟"
+            android:textSize="16dp" />
+
+    </RelativeLayout>
+
+    <LinearLayout android:layout_width="match_parent"
+        android:layout_height="1dp"
+        android:background="#ffffff"
+        android:visibility="gone" />
+</LinearLayout>

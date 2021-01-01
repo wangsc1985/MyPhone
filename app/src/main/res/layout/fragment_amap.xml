@@ -1,0 +1,187 @@
+<?xml version="1.0" encoding="utf-8"?>
+<android.support.constraint.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context="com.wang17.myphone.fragment.AmapFragment">
+
+    <com.amap.api.maps.TextureMapView
+        android:id="@+id/map"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintHorizontal_bias="0.0"
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintRight_toRightOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintVertical_bias="0.0">
+
+    </com.amap.api.maps.TextureMapView>
+
+    <TextView
+        android:id="@+id/textView_gear"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginLeft="8dp"
+        android:layout_marginRight="8dp"
+        android:layout_marginTop="8dp"
+        android:padding="5dp"
+        android:text="单车"
+        android:textColor="#000000"
+        android:textSize="16dp"
+        android:textStyle="bold"
+        android:typeface="monospace"
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintRight_toRightOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <ImageView
+        android:id="@+id/image_navi"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="16dp"
+        android:layout_marginRight="16dp"
+        android:visibility="gone"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintRight_toRightOf="parent"
+        android:src="@mipmap/navi" />
+
+    <LinearLayout
+        android:id="@+id/linearLayout5"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="8dp"
+        android:layout_marginRight="8dp"
+        android:orientation="horizontal"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintRight_toRightOf="parent"
+        android:layout_marginLeft="8dp"
+        app:layout_constraintLeft_toLeftOf="parent">
+
+        <!--<ImageView-->
+            <!--android:id="@+id/image_gas"-->
+            <!--android:layout_width="wrap_content"-->
+            <!--android:layout_height="wrap_content"-->
+            <!--android:layout_weight="1"-->
+            <!--android:src="@drawable/selector_gas" />-->
+
+        <ImageButton
+            android:id="@+id/image_gas"
+            android:layout_width="45dp"
+            android:layout_height="30dp"
+            android:layout_gravity="center_vertical"
+            android:layout_margin="2dp"
+            android:layout_weight="1"
+            android:background="@drawable/selector_map_btn_bg"
+            android:elevation="2dp"
+            android:scaleType="centerCrop"
+            android:src="@mipmap/gas" />
+
+        <!--<ImageView-->
+            <!--android:id="@+id/image_toilet"-->
+            <!--android:layout_width="wrap_content"-->
+            <!--android:layout_height="wrap_content"-->
+            <!--android:layout_weight="1"-->
+            <!--android:src="@drawable/selector_toilet" />-->
+
+        <ImageButton
+            android:id="@+id/image_toilet"
+            android:layout_width="45dp"
+            android:layout_height="30dp"
+            android:layout_gravity="center_vertical"
+            android:layout_margin="2dp"
+            android:layout_weight="1"
+            android:background="@drawable/selector_map_btn_bg"
+            android:elevation="2dp"
+            android:scaleType="centerCrop"
+            android:src="@mipmap/toilet" />
+
+        <!--<ImageView-->
+            <!--android:id="@+id/image_heat"-->
+            <!--android:layout_width="wrap_content"-->
+            <!--android:layout_height="wrap_content"-->
+            <!--android:layout_weight="1"-->
+            <!--android:src="@drawable/selector_heat" />-->
+
+        <ImageButton
+            android:id="@+id/image_heat"
+            android:layout_width="45dp"
+            android:layout_height="30dp"
+            android:layout_gravity="center_vertical"
+            android:layout_margin="2dp"
+            android:layout_weight="1"
+            android:background="@drawable/selector_map_btn_bg"
+            android:elevation="2dp"
+            android:scaleType="centerCrop"
+            android:src="@mipmap/heat" />
+
+        <ImageButton
+            android:id="@+id/image_location"
+            android:layout_width="45dp"
+            android:layout_height="30dp"
+            android:layout_gravity="center_vertical"
+            android:layout_margin="2dp"
+            android:layout_weight="1"
+            android:background="@drawable/bg_map_btn_normal"
+            android:elevation="2dp"
+            android:src="@drawable/src_navi" />
+
+        <!--<ImageView-->
+            <!--android:id="@+id/image_location"-->
+            <!--android:layout_width="wrap_content"-->
+            <!--android:layout_height="wrap_content"-->
+            <!--android:layout_weight="1"-->
+            <!--android:text="Button"-->
+            <!--app:layout_constraintBottom_toTopOf="@+id/linearLayout"-->
+            <!--app:layout_constraintRight_toRightOf="parent"-->
+            <!--app:layout_constraintTop_toBottomOf="@+id/linearLayout5"-->
+            <!--android:src="@mipmap/navi" />-->
+
+    </LinearLayout>
+
+    <LinearLayout
+        android:id="@+id/linearLayout"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="8dp"
+        android:layout_marginRight="8dp"
+        android:orientation="vertical"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintRight_toRightOf="parent">
+
+        <ImageButton
+            android:id="@+id/image_zoomIn"
+            android:layout_width="40dp"
+            android:layout_height="40dp"
+            android:layout_gravity="center_vertical"
+            android:layout_margin="2dp"
+            android:layout_weight="1"
+            android:background="@drawable/bg_map_btn_normal"
+            android:elevation="2dp"
+            android:src="@drawable/src_zoom_in" />
+
+        <ImageButton
+            android:id="@+id/image_zoomOut"
+            android:layout_width="40dp"
+            android:layout_height="40dp"
+            android:layout_gravity="center_vertical"
+            android:layout_margin="2dp"
+            android:layout_weight="1"
+            android:background="@drawable/bg_map_btn_normal"
+            android:elevation="2dp"
+            android:src="@drawable/src_zoom_out" />
+        <!--<ImageView-->
+            <!--android:id="@+id/image_zoomIn"-->
+            <!--android:layout_width="45dp"-->
+            <!--android:layout_height="45dp"-->
+            <!--android:src="@mipmap/zoom_in" />-->
+
+        <!--<ImageView-->
+            <!--android:id="@+id/image_zoomOut"-->
+            <!--android:layout_width="45dp"-->
+            <!--android:layout_height="45dp"-->
+            <!--android:src="@mipmap/zoom_out" />-->
+    </LinearLayout>
+
+</android.support.constraint.ConstraintLayout>

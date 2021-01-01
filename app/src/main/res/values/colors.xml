@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <color name="colorPrimary">#3f51b5</color>
+    <color name="colorPrimaryDark">#2341fe</color>
+    <color name="colorAccent">#de5334</color>
+    <color name="a">#c42d0b</color>
+    <color name="b">#3f9256</color>
+    <color name="credit_card_background">#cadea2</color>
+    <color name="deposit_card_background">#84c1ff</color>
+    <color name="wld_card_background">#7faf7a</color>
+    <color name="seprator_color">#fff222</color>
+    <color name="progressbar_color">#ffb6b7</color>
+    <color name="timerRunningColor">#de5334</color>
+    <color name="timerPauseColor">#05a388</color>
+    <color name="timerStopColor">#000000</color>
+    <color name="invalid">#8b8b8b</color>
+    <color name="calendar_yl_color">#ff706d72</color>
+    <color name="calendar_nl_color">#AAAAAA</color>
+    <color name="month_text_color">#b90404</color>
+    <color name="DARK_GREEN">#416D01</color>
+
+    <color name="black_overlay">#66000000</color>
+    <color name="location_accuracy">#28326ccf</color>
+
+    <color name="red">#B2FF1E1E</color>
+    <color name="gray_light">#83979797</color>
+    <color name="range_overlay">#B2FF1E1E</color>
+    <color name="color_gray">#B0A5A3A3</color>
+    <color name="color_blue">#368B11</color>
+    <color name="progressbar_background">#FFFFFF</color>
+</resources>

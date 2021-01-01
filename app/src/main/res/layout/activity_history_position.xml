@@ -1,0 +1,67 @@
+<?xml version="1.0" encoding="utf-8"?>
+<android.support.constraint.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context=".activity.StockPositionHistoryActivity">
+
+    <TextView
+        android:id="@+id/textView_profit"
+        android:layout_width="0dp"
+        android:layout_height="70dp"
+        android:background="@drawable/my_progressbar"
+        android:gravity="center_vertical"
+        android:paddingStart="20dp"
+        android:text="TextView"
+        android:textSize="16dp"
+        android:textStyle="bold"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="@+id/listView_position"
+        app:layout_constraintStart_toStartOf="parent" />
+
+    <android.support.design.widget.FloatingActionButton
+        android:id="@+id/floatingActionButtonUpload"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginEnd="8dp"
+        android:clickable="true"
+        app:layout_constraintBottom_toBottomOf="@+id/textView_profit"
+        app:layout_constraintEnd_toStartOf="@+id/floatingActionButtonRefresh"
+        app:layout_constraintTop_toTopOf="@+id/textView_profit"
+        app:layout_constraintVertical_bias="0.571"
+        app:srcCompat="@drawable/upload" />
+
+    <android.support.design.widget.FloatingActionButton
+        android:id="@+id/floatingActionButtonRefresh"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginEnd="8dp"
+        android:clickable="true"
+        app:layout_constraintBottom_toBottomOf="@+id/textView_profit"
+        app:layout_constraintEnd_toStartOf="@+id/floatingActionButtonAdd"
+        app:layout_constraintTop_toTopOf="@+id/textView_profit"
+        app:srcCompat="@drawable/renew" />
+
+    <android.support.design.widget.FloatingActionButton
+        android:id="@+id/floatingActionButtonAdd"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginEnd="16dp"
+        android:clickable="true"
+        app:layout_constraintBottom_toBottomOf="@+id/textView_profit"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toTopOf="@+id/textView_profit"
+        app:srcCompat="@drawable/add" />
+
+    <ListView
+        android:id="@+id/listView_position"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        app:layout_constraintBottom_toTopOf="@+id/textView_profit"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent">
+
+    </ListView>
+</android.support.constraint.ConstraintLayout>

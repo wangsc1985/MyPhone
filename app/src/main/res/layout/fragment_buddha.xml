@@ -1,0 +1,251 @@
+<?xml version="1.0" encoding="utf-8"?>
+<android.support.constraint.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/layout_root"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical">
+
+    <android.support.design.widget.FloatingActionButton
+        android:id="@+id/abtn_stock"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:clickable="true"
+        app:backgroundTint="@android:color/holo_orange_light"
+        app:elevation="3dp"
+        app:fabSize="normal"
+        app:layout_constraintBottom_toBottomOf="@+id/listView_tallyPlan"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/switch_music"
+        app:srcCompat="@drawable/stock" />
+
+    <com.wang17.myphone.plugin.PercentCircleView
+        android:id="@+id/circle_percent"
+        android:layout_width="200dp"
+        android:layout_height="200dp"
+        android:layout_margin="20dp"
+        app:layout_constraintBottom_toBottomOf="@+id/textView_count"
+        app:layout_constraintEnd_toEndOf="@+id/textView_count"
+        app:layout_constraintStart_toStartOf="@+id/textView_count"
+        app:layout_constraintTop_toTopOf="@id/textView_count" />
+<!--    <com.wang17.myphone.model.CircleBarView-->
+<!--        android:id="@+id/progressBar_count"-->
+<!--        android:layout_width="150dp"-->
+<!--        android:layout_height="150dp"-->
+<!--        app:bar_width="5dp"-->
+<!--        app:bg_color="@color/gray_light"-->
+<!--        app:layout_constraintBottom_toTopOf="@id/layout_finishTime"-->
+<!--        app:layout_constraintEnd_toEndOf="parent"-->
+<!--        app:layout_constraintStart_toStartOf="parent"-->
+<!--        app:layout_constraintTop_toTopOf="parent"-->
+<!--        app:progress_color="@color/red"-->
+<!--        app:start_angle="150"-->
+<!--        app:sweep_angle="300" />-->
+
+    <TextView
+        android:id="@+id/textView_count"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:layout_marginStart="8dp"
+        android:layout_marginTop="8dp"
+        android:layout_marginEnd="8dp"
+        android:layout_marginBottom="8dp"
+        android:gravity="center"
+        android:text="0"
+        android:textColor="#E62323"
+        android:textSize="100dp"
+        app:layout_constraintBottom_toTopOf="@id/layout_finishTime"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <FrameLayout
+        android:id="@+id/frameLayout2"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="8dp"
+        android:layout_marginLeft="8dp"
+        android:layout_marginRight="8dp"
+        android:layout_marginTop="8dp"
+        android:orientation="horizontal"
+        android:visibility="gone"
+        app:layout_constraintBottom_toTopOf="@+id/layout_monthTotal"
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintRight_toRightOf="parent"
+        app:layout_constraintTop_toTopOf="parent">
+
+        <ProgressBar
+            android:id="@+id/progressBar_have"
+            style="@style/Widget.AppCompat.ProgressBar.Horizontal"
+            android:layout_width="150dp"
+            android:layout_height="2dp"
+            android:layout_gravity="bottom"
+            android:layout_weight="1"
+            android:background="@color/cardview_shadow_start_color"
+            android:max="24"
+            android:progress="20"
+            android:progressDrawable="@drawable/my_progressbar_drawable" />
+
+        <TextView
+            android:id="@+id/textViewHaveM"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="bottom|right"
+            android:layout_marginBottom="2dp"
+            android:layout_weight="1"
+            android:text="2/24"
+            android:textAppearance="?android:attr/textAppearanceLarge"
+            android:textColor="@color/colorAccent"
+            android:textSize="10dp" />
+
+        <LinearLayout
+            android:id="@+id/linearLayout8"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center">
+
+            <TextView
+                android:id="@+id/textViewHaveH"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center_horizontal"
+                android:layout_weight="1"
+                android:text="6"
+                android:textAppearance="?android:attr/textAppearanceLarge"
+                android:textColor="@color/colorAccent"
+                android:textSize="70dp" />
+
+        </LinearLayout>
+    </FrameLayout>
+
+    <TextView
+        android:id="@+id/textView_timer"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center_horizontal"
+        android:layout_marginBottom="8dp"
+        android:layout_marginEnd="8dp"
+        android:layout_marginLeft="8dp"
+        android:layout_marginRight="8dp"
+        android:layout_marginStart="8dp"
+        android:layout_marginTop="8dp"
+        android:text="00 : 00 : 00"
+        android:textAppearance="?android:attr/textAppearanceLarge"
+        android:textColor="@android:color/black"
+        android:textSize="60dp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintRight_toRightOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <Switch
+        android:id="@+id/switch_music"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="8dp"
+        android:layout_weight="1"
+        app:layout_constraintHorizontal_bias="0.501"
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintRight_toRightOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/layout_monthTotal" />
+
+    <LinearLayout
+        android:id="@+id/layout_monthTotal"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="8dp"
+        android:orientation="horizontal"
+        android:padding="10dp"
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintRight_toRightOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/textView_timer"
+        tools:layout_constraintLeft_creator="1"
+        tools:layout_constraintRight_creator="1"
+        tools:layout_constraintTop_creator="1">
+
+        <TextView
+            android:id="@+id/textView10"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="今日念佛：" />
+
+        <TextView
+            android:id="@+id/textView_monthTotal"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:fontFamily="sans-serif"
+            android:text="0分钟" />
+
+    </LinearLayout>
+
+    <FrameLayout
+        android:id="@+id/layout_finishTime"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="8dp"
+        android:layout_marginLeft="8dp"
+        android:layout_marginRight="8dp"
+        android:padding="10dp"
+        app:layout_constraintBottom_toTopOf="@+id/textView_timer"
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintRight_toRightOf="parent">
+
+        <TextView
+            android:id="@+id/textView_finishTime"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:text="           "
+            app:layout_constraintBottom_toTopOf="@+id/textView_markDay"
+            app:layout_constraintHorizontal_bias="0.501"
+            app:layout_constraintLeft_toLeftOf="parent"
+            app:layout_constraintRight_toRightOf="parent"
+            tools:layout_constraintBottom_creator="1"
+            tools:layout_constraintLeft_creator="1"
+            tools:layout_constraintRight_creator="1" />
+
+    </FrameLayout>
+
+    <ListView
+        android:id="@+id/listView_tallyPlan"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:layout_marginStart="8dp"
+        android:layout_marginTop="8dp"
+        android:layout_marginEnd="8dp"
+        android:layout_marginBottom="8dp"
+        android:background="@color/cardview_light_background"
+        android:divider="@null"
+        android:visibility="invisible"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <!--<LinearLayout-->
+    <!--android:layout_width="wrap_content"-->
+    <!--android:layout_height="wrap_content"-->
+    <!--android:layout_alignParentBottom="true"-->
+    <!--android:id="@+id/main"-->
+    <!--android:orientation="vertical"-->
+    <!--android:layout_centerHorizontal="true"-->
+    <!--android:layout_above="@+id/layout_total"-->
+    <!--android:layout_marginBottom="30dp"-->
+    <!--android:layout_below="@+id/time"-->
+    <!--android:layout_marginTop="30dp">-->
+
+    <!--<ImageButton-->
+    <!--android:layout_height="50dp"-->
+    <!--android:id="@+id/ibutton_start"-->
+    <!--android:background="@drawable/btn_start_shape"-->
+    <!--android:layout_gravity="center_horizontal"-->
+    <!--android:elevation="0dp"-->
+    <!--android:scaleType="fitCenter"-->
+    <!--app:srcCompat="@android:drawable/ic_media_play"-->
+    <!--android:layout_width="80dp" />-->
+
+    <!--</LinearLayout>-->
+
+</android.support.constraint.ConstraintLayout>

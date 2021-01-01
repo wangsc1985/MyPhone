@@ -1,0 +1,4 @@
+
+
+    TimerWidgetProvider.onReceive 截取短信，并分析数据，向数据库保存BankToDo对象。
+    MyWidgetRemoteViewsService 从数据库读取BankToDo数据，并更新小部件列表数据。

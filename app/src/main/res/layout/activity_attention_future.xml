@@ -1,0 +1,81 @@
+<android.support.constraint.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/frameLayout5"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="#000000"
+    android:keepScreenOn="true"
+    tools:context="com.wang17.myphone.activity.StockPositionActivity">
+
+    <View
+        android:id="@+id/line2"
+        android:layout_width="match_parent"
+        android:layout_height="1dp"
+        android:background="@color/cardview_dark_background"
+        app:layout_constraintBottom_toTopOf="@+id/layout_status"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent" />
+
+    <FrameLayout
+        android:id="@+id/layout_status"
+        android:layout_width="match_parent"
+        android:layout_height="60dp"
+        android:background="#000000"
+        android:orientation="horizontal"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent">
+
+        <TextView
+            android:id="@+id/textView_time"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="left|center_vertical"
+            android:layout_marginLeft="10dp"
+            android:text="00:00:00"
+            android:textColor="@color/cardview_light_background"
+            android:textSize="18dp" />
+
+        <TextView
+            android:id="@+id/textView_totalProfit"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="right|center_vertical"
+            android:layout_marginRight="10dp"
+            android:text="0.00%"
+            android:textColor="@color/cardview_light_background"
+            android:textSize="18dp"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toStartOf="@+id/linearLayout11"
+            app:layout_constraintStart_toStartOf="parent" />
+    </FrameLayout>
+
+    <ListView
+        android:id="@+id/listView_stocks"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:dividerHeight="1dp"
+        app:layout_constraintBottom_toTopOf="@+id/line2"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent">
+
+    </ListView>
+
+    <android.support.design.widget.FloatingActionButton
+        android:id="@+id/actionButton_home"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="8dp"
+        android:layout_marginEnd="8dp"
+        android:clickable="true"
+        app:backgroundTint="@color/a"
+        app:fabSize="normal"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="@+id/layout_status"
+        app:layout_constraintBottom_toBottomOf="@+id/layout_status"
+        app:srcCompat="@android:drawable/ic_menu_compass" />
+
+</android.support.constraint.ConstraintLayout>

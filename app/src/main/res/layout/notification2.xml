@@ -1,0 +1,136 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="80dp"
+    android:orientation="horizontal">
+
+    <LinearLayout
+        android:id="@+id/layout_sz"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="right|center_vertical"
+        android:layout_marginRight="15dp"
+        android:layout_weight="3"
+        android:gravity="center"
+        android:orientation="vertical"
+        android:paddingTop="5dp"
+        android:paddingBottom="5dp">
+
+        <TextView
+            android:id="@+id/textView_sz"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center_horizontal"
+            android:text="A"
+            android:textColor="@color/calendar_yl_color"
+            android:textSize="10dp" />
+
+        <TextView
+            android:id="@+id/textView_increase_sz"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="1.8"
+            android:textColor="#000000"
+            android:textSize="14dp" />
+
+        <TextView
+            android:id="@+id/textView_price_sz"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center_horizontal"
+            android:text="3256.34"
+            android:textColor="#000000"
+            android:textSize="10dp" />
+    </LinearLayout>
+
+    <LinearLayout
+        android:id="@+id/layout_s"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="right|center_vertical"
+        android:layout_marginRight="15dp"
+        android:layout_weight="3"
+        android:gravity="center"
+        android:orientation="vertical"
+        android:paddingTop="5dp"
+        android:paddingBottom="5dp">
+
+        <TextView
+            android:id="@+id/textView_s"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center_horizontal"
+            android:text="S"
+            android:textColor="@color/calendar_yl_color"
+            android:textSize="10dp" />
+
+        <TextView
+            android:id="@+id/textView_increase_s"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="88.8"
+            android:textColor="#000000"
+            android:textSize="14dp" />
+
+        <TextView
+            android:id="@+id/textView_time_s"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center_horizontal"
+            android:text="08:08:08"
+            android:textColor="#000000"
+            android:textSize="10dp" />
+    </LinearLayout>
+
+    <LinearLayout
+        android:id="@+id/layout_f"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="right|center_vertical"
+        android:layout_marginRight="15dp"
+        android:layout_weight="3"
+        android:gravity="center"
+        android:orientation="vertical"
+        android:paddingTop="5dp"
+        android:paddingBottom="5dp">
+
+        <TextView
+            android:id="@+id/textView_f"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center_horizontal"
+            android:text="F"
+            android:textColor="@color/calendar_yl_color"
+            android:textSize="10dp" />
+
+        <TextView
+            android:id="@+id/textView_increase_f"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="888.0"
+            android:textColor="#000000"
+            android:textSize="14dp" />
+
+        <TextView
+            android:id="@+id/textView_time_f"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center_horizontal"
+            android:text="08:08:08"
+            android:textColor="#000000"
+            android:textSize="10dp" />
+    </LinearLayout>
+
+    <ImageView
+        android:id="@+id/imageView"
+        android:layout_width="wrap_content"
+        android:layout_height="80dp"
+        android:layout_weight="1"
+        android:background="#00FFFFFF"
+        android:paddingTop="10dp"
+        android:paddingBottom="10dp"
+        android:src="@mipmap/wan"
+        android:visibility="gone" />
+
+</LinearLayout>

@@ -1,0 +1,121 @@
+plugins {
+    id 'com.android.application'
+    id 'kotlin-android'
+    id 'kotlin-android-extensions'
+}
+
+android {
+    compileSdkVersion 29
+    buildToolsVersion '29.0.3'
+
+    sourceSets {
+        main {
+            jniLibs.srcDirs = ['libs']
+        }
+    }
+
+    defaultConfig {
+        applicationId 'com.wang17.myphone'
+        minSdkVersion 19
+        targetSdkVersion 25
+        versionCode 6
+        versionName '1.68'
+        multiDexEnabled true
+    }
+    /**
+     * start 调试时使用自动签名，手动添加。
+     */
+    signingConfigs {
+        release {
+            storeFile file('wangsc.jks')
+            storePassword 'wangsc351489'
+            keyAlias 'key'
+            keyPassword 'wangsc351489'
+        }
+    }
+    /**
+     * end
+     */
+    buildTypes {
+        release {
+            minifyEnabled false
+            proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
+        }
+        /**
+         * 调试时使用自动签名，手动添加。
+         */
+        debug {
+            signingConfig signingConfigs.release
+        }
+    }
+    productFlavors {
+    }
+    compileOptions {
+        sourceCompatibility = '1.8'
+        targetCompatibility = '1.8'
+    }
+
+    packagingOptions {
+        exclude 'assets/location_map_gps_locked.png'
+        exclude 'assets/location_map_gps_3d.png'
+    }
+    //region Bmob
+    useLibrary 'org.apache.http.legacy'
+    //endregion
+
+    lintOptions {
+        abortOnError false
+    }
+}
+
+dependencies {
+    implementation "org.jetbrains.kotlin:kotlin-stdlib:$kotlin_version"
+    implementation fileTree(include: ['*.jar'], dir: 'libs')
+    //    compile 'com.google.android.gms:play-services-appindexing:9.8.0'
+    implementation 'com.android.support:appcompat-v7:28.0.0'
+    implementation 'com.android.support:support-v4:28.0.0'
+    implementation 'com.android.support:design:28.0.0'
+    implementation 'org.greenrobot:eventbus:3.0.0'
+    implementation 'com.github.hotchemi:permissionsdispatcher:2.2.0'
+    implementation 'com.google.android.gms:play-services-maps:10.2.0'
+    implementation 'com.android.support:cardview-v7:28.0.0'
+    implementation 'com.android.support:recyclerview-v7:28.0.0'
+    implementation 'com.alibaba:fastjson:1.2.73'
+    implementation 'com.android.support:support-v13:28.0.0'
+    annotationProcessor 'com.github.hotchemi:permissionsdispatcher-processor:2.2.0'
+    // 滑动菜单
+    implementation 'com.daimajia.swipelayout:library:1.2.0@aar'
+    implementation 'com.android.support.constraint:constraint-layout:1.0.2'
+    implementation 'com.oguzdev:CircularFloatingActionMenu:1.0.2'
+
+
+    //region 高德地图
+//    implementation 'com.amap.api:3dmap:latest.integration'// 3D地图 3D地图sdk和导航sdk一起导入，会引起class重复异常
+    implementation 'com.amap.api:map2d:6.0.0'// 2D地图
+    implementation 'com.amap.api:navi-3dmap:7.2.0_3dmap7.2.0'// 导航
+    implementation 'com.amap.api:search:7.3.0'// 搜索
+    implementation 'com.amap.api:location:4.9.0' // 定位
+    //endregion
+
+
+    //region Bmob
+//    implementation 'cn.bmob.android:bmob-sdk:3.7.3-rc1'//
+
+//    implementation 'cn.bmob.android:bmob-sdk:3.4.6'
+//    implementation 'cn.bmob.android:http-legacy:1.0'//如果需要兼容Android6.0系统，请添加
+    implementation "io.reactivex.rxjava2:rxjava:2.2.2"
+    implementation 'io.reactivex.rxjava2:rxandroid:2.1.0'
+    implementation 'com.squareup.okhttp3:okhttp:4.5.0'
+    //CDN文件服务使用okhttp相关包进行文件的上传和下载（必填）
+    implementation 'com.squareup.okio:okio:2.5.0'
+    implementation 'com.google.code.gson:gson:2.8.6'
+
+    //endregion
+
+
+//    网络通信库
+    implementation "com.squareup.okhttp3:okhttp:3.10.0"
+
+    // 流动布局
+    implementation 'com.google.android:flexbox:0.2.2'
+}

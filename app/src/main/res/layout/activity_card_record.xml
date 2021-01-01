@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/activity_card_record"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context="com.wang17.myphone.activity.CardRecordActivity">
+
+    <fragment
+        android:id="@+id/fragment_action"
+        android:name="com.wang17.myphone.fragment.ActionBarFragment"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_alignParentTop="true"
+        tools:layout="@layout/fragment_action_bar" />
+
+    <ExpandableListView
+        android:id="@+id/listView_records"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_below="@+id/header"
+        android:indicatorRight="30dp" />
+    <!--android:groupIndicator="@drawable/expandablelistview_change"-->
+
+    <!--<include layout="@layout/inflate_card_credit_header"-->
+        <!--android:id="@+id/header"-->
+        <!--android:layout_width="match_parent"-->
+        <!--android:layout_height="wrap_content"-->
+        <!--android:layout_below="@+id/fragment_action"-->
+        <!--android:layout_alignParentLeft="true"-->
+        <!--android:layout_alignParentStart="true" />-->
+
+    <LinearLayout
+        android:id="@+id/header"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/fragment_action"
+        android:orientation="vertical" />
+</RelativeLayout>

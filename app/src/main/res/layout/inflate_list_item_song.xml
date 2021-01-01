@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="utf-8"?>
+    <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:padding="5dp">
+
+            <TextView
+                android:id="@+id/textView_title"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="无量寿经"
+                android:textAppearance="@style/TextAppearance.AppCompat"
+                android:textColor="@android:color/background_dark" />
+
+            <TextView
+                android:id="@+id/textView_singer"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="净空法师"
+                android:textColor="@color/common_google_signin_btn_text_light_focused"
+                android:textSize="12dp" />
+        </LinearLayout>
+
+    <TextView
+        android:id="@+id/textView_invalid"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentRight="true"
+        android:layout_centerVertical="true"
+        android:layout_marginRight="5dp"
+        android:text="无效的"
+        android:textColor="@color/a"
+        android:textSize="12dp"
+        android:visibility="invisible" />
+    </RelativeLayout>

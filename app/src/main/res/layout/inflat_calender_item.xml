@@ -1,0 +1,66 @@
+<?xml version="1.0" encoding="utf-8"?>
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:id="@+id/calendarItemContainer"
+    android:layout_width="45dp"
+    android:layout_height="45dp"
+    android:layout_gravity="center"
+    android:orientation="vertical">
+
+    <ImageView
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:src="@drawable/calendar_item_today"
+        android:id="@+id/calendarItem_cvIsToday"
+        android:visibility="invisible" />
+
+    <LinearLayout
+        android:layout_width="fill_parent"
+        android:layout_height="fill_parent"
+        android:orientation="vertical">
+
+        <TextView
+            android:id="@+id/calenderItem_tv_YangLiDay"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center_horizontal"
+            android:text="27"
+            android:textAppearance="?android:attr/textAppearanceLarge"
+            android:textColor="@color/calendar_yl_color"
+            android:textSize="20dp"
+            android:typeface="monospace"
+            android:textStyle="bold"
+            android:layout_marginTop="2dp" />
+
+        <TextView
+            android:id="@+id/calendarItem_tv_NongLiDay"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center_horizontal"
+            android:layout_marginBottom="3dp"
+            android:text="十六"
+            android:textAppearance="?android:attr/textAppearanceSmall"
+            android:textColor="@color/calendar_nl_color"
+            android:textSize="10dp"
+            android:layout_marginTop="-2dp"
+            android:fontFamily="monospace"
+            android:typeface="monospace" />
+    </LinearLayout>
+
+    <ImageView
+        android:layout_width="45dp"
+        android:layout_height="45dp"
+        android:src="@drawable/un_religious_day_160"
+        android:id="@+id/calendarItem_cvIsUnReligious"
+        android:visibility="invisible"
+        android:scaleType="fitCenter"
+        android:layout_gravity="center_horizontal" />
+
+    <ImageView
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:src="@drawable/calendar_item_selected"
+        android:id="@+id/calendarItem_cvIsSelected"
+        android:visibility="invisible" />
+
+</FrameLayout>

@@ -1,0 +1,66 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:orientation="vertical" android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:padding="10dp">
+
+    <RelativeLayout
+        android:orientation="vertical"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginLeft="10dp">
+
+        <LinearLayout
+            android:orientation="vertical"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignParentRight="true">
+
+            <TextView
+                android:text="1,400.00"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:id="@+id/textView_money"
+                android:layout_weight="1"
+                android:layout_centerVertical="true"
+                android:textSize="20dp"
+                android:textColor="@color/colorPrimary" />
+
+            <TextView
+                android:text="私家车费用"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:id="@+id/textView_use"
+                android:layout_marginTop="5dp"
+                android:layout_weight="1" />
+
+        </LinearLayout>
+
+        <LinearLayout
+            android:orientation="vertical"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_alignParentLeft="true">
+
+            <TextView
+                android:text="消费、罚款"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:id="@+id/textView_summary"
+                android:textColor="@color/common_google_signin_btn_text_dark_focused"
+                android:textSize="16dp" />
+
+            <TextView
+                android:text="2016年3月27"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:id="@+id/textView_time"
+                android:layout_marginTop="5dp"
+                android:layout_alignParentBottom="true"
+                android:layout_gravity="center_horizontal"
+                android:layout_weight="1" />
+
+        </LinearLayout>
+    </RelativeLayout>
+
+</LinearLayout>

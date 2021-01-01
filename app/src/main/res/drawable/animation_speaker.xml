@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<animation-list
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:oneshot="false"
+    >
+    <item android:drawable="@drawable/speaker001" android:duration="400"></item>
+    <item android:drawable="@drawable/speaker002" android:duration="400"></item>
+    <item android:drawable="@drawable/speaker003" android:duration="400"></item>
+    <item android:drawable="@drawable/speaker004" android:duration="400"></item>
+</animation-list>

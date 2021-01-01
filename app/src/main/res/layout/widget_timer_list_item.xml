@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/linearLayout_root"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="horizontal"
+    android:paddingLeft="5dp"
+    android:paddingTop="3dp"
+    android:paddingRight="5dp"
+    android:paddingBottom="3dp">
+
+    <TextView
+        android:id="@+id/textView_days"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_weight="1"
+        android:text="3"
+        android:textColor="@color/cardview_light_background"
+        android:textSize="8dp" />
+
+    <TextView
+        android:id="@+id/textView_name"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_weight="1"
+        android:text="交行"
+        android:textColor="@color/cardview_light_background"
+        android:textSize="8dp" />
+
+    <TextView
+        android:id="@+id/textView_money"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_weight="1"
+        android:text="4,000.00"
+        android:textColor="@color/cardview_light_background"
+        android:textSize="8dp" />
+
+</LinearLayout>

@@ -1,0 +1,227 @@
+<?xml version="1.0" encoding="utf-8"?>
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    package="com.wang17.myphone">
+
+    <!-- 收发短信 -->
+    <uses-permission android:name="android.permission.READ_SMS" />
+    <uses-permission android:name="android.permission.SEND_SMS" />
+    <!-- 监听蓝牙 -->
+    <uses-permission android:name="android.permission.BLUETOOTH" />
+    <!-- 开关机监听 -->
+    <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED" />
+    <!-- GPS服务的权限 coarse慢的，fine快的 -->
+    <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
+    <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
+    <!-- 手机振动权限 -->
+    <uses-permission android:name="android.permission.VIBRATE" />
+    <!-- 接收短信 -->
+    <uses-permission android:name="android.permission.RECEIVE_SMS" />
+    <!-- 读取短信 -->
+    <!-- 读写文件 -->
+    <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
+    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
+    <!-- 网络状态 -->
+    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
+    <uses-permission android:name="android.permission.ACCESS_WIFI_STATE" />
+    <uses-permission android:name="android.permission.INTERNET" />
+    <uses-permission android:name="android.permission.READ_PHONE_STATE" />
+    <uses-permission android:name="android.permission.READ_PHONE_STATE" />
+    <uses-permission android:name="android.permission.CALL_PHONE" />
+    <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
+    <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
+    <uses-permission android:name="android.permission.CHANGE_WIFI_STATE" />
+    <!-- 屏幕唤醒 -->
+    <uses-permission android:name="android.permission.WAKE_LOCK" />
+    <!-- 访问网络 -->
+    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
+    <uses-permission android:name="android.permission.ACCESS_WIFI_STATE" />
+    <!-- 悬浮窗 -->
+    <uses-permission android:name="android.permission.SYSTEM_ALERT_WINDOW" />
+
+    <application
+        android:allowBackup="true"
+        android:icon="@mipmap/launcher"
+        android:label="@string/app_name"
+        android:persistent="true"
+        android:roundIcon="@mipmap/launcher"
+        android:supportsRtl="true"
+        android:theme="@style/Theme.AppCompat.Light.NoActionBar">
+        <service
+            android:name=".service.BuddhaPlayerService"
+            android:enabled="true"
+            android:exported="true"></service>
+        <service
+            android:name=".service.FloatingWindowService"
+            android:enabled="true"
+            android:exported="true" />
+
+        <activity android:name=".activity.TradesActivity" />
+        <activity android:name=".activity.StockPositionHistoryActivity" />
+
+        <service android:name=".service.BuddhaTimerService">
+            <intent-filter android:priority="1000">
+                <action android:name="com.wang17.myphone.CLICK_NF_NOTIFICATION" />
+            </intent-filter>
+        </service>
+        <service android:name=".service.StockTimerHoldByMediaService" />
+        <service android:name=".service.StockService" />
+        <service android:name=".service.TimerByMediaLoopService" />
+        <service android:name=".service.MediaLoopTimerService" />
+
+        <meta-data
+            android:name="com.amap.api.v2.apikey"
+            android:value="0b7af36ddc0061ebaa6c559e7dec230d" />
+        <meta-data
+            android:name="com.google.android.gms.version"
+            android:value="@integer/google_play_services_version" />
+
+        <activity
+            android:name=".MainActivity"
+            android:launchMode="singleTask">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+        </activity>
+        <activity
+            android:name=".activity.FuturePositionActivity"
+            android:launchMode="singleTask" />
+        <activity android:name=".activity.RunLogActivity" />
+        <activity
+            android:name=".activity.StockPositionActivity"
+            android:configChanges="orientation|keyboardHidden|screenSize"
+            android:launchMode="singleTask"
+            android:theme="@style/FullscreenTheme" />
+        <activity
+            android:name=".activity.FundMonitorActivity"
+            android:launchMode="singleTask" />
+        <activity
+            android:name=".activity.StockDarkRunActivity"
+            android:configChanges="orientation|keyboardHidden|screenSize"
+            android:label="@string/title_activity_dark_run"
+            android:launchMode="singleTask"
+            android:theme="@style/FullscreenTheme" />
+        <activity
+            android:name=".activity.ToDoActivity"
+            android:launchMode="singleTask" />
+        <activity
+            android:name=".activity.TallayRecordActivity"
+            android:launchMode="singleTask" />
+        <activity
+            android:name=".activity.MarkDayRecordActivity"
+            android:launchMode="singleTask" />
+        <activity android:name=".activity.CardRecordActivity" />
+        <activity android:name=".activity.SettingActivity" />
+        <activity android:name=".activity.AddCardActivity" />
+        <activity android:name=".activity.EditCardActivity" />
+        <activity android:name=".activity.TallayRecordDetailActivity" />
+        <activity android:name=".activity.AlarmWindowActivity" />
+        <activity
+            android:name=".activity.SmsActivity"
+            android:launchMode="singleTask" />
+        <activity
+            android:name=".activity.AmapActivity"
+            android:launchMode="singleTask" />
+        <activity android:name=".activity.LocationListActivity" />
+
+        <receiver android:name=".receiver.LocationAlarmReceiver" />
+        <receiver
+            android:name=".receiver.LockReceiver"
+            android:permission="android.permission.BIND_DEVICE_ADMIN">
+            <meta-data
+                android:name="android.app.device_admin"
+                android:resource="@xml/lock_screen" />
+
+            <intent-filter>
+                <action android:name="android.app.action.DEVICE_ADMIN_ENABLED" />
+            </intent-filter>
+        </receiver>
+        <receiver android:name=".receiver.ScreenBroadcaseReceiver">
+            <intent-filter>
+                <action android:name="android.intent.action.USER_PRESENT" />
+            </intent-filter>
+        </receiver> <!-- 耳机插拔监听，暂时没有监听到 -->
+        <receiver android:name=".receiver.HeadsetPlugReceiver" /> <!-- 监听网络状态 -->
+        <receiver android:name=".receiver.LocationRecordAlarmReceiver" />
+        <receiver android:name=".widget.MyWidgetProvider">
+            <intent-filter android:priority="1000">
+
+                <!-- 必须要显示声明的action！因为所有的widget的广播都是通过它来发送的；要接收widget的添加、删除等广播，就必须包含它。 -->
+                <action android:name="android.provider.Telephony.SMS_RECEIVED" />
+                <action android:name="android.appwidget.action.APPWIDGET_UPDATE" />
+                <action android:name="com.wang17.widget.UPDATE_ALL" />
+                <action android:name="com.wang17.widget.CLICK_ROOT" />
+                <action android:name="com.wang17.widget.CLICK_TEXT" />
+                <action android:name="com.wang17.widget.CLICK_LAYOUT_LEFT" />
+                <action android:name="com.wang17.widget.CLICK_LAYOUT_RIGHT" />
+                <action android:name="com.wang17.widget.CLICK_LISTVIEW_ITEM" />
+                <action android:name="com.wang17.widget.UPDATE_BALANCE" />
+                <action android:name="com.wang17.widget.UPDATE_LISTVIEW" />
+                <action android:name="android.intent.action.USER_PRESENT" />
+            </intent-filter>
+            <!-- 指定 AppWidgetProviderInfo 对应的资源路径。 -->
+            <meta-data
+                android:name="android.appwidget.provider"
+                android:resource="@xml/widget_provider" />
+        </receiver>
+        <receiver android:name=".receiver.BootBroadcastReceiver">
+            <intent-filter>
+                <action android:name="android.intent.action.ACTION_SHUTDOWN" />
+                <action android:name="android.intent.action.BOOT_COMPLETED" />
+
+                <category android:name="android.intent.category.HOME" />
+            </intent-filter>
+        </receiver>
+        <receiver android:name=".receiver.PhoneInReceiver">
+            <intent-filter>
+                <action android:name="android.intent.action.READ_PHONE_STATE" />
+            </intent-filter>
+        </receiver>
+        <receiver android:name=".receiver.AlarmReceiver">
+            <intent-filter>
+                <action android:name="ACTION_ALARM_NIANFO_OVER" />
+                <action android:name="ACTION_ALARM_TRADE" />
+                <action android:name="ACTION_ALARM_STOCK_SCREEN" />
+            </intent-filter>
+        </receiver>
+        <receiver
+            android:name=".receiver.NianfoMusicReceiver"
+            android:process=":newinst">
+            <intent-filter>
+                <action android:name="NIAN_FO_VOICE" />
+            </intent-filter>
+        </receiver>
+        <receiver android:name=".receiver.SystemBroadcaseReceiver">
+            <intent-filter android:priority="999">
+                <action android:name="android.net.conn.CONNECTIVITY_CHANGE" />
+                <action android:name="POWER_MANAGER_VOICE" />
+                <action android:name="android.intent.action.PHONE_STATE" />
+            </intent-filter>
+        </receiver>
+
+        <service android:name=".service.SpeakerService" />
+        <service
+            android:name=".service.MyAccessbilityService"
+            android:permission="android.permission.BIND_ACCESSIBILITY_SERVICE">
+            <intent-filter>
+                <action android:name="android.accessibilityservice.AccessibilityService" />
+            </intent-filter>
+
+            <meta-data
+                android:name="android.accessibilityservice"
+                android:resource="@xml/accessibility" />
+        </service>
+        <service android:name=".service.NianfoService" /> <!-- 定位需要的服务 使用2.0的定位需要加上这个 -->
+        <service android:name="com.amap.api.location.APSService" />
+        <service android:name=".service.MusicPlayerService" />
+        <service android:name=".service.NianfoMusicService" />
+        <service android:name=".service.LocationService" /> <!-- 是用于更新widget中的图片的服务。 -->
+        <service
+            android:name=".widget.MyWidgetRemoteViewsService"
+            android:enabled="true"
+            android:exported="false"
+            android:permission="android.permission.BIND_REMOTEVIEWS" />
+    </application>
+
+</manifest>

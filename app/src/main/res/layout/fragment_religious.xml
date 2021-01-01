@@ -1,0 +1,56 @@
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context="com.wang17.myphone.fragment.ReligiousFragment">
+
+
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
+
+
+        <ScrollView
+            android:id="@+id/scrollView"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:fillViewport="true"
+            android:scrollbars="vertical"
+            android:layout_alignParentTop="true"
+            android:layout_alignParentStart="true">
+            <LinearLayout
+                android:layout_width="fill_parent"
+                android:layout_height="wrap_content"
+                android:background="@android:color/white"
+                android:gravity="fill"
+                android:orientation="vertical">
+
+                <include
+                    android:id="@+id/calendar"
+                    layout="@layout/include_main_user_calendar" />
+
+                <include
+                    android:id="@+id/menu"
+                    layout="@layout/include_main_menu" />
+
+                <include
+                    android:id="@+id/info"
+                    layout="@layout/include_main_info" />
+
+            </LinearLayout>
+        </ScrollView>
+
+        <ImageView
+            android:id="@+id/button_today"
+            android:layout_width="45dp"
+            android:layout_height="45dp"
+            android:layout_alignParentBottom="true"
+            android:layout_alignParentRight="true"
+            android:layout_margin="10dp"
+            android:clickable="true"
+            android:visibility="gone"
+            app:srcCompat="@mipmap/wan" />
+
+    </RelativeLayout>
+</FrameLayout>
