@@ -3,6 +3,7 @@ package com.wang17.myphone.fragment
 import android.content.Intent
 import android.os.Bundle
 import android.os.Handler
+import android.os.Looper
 import android.support.v4.app.Fragment
 import android.support.v7.app.AlertDialog
 import android.view.LayoutInflater
@@ -18,6 +19,7 @@ import com.wang17.myphone.util.*
 import com.wang17.myphone.view._Button
 import kotlinx.android.synthetic.main.fragment_button.*
 import java.io.*
+import java.util.concurrent.CountDownLatch
 
 /**
  * A simple [Fragment] subclass.
@@ -128,6 +130,19 @@ class ButtonFragment : Fragment() {
         layout_flexbox.addView(btn)
         //endregion
 
+        //region 云库
+        btn = _Button(context!!, "云库")
+        btn.setOnClickListener {
+            _CloudUtils.getNewMsg(context!!,object:CloudCallback{
+                override fun excute(code: Int, msg: Any?) {
+                    Looper.prepare()
+                            AlertDialog.Builder(context!!).setMessage(msg.toString()).show()
+                    Looper.loop()
+                    }
+                })
+        }
+        layout_flexbox.addView(btn)
+        //endregion
     }
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?,

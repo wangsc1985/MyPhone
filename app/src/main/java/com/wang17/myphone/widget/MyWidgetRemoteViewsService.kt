@@ -167,12 +167,12 @@ class MyWidgetRemoteViewsService : RemoteViewsService() {
                                 e("查询完毕 $msg")
                             }
                             -1 -> {
-                                mToDoList.add(ToDo("          ", "          ", "获取access_token 错误：$msg", WARNING_1_COLOR, false, R.raw.bi))
-                                e("获取access_token 错误：$msg")
+                                mToDoList.add(ToDo("          ", "          ", msg.toString(), WARNING_1_COLOR, false, R.raw.bi))
+                                e("$msg")
                             }
                             -2 -> {
-                                mToDoList.add(ToDo("          ", "          ", "访问云函数 错误：$msg", WARNING_1_COLOR, false, R.raw.bi))
-                                e("访问云函数 错误：$msg")
+                                mToDoList.add(ToDo("          ", "          ", msg.toString(), WARNING_1_COLOR, false, R.raw.bi))
+                                e("$msg")
                             }
                         }
                         latch.countDown()

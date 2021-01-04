@@ -51,6 +51,8 @@ object _OkHttpUtil {
                         //回调的方法执行在子线程。
                         val htmlStr = response.body!!.string()
                         callback.excute(htmlStr)
+                    }else{
+                        callback.excute("xxxxxxxxxxx  response is not Successful......")
                     }
                 }
             })
@@ -85,6 +87,8 @@ object _OkHttpUtil {
                     //回调的方法执行在子线程。
                     val htmlStr = response.body!!.string()
                     callback.excute(htmlStr)
+                }else{
+                    callback.excute("xxxxxxxxxxx  response is not Successful......")
                 }
             }
         })
@@ -103,7 +107,9 @@ object _OkHttpUtil {
         val call = mOkHttpClient!!.newCall(request)
         //请求加入调度
         call.enqueue(object : Callback {
-            override fun onFailure(call: Call, e: IOException) {}
+            override fun onFailure(call: Call, e: IOException) {
+                    callback.excute("xxxxxxxxxxx  ${e.message}")
+            }
 
             @Throws(IOException::class)
             override fun onResponse(call: Call, response: Response) {
@@ -111,6 +117,8 @@ object _OkHttpUtil {
                     //回调的方法执行在子线程。
                     val htmlStr = response.body!!.string()
                     callback.excute(htmlStr)
+                }else{
+                    callback.excute("xxxxxxxxxxx  response is not Successful......")
                 }
             }
         })

@@ -4,6 +4,7 @@ import android.content.Context
 import android.util.Log
 import com.wang17.myphone.callback.CloudCallback
 import com.wang17.myphone.callback.HttpCallback
+import com.wang17.myphone.e
 import com.wang17.myphone.model.DateTime
 import com.wang17.myphone.model.PostArgument
 import com.wang17.myphone.model.database.Position
@@ -31,23 +32,25 @@ object _CloudUtils {
                 /**
                  * token过期
                  */
-                e("本地token已过期，正在微软网站获取新的token。")
+                e("本地token已过期，微软网站获取新的token。")
                 return loadNewTokenFromHttp((context))
             } else {
                 /**
                  * token仍有效
                  */
-                e("本地token有效期：${DateTime(exprires).toLongDateTimeString()}")
+                e(dc.getSetting("token").string)
+                e("有效期：${DateTime(exprires).toLongDateTimeString()}")
                 return dc.getSetting("token").string
             }
         } else {
+            e("本地不存在token信息，微软网站获取新的token。")
             return loadNewTokenFromHttp(context)
         }
     }
 
     private fun loadNewTokenFromHttp(context: Context): String {
         var token = ""
-
+        // https://sahacloudmanager.azurewebsites.net/home/token/wxbdf065bdeba96196/d2834f10c0d81728e73a4fe4012c0a5d
         val a = System.currentTimeMillis()
         val latch = CountDownLatch(1)
         getRequest("https://sahacloudmanager.azurewebsites.net/home/token/${appid}/${secret}", HttpCallback { html ->
@@ -67,7 +70,7 @@ object _CloudUtils {
 
 
                     val b = System.currentTimeMillis()
-                    e("从微软获取token：$token , 有效期：${DateTime(exprires).toLongDateTimeString()} 用时：${b - a}")
+                    e("从微软获取到token：$token, 有效期：${DateTime(exprires).toLongDateTimeString()} 用时：${b - a}")
                 }
             } catch (e: java.lang.Exception) {
                 e(e.message!!)
@@ -160,23 +163,34 @@ object _CloudUtils {
         try {
             val dataContext = DataContext(context)
             val accessToken = getToken(context)
+//            e(accessToken)
+//            "https://api.weixin.qq.com/tcb/invokecloudfunction?access_token=$accessToken&env=yipinshangdu-4wk7z&name=getNewMsg"
             // 通过accessToken，env，云函数名，args 在微信小程序云端获取数据
             val url = "https://api.weixin.qq.com/tcb/invokecloudfunction?access_token=$accessToken&env=$env&name=getNewMsg"
             val args: MutableList<PostArgument> = ArrayList()
             args.add(PostArgument("pwd", dataContext.getSetting(Setting.KEYS.wx_request_code, "0000").string))
-//                args.add(PostArgument("date", dataContext.getSetting(Setting.KEYS.wx_db_mark_date, System.currentTimeMillis()).string))
             postRequestByJson(url, args, HttpCallback { html ->
                 try {
                     e(html)
-                    val resp_data: Any = _JsonUtils.getValueByKey(html, "resp_data")
-                    e(resp_data);
-                    if (_JsonUtils.isContainsKey(resp_data.toString(), "lt")) {
-                        val count = _JsonUtils.getValueByKey(resp_data.toString(), "ct").toString().toInt()
-                        if (count > 0) {
-                            val date = _JsonUtils.getValueByKey(resp_data.toString(), "lt").toString().toLong()
-                            callback.excute(1, DateTime(date).toOffset2() + "  +" + count)
-                        } else {
-                            callback.excute(0, "")
+                    val errcode = _JsonUtils.getValueByKey(html, "errcode")
+                    val errmsg = _JsonUtils.getValueByKey(html, "errmsg")
+
+                    when(errcode){
+                        "0"->{
+                            val resp_data: Any = _JsonUtils.getValueByKey(html, "resp_data")
+
+                            if (_JsonUtils.isContainsKey(resp_data.toString(), "lt")) {
+                                val count = _JsonUtils.getValueByKey(resp_data.toString(), "ct").toString().toInt()
+                                if (count > 0) {
+                                    val date = _JsonUtils.getValueByKey(resp_data.toString(), "lt").toString().toLong()
+                                    callback.excute(1, DateTime(date).toOffset2() + "  +" + count)
+                                } else {
+                                    callback.excute(0, "")
+                                }
+                            }
+                        }
+                        else->{
+                            callback.excute(-2, errmsg.toString())
                         }
                     }
 
@@ -342,8 +356,4 @@ object _CloudUtils {
         })
     }
 
-
-    private fun e(data: Any) {
-        Log.e("wangsc", data.toString())
-    }
 }
