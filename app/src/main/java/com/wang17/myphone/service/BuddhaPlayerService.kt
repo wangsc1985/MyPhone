@@ -35,26 +35,27 @@ class BuddhaPlayerService : Service() {
         return super.onStartCommand(intent, flags, startId)
 
         val velocity = intent?.getIntExtra("velocity", 0)
-        e("buddha palyer velocity ... ")
+        e("buddha palyer velocity ... ${velocity}")
         startTimeInMillis = System.currentTimeMillis()
         startMediaPlayer(velocity!!)
-        startTime()
+        startTimer()
     }
 
     override fun onCreate() {
         super.onCreate()
+        e("buddha palyer service on create")
         mDataContext = DataContext(applicationContext)
     }
 
     override fun onDestroy() {
         super.onDestroy()
         stopMediaPlayer()
-        stopTime()
+        stopTimer()
         _NotificationUtils.closeNotification(applicationContext,NOTIFICATION_ID)
     }
 
     lateinit var timer: Timer
-    fun startTime() {
+    fun startTimer() {
         timer = Timer()
         timer.schedule(object : TimerTask() {
             override fun run() {
@@ -69,7 +70,7 @@ class BuddhaPlayerService : Service() {
         }, 0, 1000)
     }
 
-    fun stopTime() {
+    fun stopTimer() {
         timer.cancel()
     }
 
@@ -88,6 +89,7 @@ class BuddhaPlayerService : Service() {
             mPlayer.setLooping(true)
             mPlayer.start()
         } catch (e: Exception) {
+            e(e.message!!)
             _Utils.printException(applicationContext, e)
         }
     }

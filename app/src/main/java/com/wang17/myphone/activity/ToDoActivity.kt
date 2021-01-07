@@ -115,7 +115,10 @@ class ToDoActivity : FragmentActivity() {
                     AlertDialog.Builder(this@ToDoActivity).setItems(arrayOf("编辑", "删除", "月+", "月-")) { dialog, which ->
                         when (which) {
                             0 ->                                         //  3/1 001 编辑选中项
-                                _DialogUtils.editTodoDialog(this@ToDoActivity, bankToDo) { listAdapter!!.notifyDataSetChanged() }
+                                _DialogUtils.editTodoDialog(this@ToDoActivity, bankToDo) {
+                                    mBankToDoList = mDataContext!!.bankToDos
+                                    listAdapter!!.notifyDataSetChanged()
+                                }
                             1 ->
                                 // 3/1 001 删除选中项
                                 AlertDialog.Builder(this@ToDoActivity).setMessage("确定要删除此项目及其所有记录吗？").setNegativeButton("确定") { dialog, which ->

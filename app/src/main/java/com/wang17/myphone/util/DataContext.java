@@ -10,6 +10,7 @@ import com.wang17.myphone.model.DateTime;
 import com.wang17.myphone.model.database.BankToDo;
 import com.wang17.myphone.model.database.BillRecord;
 import com.wang17.myphone.model.database.BillStatement;
+import com.wang17.myphone.model.database.BuddhaRecord;
 import com.wang17.myphone.model.database.CreditCard;
 import com.wang17.myphone.model.database.DayItem;
 import com.wang17.myphone.model.database.Location;
@@ -48,6 +49,296 @@ public class DataContext {
         dbHelper = new DatabaseHelper(context);
     }
 
+    //region BuddhaRecord
+
+    /**
+     * 增加一条记录
+     *
+     * @param model 记录对象
+     */
+    public void addBuddha(BuddhaRecord model) {
+        try {
+            //获取数据库对象
+            SQLiteDatabase db = dbHelper.getWritableDatabase();
+            //使用insert方法向表中插入数据
+            ContentValues values = new ContentValues();
+            values.put("id", model.getId().toString());
+            values.put("startTime", model.getStartTime().getTimeInMillis());
+            values.put("duration", model.getDuration());
+            values.put("count", model.getCount());
+            values.put("type", model.getType());
+            values.put("summary", model.getSummary());
+
+            //调用方法插入数据
+            db.insert("buddha", "id", values);
+            //关闭SQLiteDatabase对象
+            db.close();
+        } catch (Exception e) {
+            _Utils.printException(context, e);
+        }
+    }
+
+    /**
+     * 增加一条记录
+     *
+     * @param models 记录对象
+     */
+    public void addBuddhas(List<BuddhaRecord> models) {
+        try {
+            //获取数据库对象
+            SQLiteDatabase db = dbHelper.getWritableDatabase();
+            for (BuddhaRecord model :  models) {
+                //使用insert方法向表中插入数据
+                ContentValues values = new ContentValues();
+                values.put("id", model.getId().toString());
+                values.put("startTime", model.getStartTime().getTimeInMillis());
+                values.put("duration", model.getDuration());
+                values.put("count", model.getCount());
+                values.put("type", model.getType());
+                values.put("summary", model.getSummary());
+                //调用方法插入数据
+                db.insert("buddha", "id", values);
+            }
+            //关闭SQLiteDatabase对象
+            db.close();
+        } catch (Exception e) {
+            _Utils.printException(context, e);
+        }
+    }
+    /**
+     * 得到一条record
+     *
+     * @param id 记录ID
+     * @return
+     */
+    public BuddhaRecord getBuddha(UUID id) {
+
+        try {
+            //获取数据库对象
+            SQLiteDatabase db = dbHelper.getReadableDatabase();
+            //查询获得游标
+            Cursor cursor = db.query("buddha", null, "id=?", new String[]{id.toString()}, null, null, null);
+            //判断游标是否为空
+            if (cursor.moveToNext()) {
+                BuddhaRecord model = new BuddhaRecord(id,
+                        new DateTime(cursor.getLong(1)),
+                        cursor.getLong(2),
+                        cursor.getInt(3),
+                        cursor.getInt(4),
+                        cursor.getString(5));
+                cursor.close();
+                db.close();
+                return model;
+            }
+        } catch (Exception e) {
+            _Utils.printException(context, e);
+        }
+        return null;
+    }
+
+    public void clearBuddhas(){
+
+        try {
+            //获取数据库对象
+            SQLiteDatabase db = dbHelper.getReadableDatabase();
+            //查询获得游标
+            db.delete("buddha", "type=?", new String[]{"11"});
+            //判断游标是否为空
+            db.close();
+        } catch (Exception e) {
+            _Utils.printException(context, e);
+        }
+    }
+
+    public BuddhaRecord getLatestBuddha() {
+
+        try {
+            //获取数据库对象
+            SQLiteDatabase db = dbHelper.getReadableDatabase();
+            //查询获得游标
+            Cursor cursor = db.query("buddha", null, null,null , null, null, "startTime desc");
+            //判断游标是否为空
+            if (cursor.moveToNext()) {
+                BuddhaRecord model = new BuddhaRecord(UUID.fromString(cursor.getString(0)),
+                        new DateTime(cursor.getLong(1)),
+                        cursor.getLong(2),
+                        cursor.getInt(3),
+                        cursor.getInt(4),
+                        cursor.getString(5));
+                cursor.close();
+                db.close();
+                return model;
+            }
+        } catch (Exception e) {
+            _Utils.printException(context, e);
+        }
+        return null;
+    }
+
+    /**
+     * 获取某一天的record。
+     *
+     * @param date
+     * @return
+     */
+    public List<BuddhaRecord> getBuddhas(DateTime date) {
+
+        List<BuddhaRecord> result = new ArrayList<BuddhaRecord>();
+        try {
+            //获取数据库对象
+            SQLiteDatabase db = dbHelper.getReadableDatabase();
+            DateTime startDate = new DateTime(date.getYear(), date.getMonth(), date.getDay());
+            DateTime endDate = (DateTime) (startDate.clone());
+            endDate = endDate.addDays(1);
+            //查询获得游标
+            Cursor cursor = db.query("buddha", null, "startTime>=? and startTime<?", new String[]{startDate.getTimeInMillis() + "", endDate.getTimeInMillis() + ""}, null, null, null);
+            //判断游标是否为空
+            while (cursor.moveToNext()) {
+                BuddhaRecord model = new BuddhaRecord(UUID.fromString(cursor.getString(0)),
+                        new DateTime(cursor.getLong(1)),
+                        cursor.getLong(2),
+                        cursor.getInt(3),
+                        cursor.getInt(4),
+                        cursor.getString(5));
+                result.add(model);
+            }
+            cursor.close();
+            db.close();
+        } catch (Exception e) {
+            _Utils.printException(context, e);
+        }
+        return result;
+    }
+
+    /**
+     * 获取某一时刻的record。
+     *
+     * @param timeInmillis
+     * @return
+     */
+    public BuddhaRecord getBuddha(long timeInmillis) {
+
+        try {
+            //获取数据库对象
+            SQLiteDatabase db = dbHelper.getReadableDatabase();
+            //查询获得游标
+            Cursor cursor = db.query("buddha", null, "startTime=?", new String[]{timeInmillis + ""}, null, null, null);
+            //判断游标是否为空
+            while (cursor.moveToNext()) {
+                BuddhaRecord model = new BuddhaRecord(UUID.fromString(cursor.getString(0)),
+                        new DateTime(cursor.getLong(1)),
+                        cursor.getLong(2),
+                        cursor.getInt(3),
+                        cursor.getInt(4),
+                        cursor.getString(5));
+                cursor.close();
+                db.close();
+                return model;
+            }
+        } catch (Exception e) {
+            _Utils.printException(context, e);
+        }
+        return null;
+    }
+
+    /**
+     * 得到所有record
+     *
+     * @return
+     */
+    public List<BuddhaRecord> getBuddhas(int year) {
+        List<BuddhaRecord> result = new ArrayList<BuddhaRecord>();
+        try {
+            //获取数据库对象
+            SQLiteDatabase db = dbHelper.getReadableDatabase();
+            DateTime startDate = new DateTime(year, 0, 1);
+            DateTime endDate = new DateTime(year + 1, 0, 1);
+            //查询获得游标
+            Cursor cursor = db.query("buddha", null, "startTime>=? AND startTime<?", new String[]{startDate.getTimeInMillis() + "", endDate.getTimeInMillis() + ""}, null, null, "startTime desc");
+            //判断游标是否为空
+            while (cursor.moveToNext()) {
+                BuddhaRecord model = new BuddhaRecord(UUID.fromString(cursor.getString(0)),
+                        new DateTime(cursor.getLong(1)),
+                        cursor.getLong(2),
+                        cursor.getInt(3),
+                        cursor.getInt(4),
+                        cursor.getString(5));
+                result.add(model);
+            }
+            cursor.close();
+            db.close();
+        } catch (Exception e) {
+            _Utils.printException(context, e);
+        }
+        return result;
+    }
+
+    public List<BuddhaRecord> getBuddhas(int year,int month) {
+        List<BuddhaRecord> result = new ArrayList<BuddhaRecord>();
+        try {
+            //获取数据库对象
+            SQLiteDatabase db = dbHelper.getReadableDatabase();
+            DateTime startDate = new DateTime(year, month, 1);
+            DateTime endDate = new DateTime(year, month, 1);
+            endDate = endDate.addMonths(1);
+            //查询获得游标
+            Cursor cursor = db.query("buddha", null, "startTime>=? AND startTime<?", new String[]{startDate.getTimeInMillis() + "", endDate.getTimeInMillis() + ""}, null, null, "startTime desc");
+            //判断游标是否为空
+            while (cursor.moveToNext()) {
+                BuddhaRecord model = new BuddhaRecord(UUID.fromString(cursor.getString(0)),
+                        new DateTime(cursor.getLong(1)),
+                        cursor.getLong(2),
+                        cursor.getInt(3),
+                        cursor.getInt(4),
+                        cursor.getString(5));
+                result.add(model);
+            }
+            cursor.close();
+            db.close();
+        } catch (Exception e) {
+            _Utils.printException(context, e);
+        }
+        return result;
+    }
+
+    public void editBuddha(BuddhaRecord model) {
+
+        try {
+            //获取数据库对象
+            SQLiteDatabase db = dbHelper.getWritableDatabase();
+
+            //使用update方法更新表中的数据
+            ContentValues values = new ContentValues();
+            values.put("startTime", model.getStartTime().getTimeInMillis());
+            values.put("duration", model.getDuration());
+            values.put("count", model.getCount());
+            values.put("type", model.getType());
+            values.put("summary", model.getSummary());
+
+            db.update("buddha", values, "id=?", new String[]{model.getId().toString()});
+            db.close();
+        } catch (Exception e) {
+            _Utils.printException(context, e);
+        }
+    }
+
+    /**
+     * 删除指定的record
+     *
+     * @param id
+     */
+    public void deleteBuddha(UUID id) {
+        try {
+            //获取数据库对象
+            SQLiteDatabase db = dbHelper.getWritableDatabase();
+            db.delete("buddha", "id=?", new String[]{id.toString()});
+            //关闭SQLiteDatabase对象
+            db.close();
+        } catch (Exception e) {
+            _Utils.printException(context, e);
+        }
+    }
+    //endregion
 
     //region Stock
 

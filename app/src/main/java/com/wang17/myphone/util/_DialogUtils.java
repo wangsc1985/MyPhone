@@ -143,7 +143,6 @@ public class _DialogUtils {
                     double money = Double.parseDouble(editTextSummery.getText().toString().replace(",",""));
                     String number = editTextNumber.getText().toString();
 
-                    e("eeeeeeeeeeeeeeeeeeeee: "+dateTime.toLongDateTimeString());
                     bankToDo.setBankName(bankName);
                     bankToDo.setDateTime(dateTime);
                     bankToDo.setMoney(money);

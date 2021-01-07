@@ -6,6 +6,8 @@ import android.support.design.widget.Snackbar;
 import android.util.Log;
 import android.view.View;
 
+import com.wang17.myphone.model.DateTime;
+
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
@@ -41,7 +43,7 @@ public class BackupTask extends AsyncTask<String, Void, Integer> {
         //  Auto-generated method stub
         try {
             File dbFile = mContext.getDatabasePath("mp.db");  // 获得数据库路径，默认是/data/data/(包名)org.dlion/databases/
-            File backup = new File(_Session.ROOT_DIR, dbFile.getName());
+            File backup = new File(_Session.BACKUP_DIR, "mp"+ DateTime.getToday().getDayStr()+".db");
             String command = params[0];
             if (command.equals(COMMAND_BACKUP)) {
                 try {

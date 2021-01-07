@@ -30,6 +30,8 @@ object _Session {
     @JvmField
     val ROOT_DIR = File(Environment.getExternalStorageDirectory().toString() + "/0/myphone")
     @JvmField
+    val BACKUP_DIR = File(Environment.getExternalStorageDirectory().toString() + "/0/myphone/backup")
+    @JvmField
     var commoditys: MutableList<Commodity>
 
     init {
@@ -37,8 +39,8 @@ object _Session {
             /**
              * 加载念佛音乐列表
              */
-            if (!ROOT_DIR.exists()) {
-                ROOT_DIR.mkdirs()
+            if (!BACKUP_DIR.exists()) {
+                BACKUP_DIR.mkdirs()
             }
             TALLY_MUSIC_NAMES = _Utils.getFilesWithSuffix(ROOT_DIR.path, ".mp3")
             Arrays.sort(TALLY_MUSIC_NAMES)

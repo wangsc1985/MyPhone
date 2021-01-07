@@ -82,6 +82,66 @@ object _CloudUtils {
         return token
     }
 
+    /**
+     * string phone, long startTime ,long duration , int count, string summary, int type
+     */
+    @JvmStatic
+    fun addBuddha(context: Context, startTime: DateTime, duration: Long, count: Int, summary: String, type: Int, callback: CloudCallback?) {
+        newMsgCount = 0
+        try {
+            val accessToken = getToken(context)
+            // 通过accessToken，env，云函数名，args 在微信小程序云端获取数据
+            val url = "https://api.weixin.qq.com/tcb/invokecloudfunction?access_token=$accessToken&env=$env&name=addBuddha"
+            val args: MutableList<PostArgument> = ArrayList()
+            args.add(PostArgument("phone", "18509513143"))
+            args.add(PostArgument("startTime", startTime.timeInMillis))
+            args.add(PostArgument("duration", duration))
+            args.add(PostArgument("count", count))
+            args.add(PostArgument("summary", summary))
+            args.add(PostArgument("type", type))
+            postRequestByJson(url, args, HttpCallback { html ->
+                try {
+                    e(html)
+                    val resp_data: Any = _JsonUtils.getValueByKey(html, "resp_data")
+                    val code = _JsonUtils.getValueByKey(resp_data.toString(), "code").toInt()
+                    when (code) {
+                        0 -> callback?.excute(0, "添加成功")
+                    }
+                } catch (e: Exception) {
+                    callback?.excute(-2, e.message)
+                }
+            })
+        } catch (e: Exception) {
+            callback?.excute(-1, e.message)
+        }
+    }
+
+    /**
+     * string phone, long startTime ,long duration , int count, string summary, int type
+     */
+    @JvmStatic
+    fun loadBuddha(context: Context, startTime: DateTime, callback: CloudCallback?) {
+        newMsgCount = 0
+        try {
+            val accessToken = getToken(context)
+            // 通过accessToken，env，云函数名，args 在微信小程序云端获取数据
+            val url = "https://api.weixin.qq.com/tcb/invokecloudfunction?access_token=$accessToken&env=$env&name=loadBuddha"
+            val args: MutableList<PostArgument> = ArrayList()
+            args.add(PostArgument("phone", "18509513143"))
+            args.add(PostArgument("startTime", startTime.timeInMillis))
+            postRequestByJson(url, args, HttpCallback { html ->
+                try {
+                    val resp_data = _JsonUtils.getValueByKey(html, "resp_data")
+                    callback?.excute(0, resp_data)
+                } catch (e: Exception) {
+                    callback?.excute(-1, e.message)
+                }
+            })
+        } catch (e: Exception) {
+            callback?.excute(-1, e.message)
+        }
+    }
+
     @JvmStatic
     fun saveSetting(context: Context, pwd: String?, name: String?, value: Any, callback: CloudCallback?) {
         newMsgCount = 0
@@ -175,8 +235,8 @@ object _CloudUtils {
                     val errcode = _JsonUtils.getValueByKey(html, "errcode")
                     val errmsg = _JsonUtils.getValueByKey(html, "errmsg")
 
-                    when(errcode){
-                        "0"->{
+                    when (errcode) {
+                        "0" -> {
                             val resp_data: Any = _JsonUtils.getValueByKey(html, "resp_data")
 
                             if (_JsonUtils.isContainsKey(resp_data.toString(), "lt")) {
@@ -189,7 +249,7 @@ object _CloudUtils {
                                 }
                             }
                         }
-                        else->{
+                        else -> {
                             callback.excute(-2, errmsg.toString())
                         }
                     }

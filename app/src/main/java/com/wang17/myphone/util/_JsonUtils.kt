@@ -1,31 +1,31 @@
-package com.wang17.myphone.util;
+package com.wang17.myphone.util
 
-import org.json.JSONArray;
-import org.json.JSONException;
-import org.json.JSONObject;
+import org.json.JSONArray
+import org.json.JSONException
+import org.json.JSONObject
 
-public class _JsonUtils {
-    public static JSONObject getJSONObjectByKey(JSONArray jsonArray, Object key, Object value) throws JSONException {
-        JSONObject res = null;
-
-        for (int i=0;i<jsonArray.length();i++) {
-            JSONObject obj = jsonArray.getJSONObject(i);
-            if(obj.getString(key.toString()).equals(value)){
-                res = obj;
+object _JsonUtils {
+    @Throws(JSONException::class)
+    fun getJSONObjectByKey(jsonArray: JSONArray, key: Any, value: Any): JSONObject? {
+        var res: JSONObject? = null
+        for (i in 0 until jsonArray.length()) {
+            val obj = jsonArray.getJSONObject(i)
+            if (obj.getString(key.toString()) == value) {
+                res = obj
             }
         }
-        return res;
+        return res
     }
 
-    public static String getValueByKey(Object json, Object key) throws JSONException {
-        JSONObject res = new JSONObject(json.toString());
-        return res.get(key.toString()).toString();
-
+    @Throws(JSONException::class)
+    fun getValueByKey(json: Any, key: Any): String {
+        val res = JSONObject(json.toString())
+        return res[key.toString()].toString()
     }
 
-    public static boolean isContainsKey(Object json, Object key) throws JSONException {
-        JSONObject res = new JSONObject(json.toString());
-        return !res.isNull(key.toString());
+    @Throws(JSONException::class)
+    fun isContainsKey(json: Any, key: Any): Boolean {
+        val res = JSONObject(json.toString())
+        return !res.isNull(key.toString())
     }
-
 }

@@ -13,7 +13,7 @@ import com.wang17.myphone.structure.RepayType;
  */
 public class DatabaseHelper extends SQLiteOpenHelper {
 
-    private static final int VERSION = 40;
+    private static final int VERSION = 45;
     private static final String DATABASE_NAME = "mp.db";
 
     public DatabaseHelper(Context context) {
@@ -33,6 +33,13 @@ public class DatabaseHelper extends SQLiteOpenHelper {
                     + "start LONG,"
                     + "interval INTEGER,"
                     + "item TEXT,"
+                    + "summary TEXT)");
+            db.execSQL("create table if not exists buddha("
+                    + "id TEXT PRIMARY KEY,"
+                    + "start LONG,"
+                    + "duration LONG,"
+                    + "count INT,"
+                    + "type INT,"
                     + "summary TEXT)");
             db.execSQL("create table if not exists markDay("
                     + "id TEXT PRIMARY KEY,"
@@ -210,8 +217,22 @@ public class DatabaseHelper extends SQLiteOpenHelper {
                             + "id TEXT PRIMARY KEY,"
                             + "content TEXT,"
                             + "rowNo TEXT)");
-                case 40:
-                case 41:
+                case 42:
+                    db.execSQL("drop table buddha");
+                    db.execSQL("create table if not exists buddha("
+                            + "id TEXT PRIMARY KEY,"
+                            + "startTime LONG,"
+                            + "duration LONG,"
+                            + "count INT,"
+                            + "type INT,"
+                            + "summary TEXT)");
+                    db.execSQL("insert into buddha(id,startTime, duration) select id,start,interval from record");
+                    db.execSQL("update buddha set type=1,count=0");
+                case 43:
+                    db.execSQL("update buddha set summary='计时念佛'");
+                case 44:
+                    db.execSQL("update buddha set summary='计时念佛'");
+
             }
         } catch (SQLException e) {
             Log.e("wangsc", e.getMessage());
