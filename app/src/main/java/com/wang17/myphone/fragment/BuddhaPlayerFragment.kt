@@ -5,7 +5,9 @@ import android.app.AlertDialog
 import android.content.DialogInterface
 import android.content.Intent
 import android.os.Bundle
+import android.os.Handler
 import android.os.Looper
+import android.support.design.widget.Snackbar
 import com.wang17.myphone.e
 import android.support.v4.app.Fragment
 import android.view.LayoutInflater
@@ -38,6 +40,7 @@ class BuddhaPlayerFragment : Fragment() {
     lateinit var btn_kAnimator: AnimatorSuofangView
     lateinit var btn_mAnimator: AnimatorSuofangView
     lateinit var btn_zAnimator: AnimatorSuofangView
+    var uiHandler = Handler()
 
     override fun onResume() {
         super.onResume()
@@ -62,49 +65,58 @@ class BuddhaPlayerFragment : Fragment() {
                         val type = _JsonUtils.getValueByKey(jsonArray[i], "type").toInt()
                         buddhaS.add(BuddhaRecord(DateTime(startTime),duration,count,type,summary))
                     }
-                    e("load buddha size : ${buddhaS.size}")
 
                     dataContext.addBuddhas(buddhaS)
 
-                    val now = DateTime()
-                    var totalDayDuration:Long = 0
-                    var totalDayCount=0
-                    var totalMonthDuration:Long =0
-                    var totalMonthCount=0
-                    val monthBuddhas = dataContext.getBuddhas(now.year,now.month)
-                    monthBuddhas.forEach {
-                        totalMonthCount+=it.count
-                        totalMonthDuration+=it.duration
+                    uiHandler.post {
+                        if (buddhaS.size > 0) {
+                            AlertDialog.Builder(context).setMessage("新增${buddhaS.size}条记录").show()
+                        }
                     }
-                    val dayBuddhas = dataContext.getBuddhas(now)
-                    dayBuddhas.forEach {
-                        totalDayCount+=it.count
-                        totalDayDuration +=it.duration
-                    }
-
-                    e("month buddha size : ${monthBuddhas.size} , day buddha size : ${dayBuddhas.size}")
-                    val hour = totalMonthDuration/(60000*60)
-                    val minite= totalMonthDuration%(60000*60)/60000
-                    val hourS = if(hour>0) "${hour}小时" else ""
-                    val formatter = DecimalFormat("#,##0")
-                    val miniteS = if(minite==0L) "" else{
-                        if(minite<10) "0${minite}分钟" else "${minite}分钟"
-                    }
-
-                    val hour1 = totalDayDuration/(60000*60)
-                    val minite1= totalDayDuration%(60000*60)/60000
-                    val hourS1 = if(hour1>0) "${hour1}小时" else ""
-                    val miniteS1 = if(minite1==0L) "" else{
-                        if(minite1<10) "0${minite1}分钟" else "${minite1}分钟"
-                    }
-                    Looper.prepare()
-                    tv_dayTotal.setText("${hourS}${miniteS}  ${formatter.format(totalMonthCount*1080)}")
-                    tv_monthTotal.setText("${hourS1}${miniteS1}  ${formatter.format(totalDayCount*1080)}")
-                    Looper.loop()
+                    refreshTotalView()
                 }
             } catch (e: Exception) {
                 e(e.message!!)
             }
+        }
+    }
+
+    private fun refreshTotalView() {
+        val dataContext = DataContext(context)
+        val now = DateTime()
+        var totalDayDuration: Long = 0
+        var totalDayCount = 0
+        var totalMonthDuration: Long = 0
+        var totalMonthCount = 0
+        val monthBuddhas = dataContext.getBuddhas(now.year, now.month)
+        monthBuddhas.forEach {
+            totalMonthCount += it.count
+            totalMonthDuration += it.duration
+        }
+        val dayBuddhas = dataContext.getBuddhas(now)
+        dayBuddhas.forEach {
+            totalDayCount += it.count
+            totalDayDuration += it.duration
+        }
+
+        e("month buddha size : ${monthBuddhas.size} , day buddha size : ${dayBuddhas.size}")
+        val hour = totalMonthDuration / (60000 * 60)
+        val minite = totalMonthDuration % (60000 * 60) / 60000
+        val hourS = if (hour > 0) "${hour}小时" else ""
+        val formatter = DecimalFormat("#,##0")
+        val miniteS = if (minite == 0L) "" else {
+            if (minite < 10) "0${minite}分钟" else "${minite}分钟"
+        }
+
+        val hour1 = totalDayDuration / (60000 * 60)
+        val minite1 = totalDayDuration % (60000 * 60) / 60000
+        val hourS1 = if (hour1 > 0) "${hour1}小时" else ""
+        val miniteS1 = if (minite1 == 0L) "" else {
+            if (minite1 < 10) "0${minite1}分钟" else "${minite1}分钟"
+        }
+        uiHandler.post {
+            tv_dayTotal.setText("${hourS}${miniteS}  ${formatter.format(totalMonthCount * 1080)}")
+            tv_monthTotal.setText("${hourS1}${miniteS1}  ${formatter.format(totalDayCount * 1080)}")
         }
     }
 
@@ -162,13 +174,16 @@ class BuddhaPlayerFragment : Fragment() {
                 startTime.add(Calendar.MINUTE,-12*count)
                 e("date : ${startTime.toLongDateTimeString()}")
                 val duration = 12*60000*count.toLong()
+                var dc = DataContext(context)
+                dc.addBuddha(BuddhaRecord(startTime,duration,count,11,"计时计数念佛"))
+                refreshTotalView()
 
-                _CloudUtils.addBuddha(context!!,startTime,duration,count,"",11, CloudCallback { code, result ->
+                _CloudUtils.addBuddha(context!!,startTime,duration,count,"计时计数念佛",11, CloudCallback { code, result ->
                     when(code){
                         0->{
-                            Looper.prepare()
-                            Toast.makeText(context,result.toString(),Toast.LENGTH_LONG).show()
-                            Looper.loop()
+                            uiHandler.post {
+                                Toast.makeText(context,result.toString(),Toast.LENGTH_LONG).show()
+                            }
                         }
                         else->{
                             e("code : $code , result : $result")
