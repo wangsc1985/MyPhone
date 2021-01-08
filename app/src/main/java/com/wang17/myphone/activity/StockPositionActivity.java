@@ -270,6 +270,7 @@ public class StockPositionActivity extends AppCompatActivity {
                     viewHolder.textViewName = convertView.findViewById(R.id.textView_name);
                     viewHolder.textViewCode = convertView.findViewById(R.id.textView_code);
                     viewHolder.textViewIncrease = convertView.findViewById(R.id.textView_increase);
+                    viewHolder.textViewPrice = convertView.findViewById(R.id.textView_price);
                     viewHolder.textViewProfit = convertView.findViewById(R.id.textView_profit);
                     convertView.setTag(viewHolder);
                     info.name = stock.getName();
@@ -286,6 +287,7 @@ public class StockPositionActivity extends AppCompatActivity {
                 viewHolder.textViewName.setText(stock.getName());
                 viewHolder.textViewCode.setText(stock.getCode());
                 viewHolder.textViewIncrease.setText(new DecimalFormat("0.00%").format(0));
+                viewHolder.textViewPrice.setText("0.00");
                 viewHolder.textViewProfit.setText(new DecimalFormat("0.00%").format(0));
 
             } catch (Exception e) {
@@ -401,12 +403,16 @@ public class StockPositionActivity extends AppCompatActivity {
                                     @Override
                                     public void run() {
                                         info.viewHolder.textViewIncrease.setText(new DecimalFormat("0.00%").format(info.increase));
+                                        info.viewHolder.textViewPrice.setText(new DecimalFormat("0.00").format(info.price));
                                         if (info.increase > 0) {
                                             info.viewHolder.textViewIncrease.setTextColor(Color.RED);
+                                            info.viewHolder.textViewPrice.setTextColor(Color.RED);
                                         } else if (info.increase == 0) {
                                             info.viewHolder.textViewIncrease.setTextColor(Color.WHITE);
+                                            info.viewHolder.textViewPrice.setTextColor(Color.WHITE);
                                         } else {
                                             info.viewHolder.textViewIncrease.setTextColor(Color.GREEN);
+                                            info.viewHolder.textViewPrice.setTextColor(Color.GREEN);
                                         }
 
                                         info.viewHolder.textViewProfit.setText(new DecimalFormat("0.00%").format(profit));

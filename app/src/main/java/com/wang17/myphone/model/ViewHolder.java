@@ -7,5 +7,6 @@ public class ViewHolder {
     public TextView textViewName;
     public TextView textViewCode;
     public TextView textViewIncrease;
+    public TextView textViewPrice;
     public TextView textViewProfit;
 }
