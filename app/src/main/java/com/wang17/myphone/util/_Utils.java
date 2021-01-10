@@ -300,7 +300,6 @@ Thread.sleep(1000);
         }
     }
 
-
     /**
      * 检测辅助功能是否开启<br>
      * 方 法 名：isAccessibilitySettingsOn <br>

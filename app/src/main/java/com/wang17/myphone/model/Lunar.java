@@ -68,8 +68,6 @@ public class Lunar {
         return Zhi[(hour+1)/2];
     }
 
-
-
     //====== 传回农历 y年的总天数
     final private static int yearDays(int y) throws Exception {
         int i, sum = 348;

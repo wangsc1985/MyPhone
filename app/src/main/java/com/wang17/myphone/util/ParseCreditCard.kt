@@ -240,11 +240,11 @@ object ParseCreditCard {
         return null
     }
 
-    fun parseICBC(body: String): BankBill? {
-//        您尾号0655卡1月9日15:38网上银行收入(银联入账)29,734.56元，余额116,134.60元。【工商银行】
-//        您尾号0655卡1月9日18:22工商银行收入(他行汇入)1,120元，余额1,204元，对方户名：王世超，对方账户尾号：3919。【
-//        您尾号0655卡1月9日15:38网上银行收入(银联入账)29,734.56元，余额116,134.60元。【工商银行】
-//        您尾号0655卡10月30日15:33手机银行支出(跨行汇款)10元，余额1,048.49元，对方户名：王世超，对方账户尾号：3919
+    fun parseICBC(context: Context, body: String): BankBill? {
+//        您尾号0655卡 1月 9日15:38网上银行收入(银联入账)29,734.56元，余额116,134.60元。【工商银行】
+//        您尾号0655卡 1月 9日18:22工商银行收入(他行汇入)    1,120元，余额     1,204元，对方户名：王世超，对方账户尾号：3919。
+//        您尾号0655卡 1月 9日15:38网上银行收入(银联入账)29,734.56元，余额116,134.60元。【工商银行】
+//        您尾号0655卡10月30日15:33手机银行支出(跨行汇款)       10元，余额  1,048.49元，对方户名：王世超，对方账户尾号：3919
 
         try {
             var body = body
@@ -273,11 +273,11 @@ object ParseCreditCard {
                 matcher.find()
                 val minite = matcher.group().toInt()
                 // 金额
-                matcher = Pattern.compile("[0-9]+(.[0-9]{0,2})?(?=元)").matcher(body)
+                matcher = Pattern.compile("[0-9]+(\\.[0-9]{0,2})?(?=元)").matcher(body)
                 matcher.find()
                 val money = matcher.group().toDouble()
                 // 余额
-                matcher = Pattern.compile("(?<=余额)[0-9]+(.[0-9]{0,2})?").matcher(body)
+                matcher = Pattern.compile("(?<=余额)[0-9]+(\\.[0-9]{0,2})?(?=元)").matcher(body)
                 matcher.find()
                 val balance = matcher.group().toDouble()
 
@@ -294,12 +294,13 @@ object ParseCreditCard {
                 return bankBill
             }
         } catch (e: Exception) {
+            DataContext(context).addLog("解析错误","解析错误",e.message)
             return null
         }
         return null
     }
 
-    fun parseABC(body: String): BankBill? {
+    fun parseABC(context: Context,body: String): BankBill? {
 
         try {//     【中国农业银行】您尾号3919的农行账户于10月21日14时58分完成一笔转存交易，金额为9935.00，余额9935.23。
 //          【中国农业银行】您尾号3919账户04月16日13:34完成银证转帐交易人民币-30000.00，余额218.45。	1	1	1555392899887
@@ -321,10 +322,10 @@ object ParseCreditCard {
                 matcher = Pattern.compile("(?<=尾号)[0-9]+").matcher(body)
                 matcher.find()
                 val cardNumber = matcher.group()
-                matcher = Pattern.compile("(?<=人民币)-?[0-9]+(.[0-9]{0,2})?").matcher(body)
+                matcher = Pattern.compile("(?<=人民币)-?[0-9]+(\\.[0-9]{0,2})?").matcher(body)
                 matcher.find()
                 val money = matcher.group().toDouble()
-                matcher = Pattern.compile("(?<=余额)[0-9]+(.[0-9]{0,2})?").matcher(body)
+                matcher = Pattern.compile("(?<=余额)[0-9]+(\\.[0-9]{0,2})?").matcher(body)
                 matcher.find()
                 val balance = matcher.group().toDouble()
                 val dateTime = DateTime()
@@ -340,6 +341,7 @@ object ParseCreditCard {
                 return bankBill
             }
         } catch (e: Exception) {
+            DataContext(context).addLog("解析错误","解析错误",e.message)
             return null
         }
         return null

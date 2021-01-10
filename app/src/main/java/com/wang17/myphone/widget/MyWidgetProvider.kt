@@ -424,7 +424,7 @@ class MyWidgetProvider : AppWidgetProvider() {
                                 val format = DecimalFormat("#,##0.00")
 
 
-                                bankBill = ParseCreditCard.parseABC(content)
+                                bankBill = ParseCreditCard.parseABC(context,content)
                                 if (bankBill != null) {
                                     balanceStr = format.format(bankBill.balance)
 //                                    moneyStr = format.format(bankBill.money)
@@ -460,7 +460,7 @@ class MyWidgetProvider : AppWidgetProvider() {
                                 /**
                                  * 解析ICBC
                                  */
-                                bankBill = ParseCreditCard.parseICBC(content)
+                                bankBill = ParseCreditCard.parseICBC(context,content)
                                 if (bankBill != null) {
                                     balanceStr = format.format(bankBill.balance)
 //                                    moneyStr = format.format(bankBill.money)
