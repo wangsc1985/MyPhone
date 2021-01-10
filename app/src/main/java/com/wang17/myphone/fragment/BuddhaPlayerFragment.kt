@@ -6,8 +6,6 @@ import android.content.DialogInterface
 import android.content.Intent
 import android.os.Bundle
 import android.os.Handler
-import android.os.Looper
-import android.support.design.widget.Snackbar
 import com.wang17.myphone.e
 import android.support.v4.app.Fragment
 import android.view.LayoutInflater
@@ -115,8 +113,8 @@ class BuddhaPlayerFragment : Fragment() {
             if (minite1 < 10) "0${minite1}" else "${minite1}"
         }
         uiHandler.post {
-            tv_dayTotal.setText("${hourS}${miniteS}  ${formatter.format(totalMonthCount * 1080)}")
-            tv_monthTotal.setText("${hourS1}${miniteS1}  ${formatter.format(totalDayCount * 1080)}")
+            tv_monthTotal.setText("${hourS}${miniteS}  ${formatter.format(totalMonthCount * 1080)}")
+            tv_dayTotal.setText("${hourS1}${miniteS1}  ${formatter.format(totalDayCount * 1080)}")
         }
     }
 
@@ -137,6 +135,25 @@ class BuddhaPlayerFragment : Fragment() {
         }
         if (dataContext.getSetting(Setting.KEYS.is_znf, false).boolean == true) {
             animatorSuofang(btn_zAnimator)
+        }
+
+        tv_monthTotal.setOnClickListener {
+
+        }
+        tv_dayTotal.setOnClickListener {
+            val dayBuddhas = dataContext.getBuddhas(DateTime())
+            var sb = StringBuilder()
+            dayBuddhas.forEach {
+                val hour1 = it.duration / (60000 * 60)
+                val minite1 = it.duration % (60000 * 60) / 60000
+                val hourS1 = "${hour1}:"
+                val miniteS1 = if (minite1 == 0L) {if(hour1==0L) "0" else "00"} else {
+                    if (minite1 < 10) "0${minite1}" else "${minite1}"
+                }
+
+                sb.append("${it.startTime.toShortTimeString()}   ${hourS1}${miniteS1}   ${it.count}\n")
+            }
+            AlertDialog.Builder(context).setMessage(sb.toString()).show()
         }
 
         iv_buddha.setOnLongClickListener {

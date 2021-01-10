@@ -64,7 +64,7 @@
 <!--            android:text="" />-->
 
         <TextView
-            android:id="@+id/tv_dayTotal"
+            android:id="@+id/tv_monthTotal"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:fontFamily="sans-serif"
@@ -91,7 +91,7 @@
 <!--            android:text="" />-->
 
         <TextView
-            android:id="@+id/tv_monthTotal"
+            android:id="@+id/tv_dayTotal"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:fontFamily="sans-serif"

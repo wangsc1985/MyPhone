@@ -16,7 +16,7 @@ import com.wang17.myphone.util._Utils
 import java.io.File
 import java.util.*
 
-@Suppress("DEPRECATION")
+//@Suppress("DEPRECATION")
 /**
  *
  */
@@ -34,6 +34,7 @@ class BuddhaPlayerService : Service() {
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
         return super.onStartCommand(intent, flags, startId)
 
+        e("buddha palyer service onStartCommand")
         val velocity = intent?.getIntExtra("velocity", 0)
         e("buddha palyer velocity ... ${velocity}")
         startTimeInMillis = System.currentTimeMillis()
@@ -43,7 +44,7 @@ class BuddhaPlayerService : Service() {
 
     override fun onCreate() {
         super.onCreate()
-        e("buddha palyer service on create")
+        e("buddha palyer service onCreate")
         mDataContext = DataContext(applicationContext)
     }
 
