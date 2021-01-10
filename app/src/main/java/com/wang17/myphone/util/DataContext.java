@@ -2707,7 +2707,7 @@ public class DataContext {
             ContentValues values = new ContentValues();
             values.put("id", UUID.randomUUID().toString());
             values.put("runTime", System.currentTimeMillis());
-            values.put("tag", new DateTime(System.currentTimeMillis()).toLongDateTimeString());
+            values.put("tag", "default");
             values.put("item", item);
             values.put("message", message);
             //调用方法插入数据

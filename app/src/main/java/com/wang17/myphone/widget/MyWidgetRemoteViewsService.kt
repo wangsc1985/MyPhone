@@ -298,6 +298,12 @@ class MyWidgetRemoteViewsService : RemoteViewsService() {
              */
             val latestDay = mDataContext.getSetting(Setting.KEYS.list_religious_day, 0).int
             if (today.day != latestDay) {
+
+                /**
+                 * 备份数据库
+                 */
+                BackupTask(applicationContext).execute(BackupTask.COMMAND_BACKUP)
+
                 var list_religious = ""
                 val religiou = Religious(today.year, today.month, today.day, solarTermMap, null)
                 val religiousDays = religiou.religiousDays
@@ -354,12 +360,6 @@ class MyWidgetRemoteViewsService : RemoteViewsService() {
                     mToDoList.add(ToDo("", str, "", color, false))
                 }
             }
-
-//            int index = 0;
-//            if(toDoList.size()>0) {
-//                MediaPlayer mPlayer = MediaPlayer.create(getApplicationContext(), toDoList.get(index).rawId);
-//                mPlayer.start();
-//            }
         }
 
         override fun onDestroy() {}

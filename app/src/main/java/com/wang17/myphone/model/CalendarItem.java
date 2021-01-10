@@ -14,7 +14,7 @@ public class CalendarItem {
         this.religious = religious;
     }
 
-    public CalendarItem(DateTime yangLi){
+    public CalendarItem(DateTime yangLi) throws Exception{
         this.yangLi = yangLi;
         Lunar lunar = new Lunar(yangLi);
         this.nongLi = new LunarDateTime(lunar.getYear(), lunar.getMonth(), lunar.getDay(),lunar.leap);

@@ -6,6 +6,8 @@ package com.wang17.myphone.model;
  * 1900.01.31? - 2049.12.31
  */
 
+import android.util.Log;
+
 import com.wang17.myphone.util.GanZhi;
 
 import java.text.ParseException;
@@ -69,7 +71,7 @@ public class Lunar {
 
 
     //====== 传回农历 y年的总天数
-    final private static int yearDays(int y) {
+    final private static int yearDays(int y) throws Exception {
         int i, sum = 348;
         for (i = 0x8000; i > 0x8; i >>= 1) {
             if ((lunarInfo[y - 1900] & i) != 0) sum += 1;
@@ -78,7 +80,7 @@ public class Lunar {
     }
 
     //====== 传回农历 y年闰月的天数
-    final private static int leapDays(int y) {
+    final private static int leapDays(int y) throws Exception{
         if (leapMonth(y) != 0) {
             if ((lunarInfo[y - 1900] & 0x10000) != 0)
                 return 30;
@@ -89,7 +91,10 @@ public class Lunar {
     }
 
     //====== 传回农历 y年闰哪个月 1-12 , 没闰传回 0
-    final private static int leapMonth(int y) {
+    final private static int leapMonth(int y) throws Exception {
+        if(y-1900==150||y-1900==-1){
+            throw new Exception("超出lunnarInfo下表限制，当前年份："+y);
+        }
         return (int) (lunarInfo[y - 1900] & 0xf);
     }
 
@@ -129,7 +134,7 @@ public class Lunar {
      * @param cal
      * @return
      */
-    public Lunar(Calendar cal) {
+    public Lunar(Calendar cal)  throws Exception{
         int yearCyl, monCyl, dayCyl;
         int leapMonth = 0;
         Date baseDate = null;

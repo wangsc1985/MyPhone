@@ -102,17 +102,17 @@ class BuddhaPlayerFragment : Fragment() {
         e("month buddha size : ${monthBuddhas.size} , day buddha size : ${dayBuddhas.size}")
         val hour = totalMonthDuration / (60000 * 60)
         val minite = totalMonthDuration % (60000 * 60) / 60000
-        val hourS = if (hour > 0) "${hour}小时" else ""
+        val hourS = "${hour}:"
         val formatter = DecimalFormat("#,##0")
-        val miniteS = if (minite == 0L) "" else {
-            if (minite < 10) "0${minite}分钟" else "${minite}分钟"
+        val miniteS = if (minite == 0L) "0" else {
+            if (minite < 10) "0${minite}" else "${minite}"
         }
 
         val hour1 = totalDayDuration / (60000 * 60)
         val minite1 = totalDayDuration % (60000 * 60) / 60000
-        val hourS1 = if (hour1 > 0) "${hour1}小时" else ""
-        val miniteS1 = if (minite1 == 0L) "" else {
-            if (minite1 < 10) "0${minite1}分钟" else "${minite1}分钟"
+        val hourS1 = "${hour1}:"
+        val miniteS1 = if (minite1 == 0L) "0" else {
+            if (minite1 < 10) "0${minite1}" else "${minite1}"
         }
         uiHandler.post {
             tv_dayTotal.setText("${hourS}${miniteS}  ${formatter.format(totalMonthCount * 1080)}")

@@ -30,6 +30,7 @@ import android.widget.TextView;
 
 import com.wang17.myphone.R;
 import com.wang17.myphone.model.ReligiousCallBack;
+import com.wang17.myphone.util.DataContext;
 import com.wang17.myphone.util._AnimationUtils;
 import com.wang17.myphone.util.CalendarHelper;
 import com.wang17.myphone.util.GanZhi;
@@ -409,7 +410,7 @@ public class ReligiousFragment extends Fragment {
     /**
      * 刷新日历界面，使用此方法必须标明forAsynch变量。
      */
-    private void refreshCalendar() {
+    private void refreshCalendar(){
         try {
             refreshCalendarTask.cancel(true);
             calendarItemsMap.clear();
@@ -463,7 +464,12 @@ public class ReligiousFragment extends Fragment {
                     }
                 }
             });
-        } catch (NumberFormatException e) {
+        }
+        catch (NumberFormatException e) {
+        }
+        catch (Exception e){
+            DataContext dc = new DataContext(getContext());
+            dc.addLog("err","运行错误",e.getMessage());
         }
     }
 
