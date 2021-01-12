@@ -5,6 +5,7 @@ import android.app.AlertDialog;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.os.Bundle;
+import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.constraint.ConstraintLayout;
 import android.support.v4.app.Fragment;
@@ -30,7 +31,6 @@ import java.util.Calendar;
 public class ActionBarFragment extends Fragment {
 
     //   视图变量
-    View containerView;
     ImageView imageView_back, imageView_setting;
 //    ImageView imageViewHelper;
 //    TextView textViewHave, textViewLeave;
@@ -56,9 +56,6 @@ public class ActionBarFragment extends Fragment {
         } else {
             isShowHelperImage(false);
         }
-
-
-
     }
 
     @Override
@@ -73,36 +70,27 @@ public class ActionBarFragment extends Fragment {
     }
 
     @Override
-    public View onCreateView(LayoutInflater inflater, ViewGroup container, final Bundle savedInstanceState) {
-        containerView = inflater.inflate(R.layout.fragment_action_bar, container, false);
+    public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
+        super.onViewCreated(view, savedInstanceState);
         try {
-
-            textViewTitle = (TextView)containerView.findViewById(R.id.textView_title);
+            textViewTitle = view.findViewById(R.id.textView_title);
             textViewTitle.setText(dataContext.getSetting(Setting.KEYS.bar_title,"南无阿弥陀佛").getString());
 
-
-            ConstraintLayout root = (ConstraintLayout) containerView.findViewById(R.id.layout_root);
+            ConstraintLayout root = view.findViewById(R.id.layout_root);
             root.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
-
-//                    Intent intent = new Intent(getContext(), NianfoService.class);
-//                    intent.putExtra("timer",20000);
-//                    getActivity().startService(intent);
-//                    Toast.makeText(getContext(),"开始念佛",Toast.LENGTH_SHORT);
                 }
             });
             root.setOnLongClickListener(new View.OnLongClickListener() {
                 @Override
                 public boolean onLongClick(View v) {
-//                    getActivity().stopService(new Intent(getContext(), NianfoService.class));
-//                    Toast.makeText(getContext(),"念佛结束",Toast.LENGTH_SHORT);
                     return true;
                 }
             });
 
             //  2016/10/19 初始化视图
-            imageView_setting = (ImageView) containerView.findViewById(R.id.imageView_setting);
+            imageView_setting =  view.findViewById(R.id.imageView_setting);
             imageView_setting.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
@@ -121,7 +109,7 @@ public class ActionBarFragment extends Fragment {
             });
 
 
-            imageView_back = (ImageView) containerView.findViewById(R.id.imageView_back);
+            imageView_back = view.findViewById(R.id.imageView_back);
             imageView_back.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
@@ -130,32 +118,16 @@ public class ActionBarFragment extends Fragment {
                 }
             });
 
-//            imageViewHelper = (ImageView) containerView.findViewById(R.id.imageView_helper);
-//            imageViewHelper.setOnClickListener(new View.OnClickListener() {
-//                @Override
-//                public void onClick(View v) {
-//                    startActivity(new Intent(Settings.ACTION_ACCESSIBILITY_SETTINGS));
-//                }
-//            });
-
-//            AnimationUtils.setFlickerAnimation(imageViewHelper);
-
             //
-            progressBar = (ProgressBar) containerView.findViewById(R.id.progressBar);
-//            textViewHave = (TextView) containerView.findViewById(R.id.textView_sexual);
-//            textViewLeave = (TextView) containerView.findViewById(R.id.textView_leave);
-            layoutReligious = (LinearLayout) containerView.findViewById(R.id.layout_Religious);
+            progressBar = view.findViewById(R.id.progressBar);
+            layoutReligious = view.findViewById(R.id.layout_Religious);
             layoutReligious.setOnLongClickListener(new View.OnLongClickListener() {
                 @Override
                 public boolean onLongClick(View v) {
                     setDateTimeDialog(new DateTime());
-//                    AddSexualDayDialog addSexualDayDialog = new AddSexualDayDialog(new DateTime());
-//                    addSexualDayDialog.show();
                     return true;
                 }
             });
-
-//            setTextViewSexualText();
 
             if (settingListener == null) {
                 imageView_setting.setVisibility(View.INVISIBLE);
@@ -163,14 +135,14 @@ public class ActionBarFragment extends Fragment {
             if (backListener == null) {
                 imageView_back.setVisibility(View.INVISIBLE);
             }
-//            if (progressListener == null) {
-//                progressBar.setVisibility(View.INVISIBLE);
-//            }
-
         } catch (Exception e) {
             _Utils.printException(getContext(), e);
         }
-        return containerView;
+    }
+
+    @Override
+    public View onCreateView(LayoutInflater inflater, ViewGroup container, final Bundle savedInstanceState) {
+        return inflater.inflate(R.layout.fragment_action_bar, container, false);
     }
 
     /**
