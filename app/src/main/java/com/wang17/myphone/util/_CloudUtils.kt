@@ -7,6 +7,7 @@ import com.wang17.myphone.callback.HttpCallback
 import com.wang17.myphone.e
 import com.wang17.myphone.model.DateTime
 import com.wang17.myphone.model.PostArgument
+import com.wang17.myphone.model.database.BuddhaRecord
 import com.wang17.myphone.model.database.Position
 import com.wang17.myphone.model.database.Setting
 import com.wang17.myphone.util._OkHttpUtil.getRequest
@@ -86,7 +87,7 @@ object _CloudUtils {
      * string phone, long startTime ,long duration , int count, string summary, int type
      */
     @JvmStatic
-    fun addBuddha(context: Context, startTime: DateTime, duration: Long, count: Int, summary: String, type: Int, callback: CloudCallback?) {
+    fun addBuddha(context: Context, buddha:BuddhaRecord, callback: CloudCallback?) {
         Thread{
             try {
                 val accessToken = getToken(context)
@@ -94,11 +95,11 @@ object _CloudUtils {
                 val url = "https://api.weixin.qq.com/tcb/invokecloudfunction?access_token=$accessToken&env=$env&name=addBuddha"
                 val args: MutableList<PostArgument> = ArrayList()
                 args.add(PostArgument("phone", "18509513143"))
-                args.add(PostArgument("startTime", startTime.timeInMillis))
-                args.add(PostArgument("duration", duration))
-                args.add(PostArgument("count", count))
-                args.add(PostArgument("summary", summary))
-                args.add(PostArgument("type", type))
+                args.add(PostArgument("startTime", buddha.startTime.timeInMillis))
+                args.add(PostArgument("duration", buddha.duration))
+                args.add(PostArgument("count", buddha.count))
+                args.add(PostArgument("summary", buddha.summary))
+                args.add(PostArgument("type", buddha.type))
                 postRequestByJson(url, args, HttpCallback { html ->
                     try {
                         e(html)

@@ -26,6 +26,7 @@ import java.io.EOFException
 import java.text.DecimalFormat
 import java.util.*
 import java.util.concurrent.CountDownLatch
+import android.os.Handler
 import kotlin.collections.ArrayList
 
 class MyWidgetRemoteViewsService : RemoteViewsService() {
@@ -80,13 +81,13 @@ class MyWidgetRemoteViewsService : RemoteViewsService() {
         var color2: Int
         var color3: Int
         var isAlert: Boolean
-        var rawId :Int
+        var rawId: Int
 
         init {
-            header=""
-            title=""
-            summary=""
-            rawId=R.raw.ding
+            header = ""
+            title = ""
+            summary = ""
+            rawId = R.raw.ding
         }
     }
 
@@ -104,7 +105,7 @@ class MyWidgetRemoteViewsService : RemoteViewsService() {
 
         private var solarTermMap: TreeMap<DateTime, SolarTerm>
         private var mToDoList: MutableList<ToDo>
-
+        private var uiHandler = Handler()
 
         private var factoryCount = 0
         private var createCount = 0
@@ -113,6 +114,7 @@ class MyWidgetRemoteViewsService : RemoteViewsService() {
             mToDoList = ArrayList()
             solarTermMap = loadJavaSolarTerms(R.raw.solar_java_50)
         }
+
         override fun onCreate() {
             createCount++
         }
@@ -124,10 +126,10 @@ class MyWidgetRemoteViewsService : RemoteViewsService() {
         override fun onDataSetChanged() {
             try {
                 mDataContext = DataContext(mContext)
-                mDataContext.addLog("widgetservice","刷新小部件列表","onDataSetChanged()")
+                mDataContext.addLog("widgetservice", "刷新小部件列表", "onDataSetChanged()")
 //                val isAllowWidgetListStock = mDataContext.getSetting(Setting.KEYS.is_allow_widget_list_stock, true).boolean
 //                e("is stock list : ${MyWidgetProvider.isStockList} , is allow widget list stock : $isAllowWidgetListStock")
-                if (MyWidgetProvider.isStockList ) {
+                if (MyWidgetProvider.isStockList) {
                     var time = ""
                     for (info in MyWidgetProvider.stockInfoList) {
                         var color: Int
@@ -153,57 +155,59 @@ class MyWidgetRemoteViewsService : RemoteViewsService() {
                 } else {
                     setToDos()
                 }
-                e("创建 todo 完毕")
-                val latch = CountDownLatch(1)
-                /**
-                 * 新消息提醒
-                 */
-                _CloudUtils.getNewMsg(applicationContext,object:CloudCallback{
-                    override fun excute(code: Int, msg: Any?) {
-                        e("get new msg code : $code")
-                        when (code) {
-                            1 -> {
-                                mToDoList.add(ToDo("          ", "          ", msg.toString(), WARNING_1_COLOR, true, R.raw.bi))
-                                e("查询完毕 $msg")
+
+                Thread {
+                    val latch = CountDownLatch(1)
+                    /**
+                     * 新消息提醒
+                     */
+                    _CloudUtils.getNewMsg(applicationContext, object : CloudCallback {
+                        override fun excute(code: Int, msg: Any?) {
+                            e("get new msg code : $code")
+                            when (code) {
+                                1 -> {
+                                    mToDoList.add(ToDo("          ", "          ", msg.toString(), WARNING_1_COLOR, true, R.raw.bi))
+                                    e("查询完毕 $msg")
+                                }
+                                -1 -> {
+                                    mToDoList.add(ToDo("          ", "          ", msg.toString(), WARNING_1_COLOR, false, R.raw.bi))
+                                    e("$msg")
+                                }
+                                -2 -> {
+                                    mToDoList.add(ToDo("          ", "          ", msg.toString(), WARNING_1_COLOR, false, R.raw.bi))
+                                    e("$msg")
+                                }
                             }
-                            -1 -> {
-                                mToDoList.add(ToDo("          ", "          ", msg.toString(), WARNING_1_COLOR, false, R.raw.bi))
-                                e("$msg")
-                            }
-                            -2 -> {
-                                mToDoList.add(ToDo("          ", "          ", msg.toString(), WARNING_1_COLOR, false, R.raw.bi))
-                                e("$msg")
-                            }
+                            latch.countDown()
                         }
-                        latch.countDown()
+                    })
+                    latch.await()
+
+
+                    //region 恢复小部件余额颜色
+                    uiHandler.post {
+                        val remoteViews = RemoteViews(mContext.packageName, R.layout.widget_timer)
+                        val myComponentName = ComponentName(mContext, MyWidgetProvider::class.java)
+                        val appWidgetManager = AppWidgetManager.getInstance(mContext)
+                        remoteViews.setTextColor(R.id.textView_balance1, mContext.resources.getColor(R.color.calendar_yl_color))
+                        remoteViews.setTextColor(R.id.textView_balance2, mContext.resources.getColor(R.color.calendar_yl_color))
+                        remoteViews.setTextColor(R.id.textView_markDay, MyWidgetProvider.markday_color)
+                        appWidgetManager.updateAppWidget(myComponentName, remoteViews)
                     }
-                })
-                latch.await()
-
-
-
-                //region 恢复小部件余额颜色
-                val remoteViews = RemoteViews(mContext.packageName, R.layout.widget_timer)
-                val myComponentName = ComponentName(mContext, MyWidgetProvider::class.java)
-                val appWidgetManager = AppWidgetManager.getInstance(mContext)
-                remoteViews.setTextColor(R.id.textView_balance1, mContext.resources.getColor(R.color.calendar_yl_color))
-                remoteViews.setTextColor(R.id.textView_balance2, mContext.resources.getColor(R.color.calendar_yl_color))
-                remoteViews.setTextColor(R.id.textView_markDay, MyWidgetProvider.markday_color)
-                appWidgetManager.updateAppWidget(myComponentName, remoteViews)
-                //endregion
-
+                    //endregion
+                }.start()
 
             } catch (e: JSONException) {
                 _Utils.printException(mContext, e)
+                e(e.message!!)
             } catch (e: Exception) {
                 _Utils.printException(mContext, e)
-                Log.e("wangsc", e.message!!)
+                e( e.message!!)
             }
         }
 
         @Throws(Exception::class)
-        private fun setToDos(){
-
+        private fun setToDos() {
 
 
             e("set to do s")
@@ -340,8 +344,8 @@ class MyWidgetRemoteViewsService : RemoteViewsService() {
                     }
                 }
 
-                if(list_religious.isEmpty()){
-                    list_religious=mDataContext.getSetting(Setting.KEYS.wisdom,"南无阿弥陀佛").string
+                if (list_religious.isEmpty()) {
+                    list_religious = mDataContext.getSetting(Setting.KEYS.wisdom, "南无阿弥陀佛").string
                     mToDoList.add(ToDo(list_religious, "", "", Color.WHITE, false))
                 }
 
@@ -377,8 +381,8 @@ class MyWidgetRemoteViewsService : RemoteViewsService() {
                 remoteViews.setTextColor(R.id.textView_days, toDo.color1)
                 remoteViews.setTextColor(R.id.textView_name, toDo.color2)
                 remoteViews.setTextColor(R.id.textView_money, toDo.color3)
-                if(position==0)
-                remoteViews.setTextViewTextSize(R.id.textView_name,COMPLEX_UNIT_DIP,10f)
+                if (position == 0)
+                    remoteViews.setTextViewTextSize(R.id.textView_name, COMPLEX_UNIT_DIP, 10f)
                 val fillInIntent = Intent()
                 fillInIntent.putExtra("position", position)
                 remoteViews.setOnClickFillInIntent(R.id.linearLayout_root, fillInIntent)

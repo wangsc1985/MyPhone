@@ -160,12 +160,10 @@ class BuddhaPlayerFragment : Fragment() {
             val now = DateTime()
             val dialogView = View.inflate(context,R.layout.inflate_dialog_add_buddha,null)
             val cv_date = dialogView.findViewById<CalendarView>(R.id.cv_date)
-//            val et_hour = dialogView.findViewById<EditText>(R.id.et_hour)
             val et_count = dialogView.findViewById<EditText>(R.id.et_count)
             val iv_minus = dialogView.findViewById<ImageView>(R.id.iv_minus)
             val iv_add = dialogView.findViewById<ImageView>(R.id.iv_add)
             cv_date.date = now.timeInMillis
-//            et_hour.setText(now.hour)
             et_count.setText("1")
             cv_date.setOnDateChangeListener { view, year, month, dayOfMonth ->
                 val now = DateTime()
@@ -186,16 +184,21 @@ class BuddhaPlayerFragment : Fragment() {
                 /**
                  * string phone, long startTime ,long duration , int count, string summary, int type
                  */
+                var dc = DataContext(context)
+                val bb =  dc.latestBuddha
                 val count = et_count.text.toString().toInt()
                 val startTime = DateTime(cv_date.date)
-                startTime.add(Calendar.MINUTE,-12*count)
+                var duration = (10*60000*count).toLong()
+                if(bb!=null){
+                    duration = bb.duration/bb.count
+                }
+                startTime.add(Calendar.MILLISECOND,(-1*duration).toInt())
                 e("date : ${startTime.toLongDateTimeString()}")
-                val duration = 12*60000*count.toLong()
-                var dc = DataContext(context)
-                dc.addBuddha(BuddhaRecord(startTime,duration,count,11,"计时计数念佛"))
+                val buddha = BuddhaRecord(startTime,duration,count,11,"计时计数念佛")
+                dc.addBuddha(buddha)
                 refreshTotalView()
 
-                _CloudUtils.addBuddha(context!!,startTime,duration,count,"计时计数念佛",11, CloudCallback { code, result ->
+                _CloudUtils.addBuddha(context!!,buddha, CloudCallback { code, result ->
                     when(code){
                         0->{
                             uiHandler.post {
