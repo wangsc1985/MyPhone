@@ -1,7 +1,6 @@
 package com.wang17.myphone.util
 
 import android.graphics.Color
-import android.util.Log
 import com.wang17.myphone.activity.StockPositionHistoryActivity.AttTrades
 import com.wang17.myphone.model.StockInfo
 import com.wang17.myphone.model.database.Position
@@ -15,7 +14,7 @@ object _SinaStockUtils {
         Thread(Runnable {
             try {
                 val format = DecimalFormat("#,##0.00")
-                for ((code, lastPrice, type, tvPrice2) in attTrades) {
+                for ((code, tradePrice, type, tvPrice2) in attTrades) {
                     val url = "https://hq.sinajs.cn/list=" + (if (code.startsWith("6")) "sh" else "sz") + code
                     val client = _OkHttpUtil.client
                     val request = Request.Builder().url(url).build()
@@ -23,11 +22,11 @@ object _SinaStockUtils {
                     if (response.isSuccessful) {
                         val body = response.body!!.string()
                         val result = body.substring(body.indexOf("\"")).replace("\"", "").split(",".toRegex()).toTypedArray()
-                        val price = result[3].toDouble()
-                        tvPrice2.text = "${format.format(Math.abs(price-lastPrice))}  ${format.format(Math.abs(price-lastPrice)*100/lastPrice)}%"
-                        if (type * (lastPrice - price) < 0) {
+                        val newPrice = result[3].toDouble()
+                        tvPrice2.text = "${format.format(Math.abs(newPrice-tradePrice))}  ${format.format(Math.abs(newPrice-tradePrice)*100/tradePrice)}%"
+                        if (type * (tradePrice - newPrice) < 0) {
                             tvPrice2.setTextColor(Color.RED)
-                        } else if (type * (lastPrice - price) > 0) {
+                        } else if (type * (tradePrice - newPrice) > 0) {
                             tvPrice2.setTextColor(Color.CYAN)
                         } else {
                             tvPrice2.setTextColor(Color.WHITE)
@@ -98,9 +97,11 @@ object _SinaStockUtils {
                             val open = result[2].toDouble()
                             info.name = result[0]
                             info.price = result[3].toDouble()
-                            info.increase = (info.price - open) / open
+
+                            val fee = TradeUtils.commission(info.price, position.amount) + TradeUtils.tax(-1, info.price, position.amount) + TradeUtils.transferFee(info.price, position.amount)
+                            info.increase =(info.price - position.cost) / position.cost
                             info.time = result[31]
-                            profit = (info.price - position.cost) / position.cost
+                            profit = ((info.price - position.cost)*position.amount*100 -fee )/ (position.cost*position.amount*100)
                             totalProfit += profit * position.amount * position.cost * 100
                            totalAmount += ( position.amount * position.cost * 100).toInt()
                         } else {

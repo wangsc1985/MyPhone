@@ -76,23 +76,6 @@ public class FundMonitorActivity extends AppCompatActivity {
         textViewTotalProfit = findViewById(R.id.textView_totalProfit);
         textViewBattery = findViewById(R.id.textView_battery);
 
-//        FrameLayout root = (FrameLayout) findViewById(R.id.root);
-//        root.setOnClickListener(new View.OnClickListener() {
-//            @Override
-//            public void onClick(View v) {
-//                long ctm = System.currentTimeMillis();
-//                if (ctm - preClickTime < 1000) {
-//                    if (++clickCount >= 4) {
-//                        FutrueDarkRunActivity.this.finish();
-//                    }
-//                } else {
-//                    clickCount = 0;
-//                }
-//                preClickTime = ctm;
-//                Log.e("wangsc", clickCount + "");
-//            }
-//        });
-
         mDataContext = new DataContext(this);
         preClickTime = System.currentTimeMillis();
 
@@ -128,33 +111,13 @@ public class FundMonitorActivity extends AppCompatActivity {
                 isSoundLoaded = true;
             }
         });
-
-
-        /**
-         *
-         */
-//        startService(new Intent(this, MusicService.class));
-
     }
 
     @Override
     protected void onResume() {
         super.onResume();
-        /**
-         * 隐藏虚拟按键
-         */
         _Utils.hideBottomUIMenu(this);
-        /**
-         *
-         */
         startTimer();
-
-//     PARTIAL_WAKE_LOCK :保持CPU 运转，屏幕和键盘灯是关闭的。
-//     SCREEN_DIM_WAKE_LOCK ：保持CPU 运转，允许保持屏幕显示但有可能是灰的，关闭键盘灯
-//     SCREEN_BRIGHT_WAKE_LOCK ：保持CPU 运转，保持屏幕高亮显示，关闭键盘灯
-//        _Utils.acquireWakeLock(this,PARTIAL_WAKE_LOCK);
-//        _Utils.acquireWakeLock(this,SCREEN_DIM_WAKE_LOCK);
-//        getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
     }
 
     @Override
@@ -169,9 +132,6 @@ public class FundMonitorActivity extends AppCompatActivity {
     @Override
     protected void onDestroy() {
         super.onDestroy();
-//        _Utils.releaseWakeLock(this);
-//        stopService(new Intent(this, MusicService.class));
-
     }
 
     private void stopTimer() {

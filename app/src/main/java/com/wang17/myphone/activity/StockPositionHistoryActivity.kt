@@ -25,6 +25,9 @@ import com.wang17.myphone.model.database.Position
 import com.wang17.myphone.model.database.Setting
 import com.wang17.myphone.model.database.Trade
 import com.wang17.myphone.util.*
+import com.wang17.myphone.util.TradeUtils.commission
+import com.wang17.myphone.util.TradeUtils.tax
+import com.wang17.myphone.util.TradeUtils.transferFee
 import kotlinx.android.synthetic.main.activity_history_position.*
 import okhttp3.Request
 import okhttp3.Response
@@ -46,7 +49,7 @@ class StockPositionHistoryActivity() : AppCompatActivity() {
         _Utils.releaseWakeLock(this, wakeLock)
     }
 
-    private val TO_ACTIVITY_TRADES=1
+    private val TO_ACTIVITY_TRADES = 1
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
         super.onActivityResult(requestCode, resultCode, data)
         when (requestCode) {
@@ -89,11 +92,11 @@ class StockPositionHistoryActivity() : AppCompatActivity() {
                             // 成交总资金
                             val tradeFund = td.price * td.amount * 100
                             // 佣金
-                            val commission = commission(tradeFund)
+                            val commission = commission(td)
                             // 过户费
-                            val transferFee = transferFee(tradeFund)
+                            val transferFee = transferFee(td)
                             // 印花税
-                            val tax: Double = (if (td.type == 1) 0.0 else tax(tradeFund))
+                            val tax: Double = tax(td)
                             if (td.type == -2 || td.type == 2) {
 
                                 // 计算成本
@@ -111,9 +114,6 @@ class StockPositionHistoryActivity() : AppCompatActivity() {
                                 if (td.type == -1) {
                                     profit += ((td.price - cost) * td.amount * 100) - commission - transferFee - tax
                                 }
-                                /**
-                                 * 计算成本
-                                 */
                                 /**
                                  * 计算成本
                                  */
@@ -398,9 +398,9 @@ class StockPositionHistoryActivity() : AppCompatActivity() {
                     // 成交总资金
                     val tradeFund = tradePrice * tradeAmount * 100
                     // 佣金
-                    val commission = commission(tradeFund)
+                    val commission = commission(trade)
                     // 过户费
-                    val transferFee = transferFee(tradeFund)
+                    val transferFee = transferFee(trade)
                     val amount = position.amount + tradeAmount
                     val cost = (costFund + tradeFund + commission + transferFee) / (amount * 100)
                     position.cost = cost
@@ -475,11 +475,11 @@ class StockPositionHistoryActivity() : AppCompatActivity() {
                     // 成交总资金
                     val tradeFund = tradePrice * tradeAmount * 100
                     // 佣金
-                    val commission = commission(tradeFund)
+                    val commission = commission(trade)
                     // 过户费
-                    val transferFee = transferFee(tradeFund)
+                    val transferFee = transferFee(trade)
                     // 印花税
-                    val tax = tax(tradeFund)
+                    val tax = tax(trade)
                     val profit = ((tradePrice - position.cost) * tradeAmount * 100) - commission - transferFee - tax
                     val amount = position.amount - tradeAmount
                     var cost = 0.0
@@ -634,39 +634,12 @@ class StockPositionHistoryActivity() : AppCompatActivity() {
                             return
                         }
                     } else {
-                        dataContext.addLog("StockPositionHistoryActivity","获取数据失败...","")
+                        dataContext.addLog("StockPositionHistoryActivity", "获取数据失败...", "")
                     }
                 } catch (e: Exception) {
-
-//                    e.printStackTrace();
                 }
             }
         }).start()
-    }
-
-    /**
-     * 印花税  卖出时千1
-     *
-     * @param money
-     */
-    private fun tax(money: Double): Double {
-        return money / 1000
-    }
-
-    /**
-     * 佣金  万3  最低5元
-     */
-    private fun commission(money: Double): Double {
-        var money = money
-        money = money * 3 / 10000
-        return if (money < 5) 5.0 else money
-    }
-
-    /**
-     * 过户费   十万2
-     */
-    private fun transferFee(money: Double): Double {
-        return money * 2 / 100000
     }
 
     protected inner class PositionListdAdapter() : BaseAdapter() {
@@ -705,7 +678,7 @@ class StockPositionHistoryActivity() : AppCompatActivity() {
                     if (stock.amount > 0) {
                         layout_trade.visibility = View.VISIBLE
                         val trades = dataContext.getKeepTrades(stock.code)
-                        e("trades size : "+trades.size)
+                        e("trades size : " + trades.size)
 
                         trades.forEach {
                             val view = View.inflate(this@StockPositionHistoryActivity, R.layout.inflate_list_item_position_trade, null)

@@ -72,20 +72,10 @@ import java.util.regex.Pattern;
  */
 public class SettingFragment extends Fragment {
 
-    private static final int errorCode01 = 412;
-
-    private static final String URL = "jdbc:mysql://82.103.129.94:3306/wangsc";
-    private static final String USER = "wangsc";
-    private static final String PASSWORD = "sql351489";
-    private Connection conn;
-
-    private static final String _TAG = "wangsc";
     // 视图变量
     private ListView listViewSetting;
     private SeekBar seekBarHeadset;
     private Spinner spinnerMusicNames, spinnerLocationGear;
-    private Button buttonTrack;
-    private MySpinner spinnerOptions;
     // 值变量
     private DataContext mDataContext;
     private List<Setting> settings;
@@ -142,8 +132,7 @@ public class SettingFragment extends Fragment {
     }
 
     @Override
-    public View onCreateView(LayoutInflater inflater, ViewGroup container,
-                             Bundle savedInstanceState) {
+    public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         return inflater.inflate(R.layout.fragment_setting, container, false);
     }
 
@@ -169,34 +158,6 @@ public class SettingFragment extends Fragment {
     List<Location> locationList;
     int index;
 
-    private void deleteRedundantLocation(final Location startLocation, final Location endLocation) {
-        AMapUtil.getDistants(getContext(), startLocation, endLocation, new AMapUtil.DistanceSearchCallback() {
-            @Override
-            public void OnDistanceSearchListener(DistanceResult distanceResult) {
-                List<DistanceItem> distanceItems = distanceResult.getDistanceResults();
-                float distance = 0;
-                for (DistanceItem item : distanceItems) {
-                    distance += item.getDistance();
-                }
-
-                index++;
-                Log.e("wangsc", "index: " + index + "/" + locationList.size());
-                if (index < locationList.size()) {
-                    DateTime oldDate = new DateTime(startLocation.Time);
-                    DateTime newDate = new DateTime(endLocation.Time);
-
-                    if (distance < 50 && oldDate.getDay() == newDate.getDay()) {
-                        mDataContext.deleteLocation(endLocation.Id);
-                        Log.e("wangsc", "delete");
-                    } else {
-                        mPrevLocation = locationList.get(index - 1);
-                    }
-                    deleteRedundantLocation(mPrevLocation, locationList.get(index));
-                }
-            }
-        });
-    }
-
     private void initView(View view) {
 
         spinnerMusicNames = view.findViewById(R.id.spinner_musicName);
@@ -207,7 +168,6 @@ public class SettingFragment extends Fragment {
                         String name = spinnerMusicNames.getItemAtPosition(position).toString();
                         if (!name.equals(mDataContext.getSetting(Setting.KEYS.tally_music_name, _Session.TALLY_MUSIC_NAMES[0]).getString())) {
                             mDataContext.editSetting(Setting.KEYS.tally_music_name, name);
-//                            seekBarVolumn.setProgress((int) (mDataContext.getSetting(spinnerMusicNames.getItemAtPosition(position), 0.3f).getFloat() * 100));
                             if (mDataContext.getSetting(Setting.KEYS.tally_music_is_playing, false).getBoolean()) {
                                 getContext().stopService(new Intent(getContext(), NianfoMusicService.class));
                                 getContext().startService(new Intent(getContext(), NianfoMusicService.class));
@@ -226,7 +186,7 @@ public class SettingFragment extends Fragment {
         );
 
 
-        spinnerLocationGear = (Spinner) view.findViewById(R.id.spinner_locationGear);
+        spinnerLocationGear = view.findViewById(R.id.spinner_locationGear);
         initLocationGear();
         spinnerLocationGear.setSelection(mDataContext.getSetting(Setting.KEYS.map_location_gear, 0).getInt());
         spinnerLocationGear.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
@@ -243,44 +203,6 @@ public class SettingFragment extends Fragment {
 
             }
         });
-
-        final LinearLayout layoutOption = view.findViewById(R.id.layout_option);
-
-//        //
-//        listViewRunLog = view.findViewById(R.id.listView_runlog);
-//        listViewRunLog.setOnItemClickListener(new AdapterView.OnItemClickListener() {
-//            @Override
-//            public void onItemClick(AdapterView<?> parent, View view, final int position, long id) {
-//                new AlertDialog.Builder(getContext()).setMessage("确认要删除当前日志吗？").setPositiveButton("删除当前", new DialogInterface.OnClickListener() {
-//                    @Override
-//                    public void onClick(DialogInterface dialog, int which) {
-//                        mDataContext.deleteRunLog(runLogs.get(position).getId());
-//                        runLogs = mDataContext.getRunLogs();
-//                        adapter.notifyDataSetChanged();
-//                    }
-//                }).setNegativeButton("全部删除", new DialogInterface.OnClickListener() {
-//                    @Override
-//                    public void onClick(DialogInterface dialog, int which) {
-//                        new AlertDialog.Builder(getContext()).setMessage("确认要清空日志吗？").setPositiveButton("确定", new DialogInterface.OnClickListener() {
-//                            @Override
-//                            public void onClick(DialogInterface dialog, int which) {
-//                                mDataContext.clearRunLog();
-//                                runLogs.clear();
-//                                adapter.notifyDataSetChanged();
-//                            }
-//                        }).setNegativeButton("取消", null).show();
-//                    }
-//                }).show();
-//            }
-//        });
-//        listViewRunLog.setOnItemLongClickListener(new AdapterView.OnItemLongClickListener() {
-//            @Override
-//            public boolean onItemLongClick(AdapterView<?> parent, View view, final int position, long id) {
-//                runLogs = mDataContext.getRunLogs();
-//                adapter.notifyDataSetChanged();
-//                return true;
-//            }
-//        });
 
         listViewSetting = view.findViewById(R.id.listView_setting);
         listViewSetting.setOnItemClickListener(new AdapterView.OnItemClickListener() {

@@ -1,16 +1,21 @@
 package com.wang17.myphone.fragment
 
+import android.annotation.SuppressLint
+import android.content.Context.INPUT_METHOD_SERVICE
 import android.content.DialogInterface
 import android.content.Intent
 import android.os.Bundle
 import android.support.v4.app.Fragment
+import android.support.v4.content.ContextCompat.getSystemService
 import android.support.v7.app.AlertDialog
-import android.util.AttributeSet
+import android.text.Editable
+import android.text.TextWatcher
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.view.inputmethod.EditorInfo
+import android.view.inputmethod.InputMethodManager
 import android.widget.EditText
-import android.widget.LinearLayout
 import com.wang17.myphone.R
 import com.wang17.myphone.activity.*
 import com.wang17.myphone.model.database.Setting
@@ -30,13 +35,20 @@ class ButtonFragment : Fragment() {
     private lateinit var numberSpeaker: NumberSpeaker
     private lateinit var dataContext: DataContext
 
+    @SuppressLint("ServiceCast")
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         dataContext = DataContext(context)
         numberSpeaker = NumberSpeaker(context)
 
-        //region 备份按钮
-        var btn = _Button(context!!, "数据")
+
+        var btn = _Button(context!!, "设置")
+        btn.setOnClickListener {
+            startActivity(Intent(context!!, SettingActivity::class.java))
+        }
+        layout_flexbox.addView(btn)
+
+        btn = _Button(context!!, "数据")
         btn.setOnClickListener {
             AlertDialog.Builder(context!!).setItems(arrayOf("备份", "恢复"), DialogInterface.OnClickListener { dialog, which ->
                 when (which) {
@@ -50,12 +62,26 @@ class ButtonFragment : Fragment() {
             }).show()
         }
         layout_flexbox.addView(btn)
-        //endregion
 
-        //region ST按钮
-        btn = _Button(context!!, "TRADE")
+        btn = _Button(context!!, "彩票")
         btn.setOnClickListener {
-            AlertDialog.Builder(context!!).setItems(arrayOf("ST", "FT", "HIS", "FUN"), DialogInterface.OnClickListener { dialog, which ->
+            AlertDialog.Builder(context!!).setItems(arrayOf("大乐透", "双色球")){ dialog, which ->
+                when (which) {
+                    0 -> {
+
+                    }
+                    1 -> {
+
+                    }
+                }
+            }.show()
+        }
+        layout_flexbox.addView(btn)
+
+
+        btn = _Button(context!!, "trade")
+        btn.setOnClickListener {
+            AlertDialog.Builder(context!!).setItems(arrayOf("stock", "futrue", "history", "fund"), DialogInterface.OnClickListener { dialog, which ->
                 when (which) {
                     0 -> {
                         context!!.startActivity(Intent(context, StockPositionActivity::class.java))
@@ -79,10 +105,7 @@ class ButtonFragment : Fragment() {
 
         }
         layout_flexbox.addView(btn)
-        //endregion
 
-
-        //region 足迹
         btn = _Button(context!!, "足迹")
         btn.setOnClickListener {
             try {
@@ -92,19 +115,14 @@ class ButtonFragment : Fragment() {
             }
         }
         layout_flexbox.addView(btn)
-        //endregion
 
-
-        //region TODO界面
-        btn = _Button(context!!, "TODO")
+        btn = _Button(context!!, "todo")
         btn.setOnClickListener {
             activity!!.startActivity(Intent(context, ToDoActivity::class.java))
         }
         layout_flexbox.addView(btn)
-        //endregion
 
 
-        //region 日志
         btn = _Button(context!!, "日志")
         btn.setOnClickListener {
             try {
@@ -114,35 +132,66 @@ class ButtonFragment : Fragment() {
             }
         }
         layout_flexbox.addView(btn)
-        //endregion
 
-        //region 历史持仓
-        btn = _Button(context!!, "SMS")
+        btn = _Button(context!!, "sms")
         btn.setOnClickListener {
-            val view = View.inflate(context,R.layout.inflate_dialog_pwd,null)
+            val view = View.inflate(context, R.layout.inflate_dialog_pwd, null)
             val et = view.findViewById<EditText>(R.id.et_pwd)
-            AlertDialog.Builder(context!!).setTitle("提示").setView(view).setNegativeButton("确定") { dialog, which ->
-                if(et.text.toString()=="6639"){
+            et.requestFocus()
+            val imm = et.context.getSystemService(INPUT_METHOD_SERVICE) as InputMethodManager
+            imm.showSoftInput(et, 0)
+            var dialog = AlertDialog.Builder(context!!).setTitle("提示").setView(view).setNegativeButton("确定") { dialog, which ->
+                if (et.text.toString() == "6639") {
                     context!!.startActivity(Intent(context, SmsActivity::class.java))
-                }else{
+                } else {
                     AlertDialog.Builder(context!!).setMessage(et.text.toString()).show()
                 }
             }.show()
+
+            et.setOnEditorActionListener { v, actionId, event ->
+                if (actionId == EditorInfo.IME_ACTION_DONE) {
+                    if (et.text.toString() == "6639") {
+                        context!!.startActivity(Intent(context, SmsActivity::class.java))
+                    } else {
+                        AlertDialog.Builder(context!!).setMessage(et.text.toString()).show()
+                    }
+                    dialog.dismiss()
+                }
+                true
+            }
+            et.addTextChangedListener(object : TextWatcher {
+                override fun afterTextChanged(s: Editable?) {
+                    val text = s ?: ""
+
+                    if (text.length == 4) {
+                        if (et.text.toString() == "6639") {
+                            context!!.startActivity(Intent(context, SmsActivity::class.java))
+                        } else {
+                            AlertDialog.Builder(context!!).setMessage(et.text.toString()).show()
+                        }
+                        dialog.dismiss()
+                    }
+                }
+
+                override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {
+                }
+
+                override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {
+                }
+            })
         }
         layout_flexbox.addView(btn)
-        //endregion
 
-        //region 云库
-        btn = _Button(context!!, "INTR")
+        btn = _Button(context!!, "intr")
         btn.setOnClickListener {
             var msg = interest(dataContext.getSetting(Setting.KEYS.interest, "60,14;60,7;60,7").string)
             AlertDialog.Builder(context!!).setMessage(msg).show()
         }
         layout_flexbox.addView(btn)
-        //endregion
+
     }
 
-    fun interest(data: String):String{
+    fun interest(data: String): String {
         var result = StringBuffer()
         var totalInterest = 0f
         val rate = floatArrayOf(
@@ -159,8 +208,10 @@ class ButtonFragment : Fragment() {
             val days = obj[1].toInt()
             var interest = rate[days] * 100 / 365 * days * wan
             totalInterest += interest
-            result.append("利率： \t${rate[days]} \t存期：\t${days}天 \t 金额： \t${wan}万 \t 本期利息： \t${DecimalFormat("0.00").format(interest)}元\n")
+            result.append("利率： \t${DecimalFormat("0.00").format(rate[days])} \t存期：\t${if(days<10) "0"+days else days.toString()}天 \t 金额： \t${wan}万 \t 利息： \n${DecimalFormat("0.00").format(interest)}元\n\n")
         }
+
+        result.append("\n")
         result.append("累计利息： \t${DecimalFormat("0.00").format(totalInterest)}元")
         return result.toString()
     }

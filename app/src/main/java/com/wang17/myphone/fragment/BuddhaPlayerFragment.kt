@@ -190,7 +190,7 @@ class BuddhaPlayerFragment : Fragment() {
                 val startTime = DateTime(cv_date.date)
                 var duration = (10*60000*count).toLong()
                 if(bb!=null){
-                    duration = bb.duration/bb.count
+                    duration = bb.duration/bb.count*count
                 }
                 startTime.add(Calendar.MILLISECOND,(-1*duration).toInt())
                 e("date : ${startTime.toLongDateTimeString()}")

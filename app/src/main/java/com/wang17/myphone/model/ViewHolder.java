@@ -9,4 +9,5 @@ public class ViewHolder {
     public TextView textViewIncrease;
     public TextView textViewPrice;
     public TextView textViewProfit;
+    public TextView textViewCost;
 }
