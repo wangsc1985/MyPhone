@@ -405,7 +405,7 @@ object _CloudUtils {
                             position.name = _JsonUtils.getValueByKey(jsonObject, "name")
                             position.code = _JsonUtils.getValueByKey(jsonObject, "code")
                             position.amount = _JsonUtils.getValueByKey(jsonObject, "amount").toInt()
-                            position.cost = _JsonUtils.getValueByKey(jsonObject, "cost").toDouble()
+                            position.cost = _JsonUtils.getValueByKey(jsonObject, "cost").toBigDecimal()
                             position.exchange = if (position.code[0] == '6') "sh" else "sz"
                             if (position.amount > 0) result.add(position)
                         }

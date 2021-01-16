@@ -63,7 +63,6 @@
                 <action android:name="com.wang17.myphone.CLICK_NF_NOTIFICATION" />
             </intent-filter>
         </service>
-        <service android:name=".service.StockTimerHoldByMediaService" />
         <service android:name=".service.StockService" />
         <service android:name=".service.TimerByMediaLoopService" />
         <service android:name=".service.MediaLoopTimerService" />
@@ -98,18 +97,14 @@
             android:name=".activity.FundMonitorActivity"
             android:launchMode="singleTask" />
         <activity
-            android:name=".activity.StockDarkRunActivity"
-            android:configChanges="orientation|keyboardHidden|screenSize"
-            android:label="@string/title_activity_dark_run"
-            android:launchMode="singleTask"
-            android:theme="@style/FullscreenTheme" />
-        <activity
             android:name=".activity.TallayRecordActivity"
+            android:launchMode="singleTask" />
+        <activity
+            android:name=".activity.CardRecordActivity"
             android:launchMode="singleTask" />
         <activity
             android:name=".activity.MarkDayRecordActivity"
             android:launchMode="singleTask" />
-        <activity android:name=".activity.CardRecordActivity" />
         <activity android:name=".activity.SettingActivity" />
         <activity android:name=".activity.AddCardActivity" />
         <activity android:name=".activity.EditCardActivity" />

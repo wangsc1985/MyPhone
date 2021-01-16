@@ -140,9 +140,9 @@ class MyWidgetRemoteViewsService : RemoteViewsService() {
                         } else {
                             Color.RED
                         }
-                        color = if (info.increase > 0) {
+                        color = if (info.increase > 0.toBigDecimal()) {
                             Color.RED
-                        } else if (info.increase == 0.0) {
+                        } else if (info.increase == 0.0.toBigDecimal()) {
                             Color.WHITE
                         } else {
                             Color.GREEN

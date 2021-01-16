@@ -31,6 +31,7 @@ import com.wang17.myphone.structure.SmsType;
 
 import org.jetbrains.annotations.NotNull;
 
+import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.List;
@@ -352,11 +353,11 @@ public class DataContext {
             values.put("id", position.getId().toString());
             values.put("code", position.getCode());
             values.put("name", position.getName());
-            values.put("cost", position.getCost());
+            values.put("cost", position.getCost().toString());
             values.put("type", position.getType());
             values.put("amount", position.getAmount());
             values.put("exchange", position.getExchange());
-            values.put("profit", position.getProfit());
+            values.put("profit", position.getProfit().toString());
             //调用方法插入数据
             db.insert("position", "id", values);
             //关闭SQLiteDatabase对象
@@ -374,11 +375,11 @@ public class DataContext {
             ContentValues values = new ContentValues();
             values.put("code", position.getCode());
             values.put("name", position.getName());
-            values.put("cost", position.getCost());
+            values.put("cost", position.getCost().toString());
             values.put("type", position.getType());
             values.put("amount", position.getAmount());
             values.put("exchange", position.getExchange());
-            values.put("profit", position.getProfit());
+            values.put("profit", position.getProfit().toString());
 
             if (db.update("position", values, "id=?", new String[]{position.getId().toString()}) == 0) {
                 this.addPosition(position);
@@ -403,11 +404,11 @@ public class DataContext {
                 model.setId(UUID.fromString(cursor.getString(0)));
                 model.setCode(cursor.getString(1));
                 model.setName(cursor.getString(2));
-                model.setCost(cursor.getDouble(3));
+                model.setCost(new BigDecimal(cursor.getString(3)));
                 model.setType(cursor.getInt(4));
                 model.setAmount(cursor.getInt(5));
                 model.setExchange(cursor.getString(6));
-                model.setProfit(cursor.getDouble(7));
+                model.setProfit(new BigDecimal(cursor.getString(7)));
                 cursor.close();
                 db.close();
                 return model;
@@ -431,11 +432,11 @@ public class DataContext {
                 model.setId(UUID.fromString(cursor.getString(0)));
                 model.setCode(cursor.getString(1));
                 model.setName(cursor.getString(2));
-                model.setCost(cursor.getDouble(3));
+                model.setCost(new BigDecimal(cursor.getString(3)));
                 model.setType(cursor.getInt(4));
                 model.setAmount(cursor.getInt(5));
                 model.setExchange(cursor.getString(6));
-                model.setProfit(cursor.getDouble(7));
+                model.setProfit(new BigDecimal(cursor.getString(7)));
                 result.add(model);
             }
             cursor.close();
@@ -459,11 +460,11 @@ public class DataContext {
                 model.setId(UUID.fromString(cursor.getString(0)));
                 model.setCode(cursor.getString(1));
                 model.setName(cursor.getString(2));
-                model.setCost(cursor.getDouble(3));
+                model.setCost(new BigDecimal(cursor.getString(3)));
                 model.setType(cursor.getInt(4));
                 model.setAmount(cursor.getInt(5));
                 model.setExchange(cursor.getString(6));
-                model.setProfit(cursor.getDouble(7));
+                model.setProfit(new BigDecimal(cursor.getString(7)));
                 result.add(model);
             }
             cursor.close();
@@ -492,11 +493,11 @@ public class DataContext {
                 model.setId(UUID.fromString(cursor.getString(0)));
                 model.setCode(cursor.getString(1));
                 model.setName(cursor.getString(2));
-                model.setCost(cursor.getDouble(3));
+                model.setCost(new BigDecimal(cursor.getString(3)));
                 model.setType(cursor.getInt(4));
                 model.setAmount(cursor.getInt(5));
                 model.setExchange(cursor.getString(6));
-                model.setProfit(cursor.getDouble(7));
+                model.setProfit(new BigDecimal(cursor.getString(7)));
                 result.add(model);
             }
             cursor.close();
@@ -659,7 +660,7 @@ public class DataContext {
             values.put("dateTime", model.getDateTime().getTimeInMillis());
             values.put("code", model.getCode());
             values.put("name", model.getName());
-            values.put("price", model.getPrice());
+            values.put("price", model.getPrice().toString());
             values.put("amount", model.getAmount());
             values.put("type", model.getType());
             values.put("tag", model.getTag());
@@ -686,7 +687,7 @@ public class DataContext {
                 model.setDateTime(new DateTime(cursor.getLong(1)));
                 model.setCode(cursor.getString(2));
                 model.setName(cursor.getString(3));
-                model.setPrice(cursor.getDouble(4));
+                model.setPrice(new BigDecimal(cursor.getString(4)));
                 model.setAmount(cursor.getInt(5));
                 model.setType(cursor.getInt(6));
                 model.setTag(cursor.getInt(7));
@@ -714,7 +715,7 @@ public class DataContext {
                 model.setDateTime(new DateTime(cursor.getLong(1)));
                 model.setCode(cursor.getString(2));
                 model.setName(cursor.getString(3));
-                model.setPrice(cursor.getDouble(4));
+                model.setPrice(new BigDecimal(cursor.getString(4)));
                 model.setAmount(cursor.getInt(5));
                 model.setType(cursor.getInt(6));
                 model.setTag(cursor.getInt(7));
@@ -744,7 +745,7 @@ public class DataContext {
                 model.setDateTime(new DateTime(cursor.getLong(1)));
                 model.setCode(cursor.getString(2));
                 model.setName(cursor.getString(3));
-                model.setPrice(cursor.getDouble(4));
+                model.setPrice(new BigDecimal(cursor.getString(4)));
                 model.setAmount(cursor.getInt(5));
                 model.setType(cursor.getInt(6));
                 model.setTag(cursor.getInt(7));
@@ -784,7 +785,7 @@ public class DataContext {
                 model.setDateTime(dt);
                 model.setCode(cursor.getString(2));
                 model.setName(cursor.getString(3));
-                model.setPrice(cursor.getDouble(4));
+                model.setPrice(new BigDecimal(cursor.getString(4)));
                 model.setAmount(cursor.getInt(5));
                 model.setType(t);
                 result.add(model);
@@ -811,7 +812,7 @@ public class DataContext {
                 model.setDateTime(new DateTime(cursor.getLong(1)));
                 model.setCode(cursor.getString(2));
                 model.setName(cursor.getString(3));
-                model.setPrice(cursor.getDouble(4));
+                model.setPrice(new BigDecimal(cursor.getString(4)));
                 model.setAmount(cursor.getInt(5));
                 model.setType(cursor.getInt(6));
                 model.setTag(cursor.getInt(7));
@@ -833,7 +834,7 @@ public class DataContext {
             values.put("dateTime", model.getDateTime().getTimeInMillis());
             values.put("code", model.getCode());
             values.put("name", model.getName());
-            values.put("price", model.getPrice());
+            values.put("price", model.getPrice().toString());
             values.put("amount", model.getAmount());
             values.put("type", model.getType());
             values.put("tag",model.getTag());

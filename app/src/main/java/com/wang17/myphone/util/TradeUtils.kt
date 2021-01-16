@@ -1,6 +1,7 @@
 package com.wang17.myphone.util
 
 import com.wang17.myphone.model.database.Trade
+import java.math.BigDecimal
 
 object TradeUtils {
 
@@ -9,20 +10,20 @@ object TradeUtils {
      * type price amount
      * @param money
      */
-    fun tax(trade: Trade): Double {
+    fun tax(trade: Trade): BigDecimal {
         if (trade.type == 1) {
-            return 0.0
+            return 0.toBigDecimal().setScale(6,BigDecimal.ROUND_HALF_UP)
         } else {
-            var money = trade.price * trade.amount * 100
-            return money / 1000
+            var money = trade.price * (trade.amount * 100).toBigDecimal()
+            return (money / 1000.toBigDecimal()).setScale(6,BigDecimal.ROUND_HALF_UP)
         }
     }
-    fun tax(type:Int,price:Double,amount:Int): Double {
+    fun tax(type:Int, price: BigDecimal, amount:Int): BigDecimal {
         if (type == 1) {
-            return 0.0
+            return 0.toBigDecimal().setScale(6,BigDecimal.ROUND_HALF_UP)
         } else {
-            var money = price * amount * 100
-            return money / 1000
+            var money = price * (amount * 100).toBigDecimal()
+            return (money / 1000.toBigDecimal()).setScale(6,BigDecimal.ROUND_HALF_UP)
         }
     }
 
@@ -30,15 +31,15 @@ object TradeUtils {
      * 佣金  万3  最低5元
      * price amount
      */
-    fun commission(trade: Trade): Double {
-        var money = trade.price * trade.amount * 100
-        money = money * 3 / 10000
-        return if (money < 5) 5.0 else money
+    fun commission(trade: Trade): BigDecimal {
+        var money = trade.price * (trade.amount * 100).toBigDecimal()
+        money = money * (3 / 10000).toBigDecimal().setScale(6,BigDecimal.ROUND_HALF_UP)
+        return if (money < 5.toBigDecimal()) 5.0.toBigDecimal() else money
     }
-    fun commission(price:Double,amount:Int): Double {
-        var money = price * amount * 100
-        money = money * 3 / 10000
-        return if (money < 5) 5.0 else money
+    fun commission(price:BigDecimal,amount:Int): BigDecimal {
+        var money = price * (amount * 100).toBigDecimal()
+        money = money * (3 / 10000).toBigDecimal().setScale(6,BigDecimal.ROUND_HALF_UP)
+        return if (money < 5.toBigDecimal()) 5.0.toBigDecimal() else money
     }
 
 
@@ -46,12 +47,12 @@ object TradeUtils {
      * 过户费   十万2
      * price amount
      */
-    fun transferFee(trade: Trade): Double {
-        var money = trade.price * trade.amount * 100
-        return money * 2 / 100000
+    fun transferFee(trade: Trade): BigDecimal {
+        var money = trade.price * (trade.amount * 100).toBigDecimal()
+        return money * (2 / 100000).toBigDecimal().setScale(6,BigDecimal.ROUND_HALF_UP)
     }
-    fun transferFee(price:Double,amount:Int): Double {
-        var money = price * amount * 100
-        return money * 2 / 100000
+    fun transferFee(price:BigDecimal,amount:Int): BigDecimal {
+        var money = price *( amount * 100).toBigDecimal()
+        return money * (2/ 100000).toBigDecimal().setScale(6,BigDecimal.ROUND_HALF_UP)
     }
 }

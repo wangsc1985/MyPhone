@@ -15,8 +15,12 @@ import com.wang17.myphone.R
 import com.wang17.myphone.model.DateTime
 import com.wang17.myphone.model.database.Trade
 import com.wang17.myphone.util.DataContext
+import com.wang17.myphone.util.TradeUtils.commission
+import com.wang17.myphone.util.TradeUtils.tax
+import com.wang17.myphone.util.TradeUtils.transferFee
 import com.wang17.myphone.util._Utils
 import kotlinx.android.synthetic.main.activity_trades.*
+import java.math.BigDecimal
 import java.text.DecimalFormat
 import java.util.*
 
@@ -33,47 +37,48 @@ class TradesActivity : AppCompatActivity() {
         code = intent.getStringExtra("code")
         trades = dataContext!!.getTrades(code)
 
-        var cost = 0.0
+        val costFloat = 12
+        val priceFloat = 12
+        var cost = 0.0.toBigDecimal().setScale(costFloat,BigDecimal.ROUND_HALF_UP)
         var amount = 0
-        var profit = 0.0
-        for (i in trades.indices.reversed()) {
-            val td = trades[i]
+        var profit = 0.0.toBigDecimal().setScale(priceFloat,BigDecimal.ROUND_HALF_UP)
+        for (td in trades.reversed()) {
             // 成本总资金
-            val costFund = cost * amount * 100
+            val costFund = cost * (amount * 100).toBigDecimal()
             // 成交总资金
-            val tradeFund = td.price * td.amount * 100
+            val tradeFund = td.price * (td.amount * 100).toBigDecimal()
             // 佣金
-            val commission = commission(tradeFund)
+            val commission = commission(td.price,td.amount)
             // 过户费
-            val transferFee = transferFee(tradeFund)
+            val transferFee = transferFee(td.price,td.amount)
             // 印花税
-            val tax: Double = (if (td.type == 1) 0.0 else tax(tradeFund))
+            val tax = tax(td.type,td.price,td.amount)
 
             if (td.type == -2 || td.type == 2) {
 
                 // 计算成本
                 if (amount == 0) {
-                    cost = 0.0
+                    cost = 0.toBigDecimal().setScale(costFloat,BigDecimal.ROUND_HALF_UP)
                     // 计算盈利
                     profit += td.price
                 } else {
-                    cost = (cost * amount * 100 - td.price) / (amount * 100)
+                    cost = (cost * (amount * 100).toBigDecimal() - td.price) / (amount * 100).toBigDecimal()
                 }
             } else {
                 /**
                  * 计算盈利
                  */
                 if (td.type == -1) {
-                    profit += ((td.price - cost) * td.amount * 100) - commission - transferFee - tax
+                    profit += ((td.price - cost) *( td.amount * 100).toBigDecimal()) - commission - transferFee - tax
                 }
                 /**
                  * 计算成本
                  */
                 // 清仓
                 if (amount + td.type * td.amount == 0) {
-                    cost = 0.0
+                    cost = 0.toBigDecimal().setScale(costFloat,BigDecimal.ROUND_HALF_UP)
                 } else {
-                    cost = (costFund + (td.type * tradeFund) + commission + transferFee + tax) / (amount * 100 + td.type * td.amount * 100)
+                    cost = (costFund + (td.type.toBigDecimal() * tradeFund) + commission + transferFee + tax) / (amount * 100 + td.type * td.amount * 100).toBigDecimal()
                 }
                 amount = amount + td.type * td.amount
             }
@@ -85,11 +90,6 @@ class TradesActivity : AppCompatActivity() {
         listView_trades.setAdapter(adapter)
         listView_trades.setOnItemClickListener(OnItemClickListener { parent, view, position, id ->
             editTradeDialog(trades.get(position))
-            //                new AlertDialog.Builder(TradesActivity.this).setMessage("是否删除？").setPositiveButton("是", new DialogInterface.OnClickListener() {
-//                    @Override
-//                    public void onClick(DialogInterface dialog, int which) {
-//                    }
-//                }).setNegativeButton("否", null).show();
         })
     }
 
@@ -112,7 +112,7 @@ class TradesActivity : AppCompatActivity() {
         dialog.setButton(DialogInterface.BUTTON_POSITIVE, "修改") { dialog, which ->
             try {
                 val tradeAmount = editTextAmount.text.toString().toInt()
-                val tradePrice = editTextCost.text.toString().toDouble()
+                val tradePrice = editTextCost.text.toString().toBigDecimal()
 
                 //
                 val selectDate = DateTime(calendarViewDate.date)
@@ -154,31 +154,6 @@ class TradesActivity : AppCompatActivity() {
         Log.e("wangsc", log.toString())
     }
 
-    /**
-     * 印花税  卖出时千1
-     *
-     * @param money
-     */
-    private fun tax(money: Double): Double {
-        return money / 1000
-    }
-
-    /**
-     * 佣金  万3  最低5元
-     */
-    private fun commission(money: Double): Double {
-        var money = money
-        money = money * 3 / 10000
-        return if (money < 5) 5.0 else money
-    }
-
-    /**
-     * 过户费   十万2
-     */
-    private fun transferFee(money: Double): Double {
-        return money * 2 / 100000
-    }
-
     protected inner class TradesListdAdapter : BaseAdapter() {
         override fun getCount(): Int {
             return trades!!.size
@@ -206,7 +181,8 @@ class TradesActivity : AppCompatActivity() {
                 textViewDate.text = trade.dateTime.toShortDateString()
                 textViewName.text = trade.name
                 var format = DecimalFormat("#0.00")
-                textViewPrice.text = "${format.format(trade.price)}(${format.format(trade.cost)})"
+                var format2 = DecimalFormat("#0.00000")
+                textViewPrice.text = "${format.format(trade.price)}(${format2.format(trade.cost)})"
                 format = DecimalFormat("#0")
                 var type = "买入"
                 var amount: String? = "-"

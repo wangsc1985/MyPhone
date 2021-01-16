@@ -23,6 +23,7 @@ import com.wang17.myphone.structure.SmsStatus
 import com.wang17.myphone.structure.SmsType
 import com.wang17.myphone.util.*
 import com.wang17.myphone.util._SinaStockUtils.OnLoadStockInfoListListener
+import java.math.BigDecimal
 import java.text.DecimalFormat
 import java.util.*
 
@@ -286,19 +287,19 @@ class MyWidgetProvider : AppWidgetProvider() {
                             isStockList = false
                         }
                         _SinaStockUtils.getStockInfoList(positions, object : OnLoadStockInfoListListener {
-                            override fun onLoadFinished(infoList: List<StockInfo>, totalProfit: Double, averageProfit: Double, time: String) {
+                            override fun onLoadFinished(infoList: List<StockInfo>, totalProfit: BigDecimal, averageProfit: BigDecimal, time: String) {
                                 try {
                                     if (stockInfoList.size == 0) {
                                         return
                                     }
                                     if (is_list_stock) {
-                                        remoteViews.setTextViewText(R.id.textView_markDay, DecimalFormat("0.00").format(averageProfit * 100))
+                                        remoteViews.setTextViewText(R.id.textView_markDay, DecimalFormat("0.00").format(averageProfit * 100.toBigDecimal()))
                                     } else {
                                         remoteViews.setTextViewText(R.id.textView_markDay, time.substring(0, 2) + ":" + time.substring(2, 4))
                                     }
-                                    if (totalProfit > 0) {
+                                    if (totalProfit > 0.toBigDecimal()) {
                                         markday_color= context.resources.getColor(R.color.month_text_color)
-                                    } else if (totalProfit == 0.0) {
+                                    } else if (totalProfit == 0.0.toBigDecimal()) {
                                         markday_color= Color.BLACK
                                     } else {
                                         markday_color= context.resources.getColor(R.color.DARK_GREEN)

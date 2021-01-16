@@ -18,7 +18,6 @@ import com.wang17.myphone.activity.AlarmWindowActivity;
 import com.wang17.myphone.activity.FuturePositionActivity;
 import com.wang17.myphone.activity.StockPositionActivity;
 import com.wang17.myphone.activity.FundMonitorActivity;
-import com.wang17.myphone.activity.StockDarkRunActivity;
 import com.wang17.myphone.event.NianfoOverEvent;
 import com.wang17.myphone.service.NianfoMusicService;
 import com.wang17.myphone.service.SpeakerService;
@@ -189,9 +188,6 @@ public class AlarmReceiver extends BroadcastReceiver {
                     switch (mDataContext.getSetting(Setting.KEYS.quick,1).getInt()){
                         case 1:
                             intent = new Intent(context, StockPositionActivity.class);
-                            break;
-                        case 2:
-                            intent = new Intent(context, StockDarkRunActivity.class);
                             break;
                         case 3:
                             intent = new Intent(context, FuturePositionActivity.class);
