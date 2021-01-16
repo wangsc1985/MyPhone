@@ -12,12 +12,12 @@ import android.view.View
 import android.view.View.OnLongClickListener
 import android.view.ViewGroup
 import android.widget.BaseAdapter
-import android.widget.TextView
 import com.wang17.myphone.R
 import com.wang17.myphone.model.StockInfo
 import com.wang17.myphone.model.ViewHolder
 import com.wang17.myphone.model.database.Position
 import com.wang17.myphone.model.database.Setting
+import com.wang17.myphone.setMyScale
 import com.wang17.myphone.util.*
 import com.wang17.myphone.util.TradeUtils.commission
 import com.wang17.myphone.util.TradeUtils.tax
@@ -26,7 +26,6 @@ import com.wang17.myphone.util._LogUtils.log2file
 import kotlinx.android.synthetic.main.activity_attention_stock.*
 import okhttp3.Request
 import okhttp3.Response
-import java.math.BigDecimal
 import java.text.DecimalFormat
 import java.util.*
 
@@ -120,7 +119,7 @@ class StockPositionActivity : AppCompatActivity() {
                 textView_time.text = info.time
                 textViewSzzsPrice.text = DecimalFormat("0.00").format(info.price)
                 textViewSzzsIncrease.text = DecimalFormat("0.00%").format(info.increase)
-                if (info.increase >= BigDecimal(0)) {
+                if (info.increase >= 0.toBigDecimal()) {
                     llayoutSzzs.setBackgroundColor(resources.getColor(R.color.a))
                 } else {
                     llayoutSzzs.setBackgroundColor(resources.getColor(R.color.DARK_GREEN))
@@ -137,7 +136,7 @@ class StockPositionActivity : AppCompatActivity() {
             override fun onLoadFinished() {
                 textViewSzczPrice.text = DecimalFormat("0.00").format(info.price)
                 textViewSzczIncrease.text = DecimalFormat("0.00%").format(info.increase)
-                if (info.increase >= BigDecimal(0)) {
+                if (info.increase >= 0.toBigDecimal()) {
                     llayoutSzcz.setBackgroundColor(resources.getColor(R.color.a))
                 } else {
                     llayoutSzcz.setBackgroundColor(resources.getColor(R.color.DARK_GREEN))
@@ -154,7 +153,7 @@ class StockPositionActivity : AppCompatActivity() {
             override fun onLoadFinished() {
                 textViewZxbPrice.text = DecimalFormat("0.00").format(info.price)
                 textViewZxbIncrease.text = DecimalFormat("0.00%").format(info.increase)
-                if (info.increase >= BigDecimal(0)) {
+                if (info.increase >=0.toBigDecimal()) {
                     llayoutZxbz.setBackgroundColor(resources.getColor(R.color.a))
                 } else {
                     llayoutZxbz.setBackgroundColor(resources.getColor(R.color.DARK_GREEN))
@@ -251,7 +250,7 @@ class StockPositionActivity : AppCompatActivity() {
                         val open = result[2].toBigDecimal()
                         info.name = result[0]
                         info.price = result[3].toBigDecimal()
-                        info.increase = (info.price - open) / open
+                        info.increase = (info.price.setScale(4) - open) / open
                         info.time = result[31]
                         runOnUiThread { onLoadFinishedListener?.onLoadFinished() }
                     } catch (e: Exception) {
@@ -274,8 +273,8 @@ class StockPositionActivity : AppCompatActivity() {
         //var hq_str_sh601555="东吴证券,11.290,11.380,11.160,11.350,11.050,11.160,11.170,61431561,687740501.000,3500,11.160,144700,11.150,98500,11.140,78500,11.130,99200,11.120,143700,11.170,99700,11.180,28700,11.190,41500,11.200,41500,11.210,2019-04-17,15:00:00,00";
         Thread(Runnable {
             try {
-                var totalProfit = 0.0.toBigDecimal()
-                var totalCostFund = 0.0.toBigDecimal()
+                var totalProfit = 0.toBigDecimal()
+                var totalCostFund = 0.toBigDecimal()
                 if (infoList.size <= 0) return@Runnable
                 for (stockInfo in infoList) {
                     val url = "https://hq.sinajs.cn/list=" + stockInfo.exchange + stockInfo.code
@@ -295,9 +294,13 @@ class StockPositionActivity : AppCompatActivity() {
 
                             val fee = commission(stockInfo.price, stockInfo.amount) + tax(-1, stockInfo.price, stockInfo.amount) + transferFee(stockInfo.price, stockInfo.amount)
                             val profit = (stockInfo.price - stockInfo.cost) * (stockInfo.amount * 100).toBigDecimal() - fee
-                            val increase = profit / (stockInfo.cost * (stockInfo.amount * 100).toBigDecimal())
+                            val costFund = stockInfo.cost * (stockInfo.amount * 100).toBigDecimal()
+                            val increase = profit.setMyScale() / costFund
+//                            _Utils.e("commission : ${commission(stockInfo.price, stockInfo.amount)} , trasferFee : ${transferFee(stockInfo.price, stockInfo.amount)} , tax : ${tax(-1, stockInfo.price, stockInfo.amount)}")
+//                            _Utils.e("profit : $profit")
                             totalProfit += profit
-                            totalCostFund += stockInfo.cost * (stockInfo.amount * 100).toBigDecimal()
+                            totalCostFund += costFund
+//                            _Utils.e("${stockInfo.name} cost fund : $costFund , profit : $profit")
                             runOnUiThread {
                                 stockInfo.viewHolder.textViewIncrease.text = DecimalFormat("0.00%").format(stockInfo.increase)
                                 stockInfo.viewHolder.textViewPrice.text = DecimalFormat("0.00").format(stockInfo.price)
@@ -338,7 +341,7 @@ class StockPositionActivity : AppCompatActivity() {
                 }
                 runOnUiThread(Runnable {
                     if (infoList.size == 0) return@Runnable
-                    val totalAverageIncrease = totalProfit / totalCostFund
+                    val totalAverageIncrease = totalProfit.setMyScale() / totalCostFund
                     if (Math.abs((totalAverageIncrease - preTotalAverageIncrease).toDouble()) * 100 > 0.3) {
                         preTotalAverageIncrease = totalAverageIncrease
                         var msg = DecimalFormat("0.00%").format(totalAverageIncrease)
@@ -359,7 +362,6 @@ class StockPositionActivity : AppCompatActivity() {
                         loadStockCount = 0
                     }
 
-//                            _Utils.speaker(AttentionStockActivity.this,new DecimalFormat("0.00").format(averageProfit*100));
                     textView_totalProfit.text = DecimalFormat("0.00%").format(totalAverageIncrease)
                     if (totalAverageIncrease > 0.toBigDecimal()) {
                         textView_totalProfit.setTextColor(Color.RED)
@@ -372,11 +374,8 @@ class StockPositionActivity : AppCompatActivity() {
                         _AnimationUtils.heartBeat(actionButton_home)
                         preTime = mTime
                     }
-                    //                            AnimationUtils.setRorateAnimationOnce(AttentionStockActivity.this, actionButtonHome);
                 })
             } catch (e: Exception) {
-//                    e.printStackTrace();
-//                    _Utils.printException(getApplicationContext(), e);
             }
         }).start()
     }
@@ -391,7 +390,7 @@ class StockPositionActivity : AppCompatActivity() {
     //        if (scaleY != null)
     //            scaleY.cancel();
     //    }
-    private var preTotalAverageIncrease = 0.0.toBigDecimal()
+    private var preTotalAverageIncrease = 0.toBigDecimal()
     override fun onKeyDown(keyCode: Int, event: KeyEvent): Boolean {
         try {
             val audio = getSystemService(AUDIO_SERVICE) as AudioManager

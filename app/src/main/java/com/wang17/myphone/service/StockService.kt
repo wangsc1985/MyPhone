@@ -16,6 +16,7 @@ import android.media.SoundPool
 import android.os.Build
 import android.os.Handler
 import android.os.IBinder
+import android.os.PowerManager
 import android.os.PowerManager.WakeLock
 import android.provider.Settings
 import android.support.annotation.RequiresApi
@@ -32,7 +33,11 @@ import com.wang17.myphone.callback.CloudCallback
 import com.wang17.myphone.model.Commodity
 import com.wang17.myphone.model.database.Position
 import com.wang17.myphone.model.database.Setting
+import com.wang17.myphone.setMyScale
 import com.wang17.myphone.util.*
+import com.wang17.myphone.util.TradeUtils.commission
+import com.wang17.myphone.util.TradeUtils.tax
+import com.wang17.myphone.util.TradeUtils.transferFee
 import com.wang17.myphone.util._Utils.e
 import okhttp3.Request
 import java.io.IOException
@@ -61,8 +66,8 @@ class StockService : Service() {
     private var isSoundLoaded = false
     private var soundId = 0
     private var loadStockCount = 1
-    private var preAverageTotalProfitS = 0.0.toBigDecimal()
-    private var preAverageTotalProfitF = 0.0.toBigDecimal()
+    private var preAverageTotalIncreaseS = 0.toBigDecimal()
+    private var preAverageTotalProfitF = 0.toBigDecimal()
     private var preTime: Long = 0
     var mTimeS: String = ""
     var mTimeF: String = ""
@@ -87,7 +92,7 @@ class StockService : Service() {
             /**
              *
              */
-            preAverageTotalProfitS = 0.0.toBigDecimal()
+            preAverageTotalIncreaseS = 0.toBigDecimal()
             positions = mDataContext.positions
 //            positions = getPositionsFromCloud()
             preTime = System.currentTimeMillis()
@@ -130,7 +135,7 @@ class StockService : Service() {
         super.onCreate()
         Log.e("wangsc", "stock timer music service on create...")
         try {
-//            wakeLock = _Utils.acquireWakeLock(applicationContext, PowerManager.PARTIAL_WAKE_LOCK)
+            wakeLock = _Utils.acquireWakeLock(applicationContext, PowerManager.PARTIAL_WAKE_LOCK)
 //            Log.e("wangsc", "wakeLock:" + wakeLock)
             /**
              * 监听
@@ -146,7 +151,7 @@ class StockService : Service() {
     override fun onDestroy() {
         try {
             //endregion
-//            _Utils.releaseWakeLock(applicationContext, wakeLock)
+            _Utils.releaseWakeLock(applicationContext, wakeLock)
             mPlayer.stop()
             mPlayer.release()
             // 解除监控
@@ -263,13 +268,11 @@ class StockService : Service() {
 
     private fun fillStockInfoList() {
 
-        //http://hq.sinajs.cn/list=sh601555
-        //var hq_str_sh601555="东吴证券,11.290,11.380,11.160,11.350,11.050,11.160,11.170,61431561,687740501.000,3500,11.160,144700,11.150,98500,11.140,78500,11.130,99200,11.120,143700,11.170,99700,11.180,28700,11.190,41500,11.200,41500,11.210,2019-04-17,15:00:00,00";
         Thread(Runnable {
             try {
-                var totalProfitS = 0.0.toBigDecimal()
-                var totalAmountS = 0
-                var totalProfitF = 0.0.toBigDecimal()
+                var totalProfitS = 0.toBigDecimal()
+                var totalCostFundS = 0.toBigDecimal()
+                var totalProfitF = 0.toBigDecimal()
                 sizeS = 0
                 sizeF = sizeS
                 if (positions.size <= 0) return@Runnable
@@ -290,10 +293,15 @@ class StockService : Service() {
                                 e("数据：$sss")
                                 val result = sss.substring(sss.indexOf("\"")).replace("\"", "").split(",".toRegex()).toTypedArray()
                                 val price = result[3].toBigDecimal()
-                                val profit = (price - position.cost) / position.cost
                                 mTimeS = result[31]
-                                totalProfitS += profit * (position.amount * 100).toBigDecimal() * position.cost
-                                totalAmountS += position.amount * 100
+                                val fee = commission(price,position.amount) + transferFee(price,position.amount) + tax(-1,price,position.amount)
+                                val profit = (price - position.cost)*(position.amount*100).toBigDecimal()-fee
+//                                e("commission : ${commission(price,position.amount)} , trasferFee : ${transferFee(price,position.amount)} , tax : ${tax(-1,price,position.amount)}")
+//                                e("profit : $profit")
+                                val costFund = position.cost* (position.amount * 100).toBigDecimal()
+                                totalProfitS += profit
+                                totalCostFundS +=costFund
+//                                e("${position.name} cost fund : $costFund , profit : $profit")
                             } catch (e: Exception) {
                                 Log.e("wangsc", "数据错误...")
                                 mDataContext.addLog("StockMediaTimerServic", "数据错误...", "")
@@ -309,14 +317,12 @@ class StockService : Service() {
                          */
                         sizeF++
                         val url = "https://hq.sinajs.cn/list=" + position.code
-                        e("url : $url")
                         val client = _OkHttpUtil.client
                         val request = Request.Builder().url(url).build()
                         val response = client.newCall(request).execute()
                         if (response.isSuccessful) {
                             try {
                                 val sss = response.body!!.string()
-                                e("数据：$sss")
                                 val result = sss.substring(sss.indexOf("\"")).replace("\"", "").split(",".toRegex()).toTypedArray()
                                 val price = result[8].toBigDecimal()
                                 val profit = position.type.toBigDecimal() * (price - position.cost)
@@ -325,12 +331,10 @@ class StockService : Service() {
                                 val commodity = findCommodity(position.code)
                                 totalProfitF += profit * position.amount.toBigDecimal() * commodity!!.unit.toBigDecimal()
                             } catch (e: Exception) {
-                                Log.e("wangsc", "数据错误...")
                                 mDataContext.addLog("StockMediaTimerServic", "数据错误...", "")
                                 return@Runnable
                             }
                         } else {
-                            Log.e("wangsc", "获取数据失败...")
                             mDataContext.addLog("StockMediaTimerServic", "获取数据失败...", "")
                         }
                     }
@@ -350,32 +354,25 @@ class StockService : Service() {
                         szPrice = result[3].toDouble()
                         val open = result[2].toDouble()
                         szIncrease = (szPrice - open) / open
-                        Log.e("wangsc", "open: $open , price: $szPrice , increase: $szIncrease")
                         mTimeS = result[31]
                     } catch (e: Exception) {
-                        Log.e("wangsc", "数据错误...")
                         mDataContext.addLog("StockMediaTimerServic", "数据错误...", "")
                         return@Runnable
                     }
                 } else {
-                    Log.e("wangsc", "数据错误...")
                     mDataContext.addLog("StockMediaTimerServic", "数据错误...", "")
                     return@Runnable
                 }
                 //endregion
                 var speakMsg = ""
                 //region 股票平均盈利
-                var averageTotalProfitS = 0.0.toBigDecimal()
+                var averageTotalIncreaseS = 0.toBigDecimal()
                 var msgS = ""
                 if (sizeS > 0) {
-                    averageTotalProfitS = totalProfitS / totalAmountS.toBigDecimal()
-                    msgS = DecimalFormat("0.00").format(averageTotalProfitS * 100.toBigDecimal())
-                    Log.e("wangsc", "averageTotalProfitS: $msgS")
-                    if (Math.abs((averageTotalProfitS - preAverageTotalProfitS).toDouble()) * 100 > 1.0 / sizeS) {
-                        preAverageTotalProfitS = averageTotalProfitS
-                        //                            if (averageTotalProfitS > 0) {
-//                                msgS = "A" + msgS;
-//                            }
+                    averageTotalIncreaseS = totalProfitS.setMyScale() / totalCostFundS
+                    msgS = DecimalFormat("0.00").format(averageTotalIncreaseS * 100.toBigDecimal())
+                    if (Math.abs((averageTotalIncreaseS - preAverageTotalIncreaseS).toDouble()) * 100 > 1.0 / sizeS) {
+                        preAverageTotalIncreaseS = averageTotalIncreaseS
                         speakMsg += msgS
                     }
                 }
@@ -383,25 +380,20 @@ class StockService : Service() {
 
 
                 //region 期货平均盈利
-                var averageTotalProfitF = 0.0.toBigDecimal()
+                var averageTotalProfitF = 0.toBigDecimal()
                 var msgF = ""
                 if (sizeF > 0) {
                     averageTotalProfitF = totalProfitF / sizeF.toBigDecimal()
                     msgF = DecimalFormat("0").format(averageTotalProfitF)
-                    Log.e("wangsc", "averageTotalProfit: $msgF")
                     if (Math.abs((averageTotalProfitF - preAverageTotalProfitF).toDouble()) > 20 / sizeF) {
                         preAverageTotalProfitF = averageTotalProfitF
-                        //                            if (averageTotalProfitF > 0) {
-//                                msgF = "C" + msgF;
-//                            }
-//                            speakMsg += msgF;
                     }
                 }
                 //endregion
                 if (!speakMsg.isEmpty() && mDataContext.getSetting(Setting.KEYS.is_stock_broadcast, true).boolean) {
                     var pitch = 1.0f
                     var speech = 1.2f
-                    if (averageTotalProfitS < 0.toBigDecimal()) {
+                    if (averageTotalIncreaseS < 0.toBigDecimal()) {
                         pitch = 0.1f
                         speech = 0.8f
                     }
@@ -409,17 +401,17 @@ class StockService : Service() {
                 }
                 sendNotification(DecimalFormat("0.00").format(szPrice),
                         DecimalFormat("0.00").format(szIncrease * 100),
-                        mTimeS, DecimalFormat("0.00").format(averageTotalProfitS * 100.toBigDecimal()),
+                        mTimeS, DecimalFormat("0.00").format(averageTotalIncreaseS * 100.toBigDecimal()),
                         mTimeF, DecimalFormat("#,###").format(averageTotalProfitF))
 
                 uiHandler.post {
                     val zjIndex = floatingWindowView.findViewById<TextView>(R.id.tv_zj)
                     val szIndex = floatingWindowView.findViewById<TextView>(R.id.tv_sz)
 //
-                    zjIndex.setText(DecimalFormat("0.00").format(averageTotalProfitS * 100.toBigDecimal()))
-                    if (averageTotalProfitS > 0.toBigDecimal()) {
+                    zjIndex.setText(DecimalFormat("0.00").format(averageTotalIncreaseS * 100.toBigDecimal()))
+                    if (averageTotalIncreaseS > 0.toBigDecimal()) {
                         zjIndex.setTextColor(resources.getColor(R.color.month_text_color))
-                    } else if (averageTotalProfitS == 0.0.toBigDecimal()) {
+                    } else if (averageTotalIncreaseS == 0.0.toBigDecimal()) {
                         zjIndex.setTextColor(Color.WHITE)
                     } else {
                         zjIndex.setTextColor(resources.getColor(R.color.DARK_GREEN))

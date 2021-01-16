@@ -64,7 +64,6 @@
             </intent-filter>
         </service>
         <service android:name=".service.StockService" />
-        <service android:name=".service.TimerByMediaLoopService" />
         <service android:name=".service.MediaLoopTimerService" />
 
         <meta-data

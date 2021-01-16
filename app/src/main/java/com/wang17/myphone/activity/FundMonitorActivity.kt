@@ -19,10 +19,12 @@ import android.view.Window
 import android.view.WindowManager
 import android.widget.TextView
 import com.wang17.myphone.R
+import com.wang17.myphone.decimal2
 import com.wang17.myphone.model.Commodity
 import com.wang17.myphone.model.StockInfo
 import com.wang17.myphone.model.database.Position
 import com.wang17.myphone.model.database.Setting
+import com.wang17.myphone.roundMode
 import com.wang17.myphone.util.DataContext
 import com.wang17.myphone.util._Session
 import com.wang17.myphone.util._SinaStockUtils.OnLoadStockInfoListListener
@@ -107,7 +109,7 @@ class FundMonitorActivity : AppCompatActivity() {
     }
 
     private var timer: Timer? = null
-    private var preAverageProfit = 0.0.toBigDecimal()
+    private var preAverageProfit = 0.toBigDecimal()
     private fun e(log: Any) {
         Log.e("wangsc", log.toString())
     }

@@ -11,7 +11,7 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.*
 import android.widget.AdapterView.OnItemClickListener
-import com.wang17.myphone.R
+import com.wang17.myphone.*
 import com.wang17.myphone.model.DateTime
 import com.wang17.myphone.model.database.Trade
 import com.wang17.myphone.util.DataContext
@@ -20,7 +20,6 @@ import com.wang17.myphone.util.TradeUtils.tax
 import com.wang17.myphone.util.TradeUtils.transferFee
 import com.wang17.myphone.util._Utils
 import kotlinx.android.synthetic.main.activity_trades.*
-import java.math.BigDecimal
 import java.text.DecimalFormat
 import java.util.*
 
@@ -37,11 +36,9 @@ class TradesActivity : AppCompatActivity() {
         code = intent.getStringExtra("code")
         trades = dataContext!!.getTrades(code)
 
-        val costFloat = 12
-        val priceFloat = 12
-        var cost = 0.0.toBigDecimal().setScale(costFloat,BigDecimal.ROUND_HALF_UP)
+        var cost = 0.toBigDecimal()
         var amount = 0
-        var profit = 0.0.toBigDecimal().setScale(priceFloat,BigDecimal.ROUND_HALF_UP)
+        var profit = 0.toBigDecimal()
         for (td in trades.reversed()) {
             // 成本总资金
             val costFund = cost * (amount * 100).toBigDecimal()
@@ -58,31 +55,32 @@ class TradesActivity : AppCompatActivity() {
 
                 // 计算成本
                 if (amount == 0) {
-                    cost = 0.toBigDecimal().setScale(costFloat,BigDecimal.ROUND_HALF_UP)
+                    cost = 0.toBigDecimal()
                     // 计算盈利
                     profit += td.price
                 } else {
-                    cost = (cost * (amount * 100).toBigDecimal() - td.price) / (amount * 100).toBigDecimal()
+                    cost = (cost * (amount * 100).toMyDecimal() - td.price) / (amount * 100).toBigDecimal()
                 }
             } else {
                 /**
                  * 计算盈利
                  */
                 if (td.type == -1) {
-                    profit += ((td.price - cost) *( td.amount * 100).toBigDecimal()) - commission - transferFee - tax
+                    profit += (td.price - cost) *( td.amount * 100).toBigDecimal() - commission - transferFee - tax
                 }
                 /**
                  * 计算成本
                  */
                 // 清仓
                 if (amount + td.type * td.amount == 0) {
-                    cost = 0.toBigDecimal().setScale(costFloat,BigDecimal.ROUND_HALF_UP)
+                    cost = 0.toBigDecimal()
                 } else {
-                    cost = (costFund + (td.type.toBigDecimal() * tradeFund) + commission + transferFee + tax) / (amount * 100 + td.type * td.amount * 100).toBigDecimal()
+                    cost = (costFund + (td.type.toMyDecimal() * tradeFund) + commission + transferFee + tax) / (amount * 100 + td.type * td.amount * 100).toBigDecimal()
                 }
                 amount = amount + td.type * td.amount
             }
-            td.cost = cost
+            td.cost = cost.setMyScale()
+            e("cost : ${td.cost}, amount : ${amount}, commission : ${commission}, transfer fee : ${transferFee}, tax : ${tax}")
         }
 
         //
@@ -180,19 +178,19 @@ class TradesActivity : AppCompatActivity() {
                 val textViewType = convertView.findViewById<TextView>(R.id.textView_type)
                 textViewDate.text = trade.dateTime.toShortDateString()
                 textViewName.text = trade.name
-                var format = DecimalFormat("#0.00")
-                var format2 = DecimalFormat("#0.00000")
-                textViewPrice.text = "${format.format(trade.price)}(${format2.format(trade.cost)})"
-                format = DecimalFormat("#0")
+                var priceFormat = DecimalFormat("#0.00")
+                var costFormat = DecimalFormat("#0.000")
+                textViewPrice.text = "${priceFormat.format(trade.price)}(${costFormat.format(trade.cost)})"
+                priceFormat = DecimalFormat("#0")
                 var type = "买入"
                 var amount: String? = "-"
                 when (trade.type) {
                     1 -> {
                         type = "买入"
-                        amount = format.format((trade.amount * 100).toLong())
+                        amount = priceFormat.format((trade.amount * 100).toLong())
                     }
                     -1 -> {
-                        amount = format.format((trade.amount * 100).toLong())
+                        amount = priceFormat.format((trade.amount * 100).toLong())
                         type = "卖出"
                     }
                     2 -> type = "股息"

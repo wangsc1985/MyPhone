@@ -1,31 +1,64 @@
 package com.wang17.lib
 
+import java.math.BigDecimal
 import java.text.DecimalFormat
-import java.util.regex.Pattern
 
 class MyClass {
     companion object {
         @JvmStatic
         fun main(args: Array<String>) {
-            _OkHttpUtil.getRequest("https://www.xinti.com/prizedetail/dlt.html", HttpCallback { html ->
-                try {
-                    var cc = html.substring(html.indexOf("<span class=\"iballs\">"))
-                   cc=  cc.substring(0,cc.indexOf("</span>"))
-                    println(cc)
-//                    println(html)
-//                    var matcher = Pattern.compile("(?<=iballs).*(?=</ul>)").matcher(html)
-//                    var matcher = Pattern.compile("(?<=<ul class=\"notice-list\">).*").matcher(html)
-//                    matcher.find()
-//                    val list = matcher.group().toString()
-//                    println(list)
-                } catch (e: Exception) {
-                    println(e.message)
-                }
-            })
+            println("----------------------------------------------------------------------------------------------------------------------------------------------------")
+            println("在BigDecimal数值类型进行除法计算时，为了避免精度丢失，要预估除法结果小数位数，并将被除数设置decimal小数位数。")
+            println("否则的话，被除数和除数都是整数，进行decimal数据转换时，会自动转换为精度为0的decimal类型，计算结果也会自动按照整数相除处理，处理的结果也是没有小数的四舍五入值。")
+            println()
+            var aaa = 1.000000001.toBigDecimal()/3.toBigDecimal()
+            println(aaa)
+            aaa = 0.00001.toBigDecimal()+1.01.toBigDecimal()/3.toBigDecimal()
+            println(aaa)
+            println()
+
+            println("----------------------------------------------------------------------------------------------------------------------------------------------------")
+            println("用double.toBigDecimal()得到的BigDecimal数值，不存在精度丢失，但是小数位数只会精确到最后一个非0数字。")
+            println()
+            aaa = 1.000010.toBigDecimal()
+            println(aaa-1.toBigDecimal())
+            println()
+
+            /**
+             *
+             *
+             */
+            println("----------------------------------------------------------------------------------------------------------------------------------------------------")
+            println("用BigDecimal(str:String)构造方法创建的BigDecimal数值，不会有精度的丢失")
+            println("用BigDecimal(str:Double)构造方法创建的BigDecimal数值，有精度的丢失")
+            println()
+            aaa=BigDecimal("1.324003563")
+            println(aaa-1.toBigDecimal())
+            aaa=BigDecimal(1.324003563)
+            println(aaa-1.toBigDecimal())
+            println()
+
+            println("----------------------------------------------------------------------------------------------------------------------------------------------------")
+            println("自定义decimal带默认精度的转换方法")
+            println()
+            aaa=1.toDecimal()
+            println(aaa)
         }
 
         fun abc(callBack: CallBack) {
             callBack.execute()
+        }
+
+        fun getDltHttp(){
+            _OkHttpUtil.getRequest("https://www.xinti.com/prizedetail/dlt.html") { html ->
+                try {
+                    var cc = html.substring(html.indexOf("<span class=\"iballs\">"))
+                    cc = cc.substring(0, cc.indexOf("</span>"))
+                    println(cc)
+                } catch (e: Exception) {
+                    println(e.message)
+                }
+            }
         }
 
         /**

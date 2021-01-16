@@ -16,9 +16,11 @@ import android.view.ViewGroup
 import android.widget.*
 import android.widget.AdapterView.OnItemLongClickListener
 import com.wang17.myphone.R
+import com.wang17.myphone.decimal2
 import com.wang17.myphone.model.Commodity
 import com.wang17.myphone.model.database.Position
 import com.wang17.myphone.model.database.Setting
+import com.wang17.myphone.roundMode
 import com.wang17.myphone.util.*
 import com.wang17.myphone.util._LogUtils.log2file
 import kotlinx.android.synthetic.main.activity_attention_future.*
@@ -351,7 +353,7 @@ class FuturePositionActivity : AppCompatActivity() {
         //var hq_str_sh601555="东吴证券,11.290,11.380,11.160,11.350,11.050,11.160,11.170,61431561,687740501.000,3500,11.160,144700,11.150,98500,11.140,78500,11.130,99200,11.120,143700,11.170,99700,11.180,28700,11.190,41500,11.200,41500,11.210,2019-04-17,15:00:00,00";
         Thread(Runnable {
             try {
-                val totalProfit = arrayOf(0.0.toBigDecimal())
+                var totalProfit = 0.toBigDecimal()
                 Log.e("wangsc", "attention future activity fillStockInfoList infolist size: " + infoList!!.size)
                 for (info1 in infoList) {
                     val url = "https://hq.sinajs.cn/list=" + info1.code
@@ -371,8 +373,8 @@ class FuturePositionActivity : AppCompatActivity() {
                             Log.e("wangsc", "eeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee$mTime")
                             val profitPoints = (info1.type.toBigDecimal() * (info1.price!! - info1.cost!!))
                             val commodity = findCommodity(info1.code)
-                            totalProfit[0] += profitPoints * (info1.amount * commodity!!.unit).toBigDecimal()
-                            Log.e("wangsc", "code: " + info1.code + " , profitPoints: " + totalProfit[0] + " , cose: " + commodity.cose + " , unit: " + commodity.unit)
+                            totalProfit += profitPoints * (info1.amount * commodity!!.unit).toBigDecimal()
+                            Log.e("wangsc", "code: " + info1.code + " , profitPoints: " + totalProfit + " , cose: " + commodity.cose + " , unit: " + commodity.unit)
                             val ff = getFormat(commodity)
                             //                            if (ff.length() > format.length()) {
 //                                format = ff;
@@ -407,7 +409,7 @@ class FuturePositionActivity : AppCompatActivity() {
                 runOnUiThread(Runnable {
                     val averageTotalProfit:BigDecimal
                     if (infoList.size == 0) return@Runnable
-                    averageTotalProfit = totalProfit[0]
+                    averageTotalProfit = totalProfit
 
                     if (Math.abs((averageTotalProfit - preAverageTotalProfit).toDouble()) > 20 / infoList.size) {
                         preAverageTotalProfit = averageTotalProfit

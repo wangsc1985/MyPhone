@@ -9,7 +9,6 @@ import android.os.PowerManager
 import android.support.design.widget.Snackbar
 import android.support.v7.app.AppCompatActivity
 import android.text.InputType
-import android.util.Log
 import android.view.View
 import android.view.ViewGroup
 import android.widget.*
@@ -17,9 +16,8 @@ import android.widget.AdapterView.OnItemClickListener
 import android.widget.AdapterView.OnItemLongClickListener
 import android.widget.CalendarView.OnDateChangeListener
 import com.alibaba.fastjson.JSON
-import com.wang17.myphone.R
+import com.wang17.myphone.*
 import com.wang17.myphone.callback.CloudCallback
-import com.wang17.myphone.e
 import com.wang17.myphone.model.DateTime
 import com.wang17.myphone.model.StockInfo
 import com.wang17.myphone.model.database.Position
@@ -43,7 +41,7 @@ class StockPositionHistoryActivity() : AppCompatActivity() {
     private lateinit var wakeLock: PowerManager.WakeLock
 
     private var adapter: PositionListdAdapter = PositionListdAdapter()
-    private var totalProfit = 0.0.toBigDecimal()
+    private var totalProfit = 0.toBigDecimal()
 
     override fun onDestroy() {
         super.onDestroy()
@@ -80,14 +78,12 @@ class StockPositionHistoryActivity() : AppCompatActivity() {
         floatingActionButtonRefresh.setOnClickListener(object : View.OnClickListener {
             override fun onClick(v: View) {
                 AlertDialog.Builder(this@StockPositionHistoryActivity).setMessage("是否重新计算所有股票的收益？").setPositiveButton("是", DialogInterface.OnClickListener { dialog, which ->
-                    totalProfit = 0.0.toBigDecimal()
-                    val costFloat = 12
-                    val priceFloat = 12
+                    totalProfit = 0.toBigDecimal()
                     for (pos: Position in positions) {
                         val tradeList = dataContext.getTrades(pos.code)
-                        var cost = 0.toBigDecimal().setScale(costFloat, BigDecimal.ROUND_HALF_UP)
+                        var cost = 0.toBigDecimal()
                         var amount = 0
-                        var profit = 0.toBigDecimal().setScale(priceFloat, BigDecimal.ROUND_HALF_UP)
+                        var profit = 0.toBigDecimal()
                         for (td in tradeList.reversed()) {
                             if (td.name == "中国人保")
                             e(td.dateTime.toLongDateTimeString())
@@ -105,11 +101,11 @@ class StockPositionHistoryActivity() : AppCompatActivity() {
 
                                 // 计算成本
                                 if (amount == 0) {
-                                    cost = 0.toBigDecimal().setScale(costFloat, BigDecimal.ROUND_HALF_UP)
+                                    cost = 0.toBigDecimal()
                                     // 计算盈利
                                     profit += td.price
                                 } else {
-                                    cost = (cost * (amount * 100).toBigDecimal() - td.price) / (amount * 100).toBigDecimal()
+                                    cost = (cost * (amount * 100).toMyDecimal() - td.price) / (amount * 100).toBigDecimal()
                                 }
                             } else {
                                 /**
@@ -125,9 +121,9 @@ class StockPositionHistoryActivity() : AppCompatActivity() {
                                 if (amount + td.type * td.amount == 0) {
                                     td.tag = -1
                                     dataContext.editTrade(td)
-                                    cost = 0.toBigDecimal().setScale(costFloat, BigDecimal.ROUND_HALF_UP)
+                                    cost = 0.toBigDecimal()
                                 } else {
-                                    cost = (costFund + td.type.toBigDecimal() * tradeFund + commission + transferFee + tax) / (amount * 100 + td.type * td.amount * 100).toBigDecimal()
+                                    cost = (costFund + td.type.toMyDecimal() * tradeFund + commission + transferFee + tax) / (amount * 100 + td.type * td.amount * 100).toBigDecimal()
                                 }
                                 amount = amount + td.type * td.amount
                             }
@@ -266,7 +262,7 @@ class StockPositionHistoryActivity() : AppCompatActivity() {
                     val costFund = position.cost * (position.amount * 100).toBigDecimal()
                     val amount = position.amount
                     if (amount > 0) {
-                        val cost = (costFund - money) / (amount * 100).toBigDecimal()
+                        val cost = (costFund - money).setMyScale() / (amount * 100).toBigDecimal()
                         position.cost = cost
                         dataContext.editPosition(position)
                         positions = dataContext.allPositions
@@ -332,7 +328,7 @@ class StockPositionHistoryActivity() : AppCompatActivity() {
                     // 成本总资金
                     val costFund = position.cost * (position.amount * 100).toBigDecimal()
                     val amount = position.amount
-                    val cost = (costFund - money) / (amount * 100).toBigDecimal()
+                    val cost = (costFund - money).setMyScale() / (amount * 100).toBigDecimal()
                     position.cost = cost
                     dataContext.editPosition(position)
                     positions = dataContext.allPositions
@@ -405,7 +401,7 @@ class StockPositionHistoryActivity() : AppCompatActivity() {
                     // 过户费
                     val transferFee = transferFee(trade)
                     val amount = position.amount + tradeAmount
-                    val cost = (costFund + tradeFund + commission + transferFee) / (amount * 100).toBigDecimal()
+                    val cost = (costFund + tradeFund + commission + transferFee).setMyScale() / (amount * 100).toBigDecimal()
                     position.cost = cost
                     position.amount = amount
                     dataContext.editPosition(position)
@@ -485,11 +481,11 @@ class StockPositionHistoryActivity() : AppCompatActivity() {
                     val tax = tax(trade)
                     val profit = ((tradePrice - position.cost) * (tradeAmount * 100).toBigDecimal()) - commission - transferFee - tax
                     val amount = position.amount - tradeAmount
-                    var cost = 0.0.toBigDecimal()
+                    var cost:BigDecimal
                     if (amount == 0) {
-                        cost = 0.0.toBigDecimal()
+                        cost = 0.toBigDecimal()
                     } else {
-                        cost = ((costFund - tradeFund) + commission + transferFee + tax) / (amount * 100).toBigDecimal()
+                        cost = ((costFund - tradeFund) + commission + transferFee + tax).setMyScale() / (amount * 100).toBigDecimal()
                     }
                     position.cost = cost
                     position.profit = position.profit + profit
@@ -576,7 +572,7 @@ class StockPositionHistoryActivity() : AppCompatActivity() {
                             }
                             val position = Position()
                             position.name = info.name
-                            position.cost = 0.0.toBigDecimal()
+                            position.cost = 0.toBigDecimal()
                             position.code = info.code
                             position.type = 0
                             position.amount = 0

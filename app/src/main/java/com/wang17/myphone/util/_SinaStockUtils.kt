@@ -2,9 +2,11 @@ package com.wang17.myphone.util
 
 import android.graphics.Color
 import com.wang17.myphone.activity.StockPositionHistoryActivity.AttTrades
+import com.wang17.myphone.decimal4
 import com.wang17.myphone.model.StockInfo
 import com.wang17.myphone.model.database.Position
 import com.wang17.myphone.service.StockService.Companion.findCommodity
+import com.wang17.myphone.toMyDecimal
 import okhttp3.Request
 import java.math.BigDecimal
 import java.text.DecimalFormat
@@ -24,7 +26,7 @@ object _SinaStockUtils {
                         val body = response.body!!.string()
                         val result = body.substring(body.indexOf("\"")).replace("\"", "").split(",".toRegex()).toTypedArray()
                         val newPrice = result[3].toBigDecimal()
-                        tvPrice2.text = "${format.format(Math.abs((newPrice-tradePrice).toDouble()))}  ${format.format(Math.abs((newPrice-tradePrice).toDouble()).toBigDecimal()*100.toBigDecimal()/tradePrice)}%"
+                        tvPrice2.text = "${format.format(Math.abs((newPrice-tradePrice).toDouble()))}  ${format.format((Math.abs((newPrice-tradePrice).toDouble())*100).toMyDecimal()/tradePrice)}%"
                         if (type.toBigDecimal() * (tradePrice - newPrice) < 0.toBigDecimal()) {
                             tvPrice2.setTextColor(Color.RED)
                         } else if (type.toBigDecimal() * (tradePrice - newPrice) > 0.toBigDecimal()) {
@@ -74,8 +76,8 @@ object _SinaStockUtils {
     fun getStockInfoList(positions: List<Position>, onLoadStockInfoListListener: OnLoadStockInfoListListener?) {
         Thread(Runnable {
             var isStock = true
-            var totalProfit = 0.0.toBigDecimal()
-            var totalCostFund = 0.0.toBigDecimal()
+            var totalProfit = 0.toBigDecimal()
+            var totalCostFund = 0.toBigDecimal()
             var time = ""
             val stockInfoList: MutableList<StockInfo> = ArrayList()
             try {
@@ -89,8 +91,8 @@ object _SinaStockUtils {
                         val body = response.body!!.string()
                         val result = body.substring(body.indexOf("\"")).replace("\"", "").split(",".toRegex()).toTypedArray()
                         val info = StockInfo()
-                        var profit = 0.0.toBigDecimal()
-                        var increase=0.0.toBigDecimal()
+                        var profit = 0.toBigDecimal()
+                        var increase=0.toBigDecimal()
                         if (position.type == 0) {
                             /**
                              * 股票列表
@@ -104,7 +106,7 @@ object _SinaStockUtils {
                             info.increase =(info.price - position.cost) / position.cost
                             info.time = result[31]
                             profit = (info.price - position.cost)*(position.amount*100).toBigDecimal() -fee
-                            increase=profit/ (position.cost*(position.amount*100).toBigDecimal())
+                            increase=profit.setScale(decimal4)/ (position.cost*(position.amount*100).toBigDecimal())
                             totalProfit += profit
                            totalCostFund += position.cost * (position.amount  * 100).toBigDecimal()
                         } else {
@@ -140,7 +142,7 @@ object _SinaStockUtils {
                     totalProfit
                 }
                 if (onLoadStockInfoListListener != null) {
-                    if (positions.size != 0) onLoadStockInfoListListener.onLoadFinished(stockInfoList, totalProfit, totalAverageIncrease, time) else onLoadStockInfoListListener.onLoadFinished(stockInfoList, 0.0.toBigDecimal(), 0.0.toBigDecimal(), time)
+                    if (positions.size != 0) onLoadStockInfoListListener.onLoadFinished(stockInfoList, totalProfit, totalAverageIncrease, time) else onLoadStockInfoListListener.onLoadFinished(stockInfoList, 0.toBigDecimal(), 0.toBigDecimal(), time)
                 }
             } catch (e: Exception) {
                 _Utils.getExceptionStr(e)
@@ -167,7 +169,6 @@ object _SinaStockUtils {
                     info.time = result[31]
                 }
                 onLoadStockInfoListener.onLoadFinished()
-                //                    return stockInfoList;
             } catch (e: Exception) {
                 _Utils.getExceptionStr(e)
             }
