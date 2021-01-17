@@ -46,22 +46,22 @@
 <!--        app:layout_constraintTop_toTopOf="parent" />-->
 
     <LinearLayout
-        android:id="@+id/layout_dayTotal"
+        android:id="@+id/layout_monthTotal"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:orientation="horizontal"
-        android:padding="10dp"
+        android:padding="15dp"
         app:layout_constraintRight_toRightOf="parent"
         app:layout_constraintTop_toTopOf="parent"
         tools:layout_constraintLeft_creator="1"
         tools:layout_constraintRight_creator="1"
         tools:layout_constraintTop_creator="1">
 
-<!--        <TextView-->
-<!--            android:id="@+id/textView10"-->
-<!--            android:layout_width="wrap_content"-->
-<!--            android:layout_height="wrap_content"-->
-<!--            android:text="" />-->
+        <!--        <TextView-->
+        <!--            android:id="@+id/textView10"-->
+        <!--            android:layout_width="wrap_content"-->
+        <!--            android:layout_height="wrap_content"-->
+        <!--            android:text="" />-->
 
         <TextView
             android:id="@+id/tv_monthTotal"
@@ -73,22 +73,22 @@
     </LinearLayout>
 
     <LinearLayout
-        android:id="@+id/layout_monthTotal"
+        android:id="@+id/layout_dayTotal"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:orientation="horizontal"
-        android:padding="10dp"
+        android:padding="15dp"
         app:layout_constraintLeft_toLeftOf="parent"
         app:layout_constraintTop_toTopOf="parent"
         tools:layout_constraintLeft_creator="1"
         tools:layout_constraintRight_creator="1"
         tools:layout_constraintTop_creator="1">
 
-<!--        <TextView-->
-<!--            android:id="@+id/textView1"-->
-<!--            android:layout_width="wrap_content"-->
-<!--            android:layout_height="wrap_content"-->
-<!--            android:text="" />-->
+        <!--        <TextView-->
+        <!--            android:id="@+id/textView1"-->
+        <!--            android:layout_width="wrap_content"-->
+        <!--            android:layout_height="wrap_content"-->
+        <!--            android:text="" />-->
 
         <TextView
             android:id="@+id/tv_dayTotal"

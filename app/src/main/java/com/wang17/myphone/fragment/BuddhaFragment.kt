@@ -331,7 +331,7 @@ class BuddhaFragment : Fragment() {
             }
 
 
-            layout_monthTotal!!.setOnClickListener {
+            layout_dayTotal!!.setOnClickListener {
                 try {
                     val intent = Intent(activity, TallayRecordDetailActivity::class.java)
                     intent.putExtra("start", System.currentTimeMillis())
@@ -340,7 +340,7 @@ class BuddhaFragment : Fragment() {
                     _Utils.printException(context, e)
                 }
             }
-            layout_monthTotal!!.setOnLongClickListener {
+            layout_dayTotal!!.setOnLongClickListener {
                 try {
                     startActivityForResult(Intent(activity, TallayRecordActivity::class.java), TO_TALLAY_RECORD_ACTIVITY)
                 } catch (e: Exception) {

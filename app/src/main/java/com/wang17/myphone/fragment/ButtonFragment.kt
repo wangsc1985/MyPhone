@@ -18,6 +18,7 @@ import android.view.inputmethod.InputMethodManager
 import android.widget.EditText
 import com.wang17.myphone.R
 import com.wang17.myphone.activity.*
+import com.wang17.myphone.e
 import com.wang17.myphone.model.database.Setting
 import com.wang17.myphone.util.BackupTask
 import com.wang17.myphone.util.DataContext

@@ -269,7 +269,7 @@ public class MainActivity extends AppCompatActivity implements BackupTask.OnFini
 
     @Override
     public void onFinished(int Result) {
-        BackupTask.Finished(Result, tabLayout_menu);
+        BackupTask.Finished(Result, this);
     }
 
     @Override

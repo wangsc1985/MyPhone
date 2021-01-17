@@ -1,7 +1,6 @@
 package com.wang17.myphone.util
 
 import android.content.Context
-import android.util.Log
 import com.wang17.myphone.callback.CloudCallback
 import com.wang17.myphone.callback.HttpCallback
 import com.wang17.myphone.e
@@ -12,6 +11,7 @@ import com.wang17.myphone.model.database.Position
 import com.wang17.myphone.model.database.Setting
 import com.wang17.myphone.util._OkHttpUtil.getRequest
 import com.wang17.myphone.util._OkHttpUtil.postRequestByJson
+import com.wang17.myphone.util._OkHttpUtil.postRequestByJsonStr
 import org.json.JSONArray
 import java.util.*
 import java.util.concurrent.CountDownLatch
@@ -103,6 +103,85 @@ object _CloudUtils {
                 postRequestByJson(url, args, HttpCallback { html ->
                     try {
                         e(html)
+                        val resp_data: Any = _JsonUtils.getValueByKey(html, "resp_data")
+                        val code = _JsonUtils.getValueByKey(resp_data.toString(), "code").toInt()
+                        when (code) {
+                            0 -> callback?.excute(0, "添加成功")
+                        }
+                    } catch (e: Exception) {
+                        callback?.excute(-2, e.message)
+                    }
+                })
+            } catch (e: Exception) {
+                callback?.excute(-1, e.message)
+            }
+
+        }.start()
+    }
+
+
+    fun delBuddha(context: Context, buddha:BuddhaRecord, callback: CloudCallback?) {
+        Thread{
+            try {
+                val accessToken = getToken(context)
+                // 通过accessToken，env，云函数名，args 在微信小程序云端获取数据
+                val url = "https://api.weixin.qq.com/tcb/invokecloudfunction?access_token=$accessToken&env=$env&name=delBuddha"
+                val args: MutableList<PostArgument> = ArrayList()
+                args.add(PostArgument("phone", "18509513143"))
+                args.add(PostArgument("startTime", buddha.startTime.timeInMillis))
+                postRequestByJson(url, args, HttpCallback { html ->
+                    try {
+                        e(html)
+                        val resp_data: Any = _JsonUtils.getValueByKey(html, "resp_data")
+                        val code = _JsonUtils.getValueByKey(resp_data.toString(), "code").toInt()
+                        val msg = _JsonUtils.getValueByKey(resp_data.toString(), "msg").toString()
+                        when (code) {
+                            0 -> {
+                                callback?.excute(0, msg)
+                            }
+                            else->{
+                                callback?.excute(-2, msg)
+                            }
+                        }
+                    } catch (e: Exception) {
+                        callback?.excute(-1, e.message)
+                    }
+                })
+            } catch (e: Exception) {
+                callback?.excute(-1, e.message)
+            }
+
+        }.start()
+    }
+    @JvmStatic
+    fun addBuddhaList(context: Context, buddhaList:MutableList<BuddhaRecord>, callback: CloudCallback?) {
+        Thread{
+            try {
+                val accessToken = getToken(context)
+
+                var json = StringBuilder()
+                json.append("{\"phone\":\"18509513143\",\"data\":")
+                json.append("[");
+                for (i in buddhaList.indices)
+                {
+                    json.append("{");
+                    json.append("\"startTime\":\"${ buddhaList[i].startTime.timeInMillis}\"");
+                    json.append(",\"duration\":\"${buddhaList[i].duration}\"");
+                    json.append(",\"count\":\"${buddhaList[i].count}\"");
+                    json.append(",\"summary\":\"${buddhaList[i].summary}\"");
+                    json.append(",\"type\":\"${buddhaList[i].type}\"");
+                    json.append("}");
+                    if (i < buddhaList.size - 1)
+                        json.append(",");
+                }
+                json.append("]");
+                json.append("}");
+
+                // 通过accessToken，env，云函数名，args 在微信小程序云端获取数据
+                val url = "https://api.weixin.qq.com/tcb/invokecloudfunction?access_token=$accessToken&env=$env&name=addBuddhaRange"
+                postRequestByJsonStr(url, json.toString(), HttpCallback { html ->
+                    try {
+                        e("add buddha list html: "+html)
                         val resp_data: Any = _JsonUtils.getValueByKey(html, "resp_data")
                         val code = _JsonUtils.getValueByKey(resp_data.toString(), "code").toInt()
                         when (code) {

@@ -5,6 +5,7 @@ import android.app.Service
 import android.content.Intent
 import android.media.AudioManager
 import android.media.MediaPlayer
+import android.os.Binder
 import android.os.IBinder
 import com.wang17.myphone.MainActivity
 import com.wang17.myphone.R
@@ -16,7 +17,6 @@ import com.wang17.myphone.util._Utils
 import java.io.File
 import java.util.*
 
-//@Suppress("DEPRECATION")
 /**
  *
  */
@@ -27,28 +27,34 @@ class BuddhaPlayerService : Service() {
     var startTimeInMillis: Long = 0
 
 
-    override fun onBind(intent: Intent): IBinder {
-        TODO("Return the communication channel to the service.")
+    override fun onBind(intent: Intent): IBinder? {
+        return null
     }
 
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
         return super.onStartCommand(intent, flags, startId)
-
         e("buddha palyer service onStartCommand")
-        val velocity = intent?.getIntExtra("velocity", 0)
-        e("buddha palyer velocity ... ${velocity}")
-        startTimeInMillis = System.currentTimeMillis()
-        startMediaPlayer(velocity!!)
-        startTimer()
     }
 
     override fun onCreate() {
         super.onCreate()
         e("buddha palyer service onCreate")
-        mDataContext = DataContext(applicationContext)
+
+        try {
+            mDataContext = DataContext(applicationContext)
+            mAm = getSystemService(AUDIO_SERVICE) as AudioManager
+//            val velocity = intent?.getIntExtra("velocity", 2)
+//            e("buddha palyer velocity ... ${velocity}")
+            startTimeInMillis = System.currentTimeMillis()
+            startMediaPlayer(2)
+            startTimer()
+        } catch (e: Exception) {
+            e("buddha palyer service on start command"+e.message)
+        }
     }
 
     override fun onDestroy() {
+        e("buddha palyer service onDestroy")
         super.onDestroy()
         stopMediaPlayer()
         stopTimer()
@@ -90,7 +96,7 @@ class BuddhaPlayerService : Service() {
             mPlayer.setLooping(true)
             mPlayer.start()
         } catch (e: Exception) {
-            e(e.message!!)
+            e("start media player error : "+e.message!!)
             _Utils.printException(applicationContext, e)
         }
     }
@@ -101,9 +107,11 @@ class BuddhaPlayerService : Service() {
 
     private var mAm: AudioManager? = null
     private fun requestFocus(): Boolean {
-        val result = mAm!!.requestAudioFocus(afChangeListener,
-                AudioManager.STREAM_MUSIC,
-                AudioManager.AUDIOFOCUS_GAIN)
+        val result = try {
+            mAm!!.requestAudioFocus(afChangeListener, AudioManager.STREAM_MUSIC, AudioManager.AUDIOFOCUS_GAIN)
+        } catch (e: Exception) {
+            e(e.message!!)
+        }
         return result == AudioManager.AUDIOFOCUS_REQUEST_GRANTED
     }
 

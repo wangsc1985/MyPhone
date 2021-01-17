@@ -60,6 +60,32 @@ object _OkHttpUtil {
             e.printStackTrace()
         }
     }
+    fun postRequestByJsonStr(url: String?, json:String, callback: HttpCallback) {
+        //创建OkHttpClient对象。
+        val client = client
+        //创建表单请求体
+        val JSON: MediaType? = "application/json; charset=utf-8".toMediaTypeOrNull()
+        val requestBody: RequestBody = RequestBody.create(JSON, json)
+        val request = Request.Builder().url(url!!).post(requestBody).build()
+
+        //new call
+        val call = client!!.newCall(request)
+        //请求加入调度
+        call.enqueue(object : Callback {
+            override fun onFailure(call: Call, e: IOException) {}
+
+            @Throws(IOException::class)
+            override fun onResponse(call: Call, response: Response) {
+                if (response.isSuccessful) {
+                    //回调的方法执行在子线程。
+                    val htmlStr = response.body!!.string()
+                    callback.excute(htmlStr)
+                }else{
+                    callback.excute("xxxxxxxxxxx  response is not Successful......")
+                }
+            }
+        })
+    }
 
     fun postRequest(url: String?, args: List<PostArgument>, callback: HttpCallback) {
         //创建OkHttpClient对象。
@@ -68,7 +94,6 @@ object _OkHttpUtil {
         val formBody = FormBody.Builder()
         //创建Request 对象。
         for (arg in args) {
-            Log.e("wangsc", "name : " + arg.name + " , value : " + arg.value)
             formBody.add(arg.name, arg.value)
         }
         val request = Request.Builder().url(url!!)

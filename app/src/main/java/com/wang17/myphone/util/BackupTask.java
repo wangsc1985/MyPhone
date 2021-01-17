@@ -1,5 +1,6 @@
 package com.wang17.myphone.util;
 
+import android.app.AlertDialog;
 import android.content.Context;
 import android.os.AsyncTask;
 import android.support.design.widget.Snackbar;
@@ -123,37 +124,22 @@ public class BackupTask extends AsyncTask<String, Void, Integer> {
         void onFinished(int Result);
     }
 
-    public static void Finished(int result, View view) {
+    public static void Finished(int result, Context context) {
         switch (result) {
             case BackupTask.BACKUP_SUCCESS:
-                Snackbar.make(view, "数据库已备份。", Snackbar.LENGTH_LONG).show();
+                new AlertDialog.Builder(context).setMessage("数据库已备份").show();
                 break;
             case BackupTask.BACKUP_ERROR:
-                Snackbar.make(view, "数据库备份出错。", Snackbar.LENGTH_INDEFINITE).setAction("知道了", new View.OnClickListener() {
-                    @Override
-                    public void onClick(View v) {
-                        v.setVisibility(View.INVISIBLE);
-                    }
-                }).show();
+                new AlertDialog.Builder(context).setMessage("数据库备份出错").show();
                 break;
             case BackupTask.RESTORE_SUCCESS:
-                Snackbar.make(view, "数据库已恢复。", Snackbar.LENGTH_LONG).show();
+                new AlertDialog.Builder(context).setMessage("数据库已恢复").show();
                 break;
             case BackupTask.RESTORE_ERROR:
-                Snackbar.make(view, "数据库恢复出错。", Snackbar.LENGTH_INDEFINITE).setAction("知道了", new View.OnClickListener() {
-                    @Override
-                    public void onClick(View v) {
-                        v.setVisibility(View.INVISIBLE);
-                    }
-                }).show();
+                new AlertDialog.Builder(context).setMessage("数据库恢复出错").show();
                 break;
             default:
-                Snackbar.make(view, "运行任务时出错。", Snackbar.LENGTH_INDEFINITE).setAction("知道了", new View.OnClickListener() {
-                    @Override
-                    public void onClick(View v) {
-                        v.setVisibility(View.INVISIBLE);
-                    }
-                }).show();
+                new AlertDialog.Builder(context).setMessage("运行任务时出错").show();
                 break;
         }
     }

@@ -255,7 +255,7 @@ public class DataContext {
             DateTime startDate = new DateTime(year, 0, 1);
             DateTime endDate = new DateTime(year + 1, 0, 1);
             //查询获得游标
-            Cursor cursor = db.query("buddha", null, "startTime>=? AND startTime<?", new String[]{startDate.getTimeInMillis() + "", endDate.getTimeInMillis() + ""}, null, null, "startTime desc");
+            Cursor cursor = db.query("buddha", null, "startTime>=? AND startTime<?", new String[]{startDate.getTimeInMillis() + "", endDate.getTimeInMillis() + ""}, null, null, "startTime asc");
             //判断游标是否为空
             while (cursor.moveToNext()) {
                 BuddhaRecord model = new BuddhaRecord(UUID.fromString(cursor.getString(0)),
@@ -283,7 +283,7 @@ public class DataContext {
             DateTime endDate = new DateTime(year, month, 1);
             endDate = endDate.addMonths(1);
             //查询获得游标
-            Cursor cursor = db.query("buddha", null, "startTime>=? AND startTime<?", new String[]{startDate.getTimeInMillis() + "", endDate.getTimeInMillis() + ""}, null, null, "startTime desc");
+            Cursor cursor = db.query("buddha", null, "startTime>=? AND startTime<?", new String[]{startDate.getTimeInMillis() + "", endDate.getTimeInMillis() + ""}, null, null, "startTime asc");
             //判断游标是否为空
             while (cursor.moveToNext()) {
                 BuddhaRecord model = new BuddhaRecord(UUID.fromString(cursor.getString(0)),
