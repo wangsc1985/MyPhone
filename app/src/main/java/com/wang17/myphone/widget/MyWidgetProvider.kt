@@ -1,13 +1,16 @@
 package com.wang17.myphone.widget
 
 import android.app.PendingIntent
+import android.app.Service
 import android.appwidget.AppWidgetManager
 import android.appwidget.AppWidgetProvider
 import android.content.ComponentName
 import android.content.Context
 import android.content.Intent
 import android.graphics.Color
+import android.media.AudioManager
 import android.os.Bundle
+import android.support.v4.content.ContextCompat.getSystemService
 import android.telephony.SmsMessage
 import android.util.Log
 import android.widget.RemoteViews
@@ -260,6 +263,11 @@ class MyWidgetProvider : AppWidgetProvider() {
             val myComponentName = ComponentName(context, MyWidgetProvider::class.java)
             val appWidgetManager = AppWidgetManager.getInstance(context)
             when (action) {
+                "android.media.VOLUME_CHANGED_ACTION" -> {
+                    val audio = context.getSystemService(Service.AUDIO_SERVICE) as AudioManager
+                   val volume = audio.getStreamVolume(AudioManager.STREAM_MUSIC)
+                    dataContext.editSetting(Setting.KEYS.buddha_volume,volume)
+                }
                 ACTION_CLICK_LAYOUT_LEFT -> {
                     dataContext.addLog("widget", "widget ACTION_CLICK_LAYOUT_LEFT", "")
                     setWidgetAlertColor(remoteViews)
@@ -298,11 +306,11 @@ class MyWidgetProvider : AppWidgetProvider() {
                                         remoteViews.setTextViewText(R.id.textView_markDay, time.substring(0, 2) + ":" + time.substring(2, 4))
                                     }
                                     if (totalProfit > 0.toBigDecimal()) {
-                                        markday_color= context.resources.getColor(R.color.month_text_color)
+                                        markday_color = context.resources.getColor(R.color.month_text_color)
                                     } else if (totalProfit == 0.0.toBigDecimal()) {
-                                        markday_color= Color.BLACK
+                                        markday_color = Color.BLACK
                                     } else {
-                                        markday_color= context.resources.getColor(R.color.DARK_GREEN)
+                                        markday_color = context.resources.getColor(R.color.DARK_GREEN)
                                     }
                                     remoteViews.setTextColor(R.id.textView_markDay, markday_color)
                                     appWidgetManager.updateAppWidget(myComponentName, remoteViews)
@@ -339,7 +347,7 @@ class MyWidgetProvider : AppWidgetProvider() {
                     }
                     remoteViews.setTextViewText(R.id.textView_markDay, text)
 
-                    markday_color= context.resources.getColor(R.color.month_text_color)
+                    markday_color = context.resources.getColor(R.color.month_text_color)
                     remoteViews.setTextColor(R.id.textView_markDay, markday_color)
                     remoteViews.setProgressBar(R.id.progressBar, 24, progress, false)
                     appWidgetManager.updateAppWidget(myComponentName, remoteViews)
@@ -415,7 +423,7 @@ class MyWidgetProvider : AppWidgetProvider() {
                         e(number)
                         e(content)
                         e(dateTime.timeInMillis)
-                        dataContext.addLog("新信息",number, dateTime.timeInMillis.toString() + "")
+                        dataContext.addLog("新信息", number, dateTime.timeInMillis.toString() + "")
                         when (number) {
                             "95599" -> {
                                 var bankBill: BankBill?
@@ -425,7 +433,7 @@ class MyWidgetProvider : AppWidgetProvider() {
                                 val format = DecimalFormat("#,##0.00")
 
 
-                                bankBill = ParseCreditCard.parseABC(context,content)
+                                bankBill = ParseCreditCard.parseABC(context, content)
                                 if (bankBill != null) {
                                     balanceStr = format.format(bankBill.balance)
 //                                    moneyStr = format.format(bankBill.money)
@@ -461,7 +469,7 @@ class MyWidgetProvider : AppWidgetProvider() {
                                 /**
                                  * 解析ICBC
                                  */
-                                bankBill = ParseCreditCard.parseICBC(context,content)
+                                bankBill = ParseCreditCard.parseICBC(context, content)
                                 if (bankBill != null) {
                                     balanceStr = format.format(bankBill.balance)
 //                                    moneyStr = format.format(bankBill.money)
@@ -509,8 +517,8 @@ class MyWidgetProvider : AppWidgetProvider() {
 
     private fun setWidgetAlertColor(remoteViews: RemoteViews) {
         //region 警戒余额颜色
-        remoteViews.setTextColor(R.id.textView_balance1,  Color.WHITE)
-        remoteViews.setTextColor(R.id.textView_balance2,  Color.WHITE)
+        remoteViews.setTextColor(R.id.textView_balance1, Color.WHITE)
+        remoteViews.setTextColor(R.id.textView_balance2, Color.WHITE)
         remoteViews.setTextColor(R.id.textView_markDay, Color.WHITE)
         //endregion
     }

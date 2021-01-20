@@ -135,6 +135,7 @@
             <intent-filter android:priority="1000">
 
                 <!-- 必须要显示声明的action！因为所有的widget的广播都是通过它来发送的；要接收widget的添加、删除等广播，就必须包含它。 -->
+                <action android:name="android.media.VOLUME_CHANGED_ACTION" />
                 <action android:name="android.provider.Telephony.SMS_RECEIVED" />
                 <action android:name="android.appwidget.action.APPWIDGET_UPDATE" />
                 <action android:name="com.wang17.widget.UPDATE_ALL" />

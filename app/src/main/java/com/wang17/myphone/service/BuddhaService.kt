@@ -6,7 +6,6 @@ import android.content.Intent
 import android.media.AudioManager
 import android.media.MediaPlayer
 import android.os.IBinder
-import com.wang17.myphone.MainActivity
 import com.wang17.myphone.R
 import com.wang17.myphone.e
 import com.wang17.myphone.model.database.Setting
@@ -39,6 +38,10 @@ class BuddhaService : Service() {
 
         try {
             dc = DataContext(applicationContext)
+            val volume = dc.getSetting(Setting.KEYS.buddha_volume)
+            volume?.let {
+                setMediaVolume(it.int)
+            }
             mAm = getSystemService(AUDIO_SERVICE) as AudioManager
             startTimeInMillis = System.currentTimeMillis()
             val buddhaSpeed = dc.getSetting(Setting.KEYS.buddha_speed, 2).int
@@ -79,6 +82,14 @@ class BuddhaService : Service() {
     }
 
 
+    /**
+     * 设置多媒体音量
+     * 这里我只写了多媒体和通话的音量调节，其他的只是参数不同，大家可仿照
+     */
+    fun setMediaVolume(volume: Int) {
+        mAm.setStreamVolume(AudioManager.STREAM_MUSIC,  volume, AudioManager.FLAG_PLAY_SOUND or AudioManager.FLAG_SHOW_UI)
+    }
+
     private lateinit var mPlayer: MediaPlayer
     fun startMediaPlayer(velocity: Int) {
         try {
@@ -103,10 +114,10 @@ class BuddhaService : Service() {
         pauseOrStop()
     }
 
-    private var mAm: AudioManager? = null
+    private lateinit var mAm: AudioManager
     private fun requestFocus(): Boolean {
         val result = try {
-            mAm!!.requestAudioFocus(afChangeListener, AudioManager.STREAM_MUSIC, AudioManager.AUDIOFOCUS_GAIN)
+            mAm.requestAudioFocus(afChangeListener, AudioManager.STREAM_MUSIC, AudioManager.AUDIOFOCUS_GAIN)
         } catch (e: Exception) {
             e(e.message!!)
         }
@@ -119,10 +130,10 @@ class BuddhaService : Service() {
              * 当其他应用申请焦点之后又释放焦点会触发此回调
              * 可重新播放音乐
              */
-            AudioManager.AUDIOFOCUS_GAIN->{
+            AudioManager.AUDIOFOCUS_GAIN -> {
                 e("永远获取焦点")
                 mPlayer.start()
-                mPlayer.setVolume(1f,1f)
+                mPlayer.setVolume(1f, 1f)
                 reOrStart()
             }
             /**
@@ -130,7 +141,7 @@ class BuddhaService : Service() {
              * 会触发此回调事件，例如播放QQ音乐，网易云音乐等
              * 通常需要暂停音乐播放，若没有暂停播放就会出现和其他音乐同时输出声音
              */
-            AudioManager.AUDIOFOCUS_LOSS->{
+            AudioManager.AUDIOFOCUS_LOSS -> {
                 e("永远失去焦点")
                 mPlayer.stop()
 //                stopService(Intent(applicationContext,BuddhaService::class.java))
@@ -141,7 +152,7 @@ class BuddhaService : Service() {
              * 会触发此回调事件，例如播放短视频，拨打电话等。
              * 通常需要暂停音乐播放
              */
-            AudioManager.AUDIOFOCUS_LOSS_TRANSIENT->{
+            AudioManager.AUDIOFOCUS_LOSS_TRANSIENT -> {
                 e("暂时失去焦点")
                 mPlayer.pause()
                 pauseOrStop()
@@ -149,9 +160,9 @@ class BuddhaService : Service() {
             /**
              * 短暂性丢失焦点并作降音处理
              */
-            AudioManager.AUDIOFOCUS_LOSS_TRANSIENT_CAN_DUCK->{
+            AudioManager.AUDIOFOCUS_LOSS_TRANSIENT_CAN_DUCK -> {
                 e("暂时失去焦点并降音")
-                mPlayer.setVolume(0.2f,0.2f)
+                mPlayer.setVolume(0.2f, 0.2f)
             }
         }
     }
