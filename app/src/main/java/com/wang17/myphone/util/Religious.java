@@ -3,7 +3,7 @@ package com.wang17.myphone.util;
 import com.wang17.myphone.model.DateTime;
 import com.wang17.myphone.model.Lunar;
 import com.wang17.myphone.model.LunarDate;
-import com.wang17.myphone.model.ReligiousCallBack;
+import com.wang17.myphone.callback.ReligiousCallBack;
 import com.wang17.myphone.model.SolarTerm;
 
 import java.util.HashMap;
@@ -45,10 +45,8 @@ public class Religious {
     }
 
     private Map.Entry<DateTime, SolarTerm> find(DateTime startDate, DateTime endDate, SolarTerm solarTerm) {
-
         Map.Entry<DateTime, SolarTerm> solar = null;
         for (Map.Entry<DateTime, SolarTerm> entry : solarTermTreeMap.entrySet()) {
-
             if (entry.getKey().getDate().compareTo(startDate) >= 0) {
                 if (entry.getKey().getDate().compareTo(endDate) > 0)
                     break;
@@ -76,13 +74,13 @@ public class Religious {
     private void loadReligiousDays(int year, int month, ReligiousCallBack callBack) throws Exception {
         //
         this.loadLunarReligiousDays();
-        religiousDays = new HashMap<DateTime, String>();
-        remarks = new HashMap<DateTime, String>();
+        religiousDays = new HashMap();
+        remarks = new HashMap();
 
         //
         DateTime startDate = new DateTime(year, month, 1);
-        DateTime tempNextMonth = startDate.addMonths(1);
-        DateTime endDate = new DateTime(tempNextMonth.getYear(), tempNextMonth.getMonth(), 1).addDays(-1);
+        DateTime nextMonth = startDate.addMonths(1);
+        DateTime endDate = new DateTime(nextMonth.getYear(), nextMonth.getMonth(), 1).addDays(-1);
         DateTime chufuStartDate = startDate,
                 chufuEndDate = startDate,
                 zhongfuStartDate = startDate,
@@ -90,7 +88,6 @@ public class Religious {
                 mofuStartDate = startDate,
                 mofuEndDate = startDate;
 
-        long dt1 = new DateTime().getTimeInMillis();
 
         /// ********二分日********
         /// 春分 雷将发声。犯者生子五官四肢不全。父母有灾。宜从惊蛰节禁起。戒过一月。
@@ -121,7 +118,6 @@ public class Religious {
         if(callBack!=null)
             callBack.execute();
 
-        dt1 = new DateTime().getTimeInMillis();
         /// *******二至日*********
         /// 夏至阴阳相争。死生分判之时。宜从芒种节禁起。戒过一月。
         /// 冬至阴阳相争。死生分判之时。宜从大雪节禁起。戒过一月。
@@ -140,8 +136,7 @@ public class Religious {
         if(callBack!=null)
             callBack.execute();
 
-        dt1 = new DateTime().getTimeInMillis();
-        solar = find(startDate.addDays(-48), endDate.addDays(3), SolarTerm.冬至);
+        solar = find(startDate.addDays(-36), endDate.addDays(3), SolarTerm.冬至);
         if (solar != null) {
             this.AddReligiousDay(solar.getKey().addDays(-3).getDate(), "冬至前三日。犯之必得急疾。尤宜切戒。");
             this.AddReligiousDay(solar.getKey().addDays(-2).getDate(), "冬至前二日。犯之必得急疾。尤宜切戒。");
@@ -154,23 +149,23 @@ public class Religious {
             /// 冬至半夜子时，后庚辛日。第三戌日。犯之皆主在一年内亡。
             {
                 DateTime start = solar.getKey().getDate();
-                boolean touch庚 = false, touch辛 = false, touch戌3 = false;
+                boolean touchGeng = false, touchXin = false, touchXu3 = false;
                 int count = 1;
-                while (!touch庚 || !touch辛 || !touch戌3) {
+                while (!touchGeng || !touchXin || !touchXu3) {
                     start = start.addDays(1);
                     GanZhi ganzhi = new GanZhi(start, this.solarTermTreeMap);
-                    if (!touch庚 && ganzhi.getTianGanDay().equals("庚")) {
+                    if (!touchGeng && ganzhi.getTianGanDay().equals("庚")) {
                         this.AddReligiousDay(start, "冬至后庚日。犯之主在一年内亡。");
-                        touch庚 = true;
+                        touchGeng = true;
                     }
-                    if (!touch辛 && ganzhi.getTianGanDay().equals("辛")) {
+                    if (!touchXin && ganzhi.getTianGanDay().equals("辛")) {
                         this.AddReligiousDay(start, "冬至后辛日。犯之主在一年内亡。");
-                        touch辛 = true;
+                        touchXin = true;
                     }
-                    if (!touch戌3 && ganzhi.getDiZhiDay().equals("戌")) {
+                    if (!touchXu3 && ganzhi.getDiZhiDay().equals("戌")) {
                         if (count == 3) {
                             this.AddReligiousDay(start, "冬至后第三戌日。犯之主在一年内亡。");
-                            touch戌3 = true;
+                            touchXu3 = true;
                         }
                         count++;
                     }
@@ -181,7 +176,6 @@ public class Religious {
             callBack.execute();
 
 
-        dt1 = new DateTime().getTimeInMillis();
         /// 四立日，四绝日 犯之减寿五年。
         solar = find(startDate.addDays(-60), endDate.addDays(1), SolarTerm.立春);
         if (solar != null) {
@@ -248,8 +242,6 @@ public class Religious {
         }
         if(callBack!=null)
             callBack.execute();
-
-        dt1 = new DateTime().getTimeInMillis();
 
         /// 初伏：夏至后第三个庚日起到第四个庚日前一天的一段时间叫初伏，也叫头伏。犯之减寿一年。
         {
@@ -603,8 +595,8 @@ public class Religious {
     private void loadReligiousDays(int year, int month, int day, ReligiousCallBack callBack) throws Exception {
         //
         this.loadLunarReligiousDays();
-        religiousDays = new HashMap<DateTime, String>();
-        remarks = new HashMap<DateTime, String>();
+        religiousDays = new HashMap();
+        remarks = new HashMap();
 
         //
         DateTime today = new DateTime(year, month, day);

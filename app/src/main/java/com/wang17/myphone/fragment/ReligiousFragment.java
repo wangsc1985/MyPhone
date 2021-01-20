@@ -29,7 +29,7 @@ import android.widget.ProgressBar;
 import android.widget.TextView;
 
 import com.wang17.myphone.R;
-import com.wang17.myphone.model.ReligiousCallBack;
+import com.wang17.myphone.callback.ReligiousCallBack;
 import com.wang17.myphone.util.DataContext;
 import com.wang17.myphone.util._AnimationUtils;
 import com.wang17.myphone.util.CalendarHelper;

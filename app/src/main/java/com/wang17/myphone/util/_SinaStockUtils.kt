@@ -2,7 +2,7 @@ package com.wang17.myphone.util
 
 import android.graphics.Color
 import com.wang17.myphone.activity.StockPositionHistoryActivity.AttTrades
-import com.wang17.myphone.decimal4
+import com.wang17.myphone.e
 import com.wang17.myphone.model.StockInfo
 import com.wang17.myphone.model.database.Position
 import com.wang17.myphone.service.StockService.Companion.findCommodity
@@ -82,7 +82,6 @@ object _SinaStockUtils {
             val stockInfoList: MutableList<StockInfo> = ArrayList()
             try {
                 for (position in positions) {
-//                        final Stock stock = stock;
                     val url = "https://hq.sinajs.cn/list=" + position.exchange + position.code
                     val client = _OkHttpUtil.client
                     val request = Request.Builder().url(url).build()
@@ -106,7 +105,6 @@ object _SinaStockUtils {
                             info.increase =(info.price - position.cost) / position.cost
                             info.time = result[31]
                             profit = (info.price - position.cost)*(position.amount*100).toBigDecimal() -fee
-                            increase=profit.setScale(decimal4)/ (position.cost*(position.amount*100).toBigDecimal())
                             totalProfit += profit
                            totalCostFund += position.cost * (position.amount  * 100).toBigDecimal()
                         } else {

@@ -1,7 +1,5 @@
 package com.wang17.myphone.model.database
 
-import com.wang17.myphone.decimal2
-import com.wang17.myphone.decimal3
 import com.wang17.myphone.model.DateTime
 import com.wang17.myphone.roundMode
 import java.math.BigDecimal
@@ -24,10 +22,10 @@ class Trade {
         dateTime = DateTime.today
         code =""
         name = ""
-        price = BigDecimal(0.0).setScale(decimal2, roundMode)
+        price = 0.toBigDecimal()
         amount=0
         type=1
         tag = 0
-        cost = BigDecimal(0.0).setScale(decimal3, roundMode)
+        cost = 0.toBigDecimal()
     }
 }

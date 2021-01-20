@@ -1,4 +1,4 @@
-package com.wang17.myphone.model;
+package com.wang17.lib;
 
 /**
  * Created by Administrator on 2017/7/3.

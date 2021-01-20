@@ -80,6 +80,7 @@ class StockService : Service() {
     @RequiresApi(Build.VERSION_CODES.M)
     override fun onStartCommand(intent: Intent, flags: Int, startId: Int): Int {
         try {
+            e("stock service on start command")
             mDataContext = DataContext(this)
             // TODO: 2019/4/26 test
             //region test

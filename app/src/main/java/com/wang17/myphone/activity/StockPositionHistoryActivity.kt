@@ -197,7 +197,7 @@ class StockPositionHistoryActivity() : AppCompatActivity() {
             }
         })
 
-        wakeLock = _Utils.acquireWakeLock(this, PowerManager.SCREEN_BRIGHT_WAKE_LOCK)
+        wakeLock = _Utils.acquireWakeLock(this, PowerManager.SCREEN_BRIGHT_WAKE_LOCK)!!
     }
 
     private fun updatePositions() {

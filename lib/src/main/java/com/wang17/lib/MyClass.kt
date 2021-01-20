@@ -1,5 +1,6 @@
 package com.wang17.lib
 
+import java.io.*
 import java.math.BigDecimal
 import java.text.DecimalFormat
 import java.time.DateTimeException
@@ -20,8 +21,42 @@ class MyClass {
     companion object {
         @JvmStatic
         fun main(args: Array<String>) {
-            for(i in 1..10){
-                println(i)
+            for(year in 1900..2049){
+                var dt = DateTime(year,11,19)
+                println(dt.toLongDateTimeString())
+                var lunnar = Lunar(dt)
+                println("${lunnar.year}年 ${lunnar.monthStr} ${lunnar.dayStr}")
+            }
+
+
+
+//            var dt = DateTime(2049,11,19)
+//            println(dt.toLongDateTimeString())
+//            var lunnar = Lunar(dt)
+//            println("${lunnar.monthStr} ${lunnar.dayStr}")
+
+//            dt = DateTime()
+//            dt.timeZone= TimeZone.getTimeZone("America/Tijuana")
+//            println(dt.toLongDateTimeString())
+//            lunnar = Lunar(dt)
+//            println("${lunnar.monthStr} ${lunnar.dayStr}")
+        }
+
+        private fun religiousTest() {
+            val today = DateTime()
+            val cc = loadJavaSolarTerms()
+            println(cc.size)
+            var re = Religious(today.year, today.month, today.day, cc, null)
+            var a = re.religiousDays
+            var b = re.remarks
+
+            a?.forEach {
+                println("${it.key.toLongDateTimeString()}  ${it.value}")
+            }
+
+            println("==============================================")
+            b?.forEach {
+                println("${it.key.toLongDateTimeString()}  ${it.value}")
             }
         }
 
@@ -43,6 +78,44 @@ class MyClass {
 
             println("${pp.name}  ${pp.age}  ${pp.sex}")
 
+        }
+        /**
+         * 读取JAVA结构的二进制节气数据文件。
+         *
+         * @param resId 待读取的JAVA二进制文件。
+         * @return
+         */
+        @Throws(Exception::class)
+        private fun loadJavaSolarTerms(): TreeMap<DateTime, SolarTerm> {
+            val result = TreeMap<DateTime, SolarTerm>()
+            try {
+                val dis = DataInputStream(FileInputStream("d:\\solar_java_50.dat"))
+                var date = dis.readLong()
+                var solar = dis.readInt()
+                try {
+                    while (true) {
+                        val cal = DateTime()
+                        cal.timeInMillis = date
+                        val solarTerm = SolarTerm.Int2SolarTerm(solar)
+                        result[cal] = solarTerm
+                        date = dis.readLong()
+                        solar = dis.readInt()
+                    }
+                } catch (ex: EOFException) {
+                    dis.close()
+                }
+            } catch (e: Exception) {
+                println(e.message)
+            }
+
+            // 按照KEY排序TreeMap
+//        TreeMap<DateTime, SolarTerm> result = new TreeMap<DateTime, SolarTerm>(new Comparator<DateTime>() {
+//            @Override
+//            public int compare(DateTime lhs, DateTime rhs) {
+//                return lhs.compareTo(rhs);
+//            }
+//        });
+            return result
         }
 
         private fun testListFind(){

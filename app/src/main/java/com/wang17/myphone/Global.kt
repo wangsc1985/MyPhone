@@ -6,11 +6,6 @@ import java.math.BigDecimal
 import java.text.SimpleDateFormat
 import java.util.*
 
-val decimal6=6
-val decimal4=4
-val decimal3=3
-val decimal2=2
-
 fun e(data: Any) {
     Log.e("wangsc", data.toString())
 }

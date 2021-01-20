@@ -16,7 +16,6 @@ import android.view.ViewGroup
 import android.widget.*
 import android.widget.AdapterView.OnItemLongClickListener
 import com.wang17.myphone.R
-import com.wang17.myphone.decimal2
 import com.wang17.myphone.model.Commodity
 import com.wang17.myphone.model.database.Position
 import com.wang17.myphone.model.database.Setting

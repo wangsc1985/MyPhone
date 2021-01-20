@@ -63,7 +63,8 @@ public class Setting{
     }
 
     public enum KEYS{
-        is_mnf,is_knf,is_znf,stock_reflush_time,buddha_load_time,interest,
+        buddha_duration,buddha_startime,
+        stock_reflush_time,buddha_load_time,interest,buddha_speed,
         main_start_page_index,wisdom,map_search_radius,
         nianfo_intervalInMillis, nianfo_endInMillis, nianfo_palyId, nianfo_isReading,nianfo_screen_light,
 

@@ -11,11 +11,12 @@
         android:id="@+id/iv_buddha"
         android:layout_width="0dp"
         android:layout_height="400dp"
-        app:layout_constraintBottom_toTopOf="@+id/guideline3"
+        app:layout_constraintBottom_toTopOf="@+id/constraintLayout"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:srcCompat="@drawable/nianfo"
-        tools:srcCompat="@drawable/nianfo" />
+        app:layout_constraintTop_toTopOf="parent"
+        app:srcCompat="@drawable/nf"
+        tools:srcCompat="@drawable/nf" />
 
 <!--    <TextView-->
 <!--        android:id="@+id/textView26"-->
@@ -111,20 +112,46 @@
         app:layout_constraintTop_toTopOf="parent" />
 
 
-    <android.support.constraint.ConstraintLayout
+    <LinearLayout
         android:id="@+id/constraintLayout"
-        android:layout_width="400dp"
+        android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="@+id/guideline3">
 
+        <Button
+            android:id="@+id/btn_speed"
+            android:layout_width="55dp"
+            android:layout_height="55dp"
+            android:layout_margin="10dp"
+            android:background="@drawable/btn_start_shape"
+            android:text="中"
+            android:textColor="@color/progressbar_background"
+            android:textSize="20sp"
+            app:layout_constraintEnd_toEndOf="parent"
+            tools:layout_editor_absoluteY="90dp" />
+
+        <android.support.design.widget.FloatingActionButton
+            android:id="@+id/abtn_buddha"
+            android:layout_width="55dp"
+            android:layout_height="wrap_content"
+            android:layout_margin="10dp"
+            android:clickable="true"
+            app:backgroundTint="@color/colorAccent"
+            app:elevation="3dp"
+            app:fabSize="normal"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            app:srcCompat="@drawable/ic_nf" />
+
         <android.support.design.widget.FloatingActionButton
             android:id="@+id/abtn_stock"
-            android:layout_width="wrap_content"
+            android:layout_width="55dp"
             android:layout_height="wrap_content"
-            android:layout_marginTop="8dp"
+            android:layout_margin="10dp"
             android:clickable="true"
             app:backgroundTint="@android:color/holo_orange_light"
             app:elevation="3dp"
@@ -134,48 +161,7 @@
             app:layout_constraintTop_toTopOf="parent"
             app:srcCompat="@drawable/stock" />
 
-        <LinearLayout
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="16dp"
-            android:orientation="horizontal"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/abtn_stock">
-
-            <Button
-                android:id="@+id/btn_m"
-                android:layout_width="60dp"
-                android:layout_height="60dp"
-                android:layout_margin="10dp"
-                android:background="@drawable/btn_start_shape"
-                android:text="慢"
-                android:textColor="@color/progressbar_background"
-                android:textSize="24sp" />
-
-            <Button
-                android:id="@+id/btn_z"
-                android:layout_width="60dp"
-                android:layout_height="60dp"
-                android:layout_margin="10dp"
-                android:background="@drawable/btn_start_shape"
-                android:text="中"
-                android:textColor="@color/progressbar_background"
-                android:textSize="24sp"
-                app:layout_constraintEnd_toEndOf="parent" />
-
-            <Button
-                android:id="@+id/btn_k"
-                android:layout_width="60dp"
-                android:layout_height="60dp"
-                android:layout_margin="10dp"
-                android:background="@drawable/btn_start_shape"
-                android:text="快"
-                android:textColor="@color/progressbar_background"
-                android:textSize="24sp" />
-        </LinearLayout>
-
-    </android.support.constraint.ConstraintLayout>
+    </LinearLayout>
 
 
 </android.support.constraint.ConstraintLayout>

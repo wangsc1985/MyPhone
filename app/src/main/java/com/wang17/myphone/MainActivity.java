@@ -48,7 +48,6 @@ import static com.wang17.myphone.util._Utils.e;
 
 public class MainActivity extends AppCompatActivity implements BackupTask.OnFinishedListener, ActionBarFragment.OnActionFragmentSettingListener {
 
-    private static final String _TAG = "wangsc";
     public static final int LOCATION_RECORD = 95874;
     private static final int REQUEST_CODE = 1;
     // 视图变量

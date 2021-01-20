@@ -317,7 +317,7 @@ class MyWidgetRemoteViewsService : RemoteViewsService() {
 //                }
                 if (religiousDays.size > 0) {
                     for ((key, value) in religiousDays) {
-                        if (key.day == today.day) {
+                        if (key.get(Calendar.DAY_OF_YEAR) == today.get(Calendar.DAY_OF_YEAR)) {
                             val religious = value.split("\n".toRegex()).toTypedArray()
                             for (str in religious) {
                                 var color: Int
@@ -334,7 +334,7 @@ class MyWidgetRemoteViewsService : RemoteViewsService() {
                 }
                 if (remarks.size > 0) {
                     for ((key, value) in remarks) {
-                        if (key.day == today.day) {
+                        if (key.get(Calendar.DAY_OF_YEAR) == today.get(Calendar.DAY_OF_YEAR)) {
                             val rs = value.split("\n").toTypedArray()
                             for (str in rs) {
                                 mToDoList.add(ToDo("", str, "", Color.WHITE, false))

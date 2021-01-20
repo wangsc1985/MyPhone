@@ -140,7 +140,7 @@ class BuddhaFragment : Fragment() {
                 dataContext.editSetting(Setting.KEYS.is_stocks_listener, true)
                 animatorSuofang(abtn_stock)
                 //
-                _Utils.clickHomeButton(context)
+                _Utils.clickHomeButton(context!!)
             }
             //endregion
             true

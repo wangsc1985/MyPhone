@@ -4,23 +4,16 @@
 
     <!-- 收发短信 -->
     <uses-permission android:name="android.permission.READ_SMS" />
-    <uses-permission android:name="android.permission.SEND_SMS" />
-    <!-- 监听蓝牙 -->
-    <uses-permission android:name="android.permission.BLUETOOTH" />
-    <!-- 开关机监听 -->
-    <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED" />
-    <!-- GPS服务的权限 coarse慢的，fine快的 -->
+    <uses-permission android:name="android.permission.SEND_SMS" /> <!-- 监听蓝牙 -->
+    <uses-permission android:name="android.permission.BLUETOOTH" /> <!-- 开关机监听 -->
+    <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED" /> <!-- GPS服务的权限 coarse慢的，fine快的 -->
     <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
-    <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
-    <!-- 手机振动权限 -->
-    <uses-permission android:name="android.permission.VIBRATE" />
-    <!-- 接收短信 -->
-    <uses-permission android:name="android.permission.RECEIVE_SMS" />
-    <!-- 读取短信 -->
+    <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" /> <!-- 手机振动权限 -->
+    <uses-permission android:name="android.permission.VIBRATE" /> <!-- 接收短信 -->
+    <uses-permission android:name="android.permission.RECEIVE_SMS" /> <!-- 读取短信 -->
     <!-- 读写文件 -->
     <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
-    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
-    <!-- 网络状态 -->
+    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" /> <!-- 网络状态 -->
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
     <uses-permission android:name="android.permission.ACCESS_WIFI_STATE" />
     <uses-permission android:name="android.permission.INTERNET" />
@@ -29,13 +22,10 @@
     <uses-permission android:name="android.permission.CALL_PHONE" />
     <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
     <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
-    <uses-permission android:name="android.permission.CHANGE_WIFI_STATE" />
-    <!-- 屏幕唤醒 -->
-    <uses-permission android:name="android.permission.WAKE_LOCK" />
-    <!-- 访问网络 -->
+    <uses-permission android:name="android.permission.CHANGE_WIFI_STATE" /> <!-- 屏幕唤醒 -->
+    <uses-permission android:name="android.permission.WAKE_LOCK" /> <!-- 访问网络 -->
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
-    <uses-permission android:name="android.permission.ACCESS_WIFI_STATE" />
-    <!-- 悬浮窗 -->
+    <uses-permission android:name="android.permission.ACCESS_WIFI_STATE" /> <!-- 悬浮窗 -->
     <uses-permission android:name="android.permission.SYSTEM_ALERT_WINDOW" />
 
     <application
@@ -47,9 +37,13 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.AppCompat.Light.NoActionBar">
         <service
-            android:name=".service.BuddhaPlayerService"
+            android:name=".service.BuddhaService"
             android:enabled="true"
             android:exported="true">
+            <intent-filter>
+                <action android:name="com.wang17.myphone.buddha.play" />
+                <action android:name="com.wang17.myphone.buddha.pause" />
+            </intent-filter>
         </service>
         <service
             android:name=".service.FloatingWindowService"
@@ -83,7 +77,7 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-        <activity android:name=".activity.ToDoActivity"/>
+        <activity android:name=".activity.ToDoActivity" />
         <activity
             android:name=".activity.FuturePositionActivity"
             android:launchMode="singleTask" />
