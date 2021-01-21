@@ -192,7 +192,7 @@ public class DataContext {
             DateTime endDate = (DateTime) (startDate.clone());
             endDate = endDate.addDays(1);
             //查询获得游标
-            Cursor cursor = db.query("buddha", null, "startTime>=? and startTime<?", new String[]{startDate.getTimeInMillis() + "", endDate.getTimeInMillis() + ""}, null, null, null);
+            Cursor cursor = db.query("buddha", null, "startTime>=? and startTime<?", new String[]{startDate.getTimeInMillis() + "", endDate.getTimeInMillis() + ""}, null, null, "startTime asc");
             //判断游标是否为空
             while (cursor.moveToNext()) {
                 BuddhaRecord model = new BuddhaRecord(UUID.fromString(cursor.getString(0)),

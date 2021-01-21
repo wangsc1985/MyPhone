@@ -61,7 +61,6 @@ class BuddhaService : Service() {
             startTimeInMillis = System.currentTimeMillis()
             val buddhaSpeed = dc.getSetting(Setting.KEYS.buddha_speed, 2).int
             startMediaPlayer(buddhaSpeed)
-            startTimer()
 
             //
             val filter = IntentFilter()
@@ -76,7 +75,6 @@ class BuddhaService : Service() {
     override fun onDestroy() {
         super.onDestroy()
         stopMediaPlayer()
-        stopTimer()
         _NotificationUtils.closeNotification(applicationContext, NOTIFICATION_ID)
         EventBus.getDefault().post(EventBusMessage.getInstance(SenderBuddhaServiceOnDestroy(), "buddha service destroyed"))
 
@@ -89,8 +87,8 @@ class BuddhaService : Service() {
         timer = Timer()
         timer.schedule(object : TimerTask() {
             override fun run() {
-                val currentTimeMillis = System.currentTimeMillis()
-                val duration = savedDuration + currentTimeMillis - startTimeInMillis
+                e("save duration : ${savedDuration/1000} data duration : ${(dc.getSetting(Setting.KEYS.buddha_duration)?.long?:0L)/1000}")
+                val duration = savedDuration + System.currentTimeMillis() - startTimeInMillis
                 val second = duration % 60000 / 1000
                 val miniteT = duration / 60000
                 val minite = miniteT % 60
@@ -98,7 +96,7 @@ class BuddhaService : Service() {
                 notificationCount = (miniteT / circleMinite).toInt()
                 notificationTime = "$hour:${if (minite < 10) "0" + minite else minite}:${if (second < 10) "0" + second else second}"
                 sendNotification(notificationCount, notificationTime)
-                EventBus.getDefault().post(EventBusMessage.getInstance(SenderTimerRuning(), (savedDuration + currentTimeMillis - startTimeInMillis).toString()))
+                EventBus.getDefault().post(EventBusMessage.getInstance(SenderTimerRuning(), duration.toString()))
             }
         }, 0, 1000)
     }
@@ -133,7 +131,7 @@ class BuddhaService : Service() {
 
 
             mBackgroundPlayer = MediaPlayer.create(applicationContext, R.raw.second_60)
-            mBackgroundPlayer.setVolume(1f, 1f)
+            mBackgroundPlayer.setVolume(0.01f, 0.01f)
             mBackgroundPlayer.setLooping(true)
             mBackgroundPlayer.start()
             reOrStart()
@@ -167,9 +165,9 @@ class BuddhaService : Service() {
              */
             AudioManager.AUDIOFOCUS_GAIN -> {
                 e("永远获取焦点")
-                mPlayer.prepare()
                 mPlayer.start()
-                mPlayer.setVolume(1f, 1f)
+                mPlayer.setVolume(1.0f, 1.0f)
+                sendNotification(notificationCount, notificationTime)
                 reOrStart()
             }
             /**
@@ -180,7 +178,8 @@ class BuddhaService : Service() {
             AudioManager.AUDIOFOCUS_LOSS -> {
                 e("永远失去焦点")
                 mPlayer.stop()
-                stopSelf()
+                pauseOrStop()
+                sendNotification(notificationCount, notificationTime)
             }
             /**
              * 短暂性丢失焦点，当其他应用申请AUDIOFOCUS_GAIN_TRANSIENT或AUDIOFOCUS_GAIN_TRANSIENT_EXCLUSIVE时，
@@ -191,13 +190,15 @@ class BuddhaService : Service() {
                 e("暂时失去焦点")
                 mPlayer.pause()
                 pauseOrStop()
+                sendNotification(notificationCount, notificationTime)
             }
             /**
              * 短暂性丢失焦点并作降音处理
              */
             AudioManager.AUDIOFOCUS_LOSS_TRANSIENT_CAN_DUCK -> {
                 e("暂时失去焦点并降音")
-                mPlayer.setVolume(0.2f, 0.2f)
+                mPlayer.setVolume(0.3f, 0.3f)
+                pauseOrStop()
             }
         }
     }
@@ -207,10 +208,15 @@ class BuddhaService : Service() {
      * 1、记录当前section的startime
      */
     fun reOrStart() {
-        e("------------------ start or restart -------------------------")
-        dc.addLog("chant buddha", "start or restart", null)
-        startTimeInMillis = System.currentTimeMillis()
-        dc.editSetting(Setting.KEYS.buddha_startime, startTimeInMillis)
+        try {
+            e("------------------ start or restart -------------------------")
+            dc.addLog("chant buddha", "start or restart", null)
+            startTimeInMillis = System.currentTimeMillis()
+            dc.editSetting(Setting.KEYS.buddha_startime, startTimeInMillis)
+            startTimer()
+        } catch (e: Exception) {
+            dc.addLog("err","pause or stop",e.message)
+        }
     }
 
     /**
@@ -219,21 +225,26 @@ class BuddhaService : Service() {
      * 2、删除section的startime
      */
     fun pauseOrStop() {
-        e("---------------- pause or stop --------------------")
-        dc.addLog("chant buddha", "pause or stop", null)
-        val now = System.currentTimeMillis()
+        try {
+            stopTimer()
+            e("---------------- pause or stop --------------------")
+            dc.addLog("chant buddha", "pause or stop", null)
+            val now = System.currentTimeMillis()
 
-        // 计算当前section的duration
-        val settingStartTime = dc.getSetting(Setting.KEYS.buddha_startime)
-        settingStartTime?.let {
-            val setting = dc.getSetting(Setting.KEYS.buddha_duration)
-            savedDuration = setting?.long ?: 0L
-            savedDuration += now - it.long
-            dc.editSetting(Setting.KEYS.buddha_duration, savedDuration)
-            dc.editSetting(Setting.KEYS.buddha_stoptime, now)
+            // 计算当前section的duration
+            val settingStartTime = dc.getSetting(Setting.KEYS.buddha_startime)
+            settingStartTime?.let {
+                val setting = dc.getSetting(Setting.KEYS.buddha_duration)
+                savedDuration = setting?.long ?: 0L
+                savedDuration += now - it.long
+                dc.editSetting(Setting.KEYS.buddha_duration, savedDuration)
+                dc.editSetting(Setting.KEYS.buddha_stoptime, now)
 
-            // 删除startime
-            dc.deleteSetting(Setting.KEYS.buddha_startime)
+                // 删除startime
+                dc.deleteSetting(Setting.KEYS.buddha_startime)
+            }
+        } catch (e: Exception) {
+            dc.addLog("err","pause or stop",e.message)
         }
     }
 
@@ -267,14 +278,12 @@ class BuddhaService : Service() {
                                 mPlayer.start()
 //                                mPlayer.setVolume(1f, 1f)
                                 reOrStart()
-                                startTimer()
                             }
                         }
                         ACTION_BUDDHA_PAUSE -> {
                             mPlayer.stop()
 //                            mPlayer.setVolume(0f,0f)
                             pauseOrStop()
-                            stopTimer()
                             mAm.abandonAudioFocus(afChangeListener)
                         }
                     }
@@ -287,7 +296,7 @@ class BuddhaService : Service() {
         }
     }
 
-    // TODO: 2021/1/21  已经停止了，声音焦点有问题，一个短暂获取焦点的声音结束后，又开始念佛了
+    // TODO: 2021/1/21  1、来微信记录被重置了
 
     companion object {
         val ACTION_BUDDHA_PAUSE = "com.wang17.myphone.buddha.pause"

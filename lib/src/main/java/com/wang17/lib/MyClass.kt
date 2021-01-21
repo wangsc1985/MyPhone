@@ -12,21 +12,48 @@ class MyClass {
         var name=""
         var age=18
         var sex =1
+        var birthday:DateTime
 
         constructor(name: String, age: Int) {
             this.name = name
             this.age = age
+            this.birthday = DateTime()
+        }
+        constructor(name: String, age: Int,birthday:DateTime) {
+            this.name = name
+            this.age = age
+            this.birthday = birthday
         }
     }
     companion object {
         @JvmStatic
         fun main(args: Array<String>) {
-            for(year in 1900..2049){
-                var dt = DateTime(year,11,19)
-                println(dt.toLongDateTimeString())
-                var lunnar = Lunar(dt)
-                println("${lunnar.year}年 ${lunnar.monthStr} ${lunnar.dayStr}")
-            }
+
+            var date1 = DateTime()
+            var date2 = date1.clone() as DateTime
+
+            date1.add(Calendar.DAY_OF_YEAR,3)
+
+            println(date1.toLongDateTimeString())
+            println(date2.toLongDateTimeString())
+
+//            val date = DateTime()
+//            var list:MutableList<Person> = ArrayList()
+//            list.add(Person("zhang3",29,date))
+//            list.add(Person("zhang5",25,date))
+//            list.add(Person("zhang6",27,date))
+//            list.add(Person("zhang8",21,date))
+//            list.forEach {
+//                println("name : ${it.name} age : ${it.age}")
+//            }
+
+
+//            for(year in 1900..2049){
+//                var dt = DateTime(year,11,19)
+//                println(dt.toLongDateTimeString())
+//                var lunnar = Lunar(dt)
+//                println("${lunnar.year}年 ${lunnar.monthStr} ${lunnar.dayStr}")
+//            }
 
 
 
