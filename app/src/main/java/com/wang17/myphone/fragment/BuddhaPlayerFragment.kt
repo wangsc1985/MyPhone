@@ -145,7 +145,6 @@ class BuddhaPlayerFragment : Fragment(){
         abtn_stockAnimator = AnimatorSuofangView(abtn_stock)
         btn_buddha_animator = AnimatorSuofangView(abtn_buddha)
 
-        // TODO: 2021/1/21 tv_time刷新
         val setting = dc.getSetting(Setting.KEYS.buddha_duration)
         setting?.let {
             val duration = it.long
@@ -247,7 +246,7 @@ class BuddhaPlayerFragment : Fragment(){
                 } else {
                     if (minite < 10) "0${minite}" else "${minite}"
                 }
-                sb.append("${time.toShortDateString1()} \t ${if (count > 0) "${hourS}${miniteS} \t ${DecimalFormat("#,000").format(count * 1080)} \t ${count}" else ""}\n")
+                sb.append("${time.toShortDateString1()} \t ${if (count > 0) "${hourS}${miniteS} \t ${DecimalFormat("#,##0").format(count * 1080)} \t ${count}" else ""}\n")
 
                 totalCount += count
                 totalDuration += duration
@@ -262,7 +261,7 @@ class BuddhaPlayerFragment : Fragment(){
                 if (minite < 10) "0${minite}" else "${minite}"
             }
             val avgCount = totalCount.toBigDecimal().setScale(1) / today.day.toBigDecimal()
-            sb.append("\n${hourS}${miniteS} \t ${DecimalFormat("#,000").format(totalCount * 1080)} \t ${totalCount} \t ${avgCount}\n")
+            sb.append("\n${hourS}${miniteS} \t ${DecimalFormat("#,##0").format(totalCount * 1080)} \t ${totalCount} \t ${avgCount}\n")
             if (totalCount > 0)
                 AlertDialog.Builder(context).setMessage(sb.toString()).show()
         }
@@ -308,7 +307,7 @@ class BuddhaPlayerFragment : Fragment(){
                      * string phone, long startTime ,long duration , int count, string summary, int type
                      */
                     val latestBuddha = dc.latestBuddha
-                    var duration = (10 * 60000 * count).toLong()
+                    var duration = (10 * 60000).toLong()
                     if (latestBuddha != null) {
                         duration = latestBuddha.duration / latestBuddha.count
                     }
@@ -426,8 +425,8 @@ class BuddhaPlayerFragment : Fragment(){
             val setting = dc.getSetting(Setting.KEYS.buddha_duration)
         if(setting!=null){
             setting?.let {
-                val duration = it.long
-                val count = duration / 600000
+                var duration = it.long
+                var count = duration / 600000
                 val hour = duration / (60000 * 60)
                 val minite = duration % (60000 * 60) / 60000
                 val hourS = "${hour}:"
@@ -437,7 +436,7 @@ class BuddhaPlayerFragment : Fragment(){
                     if (minite < 10) "0${minite}" else "${minite}"
                 }
                 val endTime = DateTime(dc.getSetting(Setting.KEYS.buddha_stoptime,System.currentTimeMillis()).long)
-                val msg = "${"${hourS}${miniteS} \t ${DecimalFormat("#,000").format(duration)} \t ${count} \t ${endTime.toLongDateTimeString2()}"}"
+                val msg = "${"${hourS}${miniteS} \t ${DecimalFormat("#,##0").format(duration/1000)}秒 \t ${count} \t ${endTime.toLongDateTimeString2()}"}"
 
 //                if(count>0){
                 uiHandler.post {
@@ -449,6 +448,7 @@ class BuddhaPlayerFragment : Fragment(){
                         var buddhaList: MutableList<BuddhaRecord> = ArrayList()
                         for (index in 1..count) {
                             endTime.add(Calendar.MILLISECOND, (-1 * avgDuration * index).toInt())
+                            dc.addLog("new buddha","starttime",endTime.toLongDateTimeString())
                             buddhaList.add(BuddhaRecord(endTime, avgDuration, 1, 11, "计时计数念佛"))
                         }
 

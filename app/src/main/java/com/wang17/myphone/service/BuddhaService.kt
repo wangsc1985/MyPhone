@@ -98,7 +98,6 @@ class BuddhaService : Service() {
                 notificationCount = (miniteT / circleMinite).toInt()
                 notificationTime = "$hour:${if (minite < 10) "0" + minite else minite}:${if (second < 10) "0" + second else second}"
                 sendNotification(notificationCount, notificationTime)
-                e(savedDuration + currentTimeMillis - startTimeInMillis)
                 EventBus.getDefault().post(EventBusMessage.getInstance(SenderTimerRuning(), (savedDuration + currentTimeMillis - startTimeInMillis).toString()))
             }
         }, 0, 1000)
@@ -119,17 +118,24 @@ class BuddhaService : Service() {
     }
 
     private lateinit var mPlayer: MediaPlayer
+    private lateinit var mBackgroundPlayer: MediaPlayer
     fun startMediaPlayer(velocity: Int) {
         try {
             requestFocus()
             mPlayer = MediaPlayer()
-            val url = File(_Session.ROOT_DIR, "追顶念佛$velocity.mp3")
+            var url = File(_Session.ROOT_DIR, "追顶念佛$velocity.mp3")
             mPlayer.reset() //把各项参数恢复到初始状态
             mPlayer.setDataSource(url.path)
             mPlayer.prepare() //进行缓冲
             mPlayer.setVolume(1f, 1f)
             mPlayer.setLooping(true)
             mPlayer.start()
+
+
+            mBackgroundPlayer = MediaPlayer.create(applicationContext, R.raw.second_60)
+            mBackgroundPlayer.setVolume(1f, 1f)
+            mBackgroundPlayer.setLooping(true)
+            mBackgroundPlayer.start()
             reOrStart()
         } catch (e: Exception) {
             e("start media player error : " + e.message!!)
@@ -138,6 +144,7 @@ class BuddhaService : Service() {
     }
 
     fun stopMediaPlayer() {
+        mBackgroundPlayer.stop()
         mPlayer.stop()
         pauseOrStop()
     }
@@ -235,7 +242,6 @@ class BuddhaService : Service() {
         _NotificationUtils.sendNotification(NOTIFICATION_ID, applicationContext, R.layout.notification_nf) { remoteViews ->
             remoteViews.setTextViewText(R.id.tv_count, count.toString())
             remoteViews.setTextViewText(R.id.tv_time, time)
-            e("media player is playing : ${mPlayer.isPlaying}")
             if (mPlayer.isPlaying) {
                 remoteViews.setImageViewResource(R.id.image_control, R.drawable.pause)
                 val intentRootClick = Intent(ACTION_BUDDHA_PAUSE)
@@ -252,29 +258,36 @@ class BuddhaService : Service() {
 
     inner class BuddhaReceiver : BroadcastReceiver() {
         override fun onReceive(context: Context?, intent: Intent?) {
-            intent?.let {
-                when (it.action) {
-                    ACTION_BUDDHA_PLAYE -> {
-                        e("receiver action buddha play")
-                        mPlayer.prepare()
-                        mPlayer.start()
-                        reOrStart()
-                        startTimer()
+            try {
+                intent?.let {
+                    when (it.action) {
+                        ACTION_BUDDHA_PLAYE -> {
+                            if(requestFocus()) {
+                                mPlayer.prepare()
+                                mPlayer.start()
+//                                mPlayer.setVolume(1f, 1f)
+                                reOrStart()
+                                startTimer()
+                            }
+                        }
+                        ACTION_BUDDHA_PAUSE -> {
+                            mPlayer.stop()
+//                            mPlayer.setVolume(0f,0f)
+                            pauseOrStop()
+                            stopTimer()
+                            mAm.abandonAudioFocus(afChangeListener)
+                        }
                     }
-                    ACTION_BUDDHA_PAUSE -> {
-                        e("receiver action buddha pause")
-                        mPlayer.stop()
-                        pauseOrStop()
-                        stopTimer()
-                    }
-                }
 
-                sendNotification(notificationCount, notificationTime)
+                    sendNotification(notificationCount, notificationTime)
+                }
+            } catch (e: Exception) {
+                e("eeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee"+e.message!!)
             }
         }
     }
 
-    // TODO: 2021/1/21  1、状态栏开始，可以看出，在暂停这段时间，时间并没有停止  2、已经停止了，声音焦点有问题，一个短暂获取焦点的声音结束后，又开始念佛了
+    // TODO: 2021/1/21  已经停止了，声音焦点有问题，一个短暂获取焦点的声音结束后，又开始念佛了
 
     companion object {
         val ACTION_BUDDHA_PAUSE = "com.wang17.myphone.buddha.pause"

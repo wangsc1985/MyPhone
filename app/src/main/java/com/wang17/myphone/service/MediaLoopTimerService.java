@@ -159,7 +159,7 @@ public class MediaLoopTimerService extends Service {
                              */
                             File logFile = new File(_Session.ROOT_DIR, "stock.log");
                             BufferedWriter writer = new BufferedWriter(new FileWriter(logFile, true));
-                            String string = new DecimalFormat("#,000").format(System.currentTimeMillis() - preTime) + "\t" + new DecimalFormat("0.00%").format(preAverageTotalProfitS) + "\t" + new DateTime().toLongDateTimeString();
+                            String string = new DecimalFormat("#,##0").format(System.currentTimeMillis() - preTime) + "\t" + new DecimalFormat("0.00%").format(preAverageTotalProfitS) + "\t" + new DateTime().toLongDateTimeString();
                             writer.write(string);
                             writer.newLine();
                             writer.flush();

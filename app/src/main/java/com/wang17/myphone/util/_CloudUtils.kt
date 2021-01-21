@@ -299,6 +299,41 @@ object _CloudUtils {
     }
 
     @JvmStatic
+    fun getSettingList(context: Context, pwd: String, callback: CloudCallback) {
+        Thread {
+            // 获取accessToken
+            try {
+                val accessToken = getToken(context)
+                // 通过accessToken，env，云函数名，args 在微信小程序云端获取数据
+                val url = "https://api.weixin.qq.com/tcb/invokecloudfunction?access_token=$accessToken&env=$env&name=getSettingList"
+                val args: MutableList<PostArgument> = ArrayList()
+                args.add(PostArgument("pwd", pwd))
+                postRequestByJson(url, args, object : HttpCallback {
+                    override fun excute(html: String) {
+                        try {
+                            val resp_data: Any = _JsonUtils.getValueByKey(html, "resp_data")
+                            val data = _JsonUtils.getValueByKey(resp_data.toString(), "data")
+                            val jsonArray = JSONArray(data)
+                            var result = StringBuffer()
+                            for(i in 0..jsonArray.length()-1){
+                                val jsonObject = jsonArray.getString(i)
+                                val name = _JsonUtils.getValueByKey(jsonObject, "name")
+                                val value = _JsonUtils.getValueByKey(jsonObject, "value")
+                                result.append("name : ${name} , value : ${value}\n")
+                            }
+                            callback.excute(0,result.toString())
+                        } catch (e: Exception) {
+                            callback.excute(-2, e.message!!)
+                        }
+                    }
+                })
+            } catch (e: Exception) {
+                callback.excute(-1, e.message!!)
+            }
+        }.start()
+    }
+
+    @JvmStatic
     fun getNewMsg(context: Context, callback: CloudCallback) {
         Thread {
             // 获取accessToken
@@ -359,7 +394,7 @@ object _CloudUtils {
                 postRequestByJson(url, args, HttpCallback { html ->
                     try {
                         val resp_data: Any = _JsonUtils.getValueByKey(html, "resp_data")
-                        val data = _JsonUtils.getValueByKey(resp_data.toString(), "data").toString()
+                        val data = _JsonUtils.getValueByKey(resp_data.toString(), "data")
                         val jsonArray = JSONArray(data)
                         if (jsonArray.length() > 0) {
                             val jsonObject = jsonArray.getString(0)

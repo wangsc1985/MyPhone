@@ -5,6 +5,7 @@ import android.content.Context.INPUT_METHOD_SERVICE
 import android.content.DialogInterface
 import android.content.Intent
 import android.os.Bundle
+import android.os.Handler
 import android.support.v4.app.Fragment
 import android.support.v4.content.ContextCompat.getSystemService
 import android.support.v7.app.AlertDialog
@@ -18,12 +19,10 @@ import android.view.inputmethod.InputMethodManager
 import android.widget.EditText
 import com.wang17.myphone.R
 import com.wang17.myphone.activity.*
+import com.wang17.myphone.callback.CloudCallback
 import com.wang17.myphone.e
 import com.wang17.myphone.model.database.Setting
-import com.wang17.myphone.util.BackupTask
-import com.wang17.myphone.util.DataContext
-import com.wang17.myphone.util.NumberSpeaker
-import com.wang17.myphone.util._Utils
+import com.wang17.myphone.util.*
 import com.wang17.myphone.view._Button
 import kotlinx.android.synthetic.main.fragment_button.*
 import java.text.DecimalFormat
@@ -35,6 +34,7 @@ import java.text.DecimalFormat
 class ButtonFragment : Fragment() {
     private lateinit var numberSpeaker: NumberSpeaker
     private lateinit var dataContext: DataContext
+    var uiHandler = Handler()
 
     @SuppressLint("ServiceCast")
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
@@ -45,7 +45,20 @@ class ButtonFragment : Fragment() {
 
         var btn = _Button(context!!, "设置")
         btn.setOnClickListener {
-            startActivity(Intent(context!!, SettingActivity::class.java))
+            AlertDialog.Builder(context!!).setItems(arrayOf("本地","云端"), DialogInterface.OnClickListener { dialog, which ->
+                when(which){
+                    0->{
+                        startActivity(Intent(context!!, SettingActivity::class.java))
+                    }
+                    1->{
+                        _CloudUtils.getSettingList(context!!,dataContext.getSetting(Setting.KEYS.wx_request_code,"0088").string, CloudCallback { code, result ->
+                            uiHandler.post {
+                                AlertDialog.Builder(context!!).setMessage(result.toString()).show()
+                            }
+                        })
+                    }
+                }
+            }).show()
         }
         layout_flexbox.addView(btn)
 

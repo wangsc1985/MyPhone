@@ -52,7 +52,7 @@ object _OkHttpUtil {
                         val htmlStr = response.body!!.string()
                         callback.excute(htmlStr)
                     }else{
-                        callback.excute("xxxxxxxxxxx  response is not Successful......")
+                        callback.excute("........  response请求失败 ......")
                     }
                 }
             })
@@ -81,7 +81,7 @@ object _OkHttpUtil {
                     val htmlStr = response.body!!.string()
                     callback.excute(htmlStr)
                 }else{
-                    callback.excute("xxxxxxxxxxx  response is not Successful......")
+                    callback.excute("........  response请求失败 ......")
                 }
             }
         })
@@ -113,7 +113,7 @@ object _OkHttpUtil {
                     val htmlStr = response.body!!.string()
                     callback.excute(htmlStr)
                 }else{
-                    callback.excute("xxxxxxxxxxx  response is not Successful......")
+                    callback.excute("........  response请求失败 ......")
                 }
             }
         })
@@ -133,7 +133,7 @@ object _OkHttpUtil {
         //请求加入调度
         call.enqueue(object : Callback {
             override fun onFailure(call: Call, e: IOException) {
-                    callback.excute("xxxxxxxxxxx  ${e.message}")
+                    callback.excute("........  ${e.message} ........")
             }
 
             @Throws(IOException::class)
@@ -143,7 +143,7 @@ object _OkHttpUtil {
                     val htmlStr = response.body!!.string()
                     callback.excute(htmlStr)
                 }else{
-                    callback.excute("xxxxxxxxxxx  response is not Successful......")
+                    callback.excute("........  response请求失败 ......")
                 }
             }
         })
