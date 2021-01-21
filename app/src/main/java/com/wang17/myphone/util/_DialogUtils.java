@@ -5,25 +5,18 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.support.annotation.NonNull;
 import android.support.v7.app.AlertDialog;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.CalendarView;
 import android.widget.EditText;
-import android.widget.Switch;
 
 import com.wang17.myphone.R;
 import com.wang17.myphone.callback.MyCallback;
 import com.wang17.myphone.model.database.BankToDo;
 import com.wang17.myphone.model.DateTime;
-import com.wang17.myphone.model.database.Setting;
 import com.wang17.myphone.widget.MyWidgetProvider;
 
-import java.lang.reflect.Field;
 import java.text.DecimalFormat;
-import java.text.SimpleDateFormat;
-import java.util.Calendar;
-import java.util.Date;
 
 import static com.wang17.myphone.util._Utils.e;
 
@@ -72,7 +65,7 @@ public class _DialogUtils {
                     context.sendBroadcast(intent);
 
                     if (callback != null)
-                        callback.callBack();
+                        callback.execute();
 
                 } catch (Exception e) {
                     _Utils.printException(context, e);
@@ -154,7 +147,7 @@ public class _DialogUtils {
                     context.sendBroadcast(intent);
 
                     if (callback != null)
-                        callback.callBack();
+                        callback.execute();
                 } catch (Exception e) {
                     _Utils.printException(context, e);
                 }

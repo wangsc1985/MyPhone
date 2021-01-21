@@ -2,8 +2,6 @@ package com.wang17.myphone.fragment
 
 import android.animation.ObjectAnimator
 import android.app.AlertDialog
-import android.content.BroadcastReceiver
-import android.content.Context
 import android.content.DialogInterface
 import android.content.Intent
 import android.os.Bundle
@@ -16,6 +14,8 @@ import android.view.ViewGroup
 import android.widget.Toast
 import com.alibaba.fastjson.JSON
 import com.wang17.myphone.R
+import com.wang17.myphone.callback.BuddhaCallback
+import com.wang17.myphone.callback.MyCallback
 import com.wang17.myphone.circleMinite
 import com.wang17.myphone.model.DateTime
 import com.wang17.myphone.eventbus.EventBusMessage
@@ -165,6 +165,15 @@ class BuddhaPlayerFragment : Fragment(){
             2 -> {
                 btn_speed.text = "快"
             }
+        }
+
+        tv_time.setOnLongClickListener {
+            AlertDialog.Builder(context).setMessage("是否清除念佛记录？").setPositiveButton("是", DialogInterface.OnClickListener { dialog, which ->
+                dc.deleteSetting(Setting.KEYS.buddha_duration)
+                dc.deleteSetting(Setting.KEYS.buddha_stoptime)
+                tv_time.text=""
+            }).show()
+            true
         }
 
         var totalCount = 0
@@ -391,9 +400,14 @@ class BuddhaPlayerFragment : Fragment(){
         try {
             if (!_Utils.isRunService(context!!, BuddhaService::class.qualifiedName!!)) {
                 e("开启")
-                checkDuration()
-                context?.startService(buddhaIntent)
-                animatorSuofang(btn_buddha_animator)
+                checkDuration(BuddhaCallback {
+                    if(it==0){
+                        context?.startService(buddhaIntent)
+                        animatorSuofang(btn_buddha_animator)
+                    }else{
+                        AlertDialog.Builder(context).setMessage("保存记录出错！").show()
+                    }
+                })
             } else {
                 e("关闭")
                 context?.stopService(buddhaIntent)
@@ -407,9 +421,10 @@ class BuddhaPlayerFragment : Fragment(){
     /**
      * 检查数据库中是否有未保存的duration记录
      */
-    fun checkDuration() {
-        Thread{
+    fun checkDuration(callback: BuddhaCallback?) {
+//        Thread{
             val setting = dc.getSetting(Setting.KEYS.buddha_duration)
+        if(setting!=null){
             setting?.let {
                 val duration = it.long
                 val count = duration / 600000
@@ -417,51 +432,61 @@ class BuddhaPlayerFragment : Fragment(){
                 val minite = duration % (60000 * 60) / 60000
                 val hourS = "${hour}:"
                 val miniteS = if (minite == 0L) {
-                    if (hour == 0L) "0" else "00"
+                    "00"
                 } else {
                     if (minite < 10) "0${minite}" else "${minite}"
                 }
                 val endTime = DateTime(dc.getSetting(Setting.KEYS.buddha_stoptime,System.currentTimeMillis()).long)
-                val msg = "${"${hourS}${miniteS} \t ${DecimalFormat("#,000").format(duration)} \t ${count} \t ${endTime.toLongDateTimeString()}"}"
+                val msg = "${"${hourS}${miniteS} \t ${DecimalFormat("#,000").format(duration)} \t ${count} \t ${endTime.toLongDateTimeString2()}"}"
 
-                if(count>1){
-                    uiHandler.post {
-                        AlertDialog.Builder(context).setMessage("有未保存的念佛记录\n[ ${msg} ]\n是否保存？").setNegativeButton("保存", DialogInterface.OnClickListener { dialog, which ->
-                            /**
-                             * string phone, long startTime ,long duration , int count, string summary, int type
-                             */
-                            val avgDuration = duration / count
-                            var buddhaList: MutableList<BuddhaRecord> = ArrayList()
-                            for (i in 1..count) {
-                                endTime.add(Calendar.MILLISECOND, (-1 * avgDuration * i).toInt())
-                                buddhaList.add(BuddhaRecord(endTime, avgDuration, 1, 11, "计时计数念佛"))
-                            }
+//                if(count>0){
+                uiHandler.post {
+                    AlertDialog.Builder(context).setMessage("有未保存的念佛记录\n[ ${msg} ]\n是否保存？").setNegativeButton("保存", DialogInterface.OnClickListener { dialog, which ->
+                        /**
+                         * string phone, long startTime ,long duration , int count, string summary, int type
+                         */
+                        val avgDuration = duration / count
+                        var buddhaList: MutableList<BuddhaRecord> = ArrayList()
+                        for (index in 1..count) {
+                            endTime.add(Calendar.MILLISECOND, (-1 * avgDuration * index).toInt())
+                            buddhaList.add(BuddhaRecord(endTime, avgDuration, 1, 11, "计时计数念佛"))
+                        }
 
 
-                            _CloudUtils.addBuddhaList(context!!, buddhaList) { code, result ->
-                                when (code) {
-                                    0 -> {
-                                        uiHandler.post {
-                                            Toast.makeText(context, result.toString(), Toast.LENGTH_LONG).show()
-                                            dc.addBuddhas(buddhaList)
-                                            dc.deleteSetting(Setting.KEYS.buddha_duration)
-                                            dc.deleteSetting(Setting.KEYS.buddha_stoptime)
-                                            refreshTotalView()
-                                        }
+                        _CloudUtils.addBuddhaList(context!!, buddhaList) { code, result ->
+                            when (code) {
+                                0 -> {
+                                    uiHandler.post {
+                                        Toast.makeText(context, result.toString(), Toast.LENGTH_LONG).show()
+                                        dc.addBuddhas(buddhaList)
+                                        dc.deleteSetting(Setting.KEYS.buddha_duration)
+                                        dc.deleteSetting(Setting.KEYS.buddha_stoptime)
+                                        refreshTotalView()
                                     }
-                                    else -> {
-                                        e("code : $code , result : $result")
-                                    }
+                                    callback?.execute(0)
+                                }
+                                else -> {
+                                    e("code : $code , result : $result")
+                                    callback?.execute(-1)
                                 }
                             }
-                        }).setPositiveButton("本次忽略", null).setNeutralButton("丢弃", DialogInterface.OnClickListener { dialog, which ->
-                            dc.deleteSetting(Setting.KEYS.buddha_duration)
-                            dc.deleteSetting(Setting.KEYS.buddha_stoptime)
-                        }).show()
-                    }
+                        }
+                    }).setPositiveButton(if(callback==null) "本次忽略" else "继续使用", DialogInterface.OnClickListener { dialog, which ->
+                        callback?.execute(0)
+                    }).setNeutralButton("丢弃", DialogInterface.OnClickListener { dialog, which ->
+                        dc.deleteSetting(Setting.KEYS.buddha_duration)
+                        dc.deleteSetting(Setting.KEYS.buddha_stoptime)
+                        tv_time.text=""
+                        callback?.execute(0)
+                    }).show()
                 }
+//                }
             }
-        }.start()
+
+        }else{
+            callback?.execute(0)
+        }
+//        }.start()
     }
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
@@ -479,7 +504,7 @@ class BuddhaPlayerFragment : Fragment(){
     fun onGetMessage(bus: EventBusMessage) {
         when(bus.sender){
             is SenderBuddhaServiceOnDestroy->{
-                checkDuration()
+                checkDuration(null)
             }
             is SenderTimerRuning -> {
                 val duration = bus.msg.toLong()

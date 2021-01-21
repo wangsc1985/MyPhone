@@ -122,7 +122,7 @@ public class ToDoFragment extends Fragment {
                                         //  3/1 001 新建待办事项
                                         _DialogUtils.addTodoDialog(getContext(), new MyCallback() {
                                             @Override
-                                            public void callBack() {
+                                            public void execute() {
                                                 mBankToDoList = mDataContext.getBankToDos();
                                                 listAdapter.notifyDataSetChanged();
                                             }

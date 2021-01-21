@@ -173,7 +173,16 @@ class DateTime : GregorianCalendar {
      * @return
      */
     fun toLongDateTimeString(): String {
-        return _String.concat(toShortDateString(), "  ", toTimeString())
+        return _String.concat(toShortDateString(), " ", toTimeString())
+    }
+
+    /**
+     * 格式：**@/ **  **:**:**
+     *
+     * @return
+     */
+    fun toLongDateTimeString2(): String {
+        return _String.concat(toShortDateString1(), " ", toShortTimeString())
     }
 
     /**

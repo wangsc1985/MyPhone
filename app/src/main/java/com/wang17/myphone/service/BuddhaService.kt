@@ -31,7 +31,9 @@ class BuddhaService : Service() {
     val buddhaReceiver = BuddhaReceiver()
 
     var startTimeInMillis: Long = 0
-    var savedDuration =0L
+    var savedDuration = 0L
+    var notificationCount = 0
+    var notificationTime = ""
 
     override fun onBind(intent: Intent): IBinder? {
         return null
@@ -49,7 +51,7 @@ class BuddhaService : Service() {
             dc = DataContext(applicationContext)
             val setting = dc.getSetting(Setting.KEYS.buddha_duration)
             setting?.let {
-                savedDuration=setting.long
+                savedDuration = setting.long
             }
             val volume = dc.getSetting(Setting.KEYS.buddha_volume)
             volume?.let {
@@ -65,7 +67,7 @@ class BuddhaService : Service() {
             val filter = IntentFilter()
             filter.addAction(ACTION_BUDDHA_PLAYE)
             filter.addAction(ACTION_BUDDHA_PAUSE)
-            registerReceiver(buddhaReceiver,filter)
+            registerReceiver(buddhaReceiver, filter)
         } catch (e: Exception) {
             e("buddha service onCreate" + e.message)
         }
@@ -88,12 +90,14 @@ class BuddhaService : Service() {
         timer.schedule(object : TimerTask() {
             override fun run() {
                 val currentTimeMillis = System.currentTimeMillis()
-                val miniteT = (currentTimeMillis - startTimeInMillis) / 1000 / 60
+                val duration = savedDuration + currentTimeMillis - startTimeInMillis
+                val second = duration % 60000 / 1000
+                val miniteT = duration / 60000
                 val minite = miniteT % 60
                 val hour = miniteT / 60
-                var count = (miniteT / circleMinite).toInt()
-                var time = "$hour:${if (minite < 10) "0" + minite else minite}"
-                sendNotification(count, time)
+                notificationCount = (miniteT / circleMinite).toInt()
+                notificationTime = "$hour:${if (minite < 10) "0" + minite else minite}:${if (second < 10) "0" + second else second}"
+                sendNotification(notificationCount, notificationTime)
                 e(savedDuration + currentTimeMillis - startTimeInMillis)
                 EventBus.getDefault().post(EventBusMessage.getInstance(SenderTimerRuning(), (savedDuration + currentTimeMillis - startTimeInMillis).toString()))
             }
@@ -149,13 +153,14 @@ class BuddhaService : Service() {
     }
 
     var afChangeListener = AudioManager.OnAudioFocusChangeListener { focusChange ->
-        when(focusChange){
+        when (focusChange) {
             /**
              * 当其他应用申请焦点之后又释放焦点会触发此回调
              * 可重新播放音乐
              */
             AudioManager.AUDIOFOCUS_GAIN -> {
                 e("永远获取焦点")
+                mPlayer.prepare()
                 mPlayer.start()
                 mPlayer.setVolume(1f, 1f)
                 reOrStart()
@@ -168,7 +173,6 @@ class BuddhaService : Service() {
             AudioManager.AUDIOFOCUS_LOSS -> {
                 e("永远失去焦点")
                 mPlayer.stop()
-//                stopService(Intent(applicationContext,BuddhaService::class.java))
                 stopSelf()
             }
             /**
@@ -198,7 +202,8 @@ class BuddhaService : Service() {
     fun reOrStart() {
         e("------------------ start or restart -------------------------")
         dc.addLog("chant buddha", "start or restart", null)
-        dc.editSetting(Setting.KEYS.buddha_startime, System.currentTimeMillis())
+        startTimeInMillis = System.currentTimeMillis()
+        dc.editSetting(Setting.KEYS.buddha_startime, startTimeInMillis)
     }
 
     /**
@@ -215,8 +220,8 @@ class BuddhaService : Service() {
         val settingStartTime = dc.getSetting(Setting.KEYS.buddha_startime)
         settingStartTime?.let {
             val setting = dc.getSetting(Setting.KEYS.buddha_duration)
-            savedDuration=setting?.long ?: 0L
-            savedDuration+=now - it.long
+            savedDuration = setting?.long ?: 0L
+            savedDuration += now - it.long
             dc.editSetting(Setting.KEYS.buddha_duration, savedDuration)
             dc.editSetting(Setting.KEYS.buddha_stoptime, now)
 
@@ -232,13 +237,12 @@ class BuddhaService : Service() {
             remoteViews.setTextViewText(R.id.tv_time, time)
             e("media player is playing : ${mPlayer.isPlaying}")
             if (mPlayer.isPlaying) {
-                remoteViews.setImageViewResource(R.id.image_control, R.drawable.play)
+                remoteViews.setImageViewResource(R.id.image_control, R.drawable.pause)
                 val intentRootClick = Intent(ACTION_BUDDHA_PAUSE)
                 val pendingIntent = PendingIntent.getBroadcast(applicationContext, 0, intentRootClick, PendingIntent.FLAG_UPDATE_CURRENT)
                 remoteViews.setOnClickPendingIntent(R.id.image_control, pendingIntent)
-            }
-            else {
-                remoteViews.setImageViewResource(R.id.image_control, R.drawable.pause)
+            } else {
+                remoteViews.setImageViewResource(R.id.image_control, R.drawable.play)
                 val intentRootClick = Intent(ACTION_BUDDHA_PLAYE)
                 val pendingIntent = PendingIntent.getBroadcast(applicationContext, 0, intentRootClick, PendingIntent.FLAG_UPDATE_CURRENT)
                 remoteViews.setOnClickPendingIntent(R.id.image_control, pendingIntent)
@@ -249,24 +253,31 @@ class BuddhaService : Service() {
     inner class BuddhaReceiver : BroadcastReceiver() {
         override fun onReceive(context: Context?, intent: Intent?) {
             intent?.let {
-                when(it.action){
-                    ACTION_BUDDHA_PLAYE->{
+                when (it.action) {
+                    ACTION_BUDDHA_PLAYE -> {
+                        e("receiver action buddha play")
+                        mPlayer.prepare()
                         mPlayer.start()
-                        startTimer()
                         reOrStart()
+                        startTimer()
                     }
-                    ACTION_BUDDHA_PAUSE->{
+                    ACTION_BUDDHA_PAUSE -> {
+                        e("receiver action buddha pause")
                         mPlayer.stop()
-                        stopTimer()
                         pauseOrStop()
+                        stopTimer()
                     }
                 }
+
+                sendNotification(notificationCount, notificationTime)
             }
         }
     }
 
-    companion object{
-        val ACTION_BUDDHA_PAUSE="com.wang17.myphone.buddha.pause"
-        val ACTION_BUDDHA_PLAYE="com.wang17.myphone.buddha.play"
+    // TODO: 2021/1/21  1、状态栏开始，可以看出，在暂停这段时间，时间并没有停止  2、已经停止了，声音焦点有问题，一个短暂获取焦点的声音结束后，又开始念佛了
+
+    companion object {
+        val ACTION_BUDDHA_PAUSE = "com.wang17.myphone.buddha.pause"
+        val ACTION_BUDDHA_PLAYE = "com.wang17.myphone.buddha.play"
     }
 }
