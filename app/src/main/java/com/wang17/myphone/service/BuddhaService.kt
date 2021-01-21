@@ -2,17 +2,25 @@ package com.wang17.myphone.service
 
 import android.app.PendingIntent
 import android.app.Service
+import android.content.BroadcastReceiver
+import android.content.Context
 import android.content.Intent
+import android.content.IntentFilter
 import android.media.AudioManager
 import android.media.MediaPlayer
 import android.os.IBinder
 import com.wang17.myphone.R
+import com.wang17.myphone.circleMinite
 import com.wang17.myphone.e
+import com.wang17.myphone.eventbus.EventBusMessage
+import com.wang17.myphone.eventbus.SenderBuddhaServiceOnDestroy
+import com.wang17.myphone.eventbus.SenderTimerRuning
 import com.wang17.myphone.model.database.Setting
 import com.wang17.myphone.util.DataContext
 import com.wang17.myphone.util._NotificationUtils
 import com.wang17.myphone.util._Session
 import com.wang17.myphone.util._Utils
+import org.greenrobot.eventbus.EventBus
 import java.io.File
 import java.util.*
 
@@ -20,8 +28,10 @@ class BuddhaService : Service() {
 
     private val NOTIFICATION_ID: Int = 12345
     private lateinit var dc: DataContext
-    var startTimeInMillis: Long = 0
+    val buddhaReceiver = BuddhaReceiver()
 
+    var startTimeInMillis: Long = 0
+    var savedDuration =0L
 
     override fun onBind(intent: Intent): IBinder? {
         return null
@@ -35,9 +45,12 @@ class BuddhaService : Service() {
     override fun onCreate() {
         super.onCreate()
         e("buddha service onCreate")
-
         try {
             dc = DataContext(applicationContext)
+            val setting = dc.getSetting(Setting.KEYS.buddha_duration)
+            setting?.let {
+                savedDuration=setting.long
+            }
             val volume = dc.getSetting(Setting.KEYS.buddha_volume)
             volume?.let {
                 setMediaVolume(it.int)
@@ -45,20 +58,28 @@ class BuddhaService : Service() {
             mAm = getSystemService(AUDIO_SERVICE) as AudioManager
             startTimeInMillis = System.currentTimeMillis()
             val buddhaSpeed = dc.getSetting(Setting.KEYS.buddha_speed, 2).int
-            e("buddha speed : $buddhaSpeed")
             startMediaPlayer(buddhaSpeed)
             startTimer()
+
+            //
+            val filter = IntentFilter()
+            filter.addAction(ACTION_BUDDHA_PLAYE)
+            filter.addAction(ACTION_BUDDHA_PAUSE)
+            registerReceiver(buddhaReceiver,filter)
         } catch (e: Exception) {
             e("buddha service onCreate" + e.message)
         }
     }
 
     override fun onDestroy() {
-        e("buddha service onDestroy")
         super.onDestroy()
         stopMediaPlayer()
         stopTimer()
         _NotificationUtils.closeNotification(applicationContext, NOTIFICATION_ID)
+        EventBus.getDefault().post(EventBusMessage.getInstance(SenderBuddhaServiceOnDestroy(), "buddha service destroyed"))
+
+        //
+        unregisterReceiver(buddhaReceiver)
     }
 
     lateinit var timer: Timer
@@ -70,9 +91,11 @@ class BuddhaService : Service() {
                 val miniteT = (currentTimeMillis - startTimeInMillis) / 1000 / 60
                 val minite = miniteT % 60
                 val hour = miniteT / 60
-                var count = (miniteT / 12).toInt()
+                var count = (miniteT / circleMinite).toInt()
                 var time = "$hour:${if (minite < 10) "0" + minite else minite}"
                 sendNotification(count, time)
+                e(savedDuration + currentTimeMillis - startTimeInMillis)
+                EventBus.getDefault().post(EventBusMessage.getInstance(SenderTimerRuning(), (savedDuration + currentTimeMillis - startTimeInMillis).toString()))
             }
         }, 0, 1000)
     }
@@ -87,7 +110,8 @@ class BuddhaService : Service() {
      * 这里我只写了多媒体和通话的音量调节，其他的只是参数不同，大家可仿照
      */
     fun setMediaVolume(volume: Int) {
-        mAm.setStreamVolume(AudioManager.STREAM_MUSIC,  volume, AudioManager.FLAG_PLAY_SOUND or AudioManager.FLAG_SHOW_UI)
+        val audio = getSystemService(AUDIO_SERVICE) as AudioManager
+        audio.setStreamVolume(AudioManager.STREAM_MUSIC, volume, AudioManager.FLAG_PLAY_SOUND or AudioManager.FLAG_SHOW_UI)
     }
 
     private lateinit var mPlayer: MediaPlayer
@@ -172,7 +196,8 @@ class BuddhaService : Service() {
      * 1、记录当前section的startime
      */
     fun reOrStart() {
-        e("start or restart")
+        e("------------------ start or restart -------------------------")
+        dc.addLog("chant buddha", "start or restart", null)
         dc.editSetting(Setting.KEYS.buddha_startime, System.currentTimeMillis())
     }
 
@@ -182,17 +207,18 @@ class BuddhaService : Service() {
      * 2、删除section的startime
      */
     fun pauseOrStop() {
-        e("pause or stop")
+        e("---------------- pause or stop --------------------")
+        dc.addLog("chant buddha", "pause or stop", null)
         val now = System.currentTimeMillis()
 
         // 计算当前section的duration
         val settingStartTime = dc.getSetting(Setting.KEYS.buddha_startime)
         settingStartTime?.let {
-            val duration = now - it.long
-
-            // 获取之前的duration，并将两次的duration重新录入数据库
             val setting = dc.getSetting(Setting.KEYS.buddha_duration)
-            dc.editSetting(Setting.KEYS.buddha_duration, duration + (setting?.long ?: 0L))
+            savedDuration=setting?.long ?: 0L
+            savedDuration+=now - it.long
+            dc.editSetting(Setting.KEYS.buddha_duration, savedDuration)
+            dc.editSetting(Setting.KEYS.buddha_stoptime, now)
 
             // 删除startime
             dc.deleteSetting(Setting.KEYS.buddha_startime)
@@ -204,20 +230,43 @@ class BuddhaService : Service() {
         _NotificationUtils.sendNotification(NOTIFICATION_ID, applicationContext, R.layout.notification_nf) { remoteViews ->
             remoteViews.setTextViewText(R.id.tv_count, count.toString())
             remoteViews.setTextViewText(R.id.tv_time, time)
+            e("media player is playing : ${mPlayer.isPlaying}")
             if (mPlayer.isPlaying) {
-                remoteViews.setImageViewResource(R.id.image_control, R.drawable.pause)
-
-                val intentRootClick = Intent("com.wang17.myphone.buddha.pause")
+                remoteViews.setImageViewResource(R.id.image_control, R.drawable.play)
+                val intentRootClick = Intent(ACTION_BUDDHA_PAUSE)
                 val pendingIntent = PendingIntent.getBroadcast(applicationContext, 0, intentRootClick, PendingIntent.FLAG_UPDATE_CURRENT)
                 remoteViews.setOnClickPendingIntent(R.id.image_control, pendingIntent)
             }
             else {
-                remoteViews.setImageViewResource(R.id.image_control, R.drawable.play)
-
-                val intentRootClick = Intent("com.wang17.myphone.buddha.play")
+                remoteViews.setImageViewResource(R.id.image_control, R.drawable.pause)
+                val intentRootClick = Intent(ACTION_BUDDHA_PLAYE)
                 val pendingIntent = PendingIntent.getBroadcast(applicationContext, 0, intentRootClick, PendingIntent.FLAG_UPDATE_CURRENT)
                 remoteViews.setOnClickPendingIntent(R.id.image_control, pendingIntent)
             }
         }
+    }
+
+    inner class BuddhaReceiver : BroadcastReceiver() {
+        override fun onReceive(context: Context?, intent: Intent?) {
+            intent?.let {
+                when(it.action){
+                    ACTION_BUDDHA_PLAYE->{
+                        mPlayer.start()
+                        startTimer()
+                        reOrStart()
+                    }
+                    ACTION_BUDDHA_PAUSE->{
+                        mPlayer.stop()
+                        stopTimer()
+                        pauseOrStop()
+                    }
+                }
+            }
+        }
+    }
+
+    companion object{
+        val ACTION_BUDDHA_PAUSE="com.wang17.myphone.buddha.pause"
+        val ACTION_BUDDHA_PLAYE="com.wang17.myphone.buddha.play"
     }
 }

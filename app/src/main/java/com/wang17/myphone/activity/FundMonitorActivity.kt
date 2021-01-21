@@ -139,8 +139,7 @@ class FundMonitorActivity : AppCompatActivity() {
                                         }
                                         var speakMsg = ""
                                         //region 股票平均盈利
-                                        val msgS = DecimalFormat("0.00").format((averageProfit * 100.toBigDecimal()).toLong())
-                                        Log.e("wangsc", "averageTotalProfitS: $msgS")
+                                        val msgS = DecimalFormat("0.00").format((averageProfit * 100.toBigDecimal()))
                                         if (Math.abs((averageProfit - preAverageProfit).toDouble()) * 100 > 1.0 / size) {
                                             preAverageProfit = averageProfit
                                             speakMsg += msgS

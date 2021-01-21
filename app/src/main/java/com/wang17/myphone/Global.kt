@@ -10,6 +10,8 @@ fun e(data: Any) {
     Log.e("wangsc", data.toString())
 }
 
+val circleMinite=10
+
 val scale = 8
 val roundMode = BigDecimal.ROUND_DOWN
 fun Int.toMyDecimal():BigDecimal{

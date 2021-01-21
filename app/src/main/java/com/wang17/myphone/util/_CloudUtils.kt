@@ -15,6 +15,7 @@ import com.wang17.myphone.util._OkHttpUtil.postRequestByJsonStr
 import org.json.JSONArray
 import java.util.*
 import java.util.concurrent.CountDownLatch
+import kotlin.math.exp
 
 object _CloudUtils {
     private var newMsgCount = 0
@@ -29,6 +30,7 @@ object _CloudUtils {
         val setting = dc.getSetting("token_exprires")
         if (setting != null) {
             val exprires = setting.long
+            e("local : ${System.currentTimeMillis()} ${DateTime().toLongDateTimeString()} database : ${exprires} ${DateTime(exprires).toLongDateTimeString()} ${System.currentTimeMillis() > exprires}")
             if (System.currentTimeMillis() > exprires) {
                 /**
                  * token过期
@@ -56,7 +58,7 @@ object _CloudUtils {
         val latch = CountDownLatch(1)
         getRequest("https://sahacloudmanager.azurewebsites.net/home/token/${appid}/${secret}", HttpCallback { html ->
             try {
-//                e(html)
+                e(html)
                 val data = html.split(":")
                 if (data.size == 2) {
                     token = data[0]

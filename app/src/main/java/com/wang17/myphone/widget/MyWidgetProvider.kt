@@ -10,7 +10,6 @@ import android.content.Intent
 import android.graphics.Color
 import android.media.AudioManager
 import android.os.Bundle
-import android.support.v4.content.ContextCompat.getSystemService
 import android.telephony.SmsMessage
 import android.util.Log
 import android.widget.RemoteViews
@@ -258,18 +257,21 @@ class MyWidgetProvider : AppWidgetProvider() {
     override fun onReceive(context: Context, intent: Intent) {
         try {
             val action = intent.action
-            val dataContext = DataContext(context)
+            val dc = DataContext(context)
             val remoteViews = RemoteViews(context.packageName, R.layout.widget_timer)
             val myComponentName = ComponentName(context, MyWidgetProvider::class.java)
             val appWidgetManager = AppWidgetManager.getInstance(context)
             when (action) {
                 "android.media.VOLUME_CHANGED_ACTION" -> {
-                    val audio = context.getSystemService(Service.AUDIO_SERVICE) as AudioManager
-                   val volume = audio.getStreamVolume(AudioManager.STREAM_MUSIC)
-                    dataContext.editSetting(Setting.KEYS.buddha_volume,volume)
+                    val setting = dc.getSetting(Setting.KEYS.buddha_startime)
+                    setting?.let {
+                        val audio = context.getSystemService(Service.AUDIO_SERVICE) as AudioManager
+                        val volume = audio.getStreamVolume(AudioManager.STREAM_MUSIC)
+                        dc.editSetting(Setting.KEYS.buddha_volume,volume)
+                    }
                 }
                 ACTION_CLICK_LAYOUT_LEFT -> {
-                    dataContext.addLog("widget", "widget ACTION_CLICK_LAYOUT_LEFT", "")
+                    dc.addLog("widget", "widget ACTION_CLICK_LAYOUT_LEFT", "")
                     setWidgetAlertColor(remoteViews)
 
                     //region 获取股票列表
@@ -284,11 +286,11 @@ class MyWidgetProvider : AppWidgetProvider() {
                     setSZindex(context, remoteViews, myComponentName, appWidgetManager)
 
 
-                    val isAllowWidgetListStock = dataContext.getSetting(Setting.KEYS.is_allow_widget_list_stock, true).boolean
+                    val isAllowWidgetListStock = dc.getSetting(Setting.KEYS.is_allow_widget_list_stock, true).boolean
 
-                    val is_list_stock = dataContext.getSetting(Setting.KEYS.is_widget_list_stock, true).boolean
+                    val is_list_stock = dc.getSetting(Setting.KEYS.is_widget_list_stock, true).boolean
                     if (isAllowWidgetListStock) {
-                        val positions = dataContext.getPositions(if (is_list_stock) 0 else 1)
+                        val positions = dc.getPositions(if (is_list_stock) 0 else 1)
                         if (positions.size > 0) {
                             isStockList = true
                         } else {
@@ -327,17 +329,17 @@ class MyWidgetProvider : AppWidgetProvider() {
                     }
                 }
                 ACTION_CLICK_LAYOUT_RIGHT -> {
-                    dataContext.addLog("widget", "widget ACTION_CLICK_LAYOUT_RIGHT", "")
+                    dc.addLog("widget", "widget ACTION_CLICK_LAYOUT_RIGHT", "")
                     val mainIntent = Intent(context, MainActivity::class.java)
                     mainIntent.flags = Intent.FLAG_ACTIVITY_NEW_TASK
                     context.startActivity(mainIntent)
                 }
                 ACTION_UPDATE_ALL -> {
-                    dataContext.addLog("widget", "widget ACTION_UPDATE_ALL", "")
+                    dc.addLog("widget", "widget ACTION_UPDATE_ALL", "")
                     //相当于获得所有本程序创建的appwidget
                     var text = context.resources.getString(R.string.widget_text)
                     var progress = 0
-                    val lastMarkDay = dataContext.getLastMarkDay(UUID.fromString(dataContext.getSetting(Setting.KEYS.mark_day_focused, _Session.UUID_NULL).string))
+                    val lastMarkDay = dc.getLastMarkDay(UUID.fromString(dc.getSetting(Setting.KEYS.mark_day_focused, _Session.UUID_NULL).string))
                     if (lastMarkDay != null) {
                         val have = ((DateTime().timeInMillis - lastMarkDay.dateTime.timeInMillis) / 3600000).toInt()
                         val day = have / 24
@@ -353,16 +355,16 @@ class MyWidgetProvider : AppWidgetProvider() {
                     appWidgetManager.updateAppWidget(myComponentName, remoteViews)
                 }
                 ACTION_CLICK_ROOT -> {
-                    dataContext.addLog("widget", "widget ACTION_CLICK_ROOT", "")
+                    dc.addLog("widget", "widget ACTION_CLICK_ROOT", "")
                     val mIntent = Intent(context, MainActivity::class.java)
                     mIntent.flags = Intent.FLAG_ACTIVITY_NEW_TASK
                     context.startActivity(mIntent)
                 }
                 Intent.ACTION_USER_PRESENT -> {
-                    dataContext.addLog("widget", "widget ACTION_USER_PRESENT", "")
+                    dc.addLog("widget", "widget ACTION_USER_PRESENT", "")
                 }
                 ACTION_CLICK_TEXT -> try {
-                    dataContext.addLog("widget", "widget ACTION_CLICK_TEXT", "")
+                    dc.addLog("widget", "widget ACTION_CLICK_TEXT", "")
 
                     // 如果显示markday数据
 //                    remoteViews.setTextViewText(R.id.textView_date, "——")
@@ -384,7 +386,7 @@ class MyWidgetProvider : AppWidgetProvider() {
                     Log.e("wangsc", e.message!!)
                 }
                 ACTION_UPDATE_LISTVIEW -> try {
-                    dataContext.addLog("widget", "widget ACTION_UPDATE_LISTVIEW", "")
+                    dc.addLog("widget", "widget ACTION_UPDATE_LISTVIEW", "")
 
                     setWidgetAlertColor(remoteViews)
                     appWidgetManager.notifyAppWidgetViewDataChanged(appWidgetManager.getAppWidgetIds(myComponentName), R.id.listview_todo)
@@ -406,12 +408,12 @@ class MyWidgetProvider : AppWidgetProvider() {
 //                        }
 //                    } else
                 {
-                    dataContext.addLog("widget", "widget ACTION_CLICK_LIST_ITEM", "")
+                    dc.addLog("widget", "widget ACTION_CLICK_LIST_ITEM", "")
                     val smsIntent = Intent(context, ToDoActivity::class.java)
                     context.startActivity(smsIntent)
                 }
                 "android.provider.Telephony.SMS_RECEIVED" -> {
-                    dataContext.addLog("widget", "widget android.provider.Telephony.SMS_RECEIVED", "")
+                    dc.addLog("widget", "widget android.provider.Telephony.SMS_RECEIVED", "")
                     val objects = intent.extras!!["pdus"] as Array<Any>?
                     e("收到短信" + objects!!.size)
                     for (obj in objects) {
@@ -423,7 +425,7 @@ class MyWidgetProvider : AppWidgetProvider() {
                         e(number)
                         e(content)
                         e(dateTime.timeInMillis)
-                        dataContext.addLog("新信息", number, dateTime.timeInMillis.toString() + "")
+                        dc.addLog("新信息", number, dateTime.timeInMillis.toString() + "")
                         when (number) {
                             "95599" -> {
                                 var bankBill: BankBill?
@@ -455,7 +457,7 @@ class MyWidgetProvider : AppWidgetProvider() {
                                     remoteViews.setTextViewText(R.id.textView_balance1, balanceStr)
 //                                    remoteViews.setTextViewText(R.id.textView_date1, dateTimeStr)
                                     appWidgetManager.updateAppWidget(myComponentName, remoteViews)
-                                    dataContext.editSetting(Setting.KEYS.bank1_balance, balanceStr)
+                                    dc.editSetting(Setting.KEYS.bank1_balance, balanceStr)
 //                                    dataContext.editSetting(Setting.KEYS.bank1_date_millis, bankBill.dateTime.timeInMillis)
                                 }
                             }
@@ -491,7 +493,7 @@ class MyWidgetProvider : AppWidgetProvider() {
                                     remoteViews.setTextViewText(R.id.textView_balance2, balanceStr)
 //                                    remoteViews.setTextViewText(R.id.textView_date2, dateTimeStr)
                                     appWidgetManager.updateAppWidget(myComponentName, remoteViews)
-                                    dataContext.editSetting(Setting.KEYS.bank2_balance, balanceStr)
+                                    dc.editSetting(Setting.KEYS.bank2_balance, balanceStr)
 //                                    dataContext.editSetting(Setting.KEYS.bank2_date_millis, bankBill.dateTime.timeInMillis)
                                 }
                             }
@@ -503,7 +505,7 @@ class MyWidgetProvider : AppWidgetProvider() {
                         pm.createTime = dateTime
                         pm.type = SmsType.接收到
                         pm.status = SmsStatus.接受
-                        dataContext.addPhoneMessage(pm)
+                        dc.addPhoneMessage(pm)
                         //                        }
                     }
                 }

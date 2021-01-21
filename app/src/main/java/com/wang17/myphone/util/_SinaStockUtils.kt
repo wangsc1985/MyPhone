@@ -6,6 +6,7 @@ import com.wang17.myphone.e
 import com.wang17.myphone.model.StockInfo
 import com.wang17.myphone.model.database.Position
 import com.wang17.myphone.service.StockService.Companion.findCommodity
+import com.wang17.myphone.setMyScale
 import com.wang17.myphone.toMyDecimal
 import okhttp3.Request
 import java.math.BigDecimal
@@ -135,7 +136,7 @@ object _SinaStockUtils {
                     }
                 }
                 var totalAverageIncrease = if (isStock) {
-                    totalProfit / totalCostFund
+                    totalProfit.setMyScale() / totalCostFund
                 } else {
                     totalProfit
                 }

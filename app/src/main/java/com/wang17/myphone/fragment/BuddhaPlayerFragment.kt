@@ -2,6 +2,8 @@ package com.wang17.myphone.fragment
 
 import android.animation.ObjectAnimator
 import android.app.AlertDialog
+import android.content.BroadcastReceiver
+import android.content.Context
 import android.content.DialogInterface
 import android.content.Intent
 import android.os.Bundle
@@ -14,7 +16,11 @@ import android.view.ViewGroup
 import android.widget.Toast
 import com.alibaba.fastjson.JSON
 import com.wang17.myphone.R
+import com.wang17.myphone.circleMinite
 import com.wang17.myphone.model.DateTime
+import com.wang17.myphone.eventbus.EventBusMessage
+import com.wang17.myphone.eventbus.SenderBuddhaServiceOnDestroy
+import com.wang17.myphone.eventbus.SenderTimerRuning
 import com.wang17.myphone.model.database.BuddhaRecord
 import com.wang17.myphone.model.database.Setting
 import com.wang17.myphone.service.BuddhaService
@@ -25,14 +31,18 @@ import com.wang17.myphone.util._JsonUtils
 import com.wang17.myphone.util._Utils
 import kotlinx.android.synthetic.main.fragment_player.*
 import kotlinx.android.synthetic.main.fragment_player.abtn_stock
+import org.greenrobot.eventbus.EventBus
+import org.greenrobot.eventbus.Subscribe
+import org.greenrobot.eventbus.ThreadMode
 import java.text.DecimalFormat
 import java.util.*
 
-class BuddhaPlayerFragment : Fragment() {
+class BuddhaPlayerFragment : Fragment(){
 
     lateinit var abtn_stockAnimator: AnimatorSuofangView
     lateinit var btn_buddha_animator: AnimatorSuofangView
     var uiHandler = Handler()
+    lateinit var dc:DataContext
 
     override fun onResume() {
         super.onResume()
@@ -49,8 +59,7 @@ class BuddhaPlayerFragment : Fragment() {
         }
 
 
-        val dataContext = DataContext(context)
-        val buddha = dataContext.getLatestBuddha()
+        val buddha = dc.getLatestBuddha()
         var time = DateTime(1970, 1, 1)
         if (buddha != null) {
             time = buddha.startTime
@@ -70,7 +79,7 @@ class BuddhaPlayerFragment : Fragment() {
                         buddhaS.add(BuddhaRecord(DateTime(startTime), duration, count, type, summary))
                     }
 
-                    dataContext.addBuddhas(buddhaS)
+                    dc.addBuddhas(buddhaS)
 
                     uiHandler.post {
                         if (buddhaS.size > 0) {
@@ -86,18 +95,17 @@ class BuddhaPlayerFragment : Fragment() {
     }
 
     private fun refreshTotalView() {
-        val dataContext = DataContext(context)
         val now = DateTime()
         var totalDayDuration: Long = 0
         var totalDayCount = 0
         var totalMonthDuration: Long = 0
         var totalMonthCount = 0
-        val monthBuddhas = dataContext.getBuddhas(now.year, now.month)
+        val monthBuddhas = dc.getBuddhas(now.year, now.month)
         monthBuddhas.forEach {
             totalMonthCount += it.count
             totalMonthDuration += it.duration
         }
-        val dayBuddhas = dataContext.getBuddhas(now)
+        val dayBuddhas = dc.getBuddhas(now)
         dayBuddhas.forEach {
             totalDayCount += it.count
             totalDayDuration += it.duration
@@ -107,7 +115,6 @@ class BuddhaPlayerFragment : Fragment() {
         val hour = totalMonthDuration / (60000 * 60)
         val minite = totalMonthDuration % (60000 * 60) / 60000
         val hourS = "${hour}:"
-        val formatter = DecimalFormat("#,##0")
         val miniteS = if (minite == 0L) {
             if (hour == 0L) "0" else "00"
         } else {
@@ -122,18 +129,35 @@ class BuddhaPlayerFragment : Fragment() {
         } else {
             if (minite1 < 10) "0${minite1}" else "${minite1}"
         }
+        val formatter = DecimalFormat("#,##0")
+        val formatter1 = DecimalFormat("0.0")
+        val formatter2 = DecimalFormat("0.00")
+        e("${hourS}${miniteS}  ${formatter.format(totalMonthCount * 1080)}  ${formatter1.format(totalMonthCount.toBigDecimal().setScale(1) / now.day.toBigDecimal())}")
+        e("${hourS1}${miniteS1}  ${formatter.format(totalDayCount * 1080)}  ${totalDayCount}")
         uiHandler.post {
-            tv_monthTotal.setText("${hourS}${miniteS}  ${formatter.format(totalMonthCount * 1080)}  ${DecimalFormat("0.0").format(totalMonthCount.toBigDecimal().setScale(1) / now.day.toBigDecimal())}")
+            tv_monthTotal.setText("${hourS}${miniteS}  ${formatter2.format(totalMonthCount * 1080/10000)}  ${formatter.format(totalMonthCount.toBigDecimal().setScale(2) / now.day.toBigDecimal()/10000.toBigDecimal())}")
             tv_dayTotal.setText("${hourS1}${miniteS1}  ${formatter.format(totalDayCount * 1080)}  ${totalDayCount}")
         }
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
-        val dataContext = DataContext(context)
         buddhaIntent = Intent(context, BuddhaService::class.java)
         abtn_stockAnimator = AnimatorSuofangView(abtn_stock)
         btn_buddha_animator = AnimatorSuofangView(abtn_buddha)
-        val buddhaSpeed = dataContext.getSetting(Setting.KEYS.buddha_speed, 2).int
+
+        // TODO: 2021/1/21 tv_time刷新
+        val setting = dc.getSetting(Setting.KEYS.buddha_duration)
+        setting?.let {
+            val duration = it.long
+            val second = duration%60000/1000
+            val miniteT = duration / 60000
+            val minite = miniteT % 60
+            val hour = miniteT / 60
+            var count = (miniteT / circleMinite).toInt()
+            tv_time.text = "$hour:${if (minite < 10) "0" + minite else minite}:${if (second < 10) "0" + second else second} \t $count \t "
+        }
+
+        val buddhaSpeed = dc.getSetting(Setting.KEYS.buddha_speed, 2).int
         when (buddhaSpeed) {
             1 -> {
                 btn_speed.text = "慢"
@@ -145,7 +169,7 @@ class BuddhaPlayerFragment : Fragment() {
 
         var totalCount = 0
         layout_dayTotal.setOnClickListener {
-            val dayBuddhaList = dataContext.getBuddhas(DateTime())
+            val dayBuddhaList = dc.getBuddhas(DateTime())
             var items = arrayOfNulls<String>(dayBuddhaList.size)
             for (index in dayBuddhaList.indices) {
                 val hour1 = dayBuddhaList[index].duration / (60000 * 60)
@@ -164,7 +188,6 @@ class BuddhaPlayerFragment : Fragment() {
                     AlertDialog.Builder(context)
                             .setMessage("是否要删除【${dayBuddhaList[index].startTime.toLongDateTimeString()}】的记录?")
                             .setNegativeButton("是", DialogInterface.OnClickListener { dialog, which ->
-                                var dc = DataContext(context)
                                 dc.deleteBuddha(dayBuddhaList[index].id)
                                 refreshTotalView()
 
@@ -186,7 +209,7 @@ class BuddhaPlayerFragment : Fragment() {
 
         layout_monthTotal.setOnClickListener {
             val today = DateTime.today
-            val monthBuddhaList = dataContext.getBuddhas(today.year, today.month)
+            val monthBuddhaList = dc.getBuddhas(today.year, today.month)
             var start = DateTime(today.year, today.month, 1)
             var sb = StringBuilder()
             var totalDuration = 0L
@@ -275,7 +298,6 @@ class BuddhaPlayerFragment : Fragment() {
                     /**
                      * string phone, long startTime ,long duration , int count, string summary, int type
                      */
-                    var dc = DataContext(context)
                     val latestBuddha = dc.latestBuddha
                     var duration = (10 * 60000 * count).toLong()
                     if (latestBuddha != null) {
@@ -289,13 +311,13 @@ class BuddhaPlayerFragment : Fragment() {
                         e("start time : ${startTime.toLongDateTimeString()}")
                         buddhaList.add(BuddhaRecord(startTime, duration, 1, 11, "计时计数念佛"))
                     }
-                    dc.addBuddhas(buddhaList)
-                    refreshTotalView()
 
                     _CloudUtils.addBuddhaList(context!!, buddhaList) { code, result ->
                         when (code) {
                             0 -> {
                                 uiHandler.post {
+                                    dc.addBuddhas(buddhaList)
+                                    refreshTotalView()
                                     Toast.makeText(context, result.toString(), Toast.LENGTH_LONG).show()
                                 }
                             }
@@ -313,7 +335,7 @@ class BuddhaPlayerFragment : Fragment() {
             //region 在StockReportService里面执行
             if (!_Utils.isRunService(context!!, StockService::class.qualifiedName!!)) {
                 context!!.startService(Intent(context, StockService::class.java))
-                dataContext.editSetting(Setting.KEYS.is_stocks_listener, true)
+                dc.editSetting(Setting.KEYS.is_stocks_listener, true)
                 animatorSuofang(abtn_stockAnimator)
             }
             //endregion
@@ -321,11 +343,11 @@ class BuddhaPlayerFragment : Fragment() {
         abtn_stock.setOnLongClickListener { //region 在StockReportService里面执行
             if (_Utils.isRunService(context!!, StockService::class.qualifiedName!!)) {
                 context!!.stopService(Intent(context, StockService::class.java))
-                dataContext.editSetting(Setting.KEYS.is_stocks_listener, false)
+                dc.editSetting(Setting.KEYS.is_stocks_listener, false)
                 stopAnimatorSuofang(abtn_stockAnimator)
             } else {
                 context!!.startService(Intent(context, StockService::class.java))
-                dataContext.editSetting(Setting.KEYS.is_stocks_listener, true)
+                dc.editSetting(Setting.KEYS.is_stocks_listener, true)
                 animatorSuofang(abtn_stockAnimator)
                 //
                 _Utils.clickHomeButton(context!!)
@@ -337,6 +359,13 @@ class BuddhaPlayerFragment : Fragment() {
         abtn_buddha.setOnClickListener {
             playBuddha()
         }
+        abtn_buddha.setOnLongClickListener {
+            dc.deleteSetting(Setting.KEYS.buddha_duration)
+            dc.deleteSetting(Setting.KEYS.buddha_stoptime)
+            tv_time.text=""
+            playBuddha()
+            true
+        }
         btn_speed.setOnClickListener {
             AlertDialog.Builder(context).setItems(arrayOf("慢", "快"), DialogInterface.OnClickListener { dialog, which ->
                 when (which) {
@@ -347,7 +376,7 @@ class BuddhaPlayerFragment : Fragment() {
                         btn_speed.text = "快"
                     }
                 }
-                dataContext.editSetting(Setting.KEYS.buddha_speed, which + 1)
+                dc.editSetting(Setting.KEYS.buddha_speed, which + 1)
                 if (_Utils.isRunService(context!!, BuddhaService::class.qualifiedName!!)) {
                     context?.stopService(buddhaIntent)
                     context?.startService(buddhaIntent)
@@ -360,69 +389,109 @@ class BuddhaPlayerFragment : Fragment() {
     lateinit var buddhaIntent: Intent
     private fun playBuddha() {
         try {
-            val dc = DataContext(context)
             if (!_Utils.isRunService(context!!, BuddhaService::class.qualifiedName!!)) {
                 e("开启")
+                checkDuration()
                 context?.startService(buddhaIntent)
                 animatorSuofang(btn_buddha_animator)
             } else {
                 e("关闭")
                 context?.stopService(buddhaIntent)
                 stopAnimatorSuofang(btn_buddha_animator)
-
-                val setting = dc.getSetting(Setting.KEYS.buddha_duration)
-                setting?.let {
-                    val duration = it.long
-                    val count = duration/600000
-                    val hour = duration / (60000 * 60)
-                    val minite = duration % (60000 * 60) / 60000
-                    val hourS = "${hour}:"
-                    val miniteS = if (minite == 0L) {
-                        if (hour == 0L) "0" else "00"
-                    } else {
-                        if (minite < 10) "0${minite}" else "${minite}"
-                    }
-                    val msg = "${if (count > 0) "${hourS}${miniteS} \t ${DecimalFormat("#,000").format(duration)} \t ${count}" else ""}\n"
-                    // TODO: 2021/1/20 asdf
-                    AlertDialog.Builder(context).setMessage("有未保存的念佛记录【${msg}】，是否保存？").setNegativeButton("保存", DialogInterface.OnClickListener { dialog, which ->
-                        /**
-                         * string phone, long startTime ,long duration , int count, string summary, int type
-                         */
-                        val avgDuration = duration/count
-                        var buddhaList: MutableList<BuddhaRecord> = ArrayList()
-                        for (i in 1..count) {
-                            val startTime = DateTime()
-                            startTime.add(Calendar.MILLISECOND, (-1 * avgDuration * i).toInt())
-                            buddhaList.add(BuddhaRecord(startTime, avgDuration, 1, 11, "计时计数念佛"))
-                        }
-                        dc.addBuddhas(buddhaList)
-                        refreshTotalView()
-
-                        _CloudUtils.addBuddhaList(context!!, buddhaList) { code, result ->
-                            when (code) {
-                                0 -> {
-                                    uiHandler.post {
-                                        Toast.makeText(context, result.toString(), Toast.LENGTH_LONG).show()
-                                    }
-                                }
-                                else -> {
-                                    e("code : $code , result : $result")
-                                }
-                            }
-                        }
-                    }).setPositiveButton("丢弃", DialogInterface.OnClickListener { dialog, which ->
-                        dc.deleteSetting(Setting.KEYS.buddha_duration)
-                    }).show()
-                }
             }
         } catch (e: Exception) {
             e(e.message!!)
         }
     }
 
-    override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?,
-                              savedInstanceState: Bundle?): View? {
+    /**
+     * 检查数据库中是否有未保存的duration记录
+     */
+    fun checkDuration() {
+        Thread{
+            val setting = dc.getSetting(Setting.KEYS.buddha_duration)
+            setting?.let {
+                val duration = it.long
+                val count = duration / 600000
+                val hour = duration / (60000 * 60)
+                val minite = duration % (60000 * 60) / 60000
+                val hourS = "${hour}:"
+                val miniteS = if (minite == 0L) {
+                    if (hour == 0L) "0" else "00"
+                } else {
+                    if (minite < 10) "0${minite}" else "${minite}"
+                }
+                val endTime = DateTime(dc.getSetting(Setting.KEYS.buddha_stoptime,System.currentTimeMillis()).long)
+                val msg = "${"${hourS}${miniteS} \t ${DecimalFormat("#,000").format(duration)} \t ${count} \t ${endTime.toLongDateTimeString()}"}"
+
+                if(count>1){
+                    uiHandler.post {
+                        AlertDialog.Builder(context).setMessage("有未保存的念佛记录\n[ ${msg} ]\n是否保存？").setNegativeButton("保存", DialogInterface.OnClickListener { dialog, which ->
+                            /**
+                             * string phone, long startTime ,long duration , int count, string summary, int type
+                             */
+                            val avgDuration = duration / count
+                            var buddhaList: MutableList<BuddhaRecord> = ArrayList()
+                            for (i in 1..count) {
+                                endTime.add(Calendar.MILLISECOND, (-1 * avgDuration * i).toInt())
+                                buddhaList.add(BuddhaRecord(endTime, avgDuration, 1, 11, "计时计数念佛"))
+                            }
+
+
+                            _CloudUtils.addBuddhaList(context!!, buddhaList) { code, result ->
+                                when (code) {
+                                    0 -> {
+                                        uiHandler.post {
+                                            Toast.makeText(context, result.toString(), Toast.LENGTH_LONG).show()
+                                            dc.addBuddhas(buddhaList)
+                                            dc.deleteSetting(Setting.KEYS.buddha_duration)
+                                            dc.deleteSetting(Setting.KEYS.buddha_stoptime)
+                                            refreshTotalView()
+                                        }
+                                    }
+                                    else -> {
+                                        e("code : $code , result : $result")
+                                    }
+                                }
+                            }
+                        }).setPositiveButton("本次忽略", null).setNeutralButton("丢弃", DialogInterface.OnClickListener { dialog, which ->
+                            dc.deleteSetting(Setting.KEYS.buddha_duration)
+                            dc.deleteSetting(Setting.KEYS.buddha_stoptime)
+                        }).show()
+                    }
+                }
+            }
+        }.start()
+    }
+
+    override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
+        EventBus.getDefault().register(this)
+        dc = DataContext(context)
         return inflater.inflate(R.layout.fragment_player, container, false)
+    }
+
+    override fun onDestroy() {
+        super.onDestroy()
+        EventBus.getDefault().unregister(this)
+    }
+
+    @Subscribe(threadMode = ThreadMode.MAIN)
+    fun onGetMessage(bus: EventBusMessage) {
+        when(bus.sender){
+            is SenderBuddhaServiceOnDestroy->{
+                checkDuration()
+            }
+            is SenderTimerRuning -> {
+                val duration = bus.msg.toLong()
+                val second = duration %60000/1000
+                val miniteT = duration / 1000 / 60
+                val minite = miniteT % 60
+                val hour = miniteT / 60
+                var count = (miniteT / circleMinite).toInt()
+                var time = "$hour:${if (minite < 10) "0" + minite else minite}:${if (second < 10) "0" + second else second}"
+                tv_time.text="$time \t $count"
+            }
+        }
     }
 
     //region 动画
@@ -456,4 +525,5 @@ class BuddhaPlayerFragment : Fragment() {
         }
     }
     //endregion
+
 }

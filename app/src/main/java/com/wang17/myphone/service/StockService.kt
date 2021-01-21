@@ -297,8 +297,6 @@ class StockService : Service() {
                                 mTimeS = result[31]
                                 val fee = commission(price,position.amount) + transferFee(price,position.amount) + tax(-1,price,position.amount)
                                 val profit = (price - position.cost)*(position.amount*100).toBigDecimal()-fee
-//                                e("commission : ${commission(price,position.amount)} , trasferFee : ${transferFee(price,position.amount)} , tax : ${tax(-1,price,position.amount)}")
-//                                e("profit : $profit")
                                 val costFund = position.cost* (position.amount * 100).toBigDecimal()
                                 totalProfitS += profit
                                 totalCostFundS +=costFund
