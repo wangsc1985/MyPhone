@@ -1,379 +1,329 @@
-package com.wang17.myphone.activity;
+package com.wang17.myphone.activity
 
-import android.content.Intent;
-import android.os.Bundle;
-import android.support.design.widget.FloatingActionButton;
-import android.support.design.widget.Snackbar;
-import android.support.v7.app.AppCompatActivity;
-import android.util.Log;
-import android.view.View;
-import android.view.ViewGroup;
-import android.widget.BaseExpandableListAdapter;
-import android.widget.ExpandableListView;
-import android.widget.ImageView;
-import android.widget.TextView;
+import android.content.Intent
+import android.os.Bundle
+import android.support.design.widget.FloatingActionButton
+import android.support.design.widget.Snackbar
+import android.support.v7.app.AppCompatActivity
+import android.util.Log
+import android.view.View
+import android.view.ViewGroup
+import android.widget.BaseExpandableListAdapter
+import android.widget.ExpandableListView
+import android.widget.ExpandableListView.OnGroupExpandListener
+import android.widget.ImageView
+import android.widget.TextView
+import com.wang17.myphone.R
+import com.wang17.myphone.fragment.ActionBarFragment.OnActionFragmentBackListener
+import com.wang17.myphone.fragment.AddTallyFragment
+import com.wang17.myphone.model.DateTime
+import com.wang17.myphone.model.DateTime.Companion.toSpanString2
+import com.wang17.myphone.model.DateTime.Companion.today
+import com.wang17.myphone.util.DataContext
+import com.wang17.myphone.util._String
+import com.wang17.myphone.util._Utils.printException
+import kotlinx.android.synthetic.main.activity_buddha.*
+import java.text.DecimalFormat
+import java.util.*
+import kotlin.collections.ArrayList
 
-import com.wang17.myphone.R;
-import com.wang17.myphone.fragment.ActionBarFragment;
-import com.wang17.myphone.fragment.AddTallyFragment;
-import com.wang17.myphone.model.database.BuddhaRecord;
-import com.wang17.myphone.util.DataContext;
-import com.wang17.myphone.util._Utils;
-import com.wang17.myphone.util._String;
-import com.wang17.myphone.model.DateTime;
+class BuddhaActivity : AppCompatActivity(), OnActionFragmentBackListener {
 
-import java.text.DecimalFormat;
-import java.util.ArrayList;
-import java.util.Calendar;
-import java.util.List;
-
-public class BuddhaActivity extends AppCompatActivity implements ActionBarFragment.OnActionFragmentBackListener {
-
-    // 视图变量
-    FloatingActionButton floatingAdd;
     // 类变量
-    private DataContext dataContext;
-    private BaseExpandableListAdapter recordListdAdapter;
+    private lateinit var dataContext: DataContext
+    private lateinit var recordListdAdapter: BaseExpandableListAdapter
 
     // 值变量
-    private List<GroupInfo> groupList;
-    private List<List<ChildInfo>> childListList;
-    private static final int TO_TALLAY_RECORD_DETAIL_ACTIVITY = 54;
-    public static boolean isChanged = false;
-    int year;
-    long duration;
-    int count;
-    int number;
-    TextView tv_year;
-    @Override
-    protected void onCreate(Bundle savedInstanceState) {
+    private lateinit var groupList: MutableList<GroupInfo>
+    private lateinit var childListList: MutableList<List<ChildInfo>>
+    var year = 0
+    var duration: Long = 0
+    var count = 0
+    var number = 0
+    override fun onCreate(savedInstanceState: Bundle?) {
         try {
-            super.onCreate(savedInstanceState);
-            setContentView(R.layout.activity_buddha);
-            dataContext = new DataContext(this);
-//            tallyRecords = dataContext.getRecords(DateTime.getToday().getYear());
-
-            year = DateTime.getToday().getYear();
-            tv_year = findViewById(R.id.tv_year);
-            ImageView iv_prev = findViewById(R.id.iv_prev);
-            ImageView iv_next = findViewById(R.id.iv_next);
-            iv_prev.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View v) {
-                    year--;
-                    reflushData(year);
-                    recordListdAdapter.notifyDataSetChanged();
-                }
-            });
-            iv_next.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View v) {
-                    year++;
-                    reflushData(year);
-                    recordListdAdapter.notifyDataSetChanged();
-                }
-            });
-
-            reflushData(year);
-
-            final ExpandableListView listView_records = (ExpandableListView) findViewById(R.id.listView_records);
-            listView_records.setGroupIndicator(null);
-            recordListdAdapter = new BuddhaListAdapter();
-            listView_records.setAdapter(recordListdAdapter);
+            super.onCreate(savedInstanceState)
+            setContentView(R.layout.activity_buddha)
+            dataContext = DataContext(this)
+            //            tallyRecords = dataContext.getRecords(DateTime.getToday().getYear());
+            year = today.year
+            val iv_prev = findViewById<ImageView>(R.id.iv_prev)
+            val iv_next = findViewById<ImageView>(R.id.iv_next)
+            iv_prev.setOnClickListener {
+                year--
+                reflushData(year)
+                recordListdAdapter.notifyDataSetChanged()
+            }
+            iv_next.setOnClickListener {
+                year++
+                reflushData(year)
+                recordListdAdapter.notifyDataSetChanged()
+            }
+            reflushData(year)
+            val listView_records = findViewById<View>(R.id.listView_records) as ExpandableListView
+            listView_records.setGroupIndicator(null)
+            recordListdAdapter = BuddhaListAdapter()
+            listView_records.setAdapter(recordListdAdapter)
             // 默认展开第一组
-            listView_records.expandGroup(0);
+            listView_records.expandGroup(0)
             // 单组展开，不能多组同时展开。
-            listView_records.setOnGroupExpandListener(new ExpandableListView.OnGroupExpandListener() {
-
-                @Override
-                public void onGroupExpand(int groupPosition) {
-                    for (int i = 0, count = listView_records.getExpandableListAdapter().getGroupCount(); i < count; i++) {
-                        if (groupPosition != i) {// 关闭其他分组
-                            listView_records.collapseGroup(i);
+            listView_records.setOnGroupExpandListener(object : OnGroupExpandListener {
+                override fun onGroupExpand(groupPosition: Int) {
+                    run {
+                        var i = 0
+                        val count = listView_records.expandableListAdapter.groupCount
+                        while (i < count) {
+                            if (groupPosition != i) { // 关闭其他分组
+                                listView_records.collapseGroup(i)
+                            }
+                            i++
                         }
                     }
                 }
-            });
-
-            listView_records.setOnChildClickListener(new ExpandableListView.OnChildClickListener() {
-                @Override
-                public boolean onChildClick(ExpandableListView parent, View v, int groupPosition, int childPosition, long id) {
-                    long start = childListList.get(groupPosition).get(childPosition).start;
-                    Intent intent = new Intent(BuddhaActivity.this, BuddhaDetailActivity.class);
-                    intent.putExtra("start", start);
-                    startActivityForResult(intent, TO_TALLAY_RECORD_DETAIL_ACTIVITY);
-                    return true;
+            })
+            listView_records.setOnChildClickListener { parent, v, groupPosition, childPosition, id ->
+                val start = childListList[groupPosition][childPosition].start
+                val intent = Intent(this@BuddhaActivity, BuddhaDetailActivity::class.java)
+                intent.putExtra("start", start)
+                startActivityForResult(intent, TO_TALLAY_RECORD_DETAIL_ACTIVITY)
+                true
+            }
+            floating_add.setOnClickListener {
+                val addTallyFragment = AddTallyFragment()
+                addTallyFragment.setAfterAddRecordListener { //                    tallyRecords = dataContext.getRecords(DateTime.getToday().getYear());
+                    reflushData(year)
+                    recordListdAdapter.notifyDataSetChanged()
+                    recordListdAdapter.notifyDataSetChanged()
+                    isChanged = true
                 }
-            });
-            floatingAdd = (FloatingActionButton)findViewById(R.id.floating_add);
-            floatingAdd.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View v) {
-                    AddTallyFragment addTallyFragment = new AddTallyFragment();
-                    addTallyFragment.setAfterAddRecordListener(new AddTallyFragment.AfterAddRecordListener() {
-                        @Override
-                        public void addRecode() {
-//                    tallyRecords = dataContext.getRecords(DateTime.getToday().getYear());
-                            reflushData(year);
-                            recordListdAdapter.notifyDataSetChanged();
-                            recordListdAdapter.notifyDataSetChanged();
-                            isChanged = true;
-                        }
-                    });
-                    addTallyFragment.show(getSupportFragmentManager(),"添加念佛记录");
-
-
-                }
-            });
-        } catch (Exception e) {
-            _Utils.printException(this, e);
+                addTallyFragment.show(supportFragmentManager, "添加念佛记录")
+            }
+        } catch (e: Exception) {
+            printException(this, e)
         }
-
     }
 
-    @Override
-    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
         if (requestCode == TO_TALLAY_RECORD_DETAIL_ACTIVITY) {
             if (BuddhaDetailActivity.isChanged) {
 //                tallyRecords = dataContext.getRecords(DateTime.getToday().getYear());
-                reflushData(year);
-                recordListdAdapter.notifyDataSetChanged();
-                isChanged = true;
+                reflushData(year)
+                recordListdAdapter.notifyDataSetChanged()
+                isChanged = true
             }
         }
-        super.onActivityResult(requestCode, resultCode, data);
+        super.onActivityResult(requestCode, resultCode, data)
     }
 
-    private void reflushData(int year) {
+    private fun reflushData(year: Int) {
         try {
-            count=0;
-            number=0;
-            duration=0L;
-
-            groupList = new ArrayList<>();
-            childListList = new ArrayList<>();
-            int month = -1;
-            int day = -1;
-            boolean isToday=true;
-            GroupInfo groupNode = null;
-            ChildInfo childNode = null;
-            List<ChildInfo> childList = null;
-
-
-            BuddhaRecord first = dataContext.getFirstBuddha();
-            BuddhaRecord latest = dataContext.getLatestBuddha();
-            if(first==null||latest==null){
-                return;
+            count = 0
+            number = 0
+            duration = 0L
+            groupList = ArrayList()
+            childListList = ArrayList()
+            var month = -1
+            var day = -1
+            val isToday = true
+            var groupNode=GroupInfo()
+            var childNode=ChildInfo()
+            var childList: MutableList<ChildInfo> = ArrayList()
+            val first = dataContext.firstBuddha
+            val latest = dataContext.latestBuddha
+            if (first == null || latest == null) {
+                return
             }
-            DateTime end = new DateTime(year,0,1);
-            DateTime date = new DateTime(year,11,31);
-            if(end.getTimeInMillis()<first.getStartTime().getTimeInMillis()){
-                end = first.getStartTime();
+            var end = DateTime(year, 0, 1)
+            var date = DateTime(year, 11, 31)
+            if (end.timeInMillis < first.startTime.timeInMillis) {
+                end = first.startTime
             }
-            if(date.getTimeInMillis()>latest.getStartTime().getTimeInMillis()){
-                date = latest.getStartTime();
+            if (date.timeInMillis > latest.startTime.timeInMillis) {
+                date = latest.startTime
             }
-            Log.e("wangsc","start : "+end.toLongDateTimeString()+" end : "+date.toLongDateTimeString());
-
-                while (date.getYear()==end.getYear()&& date.get(Calendar.DAY_OF_YEAR)>=end.get(Calendar.DAY_OF_YEAR)) {
-                List<BuddhaRecord> records = dataContext.getBuddhas(date);
-//                if(isToday&&records.size()==0){
+            Log.e("wangsc", "start : " + end.toLongDateTimeString() + " end : " + date.toLongDateTimeString())
+            while (date.year == end.year && date[Calendar.DAY_OF_YEAR] >= end[Calendar.DAY_OF_YEAR]) {
+                val records = dataContext.getBuddhas(date)
+                //                if(isToday&&records.size()==0){
 //                    date = date.addDays(-1);
 //                    continue;
 //                }
-                Log.e("wangsc","date day of year :"+date.get(Calendar.DAY_OF_YEAR) +" end day of year : "+end.get(Calendar.DAY_OF_YEAR));
-//                isToday=false;
-
-                if (date.getMonth() == month) {
-
-                    day = date.getDay();
-                    childNode = new ChildInfo();
-                    childNode.day = day;
-                    childNode.start = date.getTimeInMillis();
-
-                    for (BuddhaRecord record : records) {
-                        groupNode.duration += record.getDuration();
-                        groupNode.count += record.getCount();
-                        groupNode.number += record.getCount()*1080;
-                        childNode.duration += record.getDuration();
-                        childNode.count += record.getCount();
-                        childNode.number += record.getCount()*1080;
-                        duration+=record.getDuration();
-                        count += record.getCount();
-                        number += record.getCount()*1080;
+                Log.e("wangsc", "date day of year :" + date[Calendar.DAY_OF_YEAR] + " end day of year : " + end[Calendar.DAY_OF_YEAR])
+                //                isToday=false;
+                if (date.month == month) {
+                    day = date.day
+                    childNode = ChildInfo()
+                    childNode.day = day
+                    childNode.start = date.timeInMillis
+                    for (record in records) {
+                        groupNode.duration += record.duration
+                        groupNode.count += record.count
+                        groupNode.number += (record.count * 1080).toLong()
+                        childNode.duration += record.duration
+                        childNode.count += record.count
+                        childNode.number += (record.count * 1080).toLong()
+                        duration += record.duration
+                        count += record.count
+                        number += record.count * 1080
                     }
-                    childList.add(childNode);
+                    childList.add(childNode)
                 } else {
-                    month = date.getMonth();
-                    groupNode = new GroupInfo();
-                    groupNode.month = month + 1;
+                    month = date.month
+                    groupNode = GroupInfo()
+                    groupNode.month = month + 1
 
                     //
-                    childList = new ArrayList<>();
-                    day = date.getDay();
-                    childNode = new ChildInfo();
-                    childNode.day = day;
-                    childNode.start = date.getTimeInMillis();
-
-                    for (BuddhaRecord record : records) {
-                        groupNode.duration += record.getDuration();
-                        groupNode.count += record.getCount();
-                        groupNode.number += record.getCount()*1080;
-                        childNode.duration += record.getDuration();
-                        childNode.count += record.getCount();
-                        childNode.number += record.getCount()*1080;
-                        duration+=record.getDuration();
-                        count += record.getCount();
-                        number += record.getCount()*1080;
+                    childList = ArrayList()
+                    day = date.day
+                    childNode = ChildInfo()
+                    childNode.day = day
+                    childNode.start = date.timeInMillis
+                    for (record in records) {
+                        groupNode.duration += record.duration
+                        groupNode.count += record.count
+                        groupNode.number += (record.count * 1080).toLong()
+                        childNode.duration += record.duration
+                        childNode.count += record.count
+                        childNode.number += (record.count * 1080).toLong()
+                        duration += record.duration
+                        count += record.count
+                        number += record.count * 1080
                     }
-                    childList.add(childNode);
-
-
-                    groupList.add(groupNode);
-                    childListList.add(childList);
+                    childList.add(childNode)
+                    groupList.add(groupNode)
+                    childListList.add(childList)
                 }
-
-                date = date.addDays(-1);
+                date = date.addDays(-1)
             }
-            tv_year.setText(year+"年   " +count+"圈   "+ DateTime.toSpanString2(duration)+"   "+new DecimalFormat("0.00").format((double)number/10000)+"万");
-        } catch (Exception e) {
-            _Utils.printException(BuddhaActivity.this, e);
+            tv_year.text = year.toString() + "年   " + count + "圈   " + toSpanString2(duration) + "   " + DecimalFormat("0.00").format(number.toDouble() / 10000) + "万"
+        } catch (e: Exception) {
+            printException(this@BuddhaActivity, e)
         }
     }
 
-    class BuddhaListAdapter extends BaseExpandableListAdapter {
-        @Override
-        public int getGroupCount() {
-            return groupList.size();
+    internal inner class BuddhaListAdapter : BaseExpandableListAdapter() {
+        override fun getGroupCount(): Int {
+            return groupList.size
         }
 
-        @Override
-        public Object getGroup(int groupPosition) {
-            return groupList.get(groupPosition);
+        override fun getGroup(groupPosition: Int): Any {
+            return groupList[groupPosition]
         }
 
-        @Override
-        public long getGroupId(int groupPosition) {
-            return groupPosition;
+        override fun getGroupId(groupPosition: Int): Long {
+            return groupPosition.toLong()
         }
 
-        @Override
-        public int getChildrenCount(int groupPosition) {
-            return childListList.get(groupPosition).size();
+        override fun getChildrenCount(groupPosition: Int): Int {
+            return childListList[groupPosition].size
         }
 
-        @Override
-        public Object getChild(int groupPosition, int childPosition) {
-            return childListList.get(groupPosition).get(childPosition);
+        override fun getChild(groupPosition: Int, childPosition: Int): Any {
+            return childListList[groupPosition][childPosition]
         }
 
-        @Override
-        public long getChildId(int groupPosition, int childPosition) {
-            return childPosition;
+        override fun getChildId(groupPosition: Int, childPosition: Int): Long {
+            return childPosition.toLong()
         }
 
-        @Override
-        public boolean hasStableIds() {
-            return true;
+        override fun hasStableIds(): Boolean {
+            return true
         }
 
-        @Override
-        public View getGroupView(int groupPosition, boolean isExpanded,
-                                 View convertView, ViewGroup parent) {
-
+        override fun getGroupView(groupPosition: Int, isExpanded: Boolean,
+                                  convertView: View?, parent: ViewGroup): View? {
+            var convertView = convertView
             try {
-                convertView = View.inflate(BuddhaActivity.this, R.layout.inflate_list_item_buddha_group, null);
-                TextView textView_date =  convertView.findViewById(R.id.textView_date);
-                TextView textView_duration = convertView.findViewById(R.id.textView_monthDuration);
-                TextView textView_count =  convertView.findViewById(R.id.textView_monthCount);
-                TextView textView_number = convertView.findViewById(R.id.textView_monthNumber);
-
-                GroupInfo info = groupList.get(groupPosition);
-                textView_date.setText(_String.format(info.month) + "月");
-                textView_duration.setText(DateTime.toSpanString2(info.duration));
-                textView_count.setText(info.count+"圈");
-                textView_number.setText(new DecimalFormat("0.00").format((double)info.number/10000)+"万");
-
-                if(info.duration==0){
-                    textView_duration.setText("--");
+                convertView = View.inflate(this@BuddhaActivity, R.layout.inflate_list_item_buddha_group, null)
+                val textView_date = convertView.findViewById<TextView>(R.id.textView_date)
+                val textView_duration = convertView.findViewById<TextView>(R.id.textView_monthDuration)
+                val textView_count = convertView.findViewById<TextView>(R.id.textView_monthCount)
+                val textView_number = convertView.findViewById<TextView>(R.id.textView_monthNumber)
+                val info = groupList[groupPosition]
+                textView_date.text = _String.format(info.month) + "月"
+                textView_duration.text = toSpanString2(info.duration)
+                textView_count.text = info.count.toString() + "圈"
+                textView_number.text = DecimalFormat("0.00").format(info.number.toDouble() / 10000) + "万"
+                if (info.duration == 0L) {
+                    textView_duration.text = "--"
                 }
-                if(info.number==0){
-                    textView_number.setText("");
+                if (info.number == 0L) {
+                    textView_number.text = ""
                 }
-                if(info.count==0){
-                    textView_count.setText("");
+                if (info.count == 0) {
+                    textView_count.text = ""
                 }
-            } catch (Exception e) {
-                _Utils.printException(BuddhaActivity.this, e);
+            } catch (e: Exception) {
+                printException(this@BuddhaActivity, e)
             }
-            return convertView;
+            return convertView
         }
 
-        @Override
-        public View getChildView(final int groupPosition, final int childPosition,
-                                 boolean isLastChild, View convertView, ViewGroup parent) {
+        override fun getChildView(groupPosition: Int, childPosition: Int,
+                                  isLastChild: Boolean, convertView: View?, parent: ViewGroup): View? {
+            var convertView = convertView
             try {
-                convertView = View.inflate(BuddhaActivity.this, R.layout.inflate_list_item_buddha_child, null);
-                TextView textView_date = (TextView) convertView.findViewById(R.id.textView_date);
-                TextView textView_duration = (TextView) convertView.findViewById(R.id.textView_monthDuration);
-                TextView textView_count = (TextView) convertView.findViewById(R.id.textView_monthCount);
-                TextView textView_number = (TextView) convertView.findViewById(R.id.textView_monthNumber);
-
-                final ChildInfo childInfo = childListList.get(groupPosition).get(childPosition);
-                textView_date.setText(_String.format(childInfo.day));
-                textView_count.setText(childInfo.count+"圈");
-                textView_duration.setText(DateTime.toSpanString2(childInfo.duration));
-                textView_number.setText(new DecimalFormat("#,##0").format(childInfo.number));
-                TextView textViewItem =  convertView.findViewById(R.id.textView_item);
-                textViewItem.setVisibility(View.GONE);
-                if(childInfo.duration==0){
-                    textView_duration.setText("--");
+                convertView = View.inflate(this@BuddhaActivity, R.layout.inflate_list_item_buddha_child, null)
+                val textView_date = convertView.findViewById<View>(R.id.textView_date) as TextView
+                val textView_duration = convertView.findViewById<View>(R.id.textView_monthDuration) as TextView
+                val textView_count = convertView.findViewById<View>(R.id.textView_monthCount) as TextView
+                val textView_number = convertView.findViewById<View>(R.id.textView_monthNumber) as TextView
+                val childInfo = childListList[groupPosition][childPosition]
+                textView_date.text = _String.format(childInfo.day)
+                textView_count.text = childInfo.count.toString() + "圈"
+                textView_duration.text = toSpanString2(childInfo.duration)
+                textView_number.text = DecimalFormat("#,##0").format(childInfo.number)
+                val textViewItem = convertView.findViewById<TextView>(R.id.textView_item)
+                textViewItem.visibility = View.GONE
+                if (childInfo.duration == 0L) {
+                    textView_duration.text = "--"
                 }
-                if(childInfo.number==0){
-                    textView_number.setText("");
+                if (childInfo.number == 0L) {
+                    textView_number.text = ""
                 }
-                if(childInfo.count==0){
-                    textView_count.setText("");
+                if (childInfo.count == 0) {
+                    textView_count.text = ""
                 }
-            } catch (Exception e) {
-                _Utils.printException(BuddhaActivity.this, e);
+            } catch (e: Exception) {
+                printException(this@BuddhaActivity, e)
             }
-            return convertView;
+            return convertView
         }
 
-        @Override
-        public boolean isChildSelectable(int groupPosition, int childPosition) {
-            return true;
+        override fun isChildSelectable(groupPosition: Int, childPosition: Int): Boolean {
+            return true
         }
-
     }
 
-
-    class GroupInfo {
-        public int month;
-        public long number;
-        public long duration;
-        public int count;
+    internal inner class GroupInfo {
+        var month = 0
+        var number: Long = 0
+        var duration: Long = 0
+        var count = 0
     }
 
-    class ChildInfo {
-        public int day;
-        public long start;
-        public long number;
-        public long duration;
-        public int count;
+    internal inner class ChildInfo {
+        var day = 0
+        var start: Long = 0
+        var number: Long = 0
+        var duration: Long = 0
+        var count = 0
     }
 
-    @Override
-    public void onBackButtonClickListener() {
-        this.finish();
+    override fun onBackButtonClickListener() {
+        finish()
     }
 
-    private void snackbar(String message) {
+    private fun snackbar(message: String) {
         try {
-            Snackbar.make(floatingAdd, message, Snackbar.LENGTH_LONG).show();
-        } catch (Exception e) {
-            _Utils.printException(BuddhaActivity.this, e);
+            Snackbar.make(floating_add, message, Snackbar.LENGTH_LONG).show()
+        } catch (e: Exception) {
+            printException(this@BuddhaActivity, e)
         }
+    }
+
+    companion object {
+        private const val TO_TALLAY_RECORD_DETAIL_ACTIVITY = 54
+        var isChanged = false
     }
 }

@@ -457,7 +457,6 @@ class BuddhaPlayerFragment : Fragment() {
     private fun playBuddha() {
         try {
             if (!_Utils.isRunService(context!!, BuddhaService::class.qualifiedName!!)) {
-                e("开启")
                 checkDuration(BuddhaCallback {
                     if (it == 0) {
                         context?.startService(buddhaIntent)
@@ -467,7 +466,6 @@ class BuddhaPlayerFragment : Fragment() {
                     }
                 })
             } else {
-                e("关闭")
                 context?.stopService(buddhaIntent)
                 stopAnimatorSuofang(btn_buddha_animator)
             }
@@ -500,56 +498,9 @@ class BuddhaPlayerFragment : Fragment() {
                 AlertDialog.Builder(context).setMessage("有未保存的念佛记录\n[ ${msg} ]\n是否保存？").setNegativeButton("保存", DialogInterface.OnClickListener { dialog, which ->
                     val avgDuration = duration / count
 
-//                    var buddhaList: MutableList<BuddhaRecord> = ArrayList()
-//                    var startTime = DateTime(stoptimeInMillis)
-//                    startTime.add(Calendar.MILLISECOND,-1*avgDuration.toInt())
-//                    buddhaList.add(BuddhaRecord(startTime, avgDuration, 1, 11, "计时计数念佛"))
-
                     buildBuddhaListAndSave(count.toInt(),stoptimeInMillis,avgDuration)
 
-//                    var tmpTime:DateTime?=null
-//                    var buddha:BuddhaRecord?=null
-//                    for (index in count downTo 1) {
-//                        if(tmpTime==null||buddha==null){
-//                            tmpTime = DateTime(stoptimeInMillis)
-//                            tmpTime.add(Calendar.MILLISECOND, (-1 * avgDuration * index).toInt())
-//                            buddha = BuddhaRecord(tmpTime, avgDuration, 1, 11, "计时计数念佛")
-//                        }else{
-//                            var startTime = DateTime(stoptimeInMillis)
-//                            startTime.add(Calendar.MILLISECOND, (-1 * avgDuration * index).toInt())
-//                            if(startTime.get(Calendar.DAY_OF_YEAR)==tmpTime.get(Calendar.DAY_OF_YEAR)&& startTime.hour==tmpTime.hour){
-//                                buddha.duration+=avgDuration
-//                                buddha.count+=1
-//                            }else{
-//                                buddhaList.add(buddha)
-//                                buddha = BuddhaRecord(startTime, avgDuration, 1, 11, "计时计数念佛")
-//                                tmpTime = DateTime(startTime.timeInMillis)
-//                            }
-//                        }
-//                    }
-//                    buddha?.let {
-//                        buddhaList.add(it)
-//                    }
-//
-//                    _CloudUtils.addBuddhaList(context!!, buddhaList) { code, result ->
-//                        when (code) {
-//                            0 -> {
-//                                uiHandler.post {
-//                                    Toast.makeText(context, result.toString(), Toast.LENGTH_LONG).show()
-//                                    dc.addBuddhas(buddhaList)
-//                                    dc.deleteSetting(Setting.KEYS.buddha_duration)
-//                                    dc.deleteSetting(Setting.KEYS.buddha_stoptime)
-//                                    refreshTotalView()
-//                                }
-//                                callback?.execute(0)
-//                            }
-//                            else -> {
-//                                e("code : $code , result : $result")
-//                                callback?.execute(-1)
-//                            }
-//                        }
-//                    }
-                }).setPositiveButton(if (callback == null) "忽略" else "追加", DialogInterface.OnClickListener { dialog, which ->
+                }).setPositiveButton(if (callback == null) "忽略" else "继续", DialogInterface.OnClickListener { dialog, which ->
                     callback?.execute(0)
                 }).setNeutralButton("丢弃", DialogInterface.OnClickListener { dialog, which ->
                     dc.deleteSetting(Setting.KEYS.buddha_duration)
@@ -579,6 +530,7 @@ class BuddhaPlayerFragment : Fragment() {
     fun onGetMessage(bus: EventBusMessage) {
         when (bus.sender) {
             is SenderBuddhaServiceOnDestroy -> {
+                e("buddha player fragment 接收到销毁消息")
                 if(!isChangeSpeed) {
                     checkDuration(null)
                 }else{
