@@ -49,7 +49,6 @@ object _Utils {
      * 服务名称为全路径 例如com.ghost.WidgetUpdateService
      */
     fun isRunService(context: Context, serviceName: String): Boolean {
-        e("service name : $serviceName")
         val manager = context.getSystemService(Context.ACTIVITY_SERVICE) as ActivityManager
         for (service in manager.getRunningServices(Int.MAX_VALUE)) {
             e("${service.service.className}")

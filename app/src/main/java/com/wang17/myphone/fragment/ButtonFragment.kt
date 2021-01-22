@@ -27,10 +27,12 @@ import com.wang17.myphone.model.database.Setting
 import com.wang17.myphone.util.*
 import com.wang17.myphone.view._Button
 import kotlinx.android.synthetic.main.fragment_button.*
+import okhttp3.internal.wait
 import java.lang.StringBuilder
 import java.sql.BatchUpdateException
 import java.text.DecimalFormat
 import java.util.*
+import java.util.concurrent.CountDownLatch
 import kotlin.collections.ArrayList
 
 
@@ -71,7 +73,7 @@ class ButtonFragment : Fragment() {
         kotlin.run {
             btn = _Button(context!!, "buddha")
             btn.setOnClickListener {
-                AlertDialog.Builder(context!!).setItems(arrayOf("整合", "上传","列表"), DialogInterface.OnClickListener { dialog, which ->
+                AlertDialog.Builder(context!!).setItems(arrayOf("整合", "上传", "详单",), DialogInterface.OnClickListener { dialog, which ->
                     when (which) {
                         0 -> {
                             val dc = DataContext(context)
@@ -104,25 +106,38 @@ class ButtonFragment : Fragment() {
                             AlertDialog.Builder(context!!).setMessage("整合完毕！").show()
                         }
                         1 -> {
-                            val buddhaList = dataContext.allBuddhas
-                            e("buddha size : ${buddhaList.size}")
-//                            var count=0
-//                            var sb = StringBuffer()
-//                            buddhaList.forEach {
-//                                count++
-//                                e("${count}  ${it.startTime.toLongDateTimeString()}")
-//                                sb.append("${count}  ${it.startTime.toLongDateTimeString()}\n")
-//                            }
+                            Thread {
+                                val buddhaList = dataContext.allBuddhas
+                                e("buddha size : ${buddhaList.size}")
 
-//                                    AlertDialog.Builder(context!!).setMessage(sb.toString()).setCancelable(false).setPositiveButton("close",null).show()
-                            _CloudUtils.addBuddhaList(context!!,buddhaList, CloudCallback { code, result ->
-                                uiHandler.post {
-                                    AlertDialog.Builder(context!!).setMessage(result.toString()).show()
+                                val uploadList: MutableList<BuddhaRecord> = ArrayList()
+                                for (i in buddhaList.indices) {
+                                    uploadList.add(buddhaList[i])
+                                    if (i % 200 == 0 && i != 0) {
+                                        var latch = CountDownLatch(1)
+                                        _CloudUtils.addBuddhaList(context!!, uploadList, CloudCallback { code, result ->
+                                            e(result)
+                                            uiHandler.post {
+                                                AlertDialog.Builder(context!!).setMessage("当前索引：${i}  网络反馈：${result.toString()}").setCancelable(false).setPositiveButton("继续", DialogInterface.OnClickListener { dialog, which ->
+                                                    uploadList.clear()
+                                                    latch.countDown()
+                                                }).show()
+                                            }
+                                        })
+                                        latch.await()
+                                    }
                                 }
-                            })
+                                _CloudUtils.addBuddhaList(context!!, uploadList, CloudCallback { code, result ->
+                                    uiHandler.post {
+                                        AlertDialog.Builder(context!!).setMessage(result.toString()).setCancelable(false).setPositiveButton("上传完毕", null).show()
+                                    }
+                                })
+
+                            }.start()
+
                         }
-                        2->{
-                            startActivity(Intent(context!!,BuddhaActivity::class.java))
+                        2 -> {
+                            startActivity(Intent(context!!, BuddhaActivity::class.java))
                         }
                     }
                 }).show()

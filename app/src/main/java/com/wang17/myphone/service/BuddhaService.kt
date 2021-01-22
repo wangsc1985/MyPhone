@@ -15,6 +15,7 @@ import com.wang17.myphone.e
 import com.wang17.myphone.eventbus.EventBusMessage
 import com.wang17.myphone.eventbus.SenderBuddhaServiceOnDestroy
 import com.wang17.myphone.eventbus.SenderTimerRuning
+import com.wang17.myphone.model.DateTime
 import com.wang17.myphone.model.database.Setting
 import com.wang17.myphone.util.DataContext
 import com.wang17.myphone.util._NotificationUtils
@@ -79,10 +80,13 @@ class BuddhaService : Service() {
         stopTimer()
 
         _NotificationUtils.closeNotification(applicationContext, NOTIFICATION_ID)
-        EventBus.getDefault().post(EventBusMessage.getInstance(SenderBuddhaServiceOnDestroy(), "buddha service destroyed"))
 
         //
+
+        mAm.abandonAudioFocus(afChangeListener)
         unregisterReceiver(buddhaReceiver)
+        e("------------- 销毁完毕 ---------------")
+        EventBus.getDefault().post(EventBusMessage.getInstance(SenderBuddhaServiceOnDestroy(), "buddha service destroyed"))
         dc.addLog("念佛", "=== buddha service 销毁 ===", null)
     }
 
@@ -95,6 +99,7 @@ class BuddhaService : Service() {
         timer?.schedule(object : TimerTask() {
             override fun run() {
                 if (timerRuning) {
+                    e("缓存duration : ${savedDuration/1000}秒  此段duration : ${(System.currentTimeMillis() - startTimeInMillis)/1000}秒   此段起始时间 : ${DateTime(startTimeInMillis).toTimeString()}")
                     val duration = savedDuration + System.currentTimeMillis() - startTimeInMillis
                     val second = duration % 60000 / 1000
                     val miniteT = duration / 60000
@@ -158,6 +163,7 @@ class BuddhaService : Service() {
     fun stopMediaPlayer() {
         mBackgroundPlayer.stop()
         chantBuddhaStop()
+        mPlayer.stop()
     }
 
     private lateinit var mAm: AudioManager
@@ -213,7 +219,7 @@ class BuddhaService : Service() {
                 dc.addLog("念佛", "暂时失去焦点并降音", null)
                 mPlayer.setVolume(0.3f, 0.3f)
                 pauseTimer()
-                pauseOrStartData()
+                pauseOrStopData()
             }
         }
     }
@@ -228,7 +234,6 @@ class BuddhaService : Service() {
             dc.addLog("念佛", "start or restart", null)
             startTimeInMillis = System.currentTimeMillis()
             dc.editSetting(Setting.KEYS.buddha_startime, startTimeInMillis)
-            e("-------------------- ${startTimeInMillis % 600000 / 1000} --------------------------")
         } catch (e: Exception) {
             dc.addLog("err", "pause or stop", e.message)
         }
@@ -239,7 +244,7 @@ class BuddhaService : Service() {
      * 1、将当前section的duration累加入数据库中的总的duration
      * 2、删除section的startime
      */
-    fun pauseOrStartData() {
+    fun pauseOrStopData() {
         try {
             e("---------------- pause or stop --------------------")
             dc.addLog("念佛", "pause or stop", null)
@@ -250,7 +255,9 @@ class BuddhaService : Service() {
             settingStartTime?.let {
 //                val setting = dc.getSetting(Setting.KEYS.buddha_duration)
 //                savedDuration = it?.long ?: 0L
+                e("------------------ 缓存duration : ${savedDuration/1000}秒  本段duration : ${(System.currentTimeMillis() - startTimeInMillis)/1000}秒      此段起始时间 : ${DateTime(startTimeInMillis).toTimeString()} ------------------")
                 savedDuration += now - startTimeInMillis
+                e("++++++++++++++++++ 缓存duration : ${savedDuration/1000}秒")
                 dc.editSetting(Setting.KEYS.buddha_duration, savedDuration)
                 dc.editSetting(Setting.KEYS.buddha_stoptime, now)
 
@@ -276,12 +283,12 @@ class BuddhaService : Service() {
     fun chantBuddhaPause(){
         pauseTimer()
         mPlayer.pause()
-        pauseOrStartData()
+        pauseOrStopData()
     }
     fun chantBuddhaStop(){
         pauseTimer()
         mPlayer.pause()
-        pauseOrStartData()
+        pauseOrStopData()
     }
 
     // TODO: 2020/11/20 悬浮窗
