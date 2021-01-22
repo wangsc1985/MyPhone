@@ -5,33 +5,34 @@ import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
 import android.support.v7.app.AppCompatActivity;
+import android.util.Log;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.BaseExpandableListAdapter;
 import android.widget.ExpandableListView;
-import android.widget.RelativeLayout;
+import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.wang17.myphone.R;
 import com.wang17.myphone.fragment.ActionBarFragment;
 import com.wang17.myphone.fragment.AddTallyFragment;
+import com.wang17.myphone.model.database.BuddhaRecord;
 import com.wang17.myphone.util.DataContext;
 import com.wang17.myphone.util._Utils;
 import com.wang17.myphone.util._String;
 import com.wang17.myphone.model.DateTime;
-import com.wang17.myphone.model.database.TallyRecord;
 
+import java.text.DecimalFormat;
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.List;
 
-public class TallayRecordActivity extends AppCompatActivity implements ActionBarFragment.OnActionFragmentBackListener {
+public class BuddhaActivity extends AppCompatActivity implements ActionBarFragment.OnActionFragmentBackListener {
 
     // 视图变量
-    RelativeLayout root;
     FloatingActionButton floatingAdd;
     // 类变量
     private DataContext dataContext;
-    private List<TallyRecord> tallyRecords;
     private BaseExpandableListAdapter recordListdAdapter;
 
     // 值变量
@@ -39,20 +40,45 @@ public class TallayRecordActivity extends AppCompatActivity implements ActionBar
     private List<List<ChildInfo>> childListList;
     private static final int TO_TALLAY_RECORD_DETAIL_ACTIVITY = 54;
     public static boolean isChanged = false;
-
+    int year;
+    long duration;
+    int count;
+    int number;
+    TextView tv_year;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         try {
             super.onCreate(savedInstanceState);
-            setContentView(R.layout.activity_tallay_record);
+            setContentView(R.layout.activity_buddha);
             dataContext = new DataContext(this);
-            root = (RelativeLayout) findViewById(R.id.activity_tallay_record);
 //            tallyRecords = dataContext.getRecords(DateTime.getToday().getYear());
 
-            reflushData();
+            year = DateTime.getToday().getYear();
+            tv_year = findViewById(R.id.tv_year);
+            ImageView iv_prev = findViewById(R.id.iv_prev);
+            ImageView iv_next = findViewById(R.id.iv_next);
+            iv_prev.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    year--;
+                    reflushData(year);
+                    recordListdAdapter.notifyDataSetChanged();
+                }
+            });
+            iv_next.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    year++;
+                    reflushData(year);
+                    recordListdAdapter.notifyDataSetChanged();
+                }
+            });
+
+            reflushData(year);
 
             final ExpandableListView listView_records = (ExpandableListView) findViewById(R.id.listView_records);
-            recordListdAdapter = new TallyRecordListAdapter();
+            listView_records.setGroupIndicator(null);
+            recordListdAdapter = new BuddhaListAdapter();
             listView_records.setAdapter(recordListdAdapter);
             // 默认展开第一组
             listView_records.expandGroup(0);
@@ -73,7 +99,7 @@ public class TallayRecordActivity extends AppCompatActivity implements ActionBar
                 @Override
                 public boolean onChildClick(ExpandableListView parent, View v, int groupPosition, int childPosition, long id) {
                     long start = childListList.get(groupPosition).get(childPosition).start;
-                    Intent intent = new Intent(TallayRecordActivity.this, TallayRecordDetailActivity.class);
+                    Intent intent = new Intent(BuddhaActivity.this, BuddhaDetailActivity.class);
                     intent.putExtra("start", start);
                     startActivityForResult(intent, TO_TALLAY_RECORD_DETAIL_ACTIVITY);
                     return true;
@@ -88,7 +114,8 @@ public class TallayRecordActivity extends AppCompatActivity implements ActionBar
                         @Override
                         public void addRecode() {
 //                    tallyRecords = dataContext.getRecords(DateTime.getToday().getYear());
-                            reflushData();
+                            reflushData(year);
+                            recordListdAdapter.notifyDataSetChanged();
                             recordListdAdapter.notifyDataSetChanged();
                             isChanged = true;
                         }
@@ -107,9 +134,9 @@ public class TallayRecordActivity extends AppCompatActivity implements ActionBar
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         if (requestCode == TO_TALLAY_RECORD_DETAIL_ACTIVITY) {
-            if (TallayRecordDetailActivity.isChanged) {
+            if (BuddhaDetailActivity.isChanged) {
 //                tallyRecords = dataContext.getRecords(DateTime.getToday().getYear());
-                reflushData();
+                reflushData(year);
                 recordListdAdapter.notifyDataSetChanged();
                 isChanged = true;
             }
@@ -117,8 +144,12 @@ public class TallayRecordActivity extends AppCompatActivity implements ActionBar
         super.onActivityResult(requestCode, resultCode, data);
     }
 
-    private void reflushData() {
+    private void reflushData(int year) {
         try {
+            count=0;
+            number=0;
+            duration=0L;
+
             groupList = new ArrayList<>();
             childListList = new ArrayList<>();
             int month = -1;
@@ -129,15 +160,29 @@ public class TallayRecordActivity extends AppCompatActivity implements ActionBar
             List<ChildInfo> childList = null;
 
 
-            DateTime date = DateTime.getToday();
-            DateTime end = date.addMonths(-2);
-            while (( date.getTimeInMillis()-end.getTimeInMillis()) / 3600000 / 24 >= 0) {
-                List<TallyRecord> records = dataContext.getRecords(date);
-                if(isToday&&records.size()==0){
-                    date = date.addDays(-1);
-                    continue;
-                }
-                isToday=false;
+            BuddhaRecord first = dataContext.getFirstBuddha();
+            BuddhaRecord latest = dataContext.getLatestBuddha();
+            if(first==null||latest==null){
+                return;
+            }
+            DateTime end = new DateTime(year,0,1);
+            DateTime date = new DateTime(year,11,31);
+            if(end.getTimeInMillis()<first.getStartTime().getTimeInMillis()){
+                end = first.getStartTime();
+            }
+            if(date.getTimeInMillis()>latest.getStartTime().getTimeInMillis()){
+                date = latest.getStartTime();
+            }
+            Log.e("wangsc","start : "+end.toLongDateTimeString()+" end : "+date.toLongDateTimeString());
+
+                while (date.getYear()==end.getYear()&& date.get(Calendar.DAY_OF_YEAR)>=end.get(Calendar.DAY_OF_YEAR)) {
+                List<BuddhaRecord> records = dataContext.getBuddhas(date);
+//                if(isToday&&records.size()==0){
+//                    date = date.addDays(-1);
+//                    continue;
+//                }
+                Log.e("wangsc","date day of year :"+date.get(Calendar.DAY_OF_YEAR) +" end day of year : "+end.get(Calendar.DAY_OF_YEAR));
+//                isToday=false;
 
                 if (date.getMonth() == month) {
 
@@ -146,9 +191,16 @@ public class TallayRecordActivity extends AppCompatActivity implements ActionBar
                     childNode.day = day;
                     childNode.start = date.getTimeInMillis();
 
-                    for (TallyRecord record : records) {
-                        groupNode.total += record.getInterval();
-                        childNode.total += record.getInterval();
+                    for (BuddhaRecord record : records) {
+                        groupNode.duration += record.getDuration();
+                        groupNode.count += record.getCount();
+                        groupNode.number += record.getCount()*1080;
+                        childNode.duration += record.getDuration();
+                        childNode.count += record.getCount();
+                        childNode.number += record.getCount()*1080;
+                        duration+=record.getDuration();
+                        count += record.getCount();
+                        number += record.getCount()*1080;
                     }
                     childList.add(childNode);
                 } else {
@@ -163,9 +215,16 @@ public class TallayRecordActivity extends AppCompatActivity implements ActionBar
                     childNode.day = day;
                     childNode.start = date.getTimeInMillis();
 
-                    for (TallyRecord record : records) {
-                        groupNode.total += record.getInterval();
-                        childNode.total += record.getInterval();
+                    for (BuddhaRecord record : records) {
+                        groupNode.duration += record.getDuration();
+                        groupNode.count += record.getCount();
+                        groupNode.number += record.getCount()*1080;
+                        childNode.duration += record.getDuration();
+                        childNode.count += record.getCount();
+                        childNode.number += record.getCount()*1080;
+                        duration+=record.getDuration();
+                        count += record.getCount();
+                        number += record.getCount()*1080;
                     }
                     childList.add(childNode);
 
@@ -176,71 +235,13 @@ public class TallayRecordActivity extends AppCompatActivity implements ActionBar
 
                 date = date.addDays(-1);
             }
-
-//
-//            for (TallyRecord record : tallyRecords) {
-//                if (record.getStart().getMonth() == month) {
-//                    groupNode.total += record.getInterval();
-//
-//                    //
-//                    if (record.getStart().getDay() == day) {
-//                        childNode.total += record.getInterval();
-//                    } else {
-//                        day = record.getStart().getDay();
-//                        childNode = new ChildInfo();
-//                        childNode.day = day;
-//                        childNode.start = record.getStart().getTimeInMillis();
-//                        childNode.total += record.getInterval();
-//                        childList.add(childNode);
-//                    }
-//                } else {
-//                    month = record.getStart().getMonth();
-//                    groupNode = new GroupInfo();
-//                    groupNode.month = record.getStart().getMonth() + 1;
-//                    groupNode.total += record.getInterval();
-//                    groupList.add(groupNode);
-//
-//                    //
-//                    childList = new ArrayList<>();
-//                    day = record.getStart().getDay();
-//                    childNode = new ChildInfo();
-//                    childNode.day = day;
-//                    childNode.start = record.getStart().getTimeInMillis();
-//                    childNode.total += record.getInterval();
-//                    childList.add(childNode);
-//                    childListList.add(childList);
-//                }
-//            }
+            tv_year.setText(year+"年   " +count+"圈   "+ DateTime.toSpanString2(duration)+"   "+new DecimalFormat("0.00").format((double)number/10000)+"万");
         } catch (Exception e) {
-            _Utils.printException(TallayRecordActivity.this, e);
+            _Utils.printException(BuddhaActivity.this, e);
         }
     }
 
-/*    private void reflushData() {
-        groupList = new ArrayList<>();
-        childListList = new ArrayList<>();
-        DateTime date = new DateTime(2000, 0, 1);
-        GroupInfo groupInfo = null;
-        List<TallyRecord> child = null;
-        for (TallyRecord record : tallyRecords) {
-            if (record.getStart().getDate().getTimeInMillis() == date.getTimeInMillis()) {
-                groupInfo.total += record.getInterval();
-                child.add(record);
-            } else {
-                date = record.getStart().getDate();
-                groupInfo = new GroupInfo();
-                child = new ArrayList<>();
-                groupInfo.date = date;
-                groupInfo.total += record.getInterval();
-                child.add(record);
-                groupList.add(groupInfo);
-                childListList.add(child);
-            }
-        }
-    }*/
-
-
-    class TallyRecordListAdapter extends BaseExpandableListAdapter {
+    class BuddhaListAdapter extends BaseExpandableListAdapter {
         @Override
         public int getGroupCount() {
             return groupList.size();
@@ -281,15 +282,29 @@ public class TallayRecordActivity extends AppCompatActivity implements ActionBar
                                  View convertView, ViewGroup parent) {
 
             try {
-                convertView = View.inflate(TallayRecordActivity.this, R.layout.inflate_list_item_tally_record_group, null);
-                TextView textView_date = (TextView) convertView.findViewById(R.id.textView_date);
-                TextView textView_total = (TextView) convertView.findViewById(R.id.textView_monthTotal);
+                convertView = View.inflate(BuddhaActivity.this, R.layout.inflate_list_item_buddha_group, null);
+                TextView textView_date =  convertView.findViewById(R.id.textView_date);
+                TextView textView_duration = convertView.findViewById(R.id.textView_monthDuration);
+                TextView textView_count =  convertView.findViewById(R.id.textView_monthCount);
+                TextView textView_number = convertView.findViewById(R.id.textView_monthNumber);
 
                 GroupInfo info = groupList.get(groupPosition);
                 textView_date.setText(_String.format(info.month) + "月");
-                textView_total.setText(DateTime.toSpanString(info.total, 3, 2));
+                textView_duration.setText(DateTime.toSpanString2(info.duration));
+                textView_count.setText(info.count+"圈");
+                textView_number.setText(new DecimalFormat("0.00").format((double)info.number/10000)+"万");
+
+                if(info.duration==0){
+                    textView_duration.setText("--");
+                }
+                if(info.number==0){
+                    textView_number.setText("");
+                }
+                if(info.count==0){
+                    textView_count.setText("");
+                }
             } catch (Exception e) {
-                _Utils.printException(TallayRecordActivity.this, e);
+                _Utils.printException(BuddhaActivity.this, e);
             }
             return convertView;
         }
@@ -298,20 +313,30 @@ public class TallayRecordActivity extends AppCompatActivity implements ActionBar
         public View getChildView(final int groupPosition, final int childPosition,
                                  boolean isLastChild, View convertView, ViewGroup parent) {
             try {
-                convertView = View.inflate(TallayRecordActivity.this, R.layout.inflate_list_item_tally_record_child, null);
+                convertView = View.inflate(BuddhaActivity.this, R.layout.inflate_list_item_buddha_child, null);
                 TextView textView_date = (TextView) convertView.findViewById(R.id.textView_date);
-                TextView textView_total = (TextView) convertView.findViewById(R.id.textView_monthTotal);
+                TextView textView_duration = (TextView) convertView.findViewById(R.id.textView_monthDuration);
+                TextView textView_count = (TextView) convertView.findViewById(R.id.textView_monthCount);
+                TextView textView_number = (TextView) convertView.findViewById(R.id.textView_monthNumber);
 
-                final ChildInfo tallyRecord = childListList.get(groupPosition).get(childPosition);
-                textView_date.setText(_String.format(tallyRecord.day));
-                textView_total.setText(DateTime.toSpanString(tallyRecord.total, 3, 2));
-                TextView textViewItem = (TextView) convertView.findViewById(R.id.textView_item);
+                final ChildInfo childInfo = childListList.get(groupPosition).get(childPosition);
+                textView_date.setText(_String.format(childInfo.day));
+                textView_count.setText(childInfo.count+"圈");
+                textView_duration.setText(DateTime.toSpanString2(childInfo.duration));
+                textView_number.setText(new DecimalFormat("#,##0").format(childInfo.number));
+                TextView textViewItem =  convertView.findViewById(R.id.textView_item);
                 textViewItem.setVisibility(View.GONE);
-                if(tallyRecord.total==0){
-                    textView_total.setText("--");
+                if(childInfo.duration==0){
+                    textView_duration.setText("--");
+                }
+                if(childInfo.number==0){
+                    textView_number.setText("");
+                }
+                if(childInfo.count==0){
+                    textView_count.setText("");
                 }
             } catch (Exception e) {
-                _Utils.printException(TallayRecordActivity.this, e);
+                _Utils.printException(BuddhaActivity.this, e);
             }
             return convertView;
         }
@@ -326,13 +351,17 @@ public class TallayRecordActivity extends AppCompatActivity implements ActionBar
 
     class GroupInfo {
         public int month;
-        public long total;
+        public long number;
+        public long duration;
+        public int count;
     }
 
     class ChildInfo {
         public int day;
         public long start;
-        public long total;
+        public long number;
+        public long duration;
+        public int count;
     }
 
     @Override
@@ -342,9 +371,9 @@ public class TallayRecordActivity extends AppCompatActivity implements ActionBar
 
     private void snackbar(String message) {
         try {
-            Snackbar.make(root, message, Snackbar.LENGTH_LONG).show();
+            Snackbar.make(floatingAdd, message, Snackbar.LENGTH_LONG).show();
         } catch (Exception e) {
-            _Utils.printException(TallayRecordActivity.this, e);
+            _Utils.printException(BuddhaActivity.this, e);
         }
     }
 }

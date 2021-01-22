@@ -130,11 +130,18 @@ class DateTime : GregorianCalendar {
 
     /**
      * 格式：**@/ **  **:**
-     *
      * @return
      */
     fun toLongDateString2(): String {
         return _String.concat(monthStr, "/", dayStr, " ", hourStr, ":", miniteStr)
+    }
+
+    /**
+     * 格式：**月**日  **:**
+     * @return
+     */
+    fun toLongDateString3(): String {
+        return _String.concat(monthStr, "月", dayStr, "日 ", hourStr, ":", miniteStr)
     }
 
     /**
@@ -234,34 +241,19 @@ class DateTime : GregorianCalendar {
                 return today.date
             }
         /**
-         * 格式：*天*小时*分钟*秒
-         *
-         * @return
-         */
-        //    public static String toSpanStringSecond(long timeInMillis) {
-        //        int second = (int) (timeInMillis / 1000 % 60);
-        //        int minite = (int) (timeInMillis / 60000 % 60);
-        //        int hour = (int) (timeInMillis / 60000 / 60 % 24);
-        //        int day = (int) (timeInMillis / 60000 / 60 / 24);
-        //        if (day == 0 && hour == 0 && minite == 0) {
-        //            return second + "秒";
-        //        }
-        //        return _String.concat(day > 0 ? day + "天" : "", hour > 0 ? hour + "小时" : "", minite > 0 ? minite + "分钟" : "", second > 0 ? second + "秒" : "");
-        //    }
-        /**
          * 格式：*天*小时*分钟
          *
          * @return
          */
-        //    public static String toSpanStringMin(long timeInMillis) {
-        //        int minite = (int) (timeInMillis / 60000 % 60);
-        //        int hour = (int) (timeInMillis / 60000 / 60 % 24);
-        //        int day = (int) (timeInMillis / 60000 / 60 / 24);
-        //        if (day == 0 && hour == 0) {
-        //            return minite + "分钟";
-        //        }
-        //        return _String.concat(day > 0 ? day + "天" : "", hour > 0 ? hour + "小时" : "", minite > 0 ? minite + "分钟" : "");
-        //    }
+        @JvmStatic
+            fun toSpanString2(timeInMillis:Long) :String{
+                var minite =  (timeInMillis / 60000 % 60).toInt()
+                var hour = (timeInMillis / 60000 / 60).toInt()
+                if (hour == 0) {
+                    return "${minite}分钟";
+                }
+                return _String.concat(if( hour > 0)  "${hour}小时" else "",if(minite > 0) "${minite}分钟" else "");
+            }
 
         /**
          * 格式：最大显示xx:xx:xx  最小显示xx:xx

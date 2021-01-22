@@ -59,7 +59,7 @@ public class NianfoDarkRunActivity extends AppCompatActivity {
 
         setContentView(R.layout.activity_nianfo_dark_run);
 
-        textViewTotal = findViewById(R.id.textView_monthTotal);
+        textViewTotal = findViewById(R.id.textView_monthDuration);
         textViewBattery = findViewById(R.id.textView_battery);
 
 //        FrameLayout root = (FrameLayout) findViewById(R.id.root);

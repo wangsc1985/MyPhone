@@ -88,7 +88,7 @@ public class DataContext {
         try {
             //获取数据库对象
             SQLiteDatabase db = dbHelper.getWritableDatabase();
-            for (BuddhaRecord model :  models) {
+            for (BuddhaRecord model : models) {
                 //使用insert方法向表中插入数据
                 ContentValues values = new ContentValues();
                 values.put("id", model.getId().toString());
@@ -106,6 +106,7 @@ public class DataContext {
             _Utils.printException(context, e);
         }
     }
+
     /**
      * 得到一条record
      *
@@ -137,7 +138,7 @@ public class DataContext {
         return null;
     }
 
-    public void clearBuddhas(){
+    public void clearBuddhas() {
 
         try {
             //获取数据库对象
@@ -157,7 +158,32 @@ public class DataContext {
             //获取数据库对象
             SQLiteDatabase db = dbHelper.getReadableDatabase();
             //查询获得游标
-            Cursor cursor = db.query("buddha", null, null,null , null, null, "startTime desc");
+            Cursor cursor = db.query("buddha", null, null, null, null, null, "startTime desc");
+            //判断游标是否为空
+            if (cursor.moveToNext()) {
+                BuddhaRecord model = new BuddhaRecord(UUID.fromString(cursor.getString(0)),
+                        new DateTime(cursor.getLong(1)),
+                        cursor.getLong(2),
+                        cursor.getInt(3),
+                        cursor.getInt(4),
+                        cursor.getString(5));
+                cursor.close();
+                db.close();
+                return model;
+            }
+        } catch (Exception e) {
+            _Utils.printException(context, e);
+        }
+        return null;
+    }
+
+    public BuddhaRecord getFirstBuddha() {
+
+        try {
+            //获取数据库对象
+            SQLiteDatabase db = dbHelper.getReadableDatabase();
+            //查询获得游标
+            Cursor cursor = db.query("buddha", null, null, null, null, null, "startTime asc");
             //判断游标是否为空
             if (cursor.moveToNext()) {
                 BuddhaRecord model = new BuddhaRecord(UUID.fromString(cursor.getString(0)),
@@ -189,8 +215,7 @@ public class DataContext {
             //获取数据库对象
             SQLiteDatabase db = dbHelper.getReadableDatabase();
             DateTime startDate = new DateTime(date.getYear(), date.getMonth(), date.getDay());
-            DateTime endDate = (DateTime) (startDate.clone());
-            endDate = endDate.addDays(1);
+            DateTime endDate = startDate.addDays(1);
             //查询获得游标
             Cursor cursor = db.query("buddha", null, "startTime>=? and startTime<?", new String[]{startDate.getTimeInMillis() + "", endDate.getTimeInMillis() + ""}, null, null, "startTime asc");
             //判断游标是否为空
@@ -242,6 +267,31 @@ public class DataContext {
         return null;
     }
 
+    public List<BuddhaRecord> getAllBuddhas() {
+        List<BuddhaRecord> result = new ArrayList<BuddhaRecord>();
+        try {
+            //获取数据库对象
+            SQLiteDatabase db = dbHelper.getReadableDatabase();
+            //查询获得游标
+            Cursor cursor = db.query("buddha", null, null,null, null, null, "startTime asc");
+            //判断游标是否为空
+            while (cursor.moveToNext()) {
+                BuddhaRecord model = new BuddhaRecord(UUID.fromString(cursor.getString(0)),
+                        new DateTime(cursor.getLong(1)),
+                        cursor.getLong(2),
+                        cursor.getInt(3),
+                        cursor.getInt(4),
+                        cursor.getString(5));
+                result.add(model);
+            }
+            cursor.close();
+            db.close();
+        } catch (Exception e) {
+            _Utils.printException(context, e);
+        }
+        return result;
+    }
+
     /**
      * 得到所有record
      *
@@ -274,7 +324,32 @@ public class DataContext {
         return result;
     }
 
-    public List<BuddhaRecord> getBuddhas(int year,int month) {
+    public List<BuddhaRecord> getBuddhas(String type) {
+        List<BuddhaRecord> result = new ArrayList<BuddhaRecord>();
+        try {
+            //获取数据库对象
+            SQLiteDatabase db = dbHelper.getReadableDatabase();
+            //查询获得游标
+            Cursor cursor = db.query("buddha", null, "type=?", new String[]{type}, null, null, "startTime asc");
+            //判断游标是否为空
+            while (cursor.moveToNext()) {
+                BuddhaRecord model = new BuddhaRecord(UUID.fromString(cursor.getString(0)),
+                        new DateTime(cursor.getLong(1)),
+                        cursor.getLong(2),
+                        cursor.getInt(3),
+                        cursor.getInt(4),
+                        cursor.getString(5));
+                result.add(model);
+            }
+            cursor.close();
+            db.close();
+        } catch (Exception e) {
+            _Utils.printException(context, e);
+        }
+        return result;
+    }
+
+    public List<BuddhaRecord> getBuddhas(int year, int month) {
         List<BuddhaRecord> result = new ArrayList<BuddhaRecord>();
         try {
             //获取数据库对象
@@ -333,6 +408,20 @@ public class DataContext {
             //获取数据库对象
             SQLiteDatabase db = dbHelper.getWritableDatabase();
             db.delete("buddha", "id=?", new String[]{id.toString()});
+            //关闭SQLiteDatabase对象
+            db.close();
+        } catch (Exception e) {
+            _Utils.printException(context, e);
+        }
+    }
+
+    public void deleteBuddhaList(List<BuddhaRecord> buddhaList) {
+        try {
+            //获取数据库对象
+            SQLiteDatabase db = dbHelper.getWritableDatabase();
+            for (int i = 0; i < buddhaList.size(); i++) {
+                db.delete("buddha", "id=?", new String[]{buddhaList.get(i).getId().toString()});
+            }
             //关闭SQLiteDatabase对象
             db.close();
         } catch (Exception e) {
@@ -737,7 +826,7 @@ public class DataContext {
             //获取数据库对象
             SQLiteDatabase db = dbHelper.getReadableDatabase();
             //查询获得游标
-            Cursor cursor = db.query("trade", null, "code = ? and tag = ?", new String[]{code,"1"}, null, null, "dateTime DESC");
+            Cursor cursor = db.query("trade", null, "code = ? and tag = ?", new String[]{code, "1"}, null, null, "dateTime DESC");
             //判断游标是否为空
             while (cursor.moveToNext()) {
                 Trade model = new Trade();
@@ -774,10 +863,10 @@ public class DataContext {
                 model.setId(UUID.fromString(cursor.getString(0)));
                 DateTime dt = new DateTime(cursor.getLong(1));
                 int t = cursor.getInt(6);
-                if(date!=null&&date.get(Calendar.DAY_OF_YEAR)!=dt.get(Calendar.DAY_OF_YEAR)){
+                if (date != null && date.get(Calendar.DAY_OF_YEAR) != dt.get(Calendar.DAY_OF_YEAR)) {
                     break;
                 }
-                if(type!=-100&&type!=t){
+                if (type != -100 && type != t) {
                     break;
                 }
                 date = dt;
@@ -825,6 +914,7 @@ public class DataContext {
         }
         return result;
     }
+
     public void editTrade(Trade model) {
         try {
             //获取数据库对象
@@ -837,7 +927,7 @@ public class DataContext {
             values.put("price", model.getPrice().toString());
             values.put("amount", model.getAmount());
             values.put("type", model.getType());
-            values.put("tag",model.getTag());
+            values.put("tag", model.getTag());
             //调用方法插入数据
             db.update("trade", values, "id=?", new String[]{model.getId().toString()});
             //关闭SQLiteDatabase对象
@@ -2671,7 +2761,7 @@ public class DataContext {
         return result;
     }
 
-    public void addLog(String tag,String item,String message){
+    public void addLog(String tag, String item, String message) {
         RunLog runLog = new RunLog(UUID.randomUUID());
         runLog.setTag(tag);
         runLog.setItem(item);
@@ -2751,6 +2841,7 @@ public class DataContext {
             _Utils.printException(context, e);
         }
     }
+
     public void clearRunLogByTag(String tag) {
         try {
             //获取数据库对象

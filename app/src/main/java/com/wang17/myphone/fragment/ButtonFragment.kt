@@ -21,11 +21,17 @@ import com.wang17.myphone.R
 import com.wang17.myphone.activity.*
 import com.wang17.myphone.callback.CloudCallback
 import com.wang17.myphone.e
+import com.wang17.myphone.model.DateTime
+import com.wang17.myphone.model.database.BuddhaRecord
 import com.wang17.myphone.model.database.Setting
 import com.wang17.myphone.util.*
 import com.wang17.myphone.view._Button
 import kotlinx.android.synthetic.main.fragment_button.*
+import java.lang.StringBuilder
+import java.sql.BatchUpdateException
 import java.text.DecimalFormat
+import java.util.*
+import kotlin.collections.ArrayList
 
 
 /**
@@ -45,13 +51,13 @@ class ButtonFragment : Fragment() {
 
         var btn = _Button(context!!, "设置")
         btn.setOnClickListener {
-            AlertDialog.Builder(context!!).setItems(arrayOf("本地","云端"), DialogInterface.OnClickListener { dialog, which ->
-                when(which){
-                    0->{
+            AlertDialog.Builder(context!!).setItems(arrayOf("本地", "云端"), DialogInterface.OnClickListener { dialog, which ->
+                when (which) {
+                    0 -> {
                         startActivity(Intent(context!!, SettingActivity::class.java))
                     }
-                    1->{
-                        _CloudUtils.getSettingList(context!!,dataContext.getSetting(Setting.KEYS.wx_request_code,"0088").string, CloudCallback { code, result ->
+                    1 -> {
+                        _CloudUtils.getSettingList(context!!, dataContext.getSetting(Setting.KEYS.wx_request_code, "0088").string, CloudCallback { code, result ->
                             uiHandler.post {
                                 AlertDialog.Builder(context!!).setMessage(result.toString()).show()
                             }
@@ -62,7 +68,68 @@ class ButtonFragment : Fragment() {
         }
         layout_flexbox.addView(btn)
 
-        kotlin.run{
+        kotlin.run {
+            btn = _Button(context!!, "buddha")
+            btn.setOnClickListener {
+                AlertDialog.Builder(context!!).setItems(arrayOf("整合", "上传","列表"), DialogInterface.OnClickListener { dialog, which ->
+                    when (which) {
+                        0 -> {
+                            val dc = DataContext(context)
+                            val buddhaList = dc.getBuddhas("11")
+                            val removeList: MutableList<BuddhaRecord> = ArrayList()
+                            var tmp: BuddhaRecord? = null
+                            buddhaList.forEach { buddha ->
+                                if (tmp != null) {
+                                    if (buddha.startTime.get(Calendar.DAY_OF_YEAR) != tmp!!.startTime.get(Calendar.DAY_OF_YEAR)) {
+                                        dc.editBuddha(tmp)
+                                        tmp = buddha
+                                    } else {
+                                        if (buddha.startTime.hour == tmp!!.startTime.hour) {
+                                            tmp!!.duration += buddha.duration
+                                            tmp!!.count += buddha.count
+                                            removeList.add(buddha)
+                                        } else {
+                                            dc.editBuddha(tmp)
+                                            tmp = buddha
+                                        }
+                                    }
+                                } else {
+                                    tmp = buddha
+                                }
+                            }
+                            tmp?.let {
+                                dc.editBuddha(tmp)
+                            }
+                            dc.deleteBuddhaList(removeList)
+                            AlertDialog.Builder(context!!).setMessage("整合完毕！").show()
+                        }
+                        1 -> {
+                            val buddhaList = dataContext.allBuddhas
+                            e("buddha size : ${buddhaList.size}")
+//                            var count=0
+//                            var sb = StringBuffer()
+//                            buddhaList.forEach {
+//                                count++
+//                                e("${count}  ${it.startTime.toLongDateTimeString()}")
+//                                sb.append("${count}  ${it.startTime.toLongDateTimeString()}\n")
+//                            }
+
+//                                    AlertDialog.Builder(context!!).setMessage(sb.toString()).setCancelable(false).setPositiveButton("close",null).show()
+                            _CloudUtils.addBuddhaList(context!!,buddhaList, CloudCallback { code, result ->
+                                uiHandler.post {
+                                    AlertDialog.Builder(context!!).setMessage(result.toString()).show()
+                                }
+                            })
+                        }
+                        2->{
+                            startActivity(Intent(context!!,BuddhaActivity::class.java))
+                        }
+                    }
+                }).show()
+            }
+            layout_flexbox.addView(btn)
+        }
+        kotlin.run {
 
             btn = _Button(context!!, "数据")
             btn.setOnClickListener {
@@ -83,7 +150,7 @@ class ButtonFragment : Fragment() {
         kotlin.run {
             btn = _Button(context!!, "彩票")
             btn.setOnClickListener {
-                AlertDialog.Builder(context!!).setItems(arrayOf("大乐透", "双色球")){ dialog, which ->
+                AlertDialog.Builder(context!!).setItems(arrayOf("大乐透", "双色球")) { dialog, which ->
                     when (which) {
                         0 -> {
 
@@ -236,7 +303,7 @@ class ButtonFragment : Fragment() {
             val days = obj[1].toInt()
             var interest = rate[days] * 100 / 365 * days * wan
             totalInterest += interest
-            result.append("利率： \t${DecimalFormat("0.00").format(rate[days])} \t存期：\t${if(days<10) "0"+days else days.toString()}天 \t 金额： \t${wan}万 \t 利息： \n${DecimalFormat("0.00").format(interest)}元\n\n")
+            result.append("利率： \t${DecimalFormat("0.00").format(rate[days])} \t存期：\t${if (days < 10) "0" + days else days.toString()}天 \t 金额： \t${wan}万 \t 利息： \n${DecimalFormat("0.00").format(interest)}元\n\n")
         }
 
         result.append("\n")

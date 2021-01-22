@@ -186,8 +186,9 @@ object _CloudUtils {
                         e("add buddha list html: "+html)
                         val resp_data: Any = _JsonUtils.getValueByKey(html, "resp_data")
                         val code = _JsonUtils.getValueByKey(resp_data.toString(), "code").toInt()
+                        val msg = _JsonUtils.getValueByKey(resp_data.toString(), "msg")
                         when (code) {
-                            0 -> callback?.excute(0, "添加成功")
+                            0 -> callback?.excute(0, msg)
                         }
                     } catch (e: Exception) {
                         callback?.excute(-2, e.message)

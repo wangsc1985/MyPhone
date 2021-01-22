@@ -22,8 +22,8 @@ import android.widget.BaseAdapter
 import android.widget.NumberPicker
 import android.widget.TextView
 import com.wang17.myphone.R
-import com.wang17.myphone.activity.TallayRecordActivity
-import com.wang17.myphone.activity.TallayRecordDetailActivity
+import com.wang17.myphone.activity.BuddhaActivity
+import com.wang17.myphone.activity.BuddhaDetailActivity
 import com.wang17.myphone.event.NianfoOverEvent
 import com.wang17.myphone.event.NianfoPauseEvent
 import com.wang17.myphone.event.NianfoResumeEvent
@@ -333,7 +333,7 @@ class BuddhaFragment : Fragment() {
 
             layout_dayTotal!!.setOnClickListener {
                 try {
-                    val intent = Intent(activity, TallayRecordDetailActivity::class.java)
+                    val intent = Intent(activity, BuddhaDetailActivity::class.java)
                     intent.putExtra("start", System.currentTimeMillis())
                     startActivityForResult(intent, TO_TALLAY_RECORD_DETAIL_ACTIVITY)
                 } catch (e: Exception) {
@@ -342,7 +342,7 @@ class BuddhaFragment : Fragment() {
             }
             layout_dayTotal!!.setOnLongClickListener {
                 try {
-                    startActivityForResult(Intent(activity, TallayRecordActivity::class.java), TO_TALLAY_RECORD_ACTIVITY)
+                    startActivityForResult(Intent(activity, BuddhaActivity::class.java), TO_TALLAY_RECORD_ACTIVITY)
                 } catch (e: Exception) {
                     _Utils.printException(context, e)
                 }
@@ -403,7 +403,7 @@ class BuddhaFragment : Fragment() {
         try {
             uiThreadHandler!!.post {
                 try {
-                    textView_monthTotal!!.text = toSpanString(totalMillis, 3, 2)
+                    textView_monthDuration!!.text = toSpanString(totalMillis, 3, 2)
                 } catch (e: Exception) {
                     _Utils.printException(context, e)
                 }

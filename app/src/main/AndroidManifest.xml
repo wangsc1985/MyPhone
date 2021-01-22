@@ -91,7 +91,7 @@
             android:name=".activity.FundMonitorActivity"
             android:launchMode="singleTask" />
         <activity
-            android:name=".activity.TallayRecordActivity"
+            android:name=".activity.BuddhaActivity"
             android:launchMode="singleTask" />
         <activity
             android:name=".activity.CardRecordActivity"
@@ -102,7 +102,7 @@
         <activity android:name=".activity.SettingActivity" />
         <activity android:name=".activity.AddCardActivity" />
         <activity android:name=".activity.EditCardActivity" />
-        <activity android:name=".activity.TallayRecordDetailActivity" />
+        <activity android:name=".activity.BuddhaDetailActivity" />
         <activity android:name=".activity.AlarmWindowActivity" />
         <activity
             android:name=".activity.SmsActivity"
