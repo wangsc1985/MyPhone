@@ -1,6 +1,5 @@
-package com.wang17.myphone.model.database
+package com.wang17.lib
 
-import com.wang17.myphone.model.DateTime
 import java.util.*
 
 class BuddhaRecord {
@@ -28,7 +27,7 @@ class BuddhaRecord {
         this.type = type
         this.summary = summary
     }
-//
+
 //    override fun equals(other: Any?): Boolean {
 //        val tt = other as BuddhaRecord
 //        return this.startTime==tt.startTime

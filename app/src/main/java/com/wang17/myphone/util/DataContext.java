@@ -236,6 +236,32 @@ public class DataContext {
         return result;
     }
 
+    public List<BuddhaRecord> getBuddhaListStartDate(DateTime startDate) {
+
+        List<BuddhaRecord> result = new ArrayList<BuddhaRecord>();
+        try {
+            //获取数据库对象
+            SQLiteDatabase db = dbHelper.getReadableDatabase();
+            startDate = startDate.getDate();
+            //查询获得游标
+            Cursor cursor = db.query("buddha", null, "startTime>=?", new String[]{startDate.getTimeInMillis() + ""}, null, null, "startTime asc");
+            //判断游标是否为空
+            while (cursor.moveToNext()) {
+                BuddhaRecord model = new BuddhaRecord(UUID.fromString(cursor.getString(0)),
+                        new DateTime(cursor.getLong(1)),
+                        cursor.getLong(2),
+                        cursor.getInt(3),
+                        cursor.getInt(4),
+                        cursor.getString(5));
+                result.add(model);
+            }
+            cursor.close();
+            db.close();
+        } catch (Exception e) {
+            _Utils.printException(context, e);
+        }
+        return result;
+    }
     /**
      * 获取某一时刻的record。
      *

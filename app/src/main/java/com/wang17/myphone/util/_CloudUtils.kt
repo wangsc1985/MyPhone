@@ -50,7 +50,7 @@ object _CloudUtils {
         }
     }
 
-    private fun loadNewTokenFromHttp(context: Context): String {
+    fun loadNewTokenFromHttp(context: Context): String {
         var token = ""
         // https://sahacloudmanager.azurewebsites.net/home/token/wxbdf065bdeba96196/d2834f10c0d81728e73a4fe4012c0a5d
         val a = System.currentTimeMillis()
@@ -74,7 +74,7 @@ object _CloudUtils {
                     val b = System.currentTimeMillis()
                     e("从微软获取到token：$token, 有效期：${DateTime(exprires).toLongDateTimeString()} 用时：${b - a}")
                 }
-            } catch (e: java.lang.Exception) {
+            } catch (e: Exception) {
                 e(e.message!!)
             } finally {
                 latch.countDown()
@@ -154,6 +154,7 @@ object _CloudUtils {
 
         }.start()
     }
+
     @JvmStatic
     fun addBuddhaList(context: Context, buddhaList:MutableList<BuddhaRecord>, callback: CloudCallback?) {
         Thread{
@@ -183,11 +184,75 @@ object _CloudUtils {
                 postRequestByJsonStr(url, json.toString(), HttpCallback { html ->
                     try {
                         e("add buddha list html: "+html)
-                        val resp_data: Any = _JsonUtils.getValueByKey(html, "resp_data")
-                        val code = _JsonUtils.getValueByKey(resp_data.toString(), "code").toInt()
-                        val msg = _JsonUtils.getValueByKey(resp_data.toString(), "msg")
-                        when (code) {
-                            0 -> callback?.excute(0, msg)
+                        val errcode = _JsonUtils.getValueByKey(html, "errcode")
+                        val errmsg = _JsonUtils.getValueByKey(html, "errmsg")
+                        if(errcode=="0"){
+                            val resp_data: Any = _JsonUtils.getValueByKey(html, "resp_data")
+                            val code = _JsonUtils.getValueByKey(resp_data.toString(), "code").toInt()
+                            val msg = _JsonUtils.getValueByKey(resp_data.toString(), "msg")
+                            when (code) {
+                                0 -> callback?.excute(0, msg)
+                                else-> callback?.excute(-1, msg)
+                            }
+                        }else{
+                            callback?.excute(-1, errmsg)
+                        }
+                    } catch (e: Exception) {
+                        callback?.excute(-2, e.message)
+                    }
+                })
+            } catch (e: Exception) {
+                callback?.excute(-1, e.message)
+            }
+
+        }.start()
+    }
+
+    @JvmStatic
+    fun addIntegrateBuddhas(context: Context, lastBuddha:BuddhaRecord?, buddhaList:MutableList<BuddhaRecord>, callback: CloudCallback?) {
+        Thread{
+            try {
+                val accessToken = getToken(context)
+
+                var json = StringBuilder()
+                json.append("{\"phone\":\"18509513143\",")
+                if(lastBuddha!=null){
+                    json.append("\"lastdata\":{\"startTime\":\"${lastBuddha.startTime.timeInMillis}\",\"duration\":\"${lastBuddha.duration}\",\"count\":\"${lastBuddha.count}\",\"summary\":\"${lastBuddha.summary}\",\"type\":\"${lastBuddha.type}\"},")
+                }
+                json.append("\"newdata\":[");
+                for (i in buddhaList.indices)
+                {
+                    json.append("{");
+                    json.append("\"startTime\":\"${ buddhaList[i].startTime.timeInMillis}\"");
+                    json.append(",\"duration\":\"${buddhaList[i].duration}\"");
+                    json.append(",\"count\":\"${buddhaList[i].count}\"");
+                    json.append(",\"summary\":\"${buddhaList[i].summary}\"");
+                    json.append(",\"type\":\"${buddhaList[i].type}\"");
+                    json.append("}");
+                    if (i < buddhaList.size - 1)
+                        json.append(",");
+                }
+                json.append("]");
+                json.append("}");
+
+                e("addIntegrateBuddhas json : "+json.toString())
+                // 通过accessToken，env，云函数名，args 在微信小程序云端获取数据
+                val url = "https://api.weixin.qq.com/tcb/invokecloudfunction?access_token=$accessToken&env=$env&name=addIntegrateBuddhaRange"
+                postRequestByJsonStr(url, json.toString(), HttpCallback { html ->
+                    try {
+                        e("addIntegrateBuddhas html: "+html)
+                        val errcode = _JsonUtils.getValueByKey(html, "errcode")
+                        val errmsg = _JsonUtils.getValueByKey(html, "errmsg")
+                        if(errcode=="0"){
+                            val resp_data: Any = _JsonUtils.getValueByKey(html, "resp_data")
+                            val code = _JsonUtils.getValueByKey(resp_data.toString(), "code").toInt()
+                            val msg = _JsonUtils.getValueByKey(resp_data.toString(), "msg")
+                            when (code) {
+                                0 -> callback?.excute(0, msg)
+                                else-> callback?.excute(-1, msg)
+                            }
+                        }else{
+                            callback?.excute(-1, errmsg)
                         }
                     } catch (e: Exception) {
                         callback?.excute(-2, e.message)

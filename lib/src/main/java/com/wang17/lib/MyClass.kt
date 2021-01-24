@@ -29,13 +29,52 @@ class MyClass {
         @JvmStatic
         fun main(args: Array<String>) {
 
-            var date1 = DateTime()
-            var date2 = date1.clone() as DateTime
 
-            date1.add(Calendar.DAY_OF_YEAR,3)
+            val buddhaList:MutableList<BuddhaRecord> = ArrayList()
+            buddhaList.add(BuddhaRecord(DateTime(2020,1,19,11,23,0),600000,1,11,""))
+            buddhaList.add(BuddhaRecord(DateTime(2020,1,19,11,33,0),600000,1,11,""))
+            buddhaList.add(BuddhaRecord(DateTime(2020,1,19,11,43,0),600000,1,11,""))
+            buddhaList.add(BuddhaRecord(DateTime(2020,1,19,12,23,0),600000,1,11,""))
+            buddhaList.add(BuddhaRecord(DateTime(2020,1,19,12,33,0),600000,1,11,""))
+            buddhaList.add(BuddhaRecord(DateTime(2020,1,19,12,43,0),600000,1,11,""))
+            val removeList: MutableList<BuddhaRecord> = ArrayList()
+            var tmp: BuddhaRecord? = null
+            buddhaList.forEach { buddha ->
+                if (tmp != null) {
+                    if (buddha.startTime.get(Calendar.DAY_OF_YEAR) != tmp!!.startTime.get(Calendar.DAY_OF_YEAR)) {
+                        tmp = buddha
+                    } else {
+                        if (buddha.startTime.hour == tmp!!.startTime.hour) {
+                            tmp!!.duration += buddha.duration
+                            tmp!!.count += buddha.count
+                            removeList.add(buddha)
+                        } else {
+                            tmp = buddha
+                        }
+                    }
+                } else {
+                    tmp = buddha
+                }
+            }
+            buddhaList.removeAll(removeList)
 
-            println(date1.toLongDateTimeString())
-            println(date2.toLongDateTimeString())
+            buddhaList.forEach {
+                println("${it.startTime.toShortTimeString()}  ${it.duration}")
+            }
+
+            println()
+            removeList.forEach {
+                println("${it.startTime.toShortTimeString()}  ${it.duration}")
+            }
+
+
+//            var date1 = DateTime()
+//            var date2 = date1.clone() as DateTime
+//
+//            date1.add(Calendar.DAY_OF_YEAR,3)
+//
+//            println(date1.toLongDateTimeString())
+//            println(date2.toLongDateTimeString())
 
 //            val date = DateTime()
 //            var list:MutableList<Person> = ArrayList()
