@@ -457,7 +457,6 @@ class BuddhaPlayerFragment : Fragment() {
 
             val stoptimeInMillis = dc.getSetting(Setting.KEYS.buddha_stoptime, System.currentTimeMillis()).long
             val msg = "${"${hourS}:${miniteS}:${secondS} \t ${DateTime(stoptimeInMillis).toLongDateString3()} \t ${count}"}"
-            // TODO: 2021/1/24 哪里判断是变速导致的service销毁，还是停止导致的service销毁。 
 //                if(count>0){
             uiHandler.post {
                 AlertDialog.Builder(context).setMessage("缓存中存在念佛记录\n[ ${msg} ]\n是否保存？").setNegativeButton("保存", DialogInterface.OnClickListener { dialog, which ->
