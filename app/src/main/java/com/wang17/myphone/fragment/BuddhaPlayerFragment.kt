@@ -180,18 +180,17 @@ class BuddhaPlayerFragment : Fragment() {
             val dayBuddhaList = dc.getBuddhas(DateTime())
             var items = arrayOfNulls<String>(dayBuddhaList.size)
             for (index in dayBuddhaList.indices) {
-                val hour1 = dayBuddhaList[index].duration / (60000 * 60)
-                val minite1 = dayBuddhaList[index].duration % (60000 * 60) / 60000
-                val hourS1 = "${hour1}:"
-                val miniteS1 = if (minite1 == 0L) {
-                    if (hour1 == 0L) "0" else "00"
-                } else {
-                    if (minite1 < 10) "0${minite1}" else "${minite1}"
-                }
+                val second = dayBuddhaList[index].duration % 60000 / 1000
+                val hour = dayBuddhaList[index].duration / (60000 * 60)
+                val minite = dayBuddhaList[index].duration % (60000 * 60) / 60000
+                val hourS = "${hour}"
+                val miniteS = if (minite < 10) "0${minite}" else "${minite}"
+                val secondS = if (second < 10) "0${second}" else "${second}"
+
                 totalCount += dayBuddhaList[index].count
-                items[index] = "${dayBuddhaList[index].startTime.toShortTimeString()}   ${hourS1}${miniteS1}   ${dayBuddhaList[index].count}"
+                items[index] = "${dayBuddhaList[index].startTime.toShortTimeString()}   ${hourS}:${miniteS}:${secondS}   ${dayBuddhaList[index].count}"
             }
-            if (totalCount > 0)
+            if (dayBuddhaList.size > 0)
                 AlertDialog.Builder(context).setItems(items, DialogInterface.OnClickListener { dialog, index ->
                     AlertDialog.Builder(context)
                             .setMessage("是否要删除【${dayBuddhaList[index].startTime.toLongDateTimeString()}】的记录?")
@@ -240,13 +239,13 @@ class BuddhaPlayerFragment : Fragment() {
 
                 val hour = duration / (60000 * 60)
                 val minite = duration % (60000 * 60) / 60000
-                val hourS = "${hour}:"
+                val hourS = "${hour}"
                 val miniteS = if (minite == 0L) {
                     if (hour == 0L) "0" else "00"
                 } else {
                     if (minite < 10) "0${minite}" else "${minite}"
                 }
-                sb.append("${time.toShortDateString1()} \t ${if (count > 0) "${hourS}${miniteS} \t ${DecimalFormat("#,##0").format(count * 1080)} \t ${count}" else ""}\n")
+                sb.append("${time.toShortDateString1()} \t ${if (count > 0) "${hourS}:${miniteS} \t ${DecimalFormat("#,##0").format(count * 1080)} \t ${count}" else ""}\n")
 
                 totalCount += count
                 totalDuration += duration
@@ -254,14 +253,10 @@ class BuddhaPlayerFragment : Fragment() {
             }
             val hour = totalDuration / (60000 * 60)
             val minite = totalDuration % (60000 * 60) / 60000
-            val hourS = "${hour}:"
-            val miniteS = if (minite == 0L) {
-                if (hour == 0L) "0" else "00"
-            } else {
-                if (minite < 10) "0${minite}" else "${minite}"
-            }
+            val hourS = "${hour}"
+            val miniteS = if (minite < 10) "0${minite}" else "${minite}"
             val avgCount = totalCount.toBigDecimal().setScale(1) / today.day.toBigDecimal()
-            sb.append("\n${hourS}${miniteS} \t ${DecimalFormat("#,##0").format(totalCount * 1080)} \t ${totalCount} \t ${avgCount}\n")
+            sb.append("\n${hourS}:${miniteS} \t ${DecimalFormat("#,##0").format(totalCount * 1080)} \t ${totalCount} \t ${avgCount}\n")
             if (totalCount > 0)
                 AlertDialog.Builder(context).setMessage(sb.toString()).show()
         }
@@ -388,11 +383,17 @@ class BuddhaPlayerFragment : Fragment() {
     private fun createBuddhas2upload2save(count: Int, stoptimeInMillis: Long, avgDuration: Long, callback: CloudCallback) {
         var newBuddhaList: MutableList<BuddhaRecord> = ArrayList()
         var lastBuddha: BuddhaRecord? = dc.latestBuddha
-        for (i in count downTo 1) {
+        if(count==0){
             val startTime = DateTime(stoptimeInMillis)
-            startTime.add(Calendar.MILLISECOND, (-1 * avgDuration * i).toInt())
-            e("start time : ${startTime.toLongDateTimeString()}")
-            newBuddhaList.add(BuddhaRecord(startTime, avgDuration, 1, 11, "计时计数念佛"))
+            startTime.add(Calendar.MILLISECOND, (-1 * avgDuration).toInt())
+            newBuddhaList.add(BuddhaRecord(startTime, avgDuration, 0, 11, "计时计数念佛"))
+        }else{
+            for (i in count downTo 1) {
+                val startTime = DateTime(stoptimeInMillis)
+                startTime.add(Calendar.MILLISECOND, (-1 * avgDuration * i).toInt())
+                e("start time : ${startTime.toLongDateTimeString()}")
+                newBuddhaList.add(BuddhaRecord(startTime, avgDuration, 1, 11, "计时计数念佛"))
+            }
         }
 
         // 整合
@@ -424,7 +425,9 @@ class BuddhaPlayerFragment : Fragment() {
                         context?.startService(buddhaIntent)
                         animatorSuofang(btn_buddha_animator)
                     } else {
-                        AlertDialog.Builder(context).setMessage(result.toString()).show()
+                        uiHandler.post {
+                            AlertDialog.Builder(context).setMessage(result.toString()).show()
+                        }
                     }
                 }
             } else {
@@ -453,19 +456,21 @@ class BuddhaPlayerFragment : Fragment() {
             val secondS = if (second < 10) "0${second}" else "${second}"
 
             val stoptimeInMillis = dc.getSetting(Setting.KEYS.buddha_stoptime, System.currentTimeMillis()).long
-            val msg = "${"${hourS}:${miniteS}:${secondS} \t ${DateTime(stoptimeInMillis).toLongDateString3()}"}"
-
+            val msg = "${"${hourS}:${miniteS}:${secondS} \t ${DateTime(stoptimeInMillis).toLongDateString3()} \t ${count}"}"
+            // TODO: 2021/1/24 哪里判断是变速导致的service销毁，还是停止导致的service销毁。 
 //                if(count>0){
             uiHandler.post {
                 AlertDialog.Builder(context).setMessage("缓存中存在念佛记录\n[ ${msg} ]\n是否保存？").setNegativeButton("保存", DialogInterface.OnClickListener { dialog, which ->
-                    val avgDuration = duration / count
+                    val avgDuration =if(count>0) duration / count else duration
                     createBuddhas2upload2save(count.toInt(), stoptimeInMillis, avgDuration, CloudCallback { code, result ->
                         if (code == 0) {
                             dc.deleteSetting(Setting.KEYS.buddha_duration)
                             dc.deleteSetting(Setting.KEYS.buddha_stoptime)
-                            tv_time.text = ""
                             refreshTotalView()
-                            AlertDialog.Builder(context).setMessage(result.toString()).show()
+                            uiHandler.post {
+                                tv_time.text = ""
+                                AlertDialog.Builder(context).setMessage(result.toString()).show()
+                            }
                         }
                         callback?.excute(code, result)
                     })

@@ -99,7 +99,7 @@ class BuddhaService : Service() {
         timer?.schedule(object : TimerTask() {
             override fun run() {
                 if (timerRuning) {
-                    e("缓存duration : ${savedDuration/1000}秒  此段duration : ${(System.currentTimeMillis() - startTimeInMillis)/1000}秒   此段起始时间 : ${DateTime(startTimeInMillis).toTimeString()}")
+//                    e("缓存duration : ${savedDuration/1000}秒  此段duration : ${(System.currentTimeMillis() - startTimeInMillis)/1000}秒   此段起始时间 : ${DateTime(startTimeInMillis).toTimeString()}")
                     val duration = savedDuration + System.currentTimeMillis() - startTimeInMillis
                     val second = duration % 60000 / 1000
                     val miniteT = duration / 60000
