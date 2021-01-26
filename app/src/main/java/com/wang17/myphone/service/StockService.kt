@@ -158,13 +158,16 @@ class StockService : Service() {
             // 解除监控
             if (mainReciver != null) unregisterReceiver(mainReciver)
             (applicationContext.getSystemService(NOTIFICATION_SERVICE) as NotificationManager).cancel(NOTIFICATION_ID)
+
             //region 悬浮窗
             windowManager.removeView(floatingWindowView)
+            //endregion
         } catch (e: Exception) {
         }
         super.onDestroy()
     }
 
+    //region 悬浮窗
     @RequiresApi(api = Build.VERSION_CODES.M)
     private fun showFloatingWindow() {
 
@@ -226,6 +229,7 @@ class StockService : Service() {
             return false
         }
     }
+    //endregion
 
     fun startMediaPlay() {
         try {
@@ -403,6 +407,7 @@ class StockService : Service() {
                         mTimeS, DecimalFormat("0.00").format(averageTotalIncreaseS * 100.toBigDecimal()),
                         mTimeF, DecimalFormat("#,###").format(averageTotalProfitF))
 
+                //region 悬浮窗
                 uiHandler.post {
                     val zjIndex = floatingWindowView.findViewById<TextView>(R.id.tv_zj)
                     val szIndex = floatingWindowView.findViewById<TextView>(R.id.tv_sz)
@@ -426,6 +431,7 @@ class StockService : Service() {
                         szIndex.setTextColor(resources.getColor(R.color.DARK_GREEN))
                     }
                 }
+                //endregion
             } catch (e: Exception) {
                 _Utils.printException(applicationContext, e)
             }

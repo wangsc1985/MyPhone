@@ -1,7 +1,6 @@
 package com.wang17.myphone.fragment;
 
 
-import android.content.Intent;
 import android.graphics.BitmapFactory;
 import android.graphics.Point;
 import android.hardware.Sensor;
@@ -62,7 +61,6 @@ import com.amap.api.services.core.SuggestionCity;
 import com.amap.api.services.poisearch.PoiResult;
 import com.amap.api.services.poisearch.PoiSearch;
 import com.wang17.myphone.R;
-import com.wang17.myphone.activity.IntelligentBroadcastActivity;
 import com.wang17.myphone.event.AmapGearEvent;
 import com.wang17.myphone.util.AMapUtil;
 import com.wang17.myphone.util.DataContext;

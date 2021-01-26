@@ -176,6 +176,19 @@ class ButtonFragment : Fragment() {
                     }
                 }.show()
             }
+            btn.setOnLongClickListener {
+                AlertDialog.Builder(context!!).setItems(arrayOf("大乐透", "双色球")) { dialog, which ->
+                    when (which) {
+                        0 -> {
+
+                        }
+                        1 -> {
+
+                        }
+                    }
+                }.show()
+                true
+            }
             layout_flexbox.addView(btn)
         }
 

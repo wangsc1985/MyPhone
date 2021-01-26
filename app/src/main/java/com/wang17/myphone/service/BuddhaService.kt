@@ -6,9 +6,18 @@ import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
 import android.content.IntentFilter
+import android.graphics.PixelFormat
 import android.media.AudioManager
 import android.media.MediaPlayer
+import android.os.Build
 import android.os.IBinder
+import android.provider.Settings
+import android.support.annotation.RequiresApi
+import android.view.Gravity
+import android.view.MotionEvent
+import android.view.View
+import android.view.WindowManager
+import android.widget.TextView
 import com.wang17.myphone.R
 import com.wang17.myphone.circleMinite
 import com.wang17.myphone.e
@@ -27,6 +36,11 @@ import java.util.*
 
 class BuddhaService : Service() {
 
+    //region 悬浮窗
+    private lateinit var windowManager: WindowManager
+    private lateinit var layoutParams: WindowManager.LayoutParams
+    private var floatingWindowView: View?=null
+    //endregion
     private val NOTIFICATION_ID: Int = 12345
     private lateinit var dc: DataContext
     val buddhaReceiver = BuddhaReceiver()
@@ -45,6 +59,7 @@ class BuddhaService : Service() {
         e("buddha service onStartCommand")
     }
 
+    @RequiresApi(Build.VERSION_CODES.M)
     override fun onCreate() {
         super.onCreate()
         e("buddha service onCreate")
@@ -63,6 +78,7 @@ class BuddhaService : Service() {
             startTimeInMillis = System.currentTimeMillis()
             val buddhaSpeed = dc.getSetting(Setting.KEYS.buddha_speed, 2).int
             startMediaPlayer(buddhaSpeed)
+            showFloatingWindow()
             startTimer()
             //
             val filter = IntentFilter()
@@ -87,6 +103,8 @@ class BuddhaService : Service() {
         unregisterReceiver(buddhaReceiver)
         e("------------- 销毁完毕 ---------------")
         EventBus.getDefault().post(EventBusMessage.getInstance(SenderBuddhaServiceOnDestroy(), "buddha service destroyed"))
+        //region 悬浮窗
+        windowManager.removeView(floatingWindowView)
         dc.addLog("念佛", "=== buddha service 销毁 ===", null)
     }
 
@@ -187,6 +205,7 @@ class BuddhaService : Service() {
                 dc.addLog("念佛", "获取永久焦点", null)
                 chantBuddhaRestart()
                 mPlayer.setVolume(1.0f, 1.0f)
+                floatingWinButState(true)
                 sendNotification(notificationCount, notificationTime)
             }
             /**
@@ -198,6 +217,7 @@ class BuddhaService : Service() {
                 e("永久失去焦点")
                 dc.addLog("念佛", "永久失去焦点", null)
                 chantBuddhaPause()
+                floatingWinButState(false)
                 sendNotification(notificationCount, notificationTime)
             }
             /**
@@ -209,6 +229,7 @@ class BuddhaService : Service() {
                 e("暂时失去焦点")
                 dc.addLog("念佛", "暂时失去焦点", null)
                 chantBuddhaPause()
+                floatingWinButState(false)
                 sendNotification(notificationCount, notificationTime)
             }
             /**
@@ -310,6 +331,86 @@ class BuddhaService : Service() {
         }
     }
 
+    //region 悬浮窗
+    private fun floatingWinButState(sate:Boolean){
+        floatingWindowView?.let {
+            val iv_control = it.findViewById<TextView>(R.id.iv_control)
+            if(sate){
+                iv_control.setBackgroundResource(R.drawable.play)
+            }else{
+                iv_control.setBackgroundResource(R.drawable.pause)
+            }
+        }
+    }
+
+    @RequiresApi(api = Build.VERSION_CODES.M)
+    private fun showFloatingWindow() {
+
+        //region 悬浮窗
+        FloatingWindowService.isStarted = true
+        windowManager = getSystemService(WINDOW_SERVICE) as WindowManager
+        layoutParams = WindowManager.LayoutParams()
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            layoutParams.type = WindowManager.LayoutParams.TYPE_APPLICATION_OVERLAY
+        } else {
+            layoutParams.type = WindowManager.LayoutParams.TYPE_PHONE
+        }
+        layoutParams.format = PixelFormat.RGBA_8888
+        layoutParams.gravity = Gravity.CENTER
+        layoutParams.flags = WindowManager.LayoutParams.FLAG_NOT_TOUCH_MODAL or WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE
+
+        layoutParams.width = 100
+        layoutParams.height = 100
+        layoutParams.x = 300
+        layoutParams.y = 300
+        //endregion
+
+        if (Settings.canDrawOverlays(this)) {
+            floatingWindowView = View.inflate(this, R.layout.inflate_floating_window, null)
+            val iv_control = floatingWindowView?.findViewById<TextView>(R.id.iv_control)
+            iv_control?.setOnClickListener {
+                if(mPlayer.isPlaying){
+                    chantBuddhaPause()
+                    floatingWinButState(true)
+                }else{
+                    chantBuddhaRestart()
+                    floatingWinButState(false)
+                }
+                sendNotification(notificationCount, notificationTime)
+            }
+            floatingWindowView?.setOnTouchListener(FloatingOnTouchListener())
+            windowManager.addView(floatingWindowView, layoutParams)
+        }
+    }
+
+    inner class FloatingOnTouchListener : View.OnTouchListener {
+        private var x = 0
+        private var y = 0
+        override fun onTouch(view: View, event: MotionEvent): Boolean {
+            when (event.action) {
+                MotionEvent.ACTION_DOWN -> {
+                    x = event.rawX.toInt()
+                    y = event.rawY.toInt()
+                }
+                MotionEvent.ACTION_MOVE -> {
+                    val nowX = event.rawX.toInt()
+                    val nowY = event.rawY.toInt()
+                    val movedX = nowX - x
+                    val movedY = nowY - y
+                    x = nowX
+                    y = nowY
+                    layoutParams.x = layoutParams.x + movedX
+                    layoutParams.y = layoutParams.y + movedY
+                    windowManager.updateViewLayout(view, layoutParams)
+                }
+                else -> {
+                }
+            }
+            return false
+        }
+    }
+    //endregion
+
     inner class BuddhaReceiver : BroadcastReceiver() {
         override fun onReceive(context: Context?, intent: Intent?) {
             try {
@@ -318,10 +419,12 @@ class BuddhaService : Service() {
                         ACTION_BUDDHA_PLAYE -> {
                             if (requestFocus()) {
                                 chantBuddhaRestart()
+                                floatingWinButState(true)
                             }
                         }
                         ACTION_BUDDHA_PAUSE -> {
                             chantBuddhaPause()
+                            floatingWinButState(false)
                             mAm.abandonAudioFocus(afChangeListener)
                         }
                     }

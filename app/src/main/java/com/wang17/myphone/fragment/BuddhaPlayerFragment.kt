@@ -6,6 +6,7 @@ import android.content.DialogInterface
 import android.content.Intent
 import android.os.Bundle
 import android.os.Handler
+import android.os.PowerManager
 import com.wang17.myphone.e
 import android.support.v4.app.Fragment
 import android.view.LayoutInflater
@@ -175,6 +176,40 @@ class BuddhaPlayerFragment : Fragment() {
             true
         }
 
+        var wakeLock:PowerManager.WakeLock?=null
+        btn_speed.setOnLongClickListener {
+            wakeLock = _Utils.acquireWakeLock(context!!, PowerManager.SCREEN_BRIGHT_WAKE_LOCK)
+            var msg = """
+                愿将此功德：
+                
+                    回向给我今生今世及累生累世冤亲债主、历代宗亲、六亲眷属、一切护法，及一切有缘众生。
+                    
+                    回向给我父、母、兄、妹，以及他们的冤亲债主。
+                    
+                    回向给法界一切众生。
+                    
+                    愿我一心向道，念佛精进，早得三昧，速证菩提。
+                    
+                    祈求观音菩萨，慈悲加持，入我梦中，除我病苦。
+                    
+                    愿我身心健康，无病无灾，财富丰足。无忧无虑。家庭和睦，无烦无恼。所有恶习，尽除无余。所有冤孽，勿近我身。
+                    
+                    往昔所造诸恶业，皆由无始贪嗔痴。
+                    从身语意之所生，一切我今皆忏悔。
+                    愿我临遇命终时，尽除一切诸障碍。
+                    面见彼佛阿弥陀，既得往生安乐刹。
+                    
+                    弟子惟照，现是生死凡夫，罪障深重，
+                    轮回六道，苦不可言。
+                    今遇知识，得闻弥陀名号，本愿功德，
+                    一心称念，求愿往生。
+                    愿佛慈悲不舍，哀怜摄受。
+            """.trimIndent()
+            AlertDialog.Builder(context).setMessage(msg).setCancelable(false).setPositiveButton("圆满", DialogInterface.OnClickListener { dialog, which ->
+                _Utils.releaseWakeLock(context!!,wakeLock)
+            }).show()
+            true
+        }
         var totalCount = 0
         layout_dayTotal.setOnClickListener {
             val dayBuddhaList = dc.getBuddhas(DateTime())
