@@ -11,7 +11,6 @@ import android.os.Handler;
 import android.provider.Settings;
 import android.provider.Telephony;
 import android.support.annotation.RequiresApi;
-import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.TabLayout;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
@@ -19,7 +18,6 @@ import android.support.v4.app.FragmentPagerAdapter;
 import android.support.v4.view.ViewPager;
 import android.support.v7.app.AppCompatActivity;
 import android.view.KeyEvent;
-import android.view.View;
 import android.view.animation.Animation;
 import android.view.animation.AnimationUtils;
 import android.view.animation.LinearInterpolator;
@@ -32,18 +30,15 @@ import com.wang17.myphone.fragment.MarkDayFragment;
 import com.wang17.myphone.fragment.BuddhaPlayerFragment;
 import com.wang17.myphone.fragment.ReligiousFragment;
 import com.wang17.myphone.receiver.NetWorkStateReceiver;
-import com.wang17.myphone.service.FloatingWindowService;
 import com.wang17.myphone.util.BackupTask;
 import com.wang17.myphone.util.DataContext;
+import com.wang17.myphone.util._DialogUtils;
 import com.wang17.myphone.util._Utils;
 import com.wang17.myphone.model.database.Setting;
 
 import java.util.ArrayList;
 import java.util.List;
 
-import permissions.dispatcher.RuntimePermissions;
-
-import static com.wang17.myphone.receiver.AlarmReceiver.ALARM_TRADE;
 import static com.wang17.myphone.util._Utils.e;
 
 public class MainActivity extends AppCompatActivity implements BackupTask.OnFinishedListener, ActionBarFragment.OnActionFragmentSettingListener {
@@ -61,7 +56,7 @@ public class MainActivity extends AppCompatActivity implements BackupTask.OnFini
     private DataContext mDataContext;
     private boolean locationIsRunning;
 
-    private Handler uiThreadHandler;
+    private Handler uiHandler;
 
 
     @Override
@@ -109,23 +104,7 @@ public class MainActivity extends AppCompatActivity implements BackupTask.OnFini
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-        uiThreadHandler = new Handler();
-
-        FloatingActionButton btn = findViewById(R.id.floatingActionButton);
-        btn.setOnLongClickListener(new View.OnLongClickListener() {
-            @RequiresApi(api = Build.VERSION_CODES.M)
-            @Override
-            public boolean onLongClick(View v) {
-                if(FloatingWindowService.isStarted){
-                    stopService(new Intent(MainActivity.this, FloatingWindowService.class));
-                }else{
-                    startFloatingButtonService();
-                    _Utils.clickHomeButton(MainActivity.this);
-                }
-                return true;
-            }
-        });
-
+        uiHandler = new Handler();
 
         rorateAnimation = AnimationUtils.loadAnimation(this, R.anim.rotate_animation);
         LinearInterpolator lin = new LinearInterpolator();
@@ -137,13 +116,8 @@ public class MainActivity extends AppCompatActivity implements BackupTask.OnFini
     //region 设置悬浮窗权限
     @RequiresApi(api = Build.VERSION_CODES.M)
     public void startFloatingButtonService() {
-        if (FloatingWindowService.isStarted) {
-            return;
-        }
         if (!Settings.canDrawOverlays(this)) {
             startActivityForResult(new Intent(Settings.ACTION_MANAGE_OVERLAY_PERMISSION, Uri.parse("package:" + getPackageName())), 0);
-        } else {
-            startService(new Intent(MainActivity.this, FloatingWindowService.class));
         }
     }
 
@@ -152,10 +126,10 @@ public class MainActivity extends AppCompatActivity implements BackupTask.OnFini
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         if (requestCode == 0) {
             if (!Settings.canDrawOverlays(this)) {
-                Toast.makeText(this, "授权失败", Toast.LENGTH_SHORT).show();
+                _DialogUtils.showMessageBox(this,"授权失败","确定");
             } else {
                 Toast.makeText(this, "授权成功", Toast.LENGTH_SHORT).show();
-                startService(new Intent(MainActivity.this, FloatingWindowService.class));
+                _DialogUtils.showMessageBox(this,"授权成功");
             }
         }
     }

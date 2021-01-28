@@ -9,15 +9,17 @@ import android.content.IntentFilter
 import android.graphics.PixelFormat
 import android.media.AudioManager
 import android.media.MediaPlayer
+import android.net.Uri
 import android.os.Build
 import android.os.IBinder
 import android.provider.Settings
 import android.support.annotation.RequiresApi
+import android.support.v4.app.ActivityCompat.startActivityForResult
 import android.view.Gravity
 import android.view.MotionEvent
 import android.view.View
 import android.view.WindowManager
-import android.widget.TextView
+import android.widget.ImageView
 import com.wang17.myphone.R
 import com.wang17.myphone.circleMinite
 import com.wang17.myphone.e
@@ -39,7 +41,8 @@ class BuddhaService : Service() {
     //region 悬浮窗
     private lateinit var windowManager: WindowManager
     private lateinit var layoutParams: WindowManager.LayoutParams
-    private var floatingWindowView: View?=null
+    private var floatingWindowView: View? = null
+
     //endregion
     private val NOTIFICATION_ID: Int = 12345
     private lateinit var dc: DataContext
@@ -108,7 +111,7 @@ class BuddhaService : Service() {
         dc.addLog("念佛", "=== buddha service 销毁 ===", null)
     }
 
-    var timerRuning=true
+    var timerRuning = true
     var timer: Timer? = null
     fun startTimer() {
         timer?.cancel()
@@ -132,14 +135,15 @@ class BuddhaService : Service() {
         }, 0, 1000)
     }
 
-    fun restartTimer(){
-        timerRuning=true
+    fun restartTimer() {
+        timerRuning = true
     }
 
     fun pauseTimer() {
-        timerRuning=false
+        timerRuning = false
     }
-    fun stopTimer(){
+
+    fun stopTimer() {
         timer?.cancel()
     }
 
@@ -205,7 +209,7 @@ class BuddhaService : Service() {
                 dc.addLog("念佛", "获取永久焦点", null)
                 chantBuddhaRestart()
                 mPlayer.setVolume(1.0f, 1.0f)
-                floatingWinButState(true)
+                floatingWinButState(false)
                 sendNotification(notificationCount, notificationTime)
             }
             /**
@@ -217,7 +221,7 @@ class BuddhaService : Service() {
                 e("永久失去焦点")
                 dc.addLog("念佛", "永久失去焦点", null)
                 chantBuddhaPause()
-                floatingWinButState(false)
+                floatingWinButState(true)
                 sendNotification(notificationCount, notificationTime)
             }
             /**
@@ -229,7 +233,7 @@ class BuddhaService : Service() {
                 e("暂时失去焦点")
                 dc.addLog("念佛", "暂时失去焦点", null)
                 chantBuddhaPause()
-                floatingWinButState(false)
+                floatingWinButState(true)
                 sendNotification(notificationCount, notificationTime)
             }
             /**
@@ -276,9 +280,9 @@ class BuddhaService : Service() {
             settingStartTime?.let {
 //                val setting = dc.getSetting(Setting.KEYS.buddha_duration)
 //                savedDuration = it?.long ?: 0L
-                e("------------------ 缓存duration : ${savedDuration/1000}秒  本段duration : ${(System.currentTimeMillis() - startTimeInMillis)/1000}秒      此段起始时间 : ${DateTime(startTimeInMillis).toTimeString()} ------------------")
+                e("------------------ 缓存duration : ${savedDuration / 1000}秒  本段duration : ${(System.currentTimeMillis() - startTimeInMillis) / 1000}秒      此段起始时间 : ${DateTime(startTimeInMillis).toTimeString()} ------------------")
                 savedDuration += now - startTimeInMillis
-                e("++++++++++++++++++ 缓存duration : ${savedDuration/1000}秒")
+                e("++++++++++++++++++ 缓存duration : ${savedDuration / 1000}秒")
                 dc.editSetting(Setting.KEYS.buddha_duration, savedDuration)
                 dc.editSetting(Setting.KEYS.buddha_stoptime, now)
 
@@ -289,24 +293,26 @@ class BuddhaService : Service() {
             dc.addLog("err", "pause or stop", e.message)
         }
     }
-    fun chantBuddhaStart(){
+
+    fun chantBuddhaStart() {
         mPlayer.start()
         reOrStartData()
         restartTimer()
     }
 
-    fun chantBuddhaRestart(){
+    fun chantBuddhaRestart() {
         mPlayer.start()
         reOrStartData()
         restartTimer()
     }
 
-    fun chantBuddhaPause(){
+    fun chantBuddhaPause() {
         pauseTimer()
         mPlayer.pause()
         pauseOrStopData()
     }
-    fun chantBuddhaStop(){
+
+    fun chantBuddhaStop() {
         pauseTimer()
         mPlayer.pause()
         pauseOrStopData()
@@ -332,13 +338,13 @@ class BuddhaService : Service() {
     }
 
     //region 悬浮窗
-    private fun floatingWinButState(sate:Boolean){
+    private fun floatingWinButState(sate: Boolean) {
         floatingWindowView?.let {
-            val iv_control = it.findViewById<TextView>(R.id.iv_control)
-            if(sate){
-                iv_control.setBackgroundResource(R.drawable.play)
-            }else{
-                iv_control.setBackgroundResource(R.drawable.pause)
+            val iv_control = it.findViewById<ImageView>(R.id.iv_control)
+            if (sate) {
+                iv_control.setImageResource(R.drawable.play)
+            } else {
+                iv_control.setImageResource(R.drawable.pause)
             }
         }
     }
@@ -346,40 +352,46 @@ class BuddhaService : Service() {
     @RequiresApi(api = Build.VERSION_CODES.M)
     private fun showFloatingWindow() {
 
-        //region 悬浮窗
-        FloatingWindowService.isStarted = true
-        windowManager = getSystemService(WINDOW_SERVICE) as WindowManager
-        layoutParams = WindowManager.LayoutParams()
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-            layoutParams.type = WindowManager.LayoutParams.TYPE_APPLICATION_OVERLAY
-        } else {
-            layoutParams.type = WindowManager.LayoutParams.TYPE_PHONE
-        }
-        layoutParams.format = PixelFormat.RGBA_8888
-        layoutParams.gravity = Gravity.CENTER
-        layoutParams.flags = WindowManager.LayoutParams.FLAG_NOT_TOUCH_MODAL or WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE
-
-        layoutParams.width = 100
-        layoutParams.height = 100
-        layoutParams.x = 300
-        layoutParams.y = 300
-        //endregion
-
-        if (Settings.canDrawOverlays(this)) {
-            floatingWindowView = View.inflate(this, R.layout.inflate_floating_window, null)
-            val iv_control = floatingWindowView?.findViewById<TextView>(R.id.iv_control)
-            iv_control?.setOnClickListener {
-                if(mPlayer.isPlaying){
-                    chantBuddhaPause()
-                    floatingWinButState(true)
-                }else{
-                    chantBuddhaRestart()
-                    floatingWinButState(false)
-                }
-                sendNotification(notificationCount, notificationTime)
+        try {
+            //region 悬浮窗
+            windowManager = getSystemService(WINDOW_SERVICE) as WindowManager
+            layoutParams = WindowManager.LayoutParams()
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+                layoutParams.type = WindowManager.LayoutParams.TYPE_APPLICATION_OVERLAY
+            } else {
+                layoutParams.type = WindowManager.LayoutParams.TYPE_PHONE
             }
-            floatingWindowView?.setOnTouchListener(FloatingOnTouchListener())
-            windowManager.addView(floatingWindowView, layoutParams)
+            layoutParams.format = PixelFormat.RGBA_8888
+            layoutParams.gravity = Gravity.CENTER
+            layoutParams.flags = WindowManager.LayoutParams.FLAG_NOT_TOUCH_MODAL or WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE
+
+            layoutParams.width = 200
+            layoutParams.height = 200
+            layoutParams.x = 300
+            layoutParams.y = 300
+            //endregion
+
+            if (Settings.canDrawOverlays(this)) {
+                floatingWindowView = View.inflate(this, R.layout.inflate_buddha_floating_window, null)
+                floatingWindowView?.setOnTouchListener(FloatingOnTouchListener())
+                val iv_control = floatingWindowView?.findViewById<ImageView>(R.id.iv_control)
+                iv_control?.setOnClickListener {
+                    if (mPlayer.isPlaying) {
+                        chantBuddhaPause()
+                        floatingWinButState(true)
+                        mAm.abandonAudioFocus(afChangeListener)
+                    } else {
+                        if (requestFocus()) {
+                            chantBuddhaRestart()
+                            floatingWinButState(false)
+                        }
+                    }
+                    sendNotification(notificationCount, notificationTime)
+                }
+                windowManager.addView(floatingWindowView, layoutParams)
+            }
+        } catch (e: Exception) {
+            e("xxxxxxxxxxxxxxxxxxxxxxx ${e.message!!}")
         }
     }
 
@@ -406,7 +418,7 @@ class BuddhaService : Service() {
                 else -> {
                 }
             }
-            return false
+            return true
         }
     }
     //endregion
@@ -419,12 +431,12 @@ class BuddhaService : Service() {
                         ACTION_BUDDHA_PLAYE -> {
                             if (requestFocus()) {
                                 chantBuddhaRestart()
-                                floatingWinButState(true)
+                                floatingWinButState(false)
                             }
                         }
                         ACTION_BUDDHA_PAUSE -> {
                             chantBuddhaPause()
-                            floatingWinButState(false)
+                            floatingWinButState(true)
                             mAm.abandonAudioFocus(afChangeListener)
                         }
                     }
@@ -432,7 +444,7 @@ class BuddhaService : Service() {
                     sendNotification(notificationCount, notificationTime)
                 }
             } catch (e: Exception) {
-                e("eeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee" + e.message?:"")
+                e("eeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee" + e.message ?: "")
             }
         }
     }

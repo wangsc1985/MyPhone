@@ -170,9 +170,7 @@ class StockService : Service() {
     //region 悬浮窗
     @RequiresApi(api = Build.VERSION_CODES.M)
     private fun showFloatingWindow() {
-
         //region 悬浮窗
-        FloatingWindowService.isStarted = true
         windowManager = getSystemService(WINDOW_SERVICE) as WindowManager
         layoutParams = WindowManager.LayoutParams()
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
@@ -184,8 +182,8 @@ class StockService : Service() {
         layoutParams.gravity = Gravity.CENTER
         layoutParams.flags = WindowManager.LayoutParams.FLAG_NOT_TOUCH_MODAL or WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE
 
-        layoutParams.width = 350
-        layoutParams.height = 100
+        layoutParams.width = WindowManager.LayoutParams.WRAP_CONTENT
+        layoutParams.height = WindowManager.LayoutParams.WRAP_CONTENT
         layoutParams.x = 300
         layoutParams.y = 300
         //endregion

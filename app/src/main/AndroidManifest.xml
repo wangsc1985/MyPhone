@@ -45,10 +45,6 @@
                 <action android:name="com.wang17.myphone.buddha.pause" />
             </intent-filter>
         </service>
-        <service
-            android:name=".service.FloatingWindowService"
-            android:enabled="true"
-            android:exported="true" />
 
         <activity android:name=".activity.TradesActivity" />
         <activity android:name=".activity.StockPositionHistoryActivity" />

@@ -27,5 +27,6 @@
     <color name="range_overlay">#B2FF1E1E</color>
     <color name="color_gray">#B0A5A3A3</color>
     <color name="color_blue">#368B11</color>
+    <color name="floating_window_background">#B0FFF5B1</color>
     <color name="progressbar_background">#FFFFFF</color>
 </resources>
