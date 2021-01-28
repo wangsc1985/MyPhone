@@ -27,6 +27,7 @@ import android.view.View
 import android.view.View.OnTouchListener
 import android.view.WindowManager
 import android.widget.TextView
+import com.wang17.myphone.MainActivity
 import com.wang17.myphone.R
 import com.wang17.myphone.activity.StockPositionActivity
 import com.wang17.myphone.callback.CloudCallback
@@ -197,10 +198,20 @@ class StockService : Service() {
             szIndex.text = "0.0"
 
             floatingWindowView.setOnTouchListener(FloatingOnTouchListener())
+
+            floatingWindowView.setOnClickListener {
+                if(Math.abs(changeX)<10&&Math.abs(changeY)<10) {
+                    startActivity(Intent(applicationContext,MainActivity::class.java))
+                }
+            }
             windowManager.addView(floatingWindowView, layoutParams)
         }
     }
 
+    var changeX=0
+    var changeY=0
+    var startX = 0
+    var startY = 0
     inner class FloatingOnTouchListener : OnTouchListener {
         private var x = 0
         private var y = 0
@@ -209,6 +220,8 @@ class StockService : Service() {
                 MotionEvent.ACTION_DOWN -> {
                     x = event.rawX.toInt()
                     y = event.rawY.toInt()
+                    startX =x
+                    startY = y
                 }
                 MotionEvent.ACTION_MOVE -> {
                     val nowX = event.rawX.toInt()
@@ -220,6 +233,10 @@ class StockService : Service() {
                     layoutParams.x = layoutParams.x + movedX
                     layoutParams.y = layoutParams.y + movedY
                     windowManager.updateViewLayout(view, layoutParams)
+                }
+                MotionEvent.ACTION_UP->{
+                    changeX=event.rawX.toInt()-startX
+                    changeY=event.rawY.toInt()-startY
                 }
                 else -> {
                 }
