@@ -20,6 +20,7 @@ import android.view.MotionEvent
 import android.view.View
 import android.view.WindowManager
 import android.widget.ImageView
+import android.widget.LinearLayout
 import com.wang17.myphone.R
 import com.wang17.myphone.circleMinite
 import com.wang17.myphone.e
@@ -280,9 +281,9 @@ class BuddhaService : Service() {
             settingStartTime?.let {
 //                val setting = dc.getSetting(Setting.KEYS.buddha_duration)
 //                savedDuration = it?.long ?: 0L
-                e("------------------ 缓存duration : ${savedDuration / 1000}秒  本段duration : ${(System.currentTimeMillis() - startTimeInMillis) / 1000}秒      此段起始时间 : ${DateTime(startTimeInMillis).toTimeString()} ------------------")
+//                e("------------------ 缓存duration : ${savedDuration / 1000}秒  本段duration : ${(System.currentTimeMillis() - startTimeInMillis) / 1000}秒      此段起始时间 : ${DateTime(startTimeInMillis).toTimeString()} ------------------")
                 savedDuration += now - startTimeInMillis
-                e("++++++++++++++++++ 缓存duration : ${savedDuration / 1000}秒")
+//                e("++++++++++++++++++ 缓存duration : ${savedDuration / 1000}秒")
                 dc.editSetting(Setting.KEYS.buddha_duration, savedDuration)
                 dc.editSetting(Setting.KEYS.buddha_stoptime, now)
 
@@ -365,29 +366,31 @@ class BuddhaService : Service() {
             layoutParams.gravity = Gravity.CENTER
             layoutParams.flags = WindowManager.LayoutParams.FLAG_NOT_TOUCH_MODAL or WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE
 
-            layoutParams.width = 200
-            layoutParams.height = 200
+            layoutParams.width = 300
+            layoutParams.height = 300
             layoutParams.x = 300
             layoutParams.y = 300
             //endregion
 
             if (Settings.canDrawOverlays(this)) {
                 floatingWindowView = View.inflate(this, R.layout.inflate_buddha_floating_window, null)
-                floatingWindowView?.setOnTouchListener(FloatingOnTouchListener())
                 val iv_control = floatingWindowView?.findViewById<ImageView>(R.id.iv_control)
                 iv_control?.setOnClickListener {
-                    if (mPlayer.isPlaying) {
-                        chantBuddhaPause()
-                        floatingWinButState(true)
-                        mAm.abandonAudioFocus(afChangeListener)
-                    } else {
-                        if (requestFocus()) {
-                            chantBuddhaRestart()
-                            floatingWinButState(false)
+                    if(Math.abs(changeX)<10&&Math.abs(changeY)<10) {
+                        if (mPlayer.isPlaying) {
+                            chantBuddhaPause()
+                            floatingWinButState(true)
+                            mAm.abandonAudioFocus(afChangeListener)
+                        } else {
+                            if (requestFocus()) {
+                                chantBuddhaRestart()
+                                floatingWinButState(false)
+                            }
                         }
+                        sendNotification(notificationCount, notificationTime)
                     }
-                    sendNotification(notificationCount, notificationTime)
                 }
+                iv_control?.setOnTouchListener(FloatingOnTouchListener())
                 windowManager.addView(floatingWindowView, layoutParams)
             }
         } catch (e: Exception) {
@@ -395,6 +398,10 @@ class BuddhaService : Service() {
         }
     }
 
+    var changeX=0
+    var changeY=0
+    var startX = 0
+    var startY = 0
     inner class FloatingOnTouchListener : View.OnTouchListener {
         private var x = 0
         private var y = 0
@@ -403,6 +410,8 @@ class BuddhaService : Service() {
                 MotionEvent.ACTION_DOWN -> {
                     x = event.rawX.toInt()
                     y = event.rawY.toInt()
+                    startX =x
+                    startY = y
                 }
                 MotionEvent.ACTION_MOVE -> {
                     val nowX = event.rawX.toInt()
@@ -413,12 +422,16 @@ class BuddhaService : Service() {
                     y = nowY
                     layoutParams.x = layoutParams.x + movedX
                     layoutParams.y = layoutParams.y + movedY
-                    windowManager.updateViewLayout(view, layoutParams)
+                    windowManager.updateViewLayout(floatingWindowView, layoutParams)
+                }
+                MotionEvent.ACTION_UP->{
+                    changeX=event.rawX.toInt()-startX
+                    changeY=event.rawY.toInt()-startY
                 }
                 else -> {
                 }
             }
-            return true
+            return false
         }
     }
     //endregion

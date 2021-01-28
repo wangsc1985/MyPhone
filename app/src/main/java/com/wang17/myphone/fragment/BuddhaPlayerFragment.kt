@@ -176,7 +176,7 @@ class BuddhaPlayerFragment : Fragment() {
             true
         }
 
-        var wakeLock:PowerManager.WakeLock?=null
+        var wakeLock: PowerManager.WakeLock? = null
         btn_speed.setOnLongClickListener {
             wakeLock = _Utils.acquireWakeLock(context!!, PowerManager.SCREEN_BRIGHT_WAKE_LOCK)
             var msg = """
@@ -206,7 +206,7 @@ class BuddhaPlayerFragment : Fragment() {
                     愿佛慈悲不舍，哀怜摄受。
             """.trimIndent()
             AlertDialog.Builder(context).setMessage(msg).setCancelable(false).setPositiveButton("圆满", DialogInterface.OnClickListener { dialog, which ->
-                _Utils.releaseWakeLock(context!!,wakeLock)
+                _Utils.releaseWakeLock(context!!, wakeLock)
             }).show()
             true
         }
@@ -388,10 +388,9 @@ class BuddhaPlayerFragment : Fragment() {
             playBuddha()
         }
         abtn_buddha.setOnLongClickListener {
-            dc.deleteSetting(Setting.KEYS.buddha_duration)
-            dc.deleteSetting(Setting.KEYS.buddha_stoptime)
-            tv_time.text = ""
-            playBuddha()
+            if (!_Utils.isRunService(context!!, BuddhaService::class.qualifiedName!!)) {
+                playBuddha()
+            }
             true
         }
         btn_speed.setOnClickListener {
@@ -418,11 +417,11 @@ class BuddhaPlayerFragment : Fragment() {
     private fun createBuddhas2upload2save(count: Int, stoptimeInMillis: Long, avgDuration: Long, callback: CloudCallback) {
         var newBuddhaList: MutableList<BuddhaRecord> = ArrayList()
         var lastBuddha: BuddhaRecord? = dc.latestBuddha
-        if(count==0){
+        if (count == 0) {
             val startTime = DateTime(stoptimeInMillis)
             startTime.add(Calendar.MILLISECOND, (-1 * avgDuration).toInt())
             newBuddhaList.add(BuddhaRecord(startTime, avgDuration, 0, 11, "计时计数念佛"))
-        }else{
+        } else {
             for (i in count downTo 1) {
                 val startTime = DateTime(stoptimeInMillis)
                 startTime.add(Calendar.MILLISECOND, (-1 * avgDuration * i).toInt())
@@ -494,8 +493,8 @@ class BuddhaPlayerFragment : Fragment() {
             val msg = "${"${hourS}:${miniteS}:${secondS} \t ${DateTime(stoptimeInMillis).toLongDateString3()} \t ${count}"}"
 //                if(count>0){
             uiHandler.post {
-                AlertDialog.Builder(context).setMessage("缓存中存在念佛记录\n[ ${msg} ]\n是否保存？").setNegativeButton("保存", DialogInterface.OnClickListener { dialog, which ->
-                    val avgDuration =if(count>0) duration / count else duration
+                AlertDialog.Builder(context).setMessage("缓存中存在念佛记录\n[ ${msg} ]\n是否保存？").setCancelable(false).setNegativeButton("保存", DialogInterface.OnClickListener { dialog, which ->
+                    val avgDuration = if (count > 0) duration / count else duration
                     createBuddhas2upload2save(count.toInt(), stoptimeInMillis, avgDuration, CloudCallback { code, result ->
                         if (code == 0) {
                             dc.deleteSetting(Setting.KEYS.buddha_duration)
@@ -517,8 +516,8 @@ class BuddhaPlayerFragment : Fragment() {
                     callback?.excute(0, "丢弃完毕！")
                 }).show()
             }
-        } else {
-            callback?.excute(0, "不存在缓存记录")
+        }else{
+            callback?.excute(0, "缓存中记录为空！")
         }
 //        }.start()
     }
