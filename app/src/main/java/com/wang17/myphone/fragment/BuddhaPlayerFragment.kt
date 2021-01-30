@@ -14,7 +14,7 @@ import android.view.View
 import android.view.ViewGroup
 import com.alibaba.fastjson.JSON
 import com.wang17.myphone.R
-import com.wang17.myphone.callback.CheckDurationCallback
+import com.wang17.myphone.callback.DialogChoosenCallback
 import com.wang17.myphone.callback.CloudCallback
 import com.wang17.myphone.circleMinite
 import com.wang17.myphone.model.DateTime
@@ -476,7 +476,7 @@ class BuddhaPlayerFragment : Fragment() {
     /**
      * 检查数据库中是否有未保存的duration记录
      */
-    fun checkDuration(callback: CheckDurationCallback?) {
+    fun checkDuration(callback: DialogChoosenCallback?) {
 //        Thread{
         val setting = dc.getSetting(Setting.KEYS.buddha_duration)
         if (setting != null) {

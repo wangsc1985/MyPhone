@@ -12,6 +12,7 @@ import android.widget.RemoteViews;
 
 import com.wang17.myphone.R;
 import com.wang17.myphone.callback.SetNotificationViews;
+import com.wang17.myphone.model.DateTime;
 
 
 public class _NotificationUtils {
@@ -33,6 +34,7 @@ public class _NotificationUtils {
                         //                .setTicker("hello world")
                         //                .setWhen(System.currentTimeMillis())
                         .setAutoCancel(false)
+                        .setWhen(System.currentTimeMillis())
                         //                 Notification.FLAG_ONGOING_EVENT;
                         .setContent(remoteViews)//在这里设置自定义通知的内容
                         .build();
@@ -43,6 +45,7 @@ public class _NotificationUtils {
                         //                .setTicker("hello world")
                         //                .setWhen(System.currentTimeMillis())
                         .setAutoCancel(false)
+                        .setWhen(System.currentTimeMillis())
                         //                 Notification.FLAG_ONGOING_EVENT;
                         .setContent(remoteViews)//在这里设置自定义通知的内容
                         .build();

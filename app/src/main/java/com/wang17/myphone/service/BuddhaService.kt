@@ -366,8 +366,8 @@ class BuddhaService : Service() {
             layoutParams.gravity = Gravity.CENTER
             layoutParams.flags = WindowManager.LayoutParams.FLAG_NOT_TOUCH_MODAL or WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE
 
-            layoutParams.width = 300
-            layoutParams.height = 300
+            layoutParams.width = 250
+            layoutParams.height = 250
             layoutParams.x = 300
             layoutParams.y = 300
             //endregion
