@@ -427,14 +427,15 @@ class BuddhaService : Service() {
                     y = nowY
                     layoutParams.x = layoutParams.x + movedX
                     layoutParams.y = layoutParams.y + movedY
+//                    e("x : ${layoutParams.x}   y : ${layoutParams.y}")
                     windowManager.updateViewLayout(floatingWindowView, layoutParams)
                 }
                 MotionEvent.ACTION_UP -> {
                     changeX = event.rawX.toInt() - startX
                     changeY = event.rawY.toInt() - startY
                     if (Math.abs(changeX) > 10 || Math.abs(changeY) > 10) {
-                        dc.editSetting(Setting.KEYS.buddha_location_x, event.rawX.toInt())
-                        dc.editSetting(Setting.KEYS.buddha_location_y, event.rawY.toInt())
+                        dc.editSetting(Setting.KEYS.buddha_location_x, layoutParams.x)
+                        dc.editSetting(Setting.KEYS.buddha_location_y, layoutParams.y)
                     }
                 }
                 else -> {

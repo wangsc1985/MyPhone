@@ -194,7 +194,7 @@ class BuddhaPlayerFragment : Fragment() {
                     
                     祈求观音菩萨，慈悲加持，入我梦中，除我病苦。
                     
-                    愿我身心健康，无病无灾，财富丰足。无忧无虑。家庭和睦，无烦无恼。所有恶习，尽除无余。所有冤孽，勿近我身。
+                    愿我身心健康，无病无灾。财富丰足，无忧无虑。家庭和睦，无烦无恼。所有恶习，尽除无余。所有冤孽，勿近我身。
                     
                     往昔所造诸恶业，皆由无始贪嗔痴。
                     从身语意之所生，一切我今皆忏悔。
@@ -202,10 +202,8 @@ class BuddhaPlayerFragment : Fragment() {
                     愿我临遇命终时，尽除一切诸障碍。
                     面见彼佛阿弥陀，既得往生安乐刹。
                     
-                    弟子惟照，现是生死凡夫，罪障深重，
-                    轮回六道，苦不可言。
-                    今遇知识，得闻弥陀名号，本愿功德，
-                    一心称念，求愿往生。
+                    弟子惟照，现是生死凡夫，罪障深重，轮回六道，苦不可言。
+                    今遇知识，得闻弥陀名号，本愿功德，一心称念，求愿往生。
                     愿佛慈悲不舍，哀怜摄受。
             """.trimIndent()
             AlertDialog.Builder(context).setMessage(msg).setCancelable(false).setPositiveButton("圆满", DialogInterface.OnClickListener { dialog, which ->
