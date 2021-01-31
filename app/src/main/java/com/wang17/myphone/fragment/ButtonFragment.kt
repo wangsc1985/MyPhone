@@ -53,6 +53,9 @@ class ButtonFragment : Fragment() {
 
         var btn = _Button(context!!, "设置")
         btn.setOnClickListener {
+            startActivity(Intent(context!!, SettingActivity::class.java))
+        }
+        btn.setOnLongClickListener {
             AlertDialog.Builder(context!!).setItems(arrayOf("本地", "云端"), DialogInterface.OnClickListener { dialog, which ->
                 when (which) {
                     0 -> {
@@ -67,6 +70,7 @@ class ButtonFragment : Fragment() {
                     }
                 }
             }).show()
+            true
         }
         layout_flexbox.addView(btn)
 

@@ -370,10 +370,10 @@ class BuddhaService : Service() {
             layoutParams.gravity = Gravity.CENTER
             layoutParams.flags = WindowManager.LayoutParams.FLAG_NOT_TOUCH_MODAL or WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE
 
-            layoutParams.width = 250
-            layoutParams.height = 250
-            layoutParams.x = dc.getSetting(Setting.KEYS.buddha_location_x, 300).int
-            layoutParams.y = dc.getSetting(Setting.KEYS.buddha_location_y, 300).int
+            layoutParams.width = dc.getSetting(Setting.KEYS.buddha_float_window_size, 200).int
+            layoutParams.height = dc.getSetting(Setting.KEYS.buddha_float_window_size, 200).int
+            layoutParams.x = dc.getSetting(Setting.KEYS.buddha_float_window_x, 300).int
+            layoutParams.y = dc.getSetting(Setting.KEYS.buddha_float_window_y, 300).int
             //endregion
 
             if (Settings.canDrawOverlays(this)) {
@@ -434,8 +434,8 @@ class BuddhaService : Service() {
                     changeX = event.rawX.toInt() - startX
                     changeY = event.rawY.toInt() - startY
                     if (Math.abs(changeX) > 10 || Math.abs(changeY) > 10) {
-                        dc.editSetting(Setting.KEYS.buddha_location_x, layoutParams.x)
-                        dc.editSetting(Setting.KEYS.buddha_location_y, layoutParams.y)
+                        dc.editSetting(Setting.KEYS.buddha_float_window_x, layoutParams.x)
+                        dc.editSetting(Setting.KEYS.buddha_float_window_y, layoutParams.y)
                     }
                 }
                 else -> {
