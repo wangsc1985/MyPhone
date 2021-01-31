@@ -7,28 +7,28 @@ import android.content.Intent
 import android.os.Bundle
 import android.os.Handler
 import android.os.PowerManager
-import com.wang17.myphone.e
 import android.support.v4.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import com.alibaba.fastjson.JSON
 import com.wang17.myphone.R
-import com.wang17.myphone.callback.DialogChoosenCallback
 import com.wang17.myphone.callback.CloudCallback
+import com.wang17.myphone.callback.DialogChoosenCallback
 import com.wang17.myphone.circleMinite
-import com.wang17.myphone.model.DateTime
+import com.wang17.myphone.e
 import com.wang17.myphone.eventbus.EventBusMessage
 import com.wang17.myphone.eventbus.SenderBuddhaServiceOnDestroy
 import com.wang17.myphone.eventbus.SenderTimerRuning
+import com.wang17.myphone.model.DateTime
 import com.wang17.myphone.model.database.BuddhaRecord
 import com.wang17.myphone.model.database.Setting
 import com.wang17.myphone.service.BuddhaService
 import com.wang17.myphone.service.StockService
 import com.wang17.myphone.toMyDecimal
 import com.wang17.myphone.util.*
+import com.wang17.myphone.util._Utils.getFilesWithSuffix
 import kotlinx.android.synthetic.main.fragment_player.*
-import kotlinx.android.synthetic.main.fragment_player.abtn_stock
 import org.greenrobot.eventbus.EventBus
 import org.greenrobot.eventbus.Subscribe
 import org.greenrobot.eventbus.ThreadMode
@@ -153,15 +153,17 @@ class BuddhaPlayerFragment : Fragment() {
             tv_time.text = "$hour:${if (minite < 10) "0" + minite else minite}:${if (second < 10) "0" + second else second} \t $count \t "
         }
 
-        val buddhaSpeed = dc.getSetting(Setting.KEYS.buddha_speed, 2).int
-        when (buddhaSpeed) {
-            1 -> {
-                btn_speed.text = "慢"
-            }
-            2 -> {
-                btn_speed.text = "快"
-            }
-        }
+//        val buddhaSpeed = dc.getSetting(Setting.KEYS.buddha_speed, 2).int
+//        when (buddhaSpeed) {
+//            1 -> {
+//                btn_speed.text = "慢"
+//            }
+//            2 -> {
+//                btn_speed.text = "快"
+//            }
+//        }
+        val buddhaName = dc.getSetting(Setting.KEYS.buddha_music_name, "追顶念佛2.mp3").string
+        tv_buddha_name.text = buddhaName
 
         tv_time.setOnLongClickListener {
             AlertDialog.Builder(context).setMessage("请选择念佛记录处理方式").setPositiveButton("保存", DialogInterface.OnClickListener { dialog, which ->
@@ -177,7 +179,7 @@ class BuddhaPlayerFragment : Fragment() {
         }
 
         var wakeLock: PowerManager.WakeLock? = null
-        btn_speed.setOnLongClickListener {
+        tv_buddha_name.setOnLongClickListener {
             wakeLock = _Utils.acquireWakeLock(context!!, PowerManager.SCREEN_BRIGHT_WAKE_LOCK)
             var msg = """
                 愿将此功德：
@@ -196,6 +198,7 @@ class BuddhaPlayerFragment : Fragment() {
                     
                     往昔所造诸恶业，皆由无始贪嗔痴。
                     从身语意之所生，一切我今皆忏悔。
+                    
                     愿我临遇命终时，尽除一切诸障碍。
                     面见彼佛阿弥陀，既得往生安乐刹。
                     
@@ -210,6 +213,33 @@ class BuddhaPlayerFragment : Fragment() {
             }).show()
             true
         }
+        tv_buddha_name.setOnClickListener {
+            _Session.BUDDHA_MUSIC_NAME_ARR = getFilesWithSuffix(_Session.ROOT_DIR.path, ".mp3")
+            if (_Session.BUDDHA_MUSIC_NAME_ARR.size == 0) {
+                _Session.BUDDHA_MUSIC_NAME_ARR = arrayOf()
+            }
+            Arrays.sort(_Session.BUDDHA_MUSIC_NAME_ARR)
+
+            AlertDialog.Builder(context).setItems(_Session.BUDDHA_MUSIC_NAME_ARR) { dialog, which ->
+                dc.editSetting(Setting.KEYS.buddha_music_name, _Session.BUDDHA_MUSIC_NAME_ARR[which])
+                tv_buddha_name.text = _Session.BUDDHA_MUSIC_NAME_ARR[which]
+//                when (which) {
+//                    0 -> {
+//                        btn_speed.text = "慢"
+//                    }
+//                    1 -> {
+//                        btn_speed.text = "快"
+//                    }
+//                }
+//                dc.editSetting(Setting.KEYS.buddha_speed, which + 1)
+                if (_Utils.isRunService(context!!, BuddhaService::class.qualifiedName!!)) {
+                    isChangeSpeed = true
+                    context?.stopService(buddhaIntent)
+                    context?.startService(buddhaIntent)
+                }
+            }.show()
+        }
+
         var totalCount = 0
         layout_dayTotal.setOnClickListener {
             val dayBuddhaList = dc.getBuddhas(DateTime())
@@ -393,24 +423,6 @@ class BuddhaPlayerFragment : Fragment() {
             }
             true
         }
-        btn_speed.setOnClickListener {
-            AlertDialog.Builder(context).setItems(arrayOf("慢", "快"), DialogInterface.OnClickListener { dialog, which ->
-                when (which) {
-                    0 -> {
-                        btn_speed.text = "慢"
-                    }
-                    1 -> {
-                        btn_speed.text = "快"
-                    }
-                }
-                dc.editSetting(Setting.KEYS.buddha_speed, which + 1)
-                if (_Utils.isRunService(context!!, BuddhaService::class.qualifiedName!!)) {
-                    isChangeSpeed = true
-                    context?.stopService(buddhaIntent)
-                    context?.startService(buddhaIntent)
-                }
-            }).show()
-        }
         super.onViewCreated(view, savedInstanceState)
     }
 
@@ -493,7 +505,7 @@ class BuddhaPlayerFragment : Fragment() {
             val msg = "${"${hourS}:${miniteS}:${secondS} \t ${DateTime(stoptimeInMillis).toLongDateString3()} \t ${count}"}"
 //                if(count>0){
             uiHandler.post {
-                AlertDialog.Builder(context).setMessage("缓存中存在念佛记录\n[ ${msg} ]\n是否保存？").setCancelable(false).setNegativeButton("保存", DialogInterface.OnClickListener { dialog, which ->
+                val dialog = AlertDialog.Builder(context).setMessage("缓存中存在念佛记录\n[ ${msg} ]\n是否存档？").setNegativeButton("存档", DialogInterface.OnClickListener { dialog, which ->
                     val avgDuration = if (count > 0) duration / count else duration
                     createBuddhas2upload2save(count.toInt(), stoptimeInMillis, avgDuration, CloudCallback { code, result ->
                         if (code == 0) {
@@ -507,16 +519,21 @@ class BuddhaPlayerFragment : Fragment() {
                         }
                         callback?.excute(code, result)
                     })
-                }).setPositiveButton(if (callback == null) "忽略" else "继续", DialogInterface.OnClickListener { dialog, which ->
-                    callback?.excute(0, "")
                 }).setNeutralButton("丢弃", DialogInterface.OnClickListener { dialog, which ->
                     dc.deleteSetting(Setting.KEYS.buddha_duration)
                     dc.deleteSetting(Setting.KEYS.buddha_stoptime)
                     tv_time.text = ""
                     callback?.excute(0, "丢弃完毕！")
-                }).show()
+                })
+
+                if (callback != null) {
+                    dialog.setPositiveButton("使用", DialogInterface.OnClickListener { dialog, which ->
+                        callback?.excute(0, "")
+                    }).setCancelable(false)
+                }
+                dialog.show()
             }
-        }else{
+        } else {
             callback?.excute(0, "缓存中记录为空！")
         }
 //        }.start()

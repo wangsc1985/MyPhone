@@ -113,7 +113,7 @@ class NianfoMusicService : Service() {
     fun saveCurrentPosition(position: Int) {
         try {
             val str = mDataContext.getSetting(Setting.KEYS.media_player, "").string
-            val fileName = mDataContext.getSetting(Setting.KEYS.tally_music_name, "").string
+            val fileName = mDataContext.getSetting(Setting.KEYS.buddha_music_name, "").string
             if (!str.isEmpty()) {
                 val jsonArray = JSONArray(str)
                 var retJsonObject: JSONObject? = null
@@ -167,7 +167,7 @@ class NianfoMusicService : Service() {
                 var pitch = mDataContext.getSetting(Setting.KEYS.media_player_pitch, 1.0f).float
                 var position = 0
                 val str = mDataContext.getSetting(Setting.KEYS.media_player, "").string
-                val fileName = mDataContext.getSetting(Setting.KEYS.tally_music_name, "").string
+                val fileName = mDataContext.getSetting(Setting.KEYS.buddha_music_name, "").string
                 Log.e("wangsc", "$fileName is playing...")
                 if (!str.isEmpty()) {
                     val jsonArray = JSONArray(str)
@@ -183,7 +183,7 @@ class NianfoMusicService : Service() {
                         }
                     }
                 }
-                val url = File(_Session.ROOT_DIR, mDataContext.getSetting(Setting.KEYS.tally_music_name, "").string)
+                val url = File(_Session.ROOT_DIR, mDataContext.getSetting(Setting.KEYS.buddha_music_name, "").string)
 
 
                 mPlayer.reset() //把各项参数恢复到初始状态

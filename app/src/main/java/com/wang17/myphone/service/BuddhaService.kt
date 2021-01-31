@@ -80,8 +80,10 @@ class BuddhaService : Service() {
             }
             mAm = getSystemService(AUDIO_SERVICE) as AudioManager
             startTimeInMillis = System.currentTimeMillis()
-            val buddhaSpeed = dc.getSetting(Setting.KEYS.buddha_speed, 2).int
-            startMediaPlayer(buddhaSpeed)
+            val musicName = dc.getSetting(Setting.KEYS.buddha_music_name)
+            if (musicName == null)
+                return
+            startMediaPlayer(musicName.string)
             showFloatingWindow()
             startTimer()
             //
@@ -162,11 +164,11 @@ class BuddhaService : Service() {
 
     private lateinit var mPlayer: MediaPlayer
     private lateinit var mBackgroundPlayer: MediaPlayer
-    fun startMediaPlayer(velocity: Int) {
+    fun startMediaPlayer(musicName: String) {
         try {
             requestFocus()
             mPlayer = MediaPlayer()
-            var url = File(_Session.ROOT_DIR, "追顶念佛$velocity.mp3")
+            var url = File(_Session.ROOT_DIR, musicName)
             mPlayer.reset() //把各项参数恢复到初始状态
             mPlayer.setDataSource(url.path)
             mPlayer.prepare() //进行缓冲
@@ -370,15 +372,15 @@ class BuddhaService : Service() {
 
             layoutParams.width = 250
             layoutParams.height = 250
-            layoutParams.x = 300
-            layoutParams.y = 300
+            layoutParams.x = dc.getSetting(Setting.KEYS.buddha_location_x, 300).int
+            layoutParams.y = dc.getSetting(Setting.KEYS.buddha_location_y, 300).int
             //endregion
 
             if (Settings.canDrawOverlays(this)) {
                 floatingWindowView = View.inflate(this, R.layout.inflate_buddha_floating_window, null)
                 val iv_control = floatingWindowView?.findViewById<ImageView>(R.id.iv_control)
                 iv_control?.setOnClickListener {
-                    if(Math.abs(changeX)<10&&Math.abs(changeY)<10) {
+                    if (Math.abs(changeX) < 10 && Math.abs(changeY) < 10) {
                         if (mPlayer.isPlaying) {
                             chantBuddhaPause()
                             floatingWinButState(true)
@@ -400,10 +402,11 @@ class BuddhaService : Service() {
         }
     }
 
-    var changeX=0
-    var changeY=0
+    var changeX = 0
+    var changeY = 0
     var startX = 0
     var startY = 0
+
     inner class FloatingOnTouchListener : View.OnTouchListener {
         private var x = 0
         private var y = 0
@@ -429,6 +432,10 @@ class BuddhaService : Service() {
                 MotionEvent.ACTION_UP -> {
                     changeX = event.rawX.toInt() - startX
                     changeY = event.rawY.toInt() - startY
+                    if (Math.abs(changeX) > 10 || Math.abs(changeY) > 10) {
+                        dc.editSetting(Setting.KEYS.buddha_location_x, event.rawX.toInt())
+                        dc.editSetting(Setting.KEYS.buddha_location_y, event.rawY.toInt())
+                    }
                 }
                 else -> {
                 }
@@ -459,19 +466,21 @@ class BuddhaService : Service() {
                             val adapter = BluetoothAdapter.getDefaultAdapter()
                             if (BluetoothProfile.STATE_DISCONNECTED == adapter.getProfileConnectionState(BluetoothProfile.HEADSET)) {
                                 //Bluetooth headset is now disconnected
+                                e("蓝牙耳机断开")
                                 chantBuddhaPause()
                                 floatingWinButState(true)
                                 mAm.abandonAudioFocus(afChangeListener)
                             }
                         }
-                        "android.intent.action.HEADSET_PLUG"-> {
-                            if (intent.hasExtra("state")) {
-                                if (intent.getIntExtra("state", 0) === 0) {
-                                    chantBuddhaPause()
-                                    floatingWinButState(true)
-                                    mAm.abandonAudioFocus(afChangeListener)
-                                }
-                            }
+                        "android.intent.action.HEADSET_PLUG" -> {
+//                            if (intent.hasExtra("state")) {
+//                                if (intent.getIntExtra("state", 0) === 0) {
+//                                    e("耳机拔出")
+//                                    chantBuddhaPause()
+//                                    floatingWinButState(true)
+//                                    mAm.abandonAudioFocus(afChangeListener)
+//                                }
+//                            }
                         }
                     }
 

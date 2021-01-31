@@ -63,13 +63,14 @@ public class Setting{
     }
 
     public enum KEYS{
+        buddha_location_x,buddha_location_y,
         buddha_duration,buddha_startime,buddha_volume,buddha_stoptime,
         stock_reflush_time,buddha_load_time,interest,buddha_speed,
         main_start_page_index,wisdom,map_search_radius,
         nianfo_intervalInMillis, nianfo_endInMillis, nianfo_palyId, nianfo_isReading,nianfo_screen_light,
 
         tally_dayTargetInMillis, tally_manualOverTimeInMillis, tally_sectionStartMillis, tally_endInMillis, tally_intervalInMillis,
-        tally_music_is_playing,tally_music_switch,tally_isShowDialog, tally_music_name,
+        tally_music_is_playing,tally_music_switch,tally_isShowDialog, buddha_music_name,
 
         music_current_list_id,music_isplaying, is_keep_cpu_runing,
 

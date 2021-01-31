@@ -26,7 +26,7 @@ object _Session {
     @JvmField
     var GEAR_NAMES = arrayOf("等待", "步行", "单车", "汽车", "高速")
     @JvmField
-    var TALLY_MUSIC_NAMES: Array<String>
+    var BUDDHA_MUSIC_NAME_ARR: Array<String>
     @JvmField
     val ROOT_DIR = File(Environment.getExternalStorageDirectory().toString() + "/0/myphone")
     @JvmField
@@ -42,8 +42,8 @@ object _Session {
             if (!BACKUP_DIR.exists()) {
                 BACKUP_DIR.mkdirs()
             }
-            TALLY_MUSIC_NAMES = _Utils.getFilesWithSuffix(ROOT_DIR.path, ".mp3")
-            Arrays.sort(TALLY_MUSIC_NAMES)
+            BUDDHA_MUSIC_NAME_ARR = _Utils.getFilesWithSuffix(ROOT_DIR.path, ".mp3")
+            Arrays.sort(BUDDHA_MUSIC_NAME_ARR)
             /**
              * unit*cose：一个点位多少钱/手。
              */

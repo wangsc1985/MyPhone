@@ -213,7 +213,7 @@ class BuddhaTimerService : Service() {
             mPlayer.reset();
             mPlayer.setLooping(true)
             if (isSound) {
-                val url = File(_Session.ROOT_DIR, mDataContext.getSetting(Setting.KEYS.tally_music_name, "").string)
+                val url = File(_Session.ROOT_DIR, mDataContext.getSetting(Setting.KEYS.buddha_music_name, "").string)
                 mPlayer.setDataSource(url.path)
                 mPlayer.setVolume(1f, 1f)
             } else {

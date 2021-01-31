@@ -27,7 +27,6 @@ import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.BaseAdapter;
-import android.widget.Button;
 import android.widget.EditText;
 import android.widget.LinearLayout;
 import android.widget.ListView;
@@ -35,22 +34,15 @@ import android.widget.SeekBar;
 import android.widget.Spinner;
 import android.widget.TextView;
 
-import com.amap.api.services.route.DistanceItem;
-import com.amap.api.services.route.DistanceResult;
-
-import java.sql.Connection;
-
 import org.json.JSONObject;
 
 import com.wang17.myphone.R;
 import com.wang17.myphone.event.LocationGearEvent;
 import com.wang17.myphone.event.LocationIsAutomaticEvent;
 import com.wang17.myphone.model.DateTime;
-import com.wang17.myphone.model.MySpinner;
 import com.wang17.myphone.model.database.Location;
 import com.wang17.myphone.model.database.Setting;
 import com.wang17.myphone.service.NianfoMusicService;
-import com.wang17.myphone.util.AMapUtil;
 import com.wang17.myphone.util.DataContext;
 import com.wang17.myphone.util._Session;
 import com.wang17.myphone.util._Utils;
@@ -91,14 +83,14 @@ public class SettingFragment extends Fragment {
     private void initMusicNames() {
         List<String> list = new ArrayList<String>();
 
-        _Session.TALLY_MUSIC_NAMES = _Utils.getFilesWithSuffix(_Session.ROOT_DIR.getPath(), ".mp3");
-        if (_Session.TALLY_MUSIC_NAMES.length == 0) {
-            _Session.TALLY_MUSIC_NAMES = new String[]{};
+        _Session.BUDDHA_MUSIC_NAME_ARR = _Utils.getFilesWithSuffix(_Session.ROOT_DIR.getPath(), ".mp3");
+        if (_Session.BUDDHA_MUSIC_NAME_ARR.length == 0) {
+            _Session.BUDDHA_MUSIC_NAME_ARR = new String[]{};
         }
-        Arrays.sort(_Session.TALLY_MUSIC_NAMES);
+        Arrays.sort(_Session.BUDDHA_MUSIC_NAME_ARR);
 
-        for (int i = 0; i < _Session.TALLY_MUSIC_NAMES.length; i++) {
-            list.add(_Session.TALLY_MUSIC_NAMES[i]);
+        for (int i = 0; i < _Session.BUDDHA_MUSIC_NAME_ARR.length; i++) {
+            list.add(_Session.BUDDHA_MUSIC_NAME_ARR[i]);
         }
         this.fillSpinner(spinnerMusicNames, list);
     }
@@ -144,7 +136,7 @@ public class SettingFragment extends Fragment {
         setAdapter.notifyDataSetChanged();
 
         initMusicNames();
-        String databaseMusicName = mDataContext.getSetting(Setting.KEYS.tally_music_name, "").getString();
+        String databaseMusicName = mDataContext.getSetting(Setting.KEYS.buddha_music_name, "").getString();
         int num = spinnerMusicNames.getCount();
         for (int i = 0; i < num; i++) {
             if (spinnerMusicNames.getItemAtPosition(i).toString().equals(databaseMusicName)) {
@@ -166,8 +158,8 @@ public class SettingFragment extends Fragment {
                     @Override
                     public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
                         String name = spinnerMusicNames.getItemAtPosition(position).toString();
-                        if (!name.equals(mDataContext.getSetting(Setting.KEYS.tally_music_name, _Session.TALLY_MUSIC_NAMES[0]).getString())) {
-                            mDataContext.editSetting(Setting.KEYS.tally_music_name, name);
+                        if (!name.equals(mDataContext.getSetting(Setting.KEYS.buddha_music_name, _Session.BUDDHA_MUSIC_NAME_ARR[0]).getString())) {
+                            mDataContext.editSetting(Setting.KEYS.buddha_music_name, name);
                             if (mDataContext.getSetting(Setting.KEYS.tally_music_is_playing, false).getBoolean()) {
                                 getContext().stopService(new Intent(getContext(), NianfoMusicService.class));
                                 getContext().startService(new Intent(getContext(), NianfoMusicService.class));
@@ -330,7 +322,7 @@ public class SettingFragment extends Fragment {
                         setAdapter.notifyDataSetChanged();
                         try {
                             String str = mDataContext.getSetting(Setting.KEYS.media_player, "").getString();
-                            String fileName = mDataContext.getSetting(Setting.KEYS.tally_music_name, "").getString();
+                            String fileName = mDataContext.getSetting(Setting.KEYS.buddha_music_name, "").getString();
                             if (!str.isEmpty()) {
                                 JSONArray jsonArray = new JSONArray(str);
                                 JSONObject retJsonObject = null;
@@ -577,7 +569,7 @@ public class SettingFragment extends Fragment {
                 if (set.getName().equals(Setting.KEYS.media_player_pitch.toString())) {
 
                     String str = mDataContext.getSetting(Setting.KEYS.media_player, "").getString();
-                    String fileName = mDataContext.getSetting(Setting.KEYS.tally_music_name, "").getString();
+                    String fileName = mDataContext.getSetting(Setting.KEYS.buddha_music_name, "").getString();
 
                     if (!str.isEmpty()) {
                         JSONArray jsonArray = new JSONArray(str);
@@ -595,7 +587,7 @@ public class SettingFragment extends Fragment {
                 } else if (set.getName().equals(Setting.KEYS.media_player_volumn.toString())) {
 
                     String str = mDataContext.getSetting(Setting.KEYS.media_player, "").getString();
-                    String fileName = mDataContext.getSetting(Setting.KEYS.tally_music_name, "").getString();
+                    String fileName = mDataContext.getSetting(Setting.KEYS.buddha_music_name, "").getString();
 
                     if (!str.isEmpty()) {
                         JSONArray jsonArray = new JSONArray(str);
@@ -613,7 +605,7 @@ public class SettingFragment extends Fragment {
                 } else if (set.getName().equals(Setting.KEYS.media_player_speed.toString())) {
 
                     String str = mDataContext.getSetting(Setting.KEYS.media_player, "").getString();
-                    String fileName = mDataContext.getSetting(Setting.KEYS.tally_music_name, "").getString();
+                    String fileName = mDataContext.getSetting(Setting.KEYS.buddha_music_name, "").getString();
 
                     if (!str.isEmpty()) {
                         JSONArray jsonArray = new JSONArray(str);
