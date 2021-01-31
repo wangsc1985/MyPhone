@@ -2,6 +2,9 @@ package com.wang17.myphone.service
 
 import android.app.PendingIntent
 import android.app.Service
+import android.bluetooth.BluetoothAdapter
+import android.bluetooth.BluetoothHeadset
+import android.bluetooth.BluetoothProfile
 import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
@@ -9,25 +12,21 @@ import android.content.IntentFilter
 import android.graphics.PixelFormat
 import android.media.AudioManager
 import android.media.MediaPlayer
-import android.net.Uri
 import android.os.Build
 import android.os.IBinder
 import android.provider.Settings
 import android.support.annotation.RequiresApi
-import android.support.v4.app.ActivityCompat.startActivityForResult
 import android.view.Gravity
 import android.view.MotionEvent
 import android.view.View
 import android.view.WindowManager
 import android.widget.ImageView
-import android.widget.LinearLayout
 import com.wang17.myphone.R
 import com.wang17.myphone.circleMinite
 import com.wang17.myphone.e
 import com.wang17.myphone.eventbus.EventBusMessage
 import com.wang17.myphone.eventbus.SenderBuddhaServiceOnDestroy
 import com.wang17.myphone.eventbus.SenderTimerRuning
-import com.wang17.myphone.model.DateTime
 import com.wang17.myphone.model.database.Setting
 import com.wang17.myphone.util.DataContext
 import com.wang17.myphone.util._NotificationUtils
@@ -36,6 +35,7 @@ import com.wang17.myphone.util._Utils
 import org.greenrobot.eventbus.EventBus
 import java.io.File
 import java.util.*
+
 
 class BuddhaService : Service() {
 
@@ -88,6 +88,8 @@ class BuddhaService : Service() {
             val filter = IntentFilter()
             filter.addAction(ACTION_BUDDHA_PLAYE)
             filter.addAction(ACTION_BUDDHA_PAUSE)
+            filter.addAction(BluetoothHeadset.ACTION_CONNECTION_STATE_CHANGED)
+            filter.addAction("android.intent.action.HEADSET_PLUG")
             registerReceiver(buddhaReceiver, filter)
         } catch (e: Exception) {
             e("buddha service onCreate" + e.message)
@@ -410,7 +412,7 @@ class BuddhaService : Service() {
                 MotionEvent.ACTION_DOWN -> {
                     x = event.rawX.toInt()
                     y = event.rawY.toInt()
-                    startX =x
+                    startX = x
                     startY = y
                 }
                 MotionEvent.ACTION_MOVE -> {
@@ -424,9 +426,9 @@ class BuddhaService : Service() {
                     layoutParams.y = layoutParams.y + movedY
                     windowManager.updateViewLayout(floatingWindowView, layoutParams)
                 }
-                MotionEvent.ACTION_UP->{
-                    changeX=event.rawX.toInt()-startX
-                    changeY=event.rawY.toInt()-startY
+                MotionEvent.ACTION_UP -> {
+                    changeX = event.rawX.toInt() - startX
+                    changeY = event.rawY.toInt() - startY
                 }
                 else -> {
                 }
@@ -436,6 +438,7 @@ class BuddhaService : Service() {
     }
     //endregion
 
+    //region 接收器
     inner class BuddhaReceiver : BroadcastReceiver() {
         override fun onReceive(context: Context?, intent: Intent?) {
             try {
@@ -452,6 +455,24 @@ class BuddhaService : Service() {
                             floatingWinButState(true)
                             mAm.abandonAudioFocus(afChangeListener)
                         }
+                        BluetoothHeadset.ACTION_CONNECTION_STATE_CHANGED -> {
+                            val adapter = BluetoothAdapter.getDefaultAdapter()
+                            if (BluetoothProfile.STATE_DISCONNECTED == adapter.getProfileConnectionState(BluetoothProfile.HEADSET)) {
+                                //Bluetooth headset is now disconnected
+                                chantBuddhaPause()
+                                floatingWinButState(true)
+                                mAm.abandonAudioFocus(afChangeListener)
+                            }
+                        }
+                        "android.intent.action.HEADSET_PLUG"-> {
+                            if (intent.hasExtra("state")) {
+                                if (intent.getIntExtra("state", 0) === 0) {
+                                    chantBuddhaPause()
+                                    floatingWinButState(true)
+                                    mAm.abandonAudioFocus(afChangeListener)
+                                }
+                            }
+                        }
                     }
 
                     sendNotification(notificationCount, notificationTime)
@@ -461,8 +482,7 @@ class BuddhaService : Service() {
             }
         }
     }
-
-    // TODO: 2021/1/21  1、来微信记录被重置了
+    //endregion
 
     companion object {
         val ACTION_BUDDHA_PAUSE = "com.wang17.myphone.buddha.pause"
