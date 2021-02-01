@@ -11,6 +11,7 @@ import android.support.v4.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.Toast
 import com.alibaba.fastjson.JSON
 import com.wang17.myphone.R
 import com.wang17.myphone.callback.CloudCallback
@@ -166,15 +167,29 @@ class BuddhaPlayerFragment : Fragment() {
         tv_buddha_name.text = buddhaName
 
         tv_time.setOnLongClickListener {
-            AlertDialog.Builder(context).setMessage("请选择念佛记录处理方式").setPositiveButton("保存", DialogInterface.OnClickListener { dialog, which ->
-                val setting = dc.getSetting(Setting.KEYS.buddha_duration)
-                setting?.let {
-                }
-            }).setNegativeButton("清空", DialogInterface.OnClickListener { dialog, which ->
-                dc.deleteSetting(Setting.KEYS.buddha_duration)
-                dc.deleteSetting(Setting.KEYS.buddha_stoptime)
-                tv_time.text = ""
-            }).show()
+            val setting = dc.getSetting(Setting.KEYS.buddha_duration)
+            setting?.let {
+                val duration = setting.long
+                val count = duration / 600000
+                val avgDuration = if (count == 0L) duration else duration / count
+                AlertDialog.Builder(context).setMessage("缓存中存在念佛记录，是否存档？").setPositiveButton("存档", DialogInterface.OnClickListener { dialog, which ->
+                    buildBuddhaListAndSave(count.toInt(), dc.getSetting(Setting.KEYS.buddha_stoptime, System.currentTimeMillis()).long, avgDuration, CloudCallback { code, result ->
+                        if (code == 0) {
+                            dc.deleteSetting(Setting.KEYS.buddha_duration)
+                            dc.deleteSetting(Setting.KEYS.buddha_stoptime)
+                            refreshTotalView()
+                            uiHandler.post {
+                                tv_time.text = ""
+                                AlertDialog.Builder(context).setMessage(result.toString()).show()
+                            }
+                        }
+                    })
+                }).setNegativeButton("清空", DialogInterface.OnClickListener { dialog, which ->
+                    dc.deleteSetting(Setting.KEYS.buddha_duration)
+                    dc.deleteSetting(Setting.KEYS.buddha_stoptime)
+                    tv_time.text = ""
+                }).show()
+            }
             true
         }
 
@@ -372,7 +387,7 @@ class BuddhaPlayerFragment : Fragment() {
                     }
                     var stoptimeInMillis = System.currentTimeMillis()
 
-                    createBuddhas2upload2save(count, stoptimeInMillis, avgDuration, CloudCallback { code, result ->
+                    buildBuddhaListAndSave(count, stoptimeInMillis, avgDuration) { code, result ->
                         if (code == 0) {
                             uiHandler.post {
                                 refreshTotalView()
@@ -381,7 +396,18 @@ class BuddhaPlayerFragment : Fragment() {
                         uiHandler.post {
                             AlertDialog.Builder(context!!).setMessage(result.toString()).show()
                         }
-                    })
+                    }
+
+//                    createBuddhas2upload2save(count, stoptimeInMillis, avgDuration, CloudCallback { code, result ->
+//                        if (code == 0) {
+//                            uiHandler.post {
+//                                refreshTotalView()
+//                            }
+//                        }
+//                        uiHandler.post {
+//                            AlertDialog.Builder(context!!).setMessage(result.toString()).show()
+//                        }
+//                    })
                 }).show()
             }).show()
             true
@@ -422,6 +448,47 @@ class BuddhaPlayerFragment : Fragment() {
             true
         }
         super.onViewCreated(view, savedInstanceState)
+    }
+
+    private fun buildBuddhaListAndSave(count: Int, stoptimeInMillis: Long, avgDuration: Long, callback: CloudCallback) {
+        e("build buddha list and save")
+        var buddhaList: MutableList<BuddhaRecord> = ArrayList()
+        var tmpTime: DateTime? = null
+        var buddha: BuddhaRecord? = null
+        for (index in count downTo 1) {
+            if (tmpTime == null || buddha == null) {
+                tmpTime = DateTime(stoptimeInMillis)
+                tmpTime.add(Calendar.MILLISECOND, (-1 * avgDuration * index).toInt())
+                buddha = BuddhaRecord(tmpTime, avgDuration, 1, 11, "计时计数念佛")
+            } else {
+                var startTime = DateTime(stoptimeInMillis)
+                startTime.add(Calendar.MILLISECOND, (-1 * avgDuration * index).toInt())
+                if (startTime.get(Calendar.DAY_OF_YEAR) == tmpTime.get(Calendar.DAY_OF_YEAR) && startTime.hour == tmpTime.hour) {
+                    buddha.duration += avgDuration
+                    buddha.count += 1
+                } else {
+                    buddhaList.add(buddha)
+                    buddha = BuddhaRecord(startTime, avgDuration, 1, 11, "计时计数念佛")
+                    tmpTime = DateTime(startTime.timeInMillis)
+                }
+            }
+        }
+        buddha?.let {
+            buddhaList.add(it)
+        }
+
+
+        _CloudUtils.addBuddhaList(context!!, buddhaList) { code, result ->
+            when (code) {
+                0 -> {
+                    dc.addBuddhas(buddhaList)
+                }
+                else -> {
+                    e("code : $code , result : $result")
+                }
+            }
+            callback.excute(code, result)
+        }
     }
 
     private fun createBuddhas2upload2save(count: Int, stoptimeInMillis: Long, avgDuration: Long, callback: CloudCallback) {
@@ -505,7 +572,7 @@ class BuddhaPlayerFragment : Fragment() {
             uiHandler.post {
                 val dialog = AlertDialog.Builder(context).setMessage("缓存中存在念佛记录\n[ ${msg} ]\n是否存档？").setNegativeButton("存档", DialogInterface.OnClickListener { dialog, which ->
                     val avgDuration = if (count > 0) duration / count else duration
-                    createBuddhas2upload2save(count.toInt(), stoptimeInMillis, avgDuration, CloudCallback { code, result ->
+                    buildBuddhaListAndSave(count.toInt(), stoptimeInMillis, avgDuration, CloudCallback { code, result ->
                         if (code == 0) {
                             dc.deleteSetting(Setting.KEYS.buddha_duration)
                             dc.deleteSetting(Setting.KEYS.buddha_stoptime)
@@ -517,6 +584,18 @@ class BuddhaPlayerFragment : Fragment() {
                         }
                         callback?.excute(code, result)
                     })
+//                    createBuddhas2upload2save(count.toInt(), stoptimeInMillis, avgDuration, CloudCallback { code, result ->
+//                        if (code == 0) {
+//                            dc.deleteSetting(Setting.KEYS.buddha_duration)
+//                            dc.deleteSetting(Setting.KEYS.buddha_stoptime)
+//                            refreshTotalView()
+//                            uiHandler.post {
+//                                tv_time.text = ""
+//                                AlertDialog.Builder(context).setMessage(result.toString()).show()
+//                            }
+//                        }
+//                        callback?.excute(code, result)
+//                    })
                 }).setNeutralButton("丢弃", DialogInterface.OnClickListener { dialog, which ->
                     dc.deleteSetting(Setting.KEYS.buddha_duration)
                     dc.deleteSetting(Setting.KEYS.buddha_stoptime)

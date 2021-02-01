@@ -163,21 +163,21 @@ object _CloudUtils {
 
                 var json = StringBuilder()
                 json.append("{\"phone\":\"18509513143\",\"data\":")
-                json.append("[");
+                json.append("[")
                 for (i in buddhaList.indices)
                 {
-                    json.append("{");
-                    json.append("\"startTime\":\"${ buddhaList[i].startTime.timeInMillis}\"");
-                    json.append(",\"duration\":\"${buddhaList[i].duration}\"");
-                    json.append(",\"count\":\"${buddhaList[i].count}\"");
-                    json.append(",\"summary\":\"${buddhaList[i].summary}\"");
-                    json.append(",\"type\":\"${buddhaList[i].type}\"");
-                    json.append("}");
+                    json.append("{")
+                    json.append("\"startTime\":\"${ buddhaList[i].startTime.timeInMillis}\"")
+                    json.append(",\"duration\":\"${buddhaList[i].duration}\"")
+                    json.append(",\"count\":\"${buddhaList[i].count}\"")
+                    json.append(",\"summary\":\"${buddhaList[i].summary}\"")
+                    json.append(",\"type\":\"${buddhaList[i].type}\"")
+                    json.append("}")
                     if (i < buddhaList.size - 1)
-                        json.append(",");
+                        json.append(",")
                 }
-                json.append("]");
-                json.append("}");
+                json.append("]")
+                json.append("}")
 
                 // 通过accessToken，env，云函数名，args 在微信小程序云端获取数据
                 val url = "https://api.weixin.qq.com/tcb/invokecloudfunction?access_token=$accessToken&env=$env&name=addBuddhaRange"
