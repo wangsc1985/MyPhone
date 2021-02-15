@@ -136,6 +136,10 @@ class DateTime : GregorianCalendar {
         return _String.concat(monthStr, "/", dayStr, " ", hourStr, ":", miniteStr)
     }
 
+    fun toLongDateString4(): String {
+        return _String.concat(year,"/",monthStr, "/", dayStr, " ", hourStr, ":", miniteStr)
+    }
+
     /**
      * 格式：**月**日  **:**
      * @return

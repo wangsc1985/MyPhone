@@ -2,8 +2,8 @@ package com.wang17.lib
 
 import java.io.*
 import java.math.BigDecimal
-import java.text.DecimalFormat
 import java.util.*
+import java.util.regex.Pattern
 import kotlin.collections.ArrayList
 
 class MyClass {
@@ -28,15 +28,34 @@ class MyClass {
         @JvmStatic
         fun main(args: Array<String>) {
 
-            _OkHttpUtil.getRequest("https://www.xinti.com/prizedetail/dlt.html") { html ->
+//            var content="勿泄露验证码！验证码646777，5分钟内输入有效。您尾号7086的信用卡正在进行【财付通公司】快捷支付-签约。【交通银行】"
+//            var matcher = Pattern.compile("(?<=验证码).{0,2}[0-9]{4,8}").matcher(content)
+//            matcher.find()
+//            content = matcher.group()
+//            println(content)
+//            matcher = Pattern.compile("[0-9]{4,8}").matcher(content)
+//            matcher.find()
+//            println(matcher.group())
+
+
+            _OkHttpUtil.getRequest("https://www.xinti.com/prizedetail/ssq.html", HttpCallback {html ->
                 try {
-                    var cc = html.substring(html.indexOf("<span class=\"iballs\">"))
-                    cc = cc.substring(0, cc.indexOf("</span>"))
+                    var cc=  html.replace("\r","").replace("\n","")
+//                    var matcher = Pattern.compile("(?<=<span class=\"iballs\">).{10,300}(?=</span>)").matcher(cc)
+                    var matcher = Pattern.compile("(?<=<div class=\"lefts\">).{10,3000}(?=</div>)").matcher(cc)
+                    //
+                    matcher.find()
+                    cc = matcher.group().trim()
                     println(cc)
+//                    matcher = Pattern.compile("\\d").matcher(cc)
+//                    while(matcher.find()){
+//                        cc = matcher.group()
+//                        println(cc)
+//                    }
                 } catch (e: Exception) {
                     println(e.message)
                 }
-            }
+            })
         }
 
         private fun religiousTest() {
@@ -185,17 +204,17 @@ class MyClass {
             callBack.execute()
         }
 
-        fun getDltHttp(){
-            _OkHttpUtil.getRequest("https://www.xinti.com/prizedetail/dlt.html") { html ->
-                try {
-                    var cc = html.substring(html.indexOf("<span class=\"iballs\">"))
-                    cc = cc.substring(0, cc.indexOf("</span>"))
-                    println(cc)
-                } catch (e: Exception) {
-                    println(e.message)
-                }
-            }
-        }
+//        fun getDltHttp(){
+//            _OkHttpUtil.getRequest("https://www.xinti.com/prizedetail/dlt.html") { html ->
+//                try {
+//                    var cc = html.substring(html.indexOf("<span class=\"iballs\">"))
+//                    cc = cc.substring(0, cc.indexOf("</span>"))
+//                    println(cc)
+//                } catch (e: Exception) {
+//                    println(e.message)
+//                }
+//            }
+//        }
 
     }
 }

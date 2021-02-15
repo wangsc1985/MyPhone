@@ -11,17 +11,21 @@ import android.support.v4.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.Toast
+import android.view.inputmethod.EditorInfo
+import android.widget.Button
+import android.widget.EditText
+import android.widget.ImageView
+import android.widget.Spinner
 import com.alibaba.fastjson.JSON
 import com.wang17.myphone.R
 import com.wang17.myphone.callback.CloudCallback
 import com.wang17.myphone.callback.DialogChoosenCallback
-import com.wang17.myphone.circleMinite
 import com.wang17.myphone.e
 import com.wang17.myphone.eventbus.EventBusMessage
 import com.wang17.myphone.eventbus.SenderBuddhaServiceOnDestroy
 import com.wang17.myphone.eventbus.SenderTimerRuning
 import com.wang17.myphone.model.DateTime
+import com.wang17.myphone.model.database.BuddhaFile
 import com.wang17.myphone.model.database.BuddhaRecord
 import com.wang17.myphone.model.database.Setting
 import com.wang17.myphone.service.BuddhaService
@@ -42,11 +46,12 @@ class BuddhaPlayerFragment : Fragment() {
     lateinit var btn_buddha_animator: AnimatorSuofangView
     var uiHandler = Handler()
     lateinit var dc: DataContext
-    var isChangeSpeed = false
+    var isChangeConfig = false
+
+    var buddhaType = 11
 
     override fun onResume() {
         super.onResume()
-
         if (_Utils.isRunService(context!!, StockService::class.qualifiedName!!)) {
             animatorSuofang(abtn_stockAnimator)
         } else {
@@ -150,7 +155,7 @@ class BuddhaPlayerFragment : Fragment() {
             val miniteT = duration / 60000
             val minite = miniteT % 60
             val hour = miniteT / 60
-            var count = (miniteT / circleMinite).toInt()
+            var count = (miniteT / getCurrentCircleDuration()).toInt()
             tv_time.text = "$hour:${if (minite < 10) "0" + minite else minite}:${if (second < 10) "0" + second else second} \t $count \t "
         }
 
@@ -163,14 +168,16 @@ class BuddhaPlayerFragment : Fragment() {
 //                btn_speed.text = "快"
 //            }
 //        }
-        val buddhaName = dc.getSetting(Setting.KEYS.buddha_music_name, "追顶念佛2.mp3").string
+        val buddhaName = dc.getSetting(Setting.KEYS.buddha_music_name, "阿弥陀佛.mp3").string
         tv_buddha_name.text = buddhaName
+        buddhaType = dc.getSetting(buddhaName, 0).int
+        sw_count.isChecked = buddhaType == 11
 
         tv_time.setOnLongClickListener {
             val setting = dc.getSetting(Setting.KEYS.buddha_duration)
             setting?.let {
                 val duration = setting.long
-                val count = duration / 600000
+                val count = duration / getCurrentCircleDuration()
                 val avgDuration = if (count == 0L) duration else duration / count
                 AlertDialog.Builder(context).setMessage("缓存中存在念佛记录，是否存档？").setPositiveButton("存档", DialogInterface.OnClickListener { dialog, which ->
                     buildBuddhaListAndSave(count.toInt(), dc.getSetting(Setting.KEYS.buddha_stoptime, System.currentTimeMillis()).long, avgDuration, CloudCallback { code, result ->
@@ -193,10 +200,23 @@ class BuddhaPlayerFragment : Fragment() {
             true
         }
 
+        sw_count.setOnCheckedChangeListener { buttonView, isChecked ->
+            val buddhaName = dc.getSetting(Setting.KEYS.buddha_music_name, "阿弥陀佛.mp3").string
+            if (isChecked) {
+                dc.editSetting(buddhaName, 11)
+                buddhaType = 11
+            } else {
+                dc.editSetting(buddhaName, 0)
+                buddhaType = 0
+            }
+        }
+
         var wakeLock: PowerManager.WakeLock? = null
         tv_buddha_name.setOnLongClickListener {
-            wakeLock = _Utils.acquireWakeLock(context!!, PowerManager.SCREEN_BRIGHT_WAKE_LOCK)
-            var msg = """
+
+            if (!_Utils.isRunService(context!!, BuddhaService::class.qualifiedName!!)) {
+                wakeLock = _Utils.acquireWakeLock(context!!, PowerManager.SCREEN_BRIGHT_WAKE_LOCK)
+                var msg = """
                 愿将此功德：
                 
                     回向给我今生今世及累生累世冤亲债主、历代宗亲、六亲眷属、一切护法，及一切有缘众生。
@@ -221,9 +241,11 @@ class BuddhaPlayerFragment : Fragment() {
                     今遇知识，得闻弥陀名号，本愿功德，一心称念，求愿往生。
                     愿佛慈悲不舍，哀怜摄受。
             """.trimIndent()
-            AlertDialog.Builder(context).setMessage(msg).setCancelable(false).setPositiveButton("圆满", DialogInterface.OnClickListener { dialog, which ->
-                _Utils.releaseWakeLock(context!!, wakeLock)
-            }).show()
+                AlertDialog.Builder(context).setMessage(msg).setCancelable(false).setPositiveButton("圆满") { dialog, which ->
+                    _Utils.releaseWakeLock(context!!, wakeLock)
+                }.show()
+            }
+
             true
         }
         tv_buddha_name.setOnClickListener {
@@ -236,17 +258,20 @@ class BuddhaPlayerFragment : Fragment() {
             AlertDialog.Builder(context).setItems(_Session.BUDDHA_MUSIC_NAME_ARR) { dialog, which ->
                 dc.editSetting(Setting.KEYS.buddha_music_name, _Session.BUDDHA_MUSIC_NAME_ARR[which])
                 tv_buddha_name.text = _Session.BUDDHA_MUSIC_NAME_ARR[which]
-//                when (which) {
-//                    0 -> {
-//                        btn_speed.text = "慢"
-//                    }
-//                    1 -> {
-//                        btn_speed.text = "快"
-//                    }
-//                }
-//                dc.editSetting(Setting.KEYS.buddha_speed, which + 1)
+
+                val file = _Session.getFile(_Session.BUDDHA_MUSIC_NAME_ARR[which])
+                val bf = dc.getBuddhaFile(_Session.BUDDHA_MUSIC_NAME_ARR[which], file.length())
+                buddhaType = 0
+                if (bf != null) {
+                    buddhaType = bf.type
+                } else {
+                    dc.addBuddhaFile(BuddhaFile(_Session.BUDDHA_MUSIC_NAME_ARR[which], file.length(), _Utils.getMD5(file.path), 1.0f, 1.0f,  0,  10))
+                }
+                e("buddha type : $buddhaType")
+
+                sw_count.isChecked = buddhaType == 11
                 if (_Utils.isRunService(context!!, BuddhaService::class.qualifiedName!!)) {
-                    isChangeSpeed = true
+                    isChangeConfig = true
                     context?.stopService(buddhaIntent)
                     context?.startService(buddhaIntent)
                 }
@@ -340,65 +365,87 @@ class BuddhaPlayerFragment : Fragment() {
         }
 
         iv_buddha.setOnLongClickListener {
-            val list = arrayOf("1 x 1080", "2 x 1080", "3 x 1080", "4 x 1080", "5 x 1080", "6 x 1080", "7 x 1080", "8 x 1080", "9 x 1080", "10 x 1080")
-            AlertDialog.Builder(context).setItems(list, DialogInterface.OnClickListener { dialog, which ->
-                var count = 0
-                when (which) {
-                    0 -> {
-                        count = 1
+            val view = View.inflate(context,R.layout.inflate_dialog_add_buddha,null)
+            val etCount = view.findViewById<EditText>(R.id.et_count)
+            val ivAdd = view.findViewById<ImageView>(R.id.iv_add)
+            val ivMinus = view.findViewById<ImageView>(R.id.iv_minus)
+            ivAdd.setOnClickListener {
+                etCount.setText((etCount.text.toString().toInt()+1).toString())
+            }
+            ivMinus.setOnClickListener {
+                if(etCount.text.toString().toInt()>1)
+                etCount.setText((etCount.text.toString().toInt()-1).toString())
+            }
+            val btn = view.findViewById<Button>(R.id.btn_ok)
+//            val list = arrayOf("1 x 1080", "2 x 1080", "3 x 1080", "4 x 1080", "5 x 1080", "6 x 1080", "7 x 1080", "8 x 1080", "9 x 1080", "10 x 1080")
+            btn.setOnClickListener {
+                val count = etCount.text.toString().toInt()
+                val latestBuddha = dc.latestBuddha
+                var avgDuration = (10 * 60000).toLong()
+                if (latestBuddha != null) {
+                    avgDuration = latestBuddha.duration / latestBuddha.count
+                }
+                var stoptimeInMillis = System.currentTimeMillis()
+
+                buildBuddhaListAndSave(count, stoptimeInMillis, avgDuration) { code, result ->
+                    if (code == 0) {
+                        uiHandler.post {
+                            refreshTotalView()
+                        }
                     }
-                    1 -> {
-                        count = 2
-                    }
-                    2 -> {
-                        count = 3
-                    }
-                    3 -> {
-                        count = 4
-                    }
-                    4 -> {
-                        count = 5
-                    }
-                    5 -> {
-                        count = 6
-                    }
-                    6 -> {
-                        count = 7
-                    }
-                    7 -> {
-                        count = 8
-                    }
-                    8 -> {
-                        count = 9
-                    }
-                    9 -> {
-                        count = 10
+                    uiHandler.post {
+                        AlertDialog.Builder(context!!).setMessage(result.toString()).show()
                     }
                 }
-                AlertDialog.Builder(context).setMessage("新增 $count 圈？").setNegativeButton("是", DialogInterface.OnClickListener { dialog, which ->
-                    /**
-                     * string phone, long startTime ,long duration , int count, string summary, int type
-                     */
-
-                    val latestBuddha = dc.latestBuddha
-                    var avgDuration = (10 * 60000).toLong()
-                    if (latestBuddha != null) {
-                        avgDuration = latestBuddha.duration / latestBuddha.count
-                    }
-                    var stoptimeInMillis = System.currentTimeMillis()
-
-                    buildBuddhaListAndSave(count, stoptimeInMillis, avgDuration) { code, result ->
-                        if (code == 0) {
-                            uiHandler.post {
-                                refreshTotalView()
-                            }
-                        }
-                        uiHandler.post {
-                            AlertDialog.Builder(context!!).setMessage(result.toString()).show()
-                        }
-                    }
-
-//                    createBuddhas2upload2save(count, stoptimeInMillis, avgDuration, CloudCallback { code, result ->
+            }
+            AlertDialog.Builder(context).setView(view).show()
+//            AlertDialog.Builder(context).setItems(list, DialogInterface.OnClickListener { dialog, which ->
+//                var count = 0
+//                when (which) {
+//                    0 -> {
+//                        count = 1
+//                    }
+//                    1 -> {
+//                        count = 2
+//                    }
+//                    2 -> {
+//                        count = 3
+//                    }
+//                    3 -> {
+//                        count = 4
+//                    }
+//                    4 -> {
+//                        count = 5
+//                    }
+//                    5 -> {
+//                        count = 6
+//                    }
+//                    6 -> {
+//                        count = 7
+//                    }
+//                    7 -> {
+//                        count = 8
+//                    }
+//                    8 -> {
+//                        count = 9
+//                    }
+//                    9 -> {
+//                        count = 10
+//                    }
+//                }
+//                AlertDialog.Builder(context).setMessage("新增 $count 圈？").setNegativeButton("是", DialogInterface.OnClickListener { dialog, which ->
+//                    /**
+//                     * string phone, long startTime ,long duration , int count, string summary, int type
+//                     */
+//
+//                    val latestBuddha = dc.latestBuddha
+//                    var avgDuration = (10 * 60000).toLong()
+//                    if (latestBuddha != null) {
+//                        avgDuration = latestBuddha.duration / latestBuddha.count
+//                    }
+//                    var stoptimeInMillis = System.currentTimeMillis()
+//
+//                    buildBuddhaListAndSave(count, stoptimeInMillis, avgDuration) { code, result ->
 //                        if (code == 0) {
 //                            uiHandler.post {
 //                                refreshTotalView()
@@ -407,9 +454,9 @@ class BuddhaPlayerFragment : Fragment() {
 //                        uiHandler.post {
 //                            AlertDialog.Builder(context!!).setMessage(result.toString()).show()
 //                        }
-//                    })
-                }).show()
-            }).show()
+//                    }
+//                }).show()
+//            }).show()
             true
         }
 
@@ -442,12 +489,97 @@ class BuddhaPlayerFragment : Fragment() {
             playBuddha()
         }
         abtn_buddha.setOnLongClickListener {
-            if (!_Utils.isRunService(context!!, BuddhaService::class.qualifiedName!!)) {
-                playBuddha()
-            }
+//            if (!_Utils.isRunService(context!!, BuddhaService::class.qualifiedName!!)) {
+//                playBuddha()
+//            }
+            updateConfig()
             true
         }
         super.onViewCreated(view, savedInstanceState)
+    }
+
+    private fun updateConfig() {
+        val set = dc.getSetting(Setting.KEYS.buddha_music_name)
+        set?.let {
+            val file = _Session.getFile(set.string)
+            if (file.exists()) {
+                val bf = dc.getBuddhaFile(set.string, file.length())
+                val view = View.inflate(context, R.layout.inflate_dialog_buddha_file, null)
+                val etPitch = view.findViewById<EditText>(R.id.et_pitch)
+                val etSpeed = view.findViewById<EditText>(R.id.et_speed)
+                val spType = view.findViewById<Spinner>(R.id.sp_type)
+                val etDuration = view.findViewById<EditText>(R.id.et_duration)
+                val btnUpdate = view.findViewById<Button>(R.id.btnUpdate)
+    //                        val btnClose = view.findViewById<Button>(R.id.btnClose)
+                etPitch.setText(bf.pitch.toString())
+                etSpeed.setText(bf.speed.toString())
+                when (bf.type) {
+                    0 -> {
+                        spType.setSelection(0)
+                    }
+                    1 -> {
+                        spType.setSelection(1)
+                    }
+                    11 -> {
+                        spType.setSelection(2)
+                    }
+                }
+                etDuration.setText(bf.duration.toString())
+                etPitch.setOnEditorActionListener { v, actionId, event ->
+                    if (actionId == EditorInfo.IME_ACTION_DONE) {
+                        bf.pitch = etPitch.text.toString().toFloat()
+                        dc.editBuddhaFile(bf)
+                        isChangeConfig = true
+                        context?.stopService(buddhaIntent)
+                        context?.startService(buddhaIntent)
+                    }
+                    true
+                }
+                etSpeed.setOnEditorActionListener { v, actionId, event ->
+                    if (actionId == EditorInfo.IME_ACTION_DONE) {
+                        bf.speed = etSpeed.text.toString().toFloat()
+                        dc.editBuddhaFile(bf)
+                        isChangeConfig = true
+                        context?.stopService(buddhaIntent)
+                        context?.startService(buddhaIntent)
+                    }
+                    true
+                }
+
+                AlertDialog.Builder(context).setTitle(set.string).setView(view).show()
+                btnUpdate.setOnClickListener {
+                    bf.duration = etDuration.text.toString().toInt()
+                    bf.type = spType.selectedItem.toString().toInt()
+                    bf.speed = etSpeed.text.toString().toFloat()
+                    bf.pitch = etPitch.text.toString().toFloat()
+                    dc.editBuddhaFile(bf)
+                    isChangeConfig = true
+                    buddhaType = bf.type
+                    sw_count.isChecked = buddhaType == 11
+                    context?.stopService(buddhaIntent)
+                    context?.startService(buddhaIntent)
+                }
+
+    //                        btnClose.setOnClickListener {
+    //                            dialog.dismiss()
+    //
+    //                        dialog.setPositiveButton("关闭", DialogInterface.OnClickListener { dialog, which ->
+    //                        })
+            }
+        }
+    }
+
+    private fun getCurrentCircleDuration(): Int {
+        val setName = dc.getSetting(Setting.KEYS.buddha_music_name)
+        var circleMinite = 10
+        setName?.let {
+            val file = _Session.getFile(setName.string)
+            val bf = dc.getBuddhaFile(setName.string, file.length())
+            bf?.let {
+                circleMinite = bf.duration
+            }
+        }
+        return circleMinite
     }
 
     private fun buildBuddhaListAndSave(count: Int, stoptimeInMillis: Long, avgDuration: Long, callback: CloudCallback) {
@@ -459,7 +591,11 @@ class BuddhaPlayerFragment : Fragment() {
             if (tmpTime == null || buddha == null) {
                 tmpTime = DateTime(stoptimeInMillis)
                 tmpTime.add(Calendar.MILLISECOND, (-1 * avgDuration * index).toInt())
-                buddha = BuddhaRecord(tmpTime, avgDuration, 1, 11, "计时计数念佛")
+                if (buddhaType == 11) {
+                    buddha = BuddhaRecord(tmpTime, avgDuration, 1, 11, "计时计数念佛")
+                } else {
+                    buddha = BuddhaRecord(tmpTime, avgDuration, 0, 0, "耳听念佛")
+                }
             } else {
                 var startTime = DateTime(stoptimeInMillis)
                 startTime.add(Calendar.MILLISECOND, (-1 * avgDuration * index).toInt())
@@ -468,7 +604,11 @@ class BuddhaPlayerFragment : Fragment() {
                     buddha.count += 1
                 } else {
                     buddhaList.add(buddha)
-                    buddha = BuddhaRecord(startTime, avgDuration, 1, 11, "计时计数念佛")
+                    if (buddhaType == 11) {
+                        buddha = BuddhaRecord(startTime, avgDuration, 1, 11, "计时计数念佛")
+                    } else {
+                        buddha = BuddhaRecord(startTime, avgDuration, 0, 0, "耳听念佛")
+                    }
                     tmpTime = DateTime(startTime.timeInMillis)
                 }
             }
@@ -555,10 +695,10 @@ class BuddhaPlayerFragment : Fragment() {
      */
     fun checkDuration(callback: DialogChoosenCallback?) {
 //        Thread{
-        val setting = dc.getSetting(Setting.KEYS.buddha_duration)
-        if (setting != null) {
-            var duration = setting.long
-            var count = duration / 600000
+        val setDuration = dc.getSetting(Setting.KEYS.buddha_duration)
+        if (setDuration != null) {
+            var duration = setDuration.long
+            var count = duration / (60000*getCurrentCircleDuration())
             val second = duration % 60000 / 1000
             val hour = duration / (60000 * 60)
             val minite = duration % (60000 * 60) / 60000
@@ -567,7 +707,7 @@ class BuddhaPlayerFragment : Fragment() {
             val secondS = if (second < 10) "0${second}" else "${second}"
 
             val stoptimeInMillis = dc.getSetting(Setting.KEYS.buddha_stoptime, System.currentTimeMillis()).long
-            val msg = "${"${hourS}:${miniteS}:${secondS} \t ${DateTime(stoptimeInMillis).toLongDateString3()} \t ${count}"}"
+            val msg = "${hourS}:${miniteS}:${secondS} \t ${DateTime(stoptimeInMillis).toLongDateString3()}${if (buddhaType == 11) "\t ${count}" else ""}"
 //                if(count>0){
             uiHandler.post {
                 val dialog = AlertDialog.Builder(context).setMessage("缓存中存在念佛记录\n[ ${msg} ]\n是否存档？").setNegativeButton("存档", DialogInterface.OnClickListener { dialog, which ->
@@ -632,10 +772,10 @@ class BuddhaPlayerFragment : Fragment() {
         when (bus.sender) {
             is SenderBuddhaServiceOnDestroy -> {
                 e("buddha player fragment 接收到销毁消息")
-                if (!isChangeSpeed) {
+                if (!isChangeConfig) {
                     checkDuration(null)
                 } else {
-                    isChangeSpeed = false
+                    isChangeConfig = false
                 }
             }
             is SenderTimerRuning -> {
@@ -644,9 +784,9 @@ class BuddhaPlayerFragment : Fragment() {
                 val miniteT = duration / 1000 / 60
                 val minite = miniteT % 60
                 val hour = miniteT / 60
-                var count = (miniteT / circleMinite).toInt()
+                var count = (miniteT / getCurrentCircleDuration()).toInt()
                 var time = "$hour:${if (minite < 10) "0" + minite else minite}:${if (second < 10) "0" + second else second}"
-                tv_time.text = "$time \t $count"
+                tv_time.text = "$time${if (buddhaType == 11) "   $count" else ""}"
             }
         }
     }

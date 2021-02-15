@@ -324,7 +324,7 @@ public class LocationListActivity extends AppCompatActivity {
                     }
 
                     List<Location> searchLocationList = new ArrayList<>();
-                    locationList = dataContext.getLocatiosByDayspan(_Session.UUID_NULL,90, true);
+                    locationList = dataContext.getLocatiosByDayspan(_Session.UUID_NULL,dataContext.getSetting(Setting.KEYS.location_search_days,90).getInt(), true);
                     for (Location location : locationList) {
                         if (searchCircle.contains(new LatLng(location.Latitude, location.Longitude))) {
                             searchLocationList.add(location);
@@ -381,7 +381,7 @@ public class LocationListActivity extends AppCompatActivity {
     private void initData() {
         dataContext = new DataContext(this);
 
-        locationList = dataContext.getLocatiosByDayspan(_Session.UUID_NULL,90, true);
+        locationList = dataContext.getLocatiosByDayspan(_Session.UUID_NULL,dataContext.getSetting(Setting.KEYS.location_search_days,90).getInt(), true);
 
         initListData(locationList);
 
@@ -494,11 +494,11 @@ public class LocationListActivity extends AppCompatActivity {
                 });
                 GroupInfo info = groupInfoList.get(groupPosition);
                 textView_address.setText(info.address.isEmpty() ? "---------------------" : info.address);
-                textView_firstTime.setText(info.firstTime.toLongDateString2());
+                textView_firstTime.setText(info.firstTime.toLongDateString4());
                 if (info.lastTime.getDay() == info.firstTime.getDay() && info.lastTime.getMonth() == info.firstTime.getMonth()) {
                     textView_lastTime.setText(info.lastTime.toShortTimeString());
                 } else {
-                    textView_lastTime.setText(info.lastTime.toLongDateString2());
+                    textView_lastTime.setText(info.lastTime.toLongDateString4());
                 }
                 textView_count.setText(info.count + "次");
 
@@ -509,8 +509,7 @@ public class LocationListActivity extends AppCompatActivity {
         }
 
         @Override
-        public View getChildView(final int groupPosition, final int childPosition,
-                                 boolean isLastChild, View convertView, ViewGroup parent) {
+        public View getChildView(final int groupPosition, final int childPosition,  boolean isLastChild, View convertView, ViewGroup parent) {
             try {
                 convertView = View.inflate(LocationListActivity.this, R.layout.inflate_list_item_location, null);
                 LinearLayout container = convertView.findViewById(R.id.linearLayout_container);

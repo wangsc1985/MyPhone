@@ -3,6 +3,7 @@ package com.wang17.myphone.util
 import android.os.Environment
 import com.wang17.myphone.model.Commodity
 import com.wang17.myphone.model.DateTime
+import com.wang17.myphone.util._Utils.e
 import java.io.File
 import java.util.*
 
@@ -34,6 +35,13 @@ object _Session {
     @JvmField
     var commoditys: MutableList<Commodity>
 
+    /**
+     * 根据文件名，获取当前文件的完整路径的File对象
+     */
+    @JvmStatic
+    fun getFile(name:String):File{
+        return File(ROOT_DIR,name)
+    }
     init {
         try {
             /**

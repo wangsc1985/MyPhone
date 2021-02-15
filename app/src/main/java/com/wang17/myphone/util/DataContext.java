@@ -10,6 +10,7 @@ import com.wang17.myphone.model.DateTime;
 import com.wang17.myphone.model.database.BankToDo;
 import com.wang17.myphone.model.database.BillRecord;
 import com.wang17.myphone.model.database.BillStatement;
+import com.wang17.myphone.model.database.BuddhaFile;
 import com.wang17.myphone.model.database.BuddhaRecord;
 import com.wang17.myphone.model.database.CreditCard;
 import com.wang17.myphone.model.database.DayItem;
@@ -49,6 +50,88 @@ public class DataContext {
         this.context = context;
         dbHelper = new DatabaseHelper(context);
     }
+
+    //region BuddhaFile
+    /**
+     * 增加一条记录
+     *
+     * @param model 记录对象
+     */
+    public void addBuddhaFile(BuddhaFile model) {
+        try {
+            //获取数据库对象
+            SQLiteDatabase db = dbHelper.getWritableDatabase();
+            //使用insert方法向表中插入数据
+            ContentValues values = new ContentValues();
+            values.put("id", model.getId().toString());
+            values.put("name", model.getName());
+            values.put("size", model.getSize());
+            values.put("md5", model.getMd5());
+            values.put("pitch", model.getPitch());
+            values.put("speed", model.getSpeed());
+            values.put("type", model.getType());
+            values.put("duration", model.getDuration());
+
+            //调用方法插入数据
+            db.insert("buddhaFile", "id", values);
+            //关闭SQLiteDatabase对象
+            db.close();
+        } catch (Exception e) {
+            _Utils.printException(context, e);
+        }
+    }
+
+    public BuddhaFile getBuddhaFile(String name,long size) {
+
+        try {
+            //获取数据库对象
+            SQLiteDatabase db = dbHelper.getReadableDatabase();
+            //查询获得游标
+            Cursor cursor = db.query("buddhaFile", null, "name = ? and size = ?", new String[]{name,size+""}, null, null, null);
+            //判断游标是否为空
+            if (cursor.moveToNext()) {
+                BuddhaFile model = new BuddhaFile(UUID.fromString(cursor.getString(0)),
+                        cursor.getString(1),
+                        cursor.getLong(2),
+                        cursor.getString(3),
+                        cursor.getFloat(4),
+                        cursor.getFloat(5),
+                        cursor.getInt(6),
+                        cursor.getInt(7));
+                cursor.close();
+                db.close();
+                return model;
+            }
+        } catch (Exception e) {
+            _Utils.printException(context, e);
+        }
+        return null;
+    }
+
+    public void editBuddhaFile(BuddhaFile model) {
+
+        try {
+            //获取数据库对象
+            SQLiteDatabase db = dbHelper.getWritableDatabase();
+
+            //使用update方法更新表中的数据
+            ContentValues values = new ContentValues();
+            values.put("name", model.getName());
+            values.put("size", model.getSize());
+            values.put("md5", model.getMd5());
+            values.put("pitch", model.getPitch());
+            values.put("speed", model.getSpeed());
+            values.put("type", model.getType());
+            values.put("duration", model.getDuration());
+            //调用方法插入数据
+            db.update("buddhaFile", values, "id=?", new String[]{model.getId().toString()});
+            db.close();
+        } catch (Exception e) {
+            _Utils.printException(context, e);
+        }
+    }
+    //endregion
+
 
     //region BuddhaRecord
 
@@ -262,6 +345,7 @@ public class DataContext {
         }
         return result;
     }
+
     /**
      * 获取某一时刻的record。
      *

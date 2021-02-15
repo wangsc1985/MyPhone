@@ -22,11 +22,11 @@ import android.view.View
 import android.view.WindowManager
 import android.widget.ImageView
 import com.wang17.myphone.R
-import com.wang17.myphone.circleMinite
 import com.wang17.myphone.e
 import com.wang17.myphone.eventbus.EventBusMessage
 import com.wang17.myphone.eventbus.SenderBuddhaServiceOnDestroy
 import com.wang17.myphone.eventbus.SenderTimerRuning
+import com.wang17.myphone.model.database.BuddhaFile
 import com.wang17.myphone.model.database.Setting
 import com.wang17.myphone.util.DataContext
 import com.wang17.myphone.util._NotificationUtils
@@ -53,6 +53,11 @@ class BuddhaService : Service() {
     var savedDuration = 0L
     var notificationCount = 0
     var notificationTime = ""
+
+    var buddhaType = 11
+    var pitch=1.0f
+    var speed = 1.0f
+    var circleMinite=10
 
     override fun onBind(intent: Intent): IBinder? {
         return null
@@ -83,6 +88,16 @@ class BuddhaService : Service() {
             val musicName = dc.getSetting(Setting.KEYS.buddha_music_name)
             if (musicName == null)
                 return
+
+            val file = _Session.getFile(musicName.string)
+            var bf = dc.getBuddhaFile(musicName.string, file.length())
+            if (bf == null) {
+                bf = BuddhaFile(musicName.string,file.length(),_Utils.getMD5(file.path),1.0f,1.0f,0,10)
+            }
+            buddhaType = bf.type
+            speed = bf.speed
+            pitch = bf.pitch
+            circleMinite= bf.duration
             startMediaPlayer(musicName.string)
             showFloatingWindow()
             startTimer()
@@ -91,7 +106,7 @@ class BuddhaService : Service() {
             filter.addAction(ACTION_BUDDHA_PLAYE)
             filter.addAction(ACTION_BUDDHA_PAUSE)
             filter.addAction(BluetoothHeadset.ACTION_CONNECTION_STATE_CHANGED)
-            filter.addAction("android.intent.action.HEADSET_PLUG")
+            filter.addAction(AudioManager.ACTION_AUDIO_BECOMING_NOISY)
             registerReceiver(buddhaReceiver, filter)
         } catch (e: Exception) {
             e("buddha service onCreate" + e.message)
@@ -164,6 +179,7 @@ class BuddhaService : Service() {
 
     private lateinit var mPlayer: MediaPlayer
     private lateinit var mBackgroundPlayer: MediaPlayer
+    @RequiresApi(Build.VERSION_CODES.M)
     fun startMediaPlayer(musicName: String) {
         try {
             requestFocus()
@@ -174,6 +190,10 @@ class BuddhaService : Service() {
             mPlayer.prepare() //进行缓冲
             mPlayer.setVolume(1f, 1f)
             mPlayer.setLooping(true)
+            val params = mPlayer.playbackParams
+            params.setPitch(pitch)
+            params.setSpeed(speed)
+            mPlayer.playbackParams =params
             chantBuddhaStart()
 
 
@@ -326,7 +346,7 @@ class BuddhaService : Service() {
     // TODO: 2020/11/20 悬浮窗
     private fun sendNotification(count: Int, time: String) {
         _NotificationUtils.sendNotification(NOTIFICATION_ID, applicationContext, R.layout.notification_nf) { remoteViews ->
-            remoteViews.setTextViewText(R.id.tv_count, count.toString())
+            remoteViews.setTextViewText(R.id.tv_count, if (buddhaType == 11) count.toString() else "")
             remoteViews.setTextViewText(R.id.tv_time, time)
             if (mPlayer.isPlaying) {
                 remoteViews.setImageViewResource(R.id.image_control, R.drawable.pause)
@@ -465,23 +485,18 @@ class BuddhaService : Service() {
                         }
                         BluetoothHeadset.ACTION_CONNECTION_STATE_CHANGED -> {
                             val adapter = BluetoothAdapter.getDefaultAdapter()
+                            e("接收到蓝牙广播")
                             if (BluetoothProfile.STATE_DISCONNECTED == adapter.getProfileConnectionState(BluetoothProfile.HEADSET)) {
-                                //Bluetooth headset is now disconnected
                                 e("蓝牙耳机断开")
                                 chantBuddhaPause()
                                 floatingWinButState(true)
                                 mAm.abandonAudioFocus(afChangeListener)
                             }
                         }
-                        "android.intent.action.HEADSET_PLUG" -> {
-//                            if (intent.hasExtra("state")) {
-//                                if (intent.getIntExtra("state", 0) === 0) {
-//                                    e("耳机拔出")
-//                                    chantBuddhaPause()
-//                                    floatingWinButState(true)
-//                                    mAm.abandonAudioFocus(afChangeListener)
-//                                }
-//                            }
+                        AudioManager.ACTION_AUDIO_BECOMING_NOISY -> {
+                            chantBuddhaPause()
+                            floatingWinButState(true)
+                            mAm.abandonAudioFocus(afChangeListener)
                         }
                     }
 

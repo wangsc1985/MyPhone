@@ -28,6 +28,7 @@ import com.wang17.myphone.util._SinaStockUtils.OnLoadStockInfoListListener
 import java.math.BigDecimal
 import java.text.DecimalFormat
 import java.util.*
+import java.util.regex.Pattern
 
 /**
  * Implementation of App Widget functionality.
@@ -435,6 +436,11 @@ class MyWidgetProvider : AppWidgetProvider() {
                                 val format = DecimalFormat("#,##0.00")
 
 
+//                                if(content.contains("验证码")){
+//                                    val matcher = Pattern.compile("(?<=验证码).{3}[0-9]{4,8}(?=[,|。])").matcher(content)
+//                                    matcher.find()
+//                                    val hour = matcher.group().toInt()
+//                                }
                                 bankBill = ParseCreditCard.parseABC(context, content)
                                 if (bankBill != null) {
                                     balanceStr = format.format(bankBill.balance)

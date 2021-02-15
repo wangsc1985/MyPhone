@@ -20,6 +20,7 @@ import android.widget.EditText
 import com.wang17.myphone.R
 import com.wang17.myphone.activity.*
 import com.wang17.myphone.callback.CloudCallback
+import com.wang17.myphone.callback.HttpCallback
 import com.wang17.myphone.e
 import com.wang17.myphone.model.DateTime
 import com.wang17.myphone.model.database.BuddhaRecord
@@ -33,6 +34,7 @@ import java.sql.BatchUpdateException
 import java.text.DecimalFormat
 import java.util.*
 import java.util.concurrent.CountDownLatch
+import java.util.regex.Pattern
 import kotlin.collections.ArrayList
 
 
@@ -77,74 +79,75 @@ class ButtonFragment : Fragment() {
         kotlin.run {
             btn = _Button(context!!, "buddha")
             btn.setOnClickListener {
-                AlertDialog.Builder(context!!).setItems(arrayOf("整合", "上传", "详单",), DialogInterface.OnClickListener { dialog, which ->
-                    when (which) {
-                        0 -> {
-                            val dc = DataContext(context)
-                            val buddhaList = dc.getBuddhas("11")
-                            val removeList: MutableList<BuddhaRecord> = ArrayList()
-                            var tmp: BuddhaRecord? = null
-                            buddhaList.forEach { buddha ->
-                                if (tmp != null) {
-                                    if (buddha.startTime.get(Calendar.DAY_OF_YEAR) != tmp!!.startTime.get(Calendar.DAY_OF_YEAR)) {
-                                        dc.editBuddha(tmp)
-                                        tmp = buddha
-                                    } else {
-                                        if (buddha.startTime.hour == tmp!!.startTime.hour) {
-                                            tmp!!.duration += buddha.duration
-                                            tmp!!.count += buddha.count
-                                            removeList.add(buddha)
-                                        } else {
-                                            dc.editBuddha(tmp)
-                                            tmp = buddha
-                                        }
-                                    }
-                                } else {
-                                    tmp = buddha
-                                }
-                            }
-                            tmp?.let {
-                                dc.editBuddha(tmp)
-                            }
-                            dc.deleteBuddhaList(removeList)
-                            AlertDialog.Builder(context!!).setMessage("整合完毕！").show()
-                        }
-                        1 -> {
-                            Thread {
-                                val buddhaList = dataContext.allBuddhas
-                                e("buddha size : ${buddhaList.size}")
-
-                                val uploadList: MutableList<BuddhaRecord> = ArrayList()
-                                for (i in buddhaList.indices) {
-                                    uploadList.add(buddhaList[i])
-                                    if (i % 200 == 0 && i != 0) {
-                                        var latch = CountDownLatch(1)
-                                        _CloudUtils.addBuddhaList(context!!, uploadList, CloudCallback { code, result ->
-                                            e(result)
-                                            uiHandler.post {
-                                                AlertDialog.Builder(context!!).setMessage("当前索引：${i}  网络反馈：${result.toString()}").setCancelable(false).setPositiveButton("继续", DialogInterface.OnClickListener { dialog, which ->
-                                                    uploadList.clear()
-                                                    latch.countDown()
-                                                }).show()
-                                            }
-                                        })
-                                        latch.await()
-                                    }
-                                }
-                                _CloudUtils.addBuddhaList(context!!, uploadList, CloudCallback { code, result ->
-                                    uiHandler.post {
-                                        AlertDialog.Builder(context!!).setMessage(result.toString()).setCancelable(false).setPositiveButton("上传完毕", null).show()
-                                    }
-                                })
-
-                            }.start()
-
-                        }
-                        2 -> {
-                            startActivity(Intent(context!!, BuddhaActivity::class.java))
-                        }
-                    }
-                }).show()
+                startActivity(Intent(context!!, BuddhaActivity::class.java))
+//                AlertDialog.Builder(context!!).setItems(arrayOf("整合", "上传", "详单",), DialogInterface.OnClickListener { dialog, which ->
+//                    when (which) {
+//                        0 -> {
+//                            val dc = DataContext(context)
+//                            val buddhaList = dc.getBuddhas("11")
+//                            val removeList: MutableList<BuddhaRecord> = ArrayList()
+//                            var tmp: BuddhaRecord? = null
+//                            buddhaList.forEach { buddha ->
+//                                if (tmp != null) {
+//                                    if (buddha.startTime.get(Calendar.DAY_OF_YEAR) != tmp!!.startTime.get(Calendar.DAY_OF_YEAR)) {
+//                                        dc.editBuddha(tmp)
+//                                        tmp = buddha
+//                                    } else {
+//                                        if (buddha.startTime.hour == tmp!!.startTime.hour) {
+//                                            tmp!!.duration += buddha.duration
+//                                            tmp!!.count += buddha.count
+//                                            removeList.add(buddha)
+//                                        } else {
+//                                            dc.editBuddha(tmp)
+//                                            tmp = buddha
+//                                        }
+//                                    }
+//                                } else {
+//                                    tmp = buddha
+//                                }
+//                            }
+//                            tmp?.let {
+//                                dc.editBuddha(tmp)
+//                            }
+//                            dc.deleteBuddhaList(removeList)
+//                            AlertDialog.Builder(context!!).setMessage("整合完毕！").show()
+//                        }
+//                        1 -> {
+//                            Thread {
+//                                val buddhaList = dataContext.allBuddhas
+//                                e("buddha size : ${buddhaList.size}")
+//
+//                                val uploadList: MutableList<BuddhaRecord> = ArrayList()
+//                                for (i in buddhaList.indices) {
+//                                    uploadList.add(buddhaList[i])
+//                                    if (i % 200 == 0 && i != 0) {
+//                                        var latch = CountDownLatch(1)
+//                                        _CloudUtils.addBuddhaList(context!!, uploadList, CloudCallback { code, result ->
+//                                            e(result)
+//                                            uiHandler.post {
+//                                                AlertDialog.Builder(context!!).setMessage("当前索引：${i}  网络反馈：${result.toString()}").setCancelable(false).setPositiveButton("继续", DialogInterface.OnClickListener { dialog, which ->
+//                                                    uploadList.clear()
+//                                                    latch.countDown()
+//                                                }).show()
+//                                            }
+//                                        })
+//                                        latch.await()
+//                                    }
+//                                }
+//                                _CloudUtils.addBuddhaList(context!!, uploadList, CloudCallback { code, result ->
+//                                    uiHandler.post {
+//                                        AlertDialog.Builder(context!!).setMessage(result.toString()).setCancelable(false).setPositiveButton("上传完毕", null).show()
+//                                    }
+//                                })
+//
+//                            }.start()
+//
+//                        }
+//                        2 -> {
+//                            startActivity(Intent(context!!, BuddhaActivity::class.java))
+//                        }
+//                    }
+//                }).show()
             }
             layout_flexbox.addView(btn)
         }
@@ -172,7 +175,24 @@ class ButtonFragment : Fragment() {
                 AlertDialog.Builder(context!!).setItems(arrayOf("大乐透", "双色球")) { dialog, which ->
                     when (which) {
                         0 -> {
+                            _OkHttpUtil.getRequest("https://www.xinti.com/prizedetail/dlt.html", HttpCallback {html ->
+                                try {
+                                    var cc=  html.replace("\r","").replace("\n","")
+                                    var matcher = Pattern.compile("(?<=<span class=\"iballs\">).{10,300}(?=</span>)").matcher(cc)
+                                    matcher.find()
+                                    cc = matcher.group().trim()
+                                    matcher = Pattern.compile("\\d").matcher(cc)
+                                    var winLottery= StringBuffer()
+                                    while(matcher.find()){
+                                        cc = matcher.group()
+                                        winLottery.append(cc+";")
+                                    }
 
+                                    LotteryUtil.dlt("",winLottery.toString())
+                                } catch (e: Exception) {
+                                    println(e.message)
+                                }
+                            })
                         }
                         1 -> {
 
@@ -308,14 +328,14 @@ class ButtonFragment : Fragment() {
             layout_flexbox.addView(btn)
         }
 
-        kotlin.run {
-            btn = _Button(context!!, "intr")
-            btn.setOnClickListener {
-                var msg = interest(dataContext.getSetting(Setting.KEYS.interest, "60,14;60,7;60,7").string)
-                AlertDialog.Builder(context!!).setMessage(msg).show()
-            }
-            layout_flexbox.addView(btn)
-        }
+//        kotlin.run {
+//            btn = _Button(context!!, "intr")
+//            btn.setOnClickListener {
+//                var msg = interest(dataContext.getSetting(Setting.KEYS.interest, "60,14;60,7;60,7").string)
+//                AlertDialog.Builder(context!!).setMessage(msg).show()
+//            }
+//            layout_flexbox.addView(btn)
+//        }
     }
 
     fun interest(data: String): String {

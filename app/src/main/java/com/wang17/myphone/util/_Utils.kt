@@ -9,8 +9,6 @@ import android.content.ComponentName
 import android.content.Context
 import android.content.Intent
 import android.content.pm.PackageManager
-import android.media.AudioAttributes
-import android.media.AudioManager
 import android.media.SoundPool
 import android.net.ConnectivityManager
 import android.os.Build
@@ -28,11 +26,12 @@ import android.view.View
 import android.widget.Toast
 import com.ta.utdid2.android.utils.AESUtils
 import com.wang17.myphone.MainActivity
-import com.wang17.myphone.R
 import com.wang17.myphone.model.DateTime
 import com.wang17.myphone.receiver.LockReceiver
 import com.wang17.myphone.service.MyAccessbilityService
+import com.wangsc.commons.codec.digest.DigestUtils
 import java.io.File
+import java.io.FileInputStream
 import java.io.FileNotFoundException
 import java.io.FileReader
 import java.util.*
@@ -58,6 +57,7 @@ object _Utils {
         }
         return false
     }
+
     /**
      * 隐藏虚拟按键，并且全屏
      */
@@ -107,6 +107,7 @@ object _Utils {
     }
 
     private var textToSpeech: TextToSpeech? = null //创建自带语音对象
+
     @JvmStatic
     fun speaker(context: Context?, msg: String?) {
         textToSpeech = TextToSpeech(context) { status ->
@@ -292,6 +293,31 @@ object _Utils {
         val file = File(path)
         val files = file.list { dir, name -> if (name != null && name.endsWith(suffix!!)) true else false }
         return files ?: arrayOf()
+    }
+
+    @JvmStatic
+    fun getMD5(filePath: String): String {
+        return DigestUtils.md5Hex(FileInputStream(filePath))
+
+//        var bi: BigInteger? = null;
+//        try {
+//            var buffer = ByteArray(8192) { i -> i.toByte() }
+//            var len = 0
+//            var md = MessageDigest.getInstance("MD5");
+//            var f = File(path)
+//            var fis = FileInputStream(f)
+//
+//            while (len != -1) {
+//                md.update(buffer, 0, len)
+//                len = fis.read(buffer)
+//            }
+//            fis.close();
+//            var b = md.digest()
+//            bi = BigInteger(1, b);
+//        } catch (e: Exception) {
+//        }
+//        e("md5 time span : ${System.currentTimeMillis()-a}ms")
+//        return bi!!.toString(16)
     }
 
     var policyManager: DevicePolicyManager? = null
@@ -511,6 +537,7 @@ object _Utils {
     }
 
     var mWakeLock: WakeLock? = null
+
     @SuppressLint("InvalidWakeLockTag")
     fun screenOn(context: Context) {
         val pm = context.getSystemService(Context.POWER_SERVICE) as PowerManager
