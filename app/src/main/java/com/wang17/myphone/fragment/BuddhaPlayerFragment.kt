@@ -378,7 +378,9 @@ class BuddhaPlayerFragment : Fragment() {
             }
             val btn = view.findViewById<Button>(R.id.btn_ok)
 //            val list = arrayOf("1 x 1080", "2 x 1080", "3 x 1080", "4 x 1080", "5 x 1080", "6 x 1080", "7 x 1080", "8 x 1080", "9 x 1080", "10 x 1080")
+            val dialog = AlertDialog.Builder(context).setView(view).show()
             btn.setOnClickListener {
+                dialog.dismiss()
                 val count = etCount.text.toString().toInt()
                 val latestBuddha = dc.latestBuddha
                 var avgDuration = (10 * 60000).toLong()
@@ -398,7 +400,6 @@ class BuddhaPlayerFragment : Fragment() {
                     }
                 }
             }
-            AlertDialog.Builder(context).setView(view).show()
 //            AlertDialog.Builder(context).setItems(list, DialogInterface.OnClickListener { dialog, which ->
 //                var count = 0
 //                when (which) {
