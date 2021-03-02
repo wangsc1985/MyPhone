@@ -166,15 +166,15 @@ class MyWidgetRemoteViewsService : RemoteViewsService() {
                             e("get new msg code : $code")
                             when (code) {
                                 1 -> {
-                                    mToDoList.add(ToDo("          ", "          ", msg.toString(), WARNING_1_COLOR, true, R.raw.bi))
+                                    mToDoList.add(ToDo("          ", "          ", msg.toString(), WARNING3_COLOR, true, R.raw.bi))
                                     e("查询完毕 $msg")
                                 }
                                 -1 -> {
-                                    mToDoList.add(ToDo("          ", "          ", msg.toString(), WARNING_1_COLOR, false, R.raw.bi))
+                                    mToDoList.add(ToDo("          ", "          ", msg.toString(), WARNING3_COLOR, false, R.raw.bi))
                                     e("$msg")
                                 }
                                 -2 -> {
-                                    mToDoList.add(ToDo("          ", "          ", msg.toString(), WARNING_1_COLOR, false, R.raw.bi))
+                                    mToDoList.add(ToDo("          ", "          ", msg.toString(), WARNING3_COLOR, false, R.raw.bi))
                                     e("$msg")
                                 }
                             }
@@ -240,22 +240,22 @@ class MyWidgetRemoteViewsService : RemoteViewsService() {
                     when (dayOffset) {
                         0 -> {
                             toDo.header = "今"
-                            toDo.color1 = WARNING_1_COLOR
-                            toDo.color2 = WARNING_1_COLOR
-                            toDo.color3 = WARNING_1_COLOR
+                            toDo.color1 = WARNING3_COLOR
+                            toDo.color2 = WARNING3_COLOR
+                            toDo.color3 = WARNING3_COLOR
                             toDo.isAlert = true
                         }
                         1 -> {
                             toDo.header = "明"
-                            toDo.color1 = WARNING_2_COLOR
-                            toDo.color2 = WARNING_2_COLOR
-                            toDo.color3 = WARNING_2_COLOR
+                            toDo.color1 = WARNING2_COLOR
+                            toDo.color2 = WARNING2_COLOR
+                            toDo.color3 = WARNING2_COLOR
                         }
                         2 -> {
                             toDo.header = "后"
-                            toDo.color1 = WARNING_3_COLOR
-                            toDo.color2 = WARNING_3_COLOR
-                            toDo.color3 = WARNING_3_COLOR
+                            toDo.color1 = WARNING1_COLOR
+                            toDo.color2 = WARNING1_COLOR
+                            toDo.color3 = WARNING1_COLOR
                         }
                         else -> toDo.header = dayOffset.toString() + ""
                     }
@@ -283,20 +283,91 @@ class MyWidgetRemoteViewsService : RemoteViewsService() {
             when (today.day) {
                 9 ->                     // 交行 放款日
                     mToDoList.add(ToDo("放款", "COMM",
-                            "7086", WARNING_1_COLOR, mDataContext.getSetting(Setting.KEYS.is_make_loan_alert, false).boolean))
+                            "7086", WARNING3_COLOR, mDataContext.getSetting(Setting.KEYS.is_make_loan_alert, false).boolean))
                 18 ->                     // 工行 放款日
                     mToDoList.add(ToDo("放款", "ICB",
-                            "0174", WARNING_1_COLOR, mDataContext.getSetting(Setting.KEYS.is_make_loan_alert, false).boolean))
+                            "0174", WARNING3_COLOR, mDataContext.getSetting(Setting.KEYS.is_make_loan_alert, false).boolean))
             }
+
             /**
              * 农历
              */
-            val lunarTom = Lunar(today)
-            if (lunarTom.day == 1) {
+            val lunar0 = Lunar(today)
+            val lunar1 = Lunar(today.addDays(1))
+            val lunar2 = Lunar(today.addDays(2))
+            if (lunar0.day == 1) {
                 mToDoList.add(ToDo("今天", "初一", "戒", RELIGIOUS_WARNING_COLOR, false))
-            } else if (lunarTom.day == 15) {
+            } else if (lunar0.day == 15) {
                 mToDoList.add(ToDo("今天", "十五", "戒", RELIGIOUS_WARNING_COLOR, false))
             }
+
+            /**
+             * 忌日
+             */
+            if(lunar0.month==2){
+                when(lunar0.day){
+                    10->{
+                        mToDoList.add(ToDo("后天", "忌日", "上坟", WARNING1_COLOR, false))
+                    }
+                    11->{
+                        mToDoList.add(ToDo("明天", "忌日", "上坟", WARNING2_COLOR, false))
+                    }
+                    12->{
+                        mToDoList.add(ToDo("今天", "忌日", "上坟", WARNING3_COLOR, false))
+                    }
+                }
+            }
+
+            /**
+             * 清明节
+             */
+            val qmMap = solarTermMap.filter { m->m.value==SolarTerm.清明&&m.key.year==today.year }
+            val qmDate = qmMap.keys.firstOrNull()
+            qmDate?.let {
+                    when(it.get(Calendar.DAY_OF_YEAR)-today.get(Calendar.DAY_OF_YEAR)){
+                        0->{
+                            mToDoList.add(ToDo("今天", "清明节", "上坟", WARNING1_COLOR, false))
+                        }
+                        1->{
+                            mToDoList.add(ToDo("明天", "清明节", "上坟", WARNING2_COLOR, false))
+                        }
+                        2->{
+                            mToDoList.add(ToDo("后天", "清明节", "上坟", WARNING3_COLOR, false))
+                        }
+                        else->{
+
+                        }
+                    }
+            }
+
+            /**
+             * 鬼节
+             */
+            if(lunar0.month==7){
+                when(lunar0.day){
+                    13->{
+                        mToDoList.add(ToDo("后天", "七月十五", "上坟", WARNING1_COLOR, false))
+                    }
+                    14->{
+                        mToDoList.add(ToDo("明天", "七月十五", "上坟", WARNING2_COLOR, false))
+                    }
+                    15->{
+                        mToDoList.add(ToDo("今天", "七月十五", "上坟", WARNING3_COLOR, false))
+                    }
+                }
+            }
+
+            /**
+             * 十月初一
+             */
+            if(lunar2.month==10&&lunar2.day==1){
+                mToDoList.add(ToDo("后天", "十月初一", "上坟", WARNING1_COLOR, false))
+            }else if(lunar1.month==10&&lunar1.day==1){
+                mToDoList.add(ToDo("明天", "十月初一", "上坟", WARNING2_COLOR, false))
+            }else if(lunar0.month==10&&lunar0.day==1){
+                mToDoList.add(ToDo("今天", "十月初一", "上坟", WARNING3_COLOR, false))
+            }
+
             /**
              * 戒期
              */
@@ -438,9 +509,9 @@ class MyWidgetRemoteViewsService : RemoteViewsService() {
             return false
         }
 
-        val WARNING_1_COLOR = Color.RED
-        val WARNING_2_COLOR = Color.YELLOW
-        val WARNING_3_COLOR = Color.GREEN
+        val WARNING3_COLOR = Color.RED
+        val WARNING2_COLOR = Color.YELLOW
+        val WARNING1_COLOR = Color.GREEN
         val NORMAL_COLOR = Color.WHITE
         val RELIGIOUS_WARNING_COLOR = Color.RED
 //        companion object {

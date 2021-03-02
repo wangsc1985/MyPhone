@@ -12,10 +12,7 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.view.inputmethod.EditorInfo
-import android.widget.Button
-import android.widget.EditText
-import android.widget.ImageView
-import android.widget.Spinner
+import android.widget.*
 import com.alibaba.fastjson.JSON
 import com.wang17.myphone.R
 import com.wang17.myphone.callback.CloudCallback
@@ -369,6 +366,29 @@ class BuddhaPlayerFragment : Fragment() {
             val etCount = view.findViewById<EditText>(R.id.et_count)
             val ivAdd = view.findViewById<ImageView>(R.id.iv_add)
             val ivMinus = view.findViewById<ImageView>(R.id.iv_minus)
+
+
+            val now = DateTime()
+            val hourNumbers = arrayOfNulls<String>(24)
+            for (i in 0..23) {
+                hourNumbers[i] = i.toString() + "点"
+            }
+            val minNumbers = arrayOfNulls<String>(60)
+            for (i in 0..59) {
+                minNumbers[i] = i.toString() + "分"
+            }
+            val number_hour = view.findViewById<View>(R.id.number_hour) as NumberPicker
+            val number_min = view.findViewById<View>(R.id.number_min) as NumberPicker
+            number_hour.minValue = 0
+            number_hour.displayedValues = hourNumbers
+            number_hour.maxValue = 23
+            number_hour.value = now.hour
+            number_hour.descendantFocusability = NumberPicker.FOCUS_BLOCK_DESCENDANTS // 禁止对话框打开后数字选择框被选中
+            number_min.minValue = 0
+            number_min.displayedValues = minNumbers
+            number_min.maxValue = 59
+            number_min.value = now.minite
+            number_min.descendantFocusability = NumberPicker.FOCUS_BLOCK_DESCENDANTS // 禁止对话框打开后数字选择框被选中
             ivAdd.setOnClickListener {
                 etCount.setText((etCount.text.toString().toInt()+1).toString())
             }
@@ -377,17 +397,21 @@ class BuddhaPlayerFragment : Fragment() {
                 etCount.setText((etCount.text.toString().toInt()-1).toString())
             }
             val btn = view.findViewById<Button>(R.id.btn_ok)
-//            val list = arrayOf("1 x 1080", "2 x 1080", "3 x 1080", "4 x 1080", "5 x 1080", "6 x 1080", "7 x 1080", "8 x 1080", "9 x 1080", "10 x 1080")
             val dialog = AlertDialog.Builder(context).setView(view).show()
             btn.setOnClickListener {
                 dialog.dismiss()
                 val count = etCount.text.toString().toInt()
                 val latestBuddha = dc.latestBuddha
+                val hour = number_hour.value
+                val min = number_min.value
                 var avgDuration = (10 * 60000).toLong()
                 if (latestBuddha != null) {
                     avgDuration = latestBuddha.duration / latestBuddha.count
                 }
-                var stoptimeInMillis = System.currentTimeMillis()
+                var time = DateTime()
+                time.set(Calendar.HOUR_OF_DAY,hour)
+                time.set(Calendar.MINUTE,min)
+                var stoptimeInMillis = time.timeInMillis
 
                 buildBuddhaListAndSave(count, stoptimeInMillis, avgDuration) { code, result ->
                     if (code == 0) {
@@ -400,64 +424,6 @@ class BuddhaPlayerFragment : Fragment() {
                     }
                 }
             }
-//            AlertDialog.Builder(context).setItems(list, DialogInterface.OnClickListener { dialog, which ->
-//                var count = 0
-//                when (which) {
-//                    0 -> {
-//                        count = 1
-//                    }
-//                    1 -> {
-//                        count = 2
-//                    }
-//                    2 -> {
-//                        count = 3
-//                    }
-//                    3 -> {
-//                        count = 4
-//                    }
-//                    4 -> {
-//                        count = 5
-//                    }
-//                    5 -> {
-//                        count = 6
-//                    }
-//                    6 -> {
-//                        count = 7
-//                    }
-//                    7 -> {
-//                        count = 8
-//                    }
-//                    8 -> {
-//                        count = 9
-//                    }
-//                    9 -> {
-//                        count = 10
-//                    }
-//                }
-//                AlertDialog.Builder(context).setMessage("新增 $count 圈？").setNegativeButton("是", DialogInterface.OnClickListener { dialog, which ->
-//                    /**
-//                     * string phone, long startTime ,long duration , int count, string summary, int type
-//                     */
-//
-//                    val latestBuddha = dc.latestBuddha
-//                    var avgDuration = (10 * 60000).toLong()
-//                    if (latestBuddha != null) {
-//                        avgDuration = latestBuddha.duration / latestBuddha.count
-//                    }
-//                    var stoptimeInMillis = System.currentTimeMillis()
-//
-//                    buildBuddhaListAndSave(count, stoptimeInMillis, avgDuration) { code, result ->
-//                        if (code == 0) {
-//                            uiHandler.post {
-//                                refreshTotalView()
-//                            }
-//                        }
-//                        uiHandler.post {
-//                            AlertDialog.Builder(context!!).setMessage(result.toString()).show()
-//                        }
-//                    }
-//                }).show()
-//            }).show()
             true
         }
 

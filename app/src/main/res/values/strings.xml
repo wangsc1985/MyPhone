@@ -9,4 +9,5 @@
     <string name="widget_text">阿弥陀佛</string>
 
     <string name="title_activity_dark_run">DarkRunActivity</string>
+    <string name="title_activity_knocker">FullscreenActivity</string>
 </resources>
