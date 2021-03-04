@@ -932,6 +932,17 @@ public class Religious {
             this.AddReligiousDay(today, "阴错日。此阴不足之日。俱宜戒。");
         }
 
+        /**
+         * 阳错日
+         */
+        if (chineseMonth == 1 && ganzhi.getTianGanDay() == "甲" && ganzhi.getDiZhiDay() == "寅" || chineseMonth == 2 && ganzhi.getTianGanDay() == "乙" && ganzhi.getDiZhiDay() == "卯"
+                || chineseMonth == 3 && ganzhi.getTianGanDay() == "甲" && ganzhi.getDiZhiDay() == "辰" || chineseMonth == 4 && ganzhi.getTianGanDay() == "丁" && ganzhi.getDiZhiDay() == "巳"
+                || chineseMonth == 5 && ganzhi.getTianGanDay() == "丙" && ganzhi.getDiZhiDay() == "午" || chineseMonth == 6 && ganzhi.getTianGanDay() == "丁" && ganzhi.getDiZhiDay() == "未"
+                || chineseMonth == 7 && ganzhi.getTianGanDay() == "庚" && ganzhi.getDiZhiDay() == "申" || chineseMonth == 8 && ganzhi.getTianGanDay() == "辛" && ganzhi.getDiZhiDay() == "酉"
+                || chineseMonth == 9 && ganzhi.getTianGanDay() == "庚" && ganzhi.getDiZhiDay() == "戌" || chineseMonth == 10 && ganzhi.getTianGanDay() == "癸" && ganzhi.getDiZhiDay() == "亥"
+                || chineseMonth == 11 && ganzhi.getTianGanDay() == "壬" && ganzhi.getDiZhiDay() == "子" || chineseMonth == 12 && ganzhi.getTianGanDay() == "癸" && ganzhi.getDiZhiDay() == "丑") {
+            AddReligiousDay(today, "阳错日。此阳不足之日。俱宜戒。");
+        }
         // 五毒月
         if (chineseMonth == 5) {
             this.AddRemark(today, "注：农历五月俗称五毒月，按此月宜全戒为是。");

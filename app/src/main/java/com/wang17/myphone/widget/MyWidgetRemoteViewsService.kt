@@ -346,13 +346,13 @@ class MyWidgetRemoteViewsService : RemoteViewsService() {
             if(lunar0.month==7){
                 when(lunar0.day){
                     13->{
-                        mToDoList.add(ToDo("后天", "七月十五", "上坟", WARNING1_COLOR, false))
+                        mToDoList.add(ToDo("后天", "中元节", "上坟", WARNING1_COLOR, false))
                     }
                     14->{
-                        mToDoList.add(ToDo("明天", "七月十五", "上坟", WARNING2_COLOR, false))
+                        mToDoList.add(ToDo("明天", "中元节", "上坟", WARNING2_COLOR, false))
                     }
                     15->{
-                        mToDoList.add(ToDo("今天", "七月十五", "上坟", WARNING3_COLOR, false))
+                        mToDoList.add(ToDo("今天", "中元节", "上坟", WARNING3_COLOR, false))
                     }
                 }
             }

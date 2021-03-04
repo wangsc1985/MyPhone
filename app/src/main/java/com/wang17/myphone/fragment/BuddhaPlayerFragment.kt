@@ -220,9 +220,9 @@ class BuddhaPlayerFragment : Fragment() {
                     
                     回向给我父、母、兄、妹，以及他们的冤亲债主。
                     
-                    回向给法界一切众生。
+                    回向给法界一切众生，愿所有众生，业障消除，善根增长，脱轮回苦，生极乐国。
                     
-                    愿我一心向道，念佛精进，早得三昧，速证菩提。
+                    愿我念佛精进，愿心不退，早得三昧，速证菩提。
                     
                     祈求观音菩萨，慈悲加持，入我梦中，除我病苦。
                     
@@ -367,7 +367,6 @@ class BuddhaPlayerFragment : Fragment() {
             val ivAdd = view.findViewById<ImageView>(R.id.iv_add)
             val ivMinus = view.findViewById<ImageView>(R.id.iv_minus)
 
-
             val now = DateTime()
             val hourNumbers = arrayOfNulls<String>(24)
             for (i in 0..23) {
@@ -424,8 +423,14 @@ class BuddhaPlayerFragment : Fragment() {
                     }
                 }
             }
+
+            val btnTo = view.findViewById<Button>(R.id.btn_to)
+            btnTo.setOnClickListener {
+                addBuddhaRecordDialog()
+            }
             true
         }
+
 
         abtn_stock.setOnClickListener {
             //region 在StockReportService里面执行
@@ -463,6 +468,66 @@ class BuddhaPlayerFragment : Fragment() {
             true
         }
         super.onViewCreated(view, savedInstanceState)
+    }
+
+    fun addBuddhaRecordDialog(){
+        val view = View.inflate(context,R.layout.inflate_dialog_add_buddha1,null)
+        val cvDate = view.findViewById<CalendarView>(R.id.cv_date)
+        val etNum = view.findViewById<EditText>(R.id.et_count)
+        cvDate.date = System.currentTimeMillis()
+
+        val now = DateTime()
+        val hourNumbers = arrayOfNulls<String>(24)
+        for (i in 0..23) {
+            hourNumbers[i] = i.toString() + "点"
+        }
+        val minNumbers = arrayOfNulls<String>(60)
+        for (i in 0..59) {
+            minNumbers[i] = i.toString() + "分"
+        }
+        val number_hour = view.findViewById<View>(R.id.number_hour) as NumberPicker
+        val number_min = view.findViewById<View>(R.id.number_min) as NumberPicker
+        number_hour.minValue = 0
+        number_hour.displayedValues = hourNumbers
+        number_hour.maxValue = 23
+        number_hour.value = now.hour
+        number_hour.descendantFocusability = NumberPicker.FOCUS_BLOCK_DESCENDANTS // 禁止对话框打开后数字选择框被选中
+        number_hour.value=21
+        number_min.minValue = 0
+        number_min.displayedValues = minNumbers
+        number_min.maxValue = 59
+        number_min.value = now.minite
+        number_min.descendantFocusability = NumberPicker.FOCUS_BLOCK_DESCENDANTS // 禁止对话框打开后数字选择框被选中
+        val btn = view.findViewById<Button>(R.id.btn_ok)
+        val dialog = AlertDialog.Builder(context).setView(view).setCancelable(false).show()
+        btn.setOnClickListener {
+            val num = etNum.text.toString().toInt()
+            val count = Math.round(num.toFloat() /1080)
+// TODO: 2021/3/3 asdfasdf
+            val hour = number_hour.value
+            val min = number_min.value
+            var avgDuration = (10 * 60000).toLong()
+
+            var time = DateTime(cvDate.date)
+            time.set(Calendar.HOUR_OF_DAY,hour)
+            time.set(Calendar.MINUTE,min)
+            var stoptimeInMillis = time.timeInMillis
+
+            buildBuddhaListAndSave(count, stoptimeInMillis, avgDuration) { code, result ->
+                if (code == 0) {
+                    uiHandler.post {
+                        refreshTotalView()
+                    }
+                }
+                uiHandler.post {
+                    AlertDialog.Builder(context!!).setMessage(result.toString()).show()
+                }
+            }
+        }
+        btn.setOnLongClickListener {
+            dialog.dismiss()
+            true
+        }
     }
 
     private fun updateConfig() {

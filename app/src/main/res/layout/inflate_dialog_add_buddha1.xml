@@ -7,6 +7,11 @@
     android:orientation="vertical">
 
 
+    <CalendarView
+        android:id="@+id/cv_date"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content" />
+
     <android.support.constraint.ConstraintLayout
         android:id="@+id/linearLayout13"
         android:layout_width="wrap_content"
@@ -33,38 +38,21 @@
             app:layout_constraintTop_toTopOf="parent" />
 
 
-        <ImageView
-            android:id="@+id/iv_minus"
-            android:layout_width="40dp"
-            android:layout_height="40dp"
-            app:layout_constraintBottom_toBottomOf="@+id/number_min"
-            app:layout_constraintStart_toEndOf="@+id/number_min"
-            app:layout_constraintTop_toTopOf="@+id/number_min"
-            app:srcCompat="@drawable/minus_box" />
-
         <EditText
             android:id="@+id/et_count"
             style="@style/Widget.AppCompat.AutoCompleteTextView"
-            android:layout_width="wrap_content"
+            android:layout_width="120dp"
             android:layout_height="wrap_content"
+            android:layout_marginStart="16dp"
+            android:background="@android:drawable/edit_text"
             android:duplicateParentState="false"
             android:ems="3"
-            android:enabled="false"
-            android:gravity="center_horizontal"
+            android:enabled="true"
+            android:gravity="center"
             android:inputType="number"
-            android:text="1"
-            app:layout_constraintBottom_toBottomOf="@+id/iv_minus"
-            app:layout_constraintStart_toEndOf="@+id/iv_minus"
-            app:layout_constraintTop_toTopOf="@+id/iv_minus" />
-
-        <ImageView
-            android:id="@+id/iv_add"
-            android:layout_width="40dp"
-            android:layout_height="40dp"
-            app:layout_constraintBottom_toBottomOf="@+id/et_count"
-            app:layout_constraintStart_toEndOf="@+id/et_count"
-            app:layout_constraintTop_toTopOf="@+id/et_count"
-            app:srcCompat="@drawable/add_box" />
+            android:text="10000"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintStart_toEndOf="@+id/number_min" />
 
 
         <Button
@@ -72,18 +60,11 @@
             style="@style/Widget.AppCompat.Button.Colored"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:layout_marginStart="16dp"
             android:text="添加"
             app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintEnd_toEndOf="parent" />
-
-        <Button
-            android:id="@+id/btn_to"
-            style="@style/Widget.AppCompat.Button.Colored"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="计数"
             app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintTop_toTopOf="parent" />
+            app:layout_constraintStart_toEndOf="@+id/et_count" />
 
     </android.support.constraint.ConstraintLayout>
 
