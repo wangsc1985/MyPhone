@@ -2,7 +2,6 @@ package com.wang17.myphone.activity
 
 import android.content.Intent
 import android.os.Bundle
-import android.support.design.widget.FloatingActionButton
 import android.support.design.widget.Snackbar
 import android.support.v7.app.AppCompatActivity
 import android.util.Log
@@ -38,7 +37,7 @@ class BuddhaActivity : AppCompatActivity(), OnActionFragmentBackListener {
     private lateinit var childListList: MutableList<List<ChildInfo>>
     var year = 0
     var duration: Long = 0
-    var count = 0
+    var tap = 0
     var number = 0
     override fun onCreate(savedInstanceState: Bundle?) {
         try {
@@ -117,7 +116,7 @@ class BuddhaActivity : AppCompatActivity(), OnActionFragmentBackListener {
 
     private fun reflushData(year: Int) {
         try {
-            count = 0
+            tap = 0
             number = 0
             duration = 0L
             groupList = ArrayList()
@@ -157,14 +156,14 @@ class BuddhaActivity : AppCompatActivity(), OnActionFragmentBackListener {
                     childNode.start = date.timeInMillis
                     for (record in records) {
                         groupNode.duration += record.duration
-                        groupNode.count += record.count
-                        groupNode.number += (record.count * 1080).toLong()
+                        groupNode.count += record.tap
+                        groupNode.number += (record.tap * record.tapCount).toLong()
                         childNode.duration += record.duration
-                        childNode.count += record.count
-                        childNode.number += (record.count * 1080).toLong()
+                        childNode.count += record.tap
+                        childNode.number += (record.tap * record.tapCount).toLong()
                         duration += record.duration
-                        count += record.count
-                        number += record.count * 1080
+                        tap += record.tap
+                        number += record.tap * record.tapCount
                     }
                     childList.add(childNode)
                 } else {
@@ -180,14 +179,14 @@ class BuddhaActivity : AppCompatActivity(), OnActionFragmentBackListener {
                     childNode.start = date.timeInMillis
                     for (record in records) {
                         groupNode.duration += record.duration
-                        groupNode.count += record.count
-                        groupNode.number += (record.count * 1080).toLong()
+                        groupNode.count += record.tap
+                        groupNode.number += (record.tap * record.tapCount).toLong()
                         childNode.duration += record.duration
-                        childNode.count += record.count
-                        childNode.number += (record.count * 1080).toLong()
+                        childNode.count += record.tap
+                        childNode.number += (record.tap * record.tapCount).toLong()
                         duration += record.duration
-                        count += record.count
-                        number += record.count * 1080
+                        tap += record.tap
+                        number += record.tap * record.tapCount
                     }
                     childList.add(childNode)
                     groupList.add(groupNode)
@@ -195,7 +194,7 @@ class BuddhaActivity : AppCompatActivity(), OnActionFragmentBackListener {
                 }
                 date = date.addDays(-1)
             }
-            tv_year.text = year.toString() + "年   " + count + "圈   " + toSpanString2(duration) + "   " + DecimalFormat("0.00").format(number.toDouble() / 10000) + "万"
+            tv_year.text = year.toString() + "年   " + tap + "圈   " + toSpanString2(duration) + "   " + DecimalFormat("0.00").format(number.toDouble() / 10000) + "万"
         } catch (e: Exception) {
             printException(this@BuddhaActivity, e)
         }
@@ -237,7 +236,7 @@ class BuddhaActivity : AppCompatActivity(), OnActionFragmentBackListener {
                 convertView = View.inflate(this@BuddhaActivity, R.layout.inflate_list_item_buddha_group, null)
                 val textView_date = convertView.findViewById<TextView>(R.id.textView_date)
                 val textView_duration = convertView.findViewById<TextView>(R.id.textView_monthDuration)
-                val textView_count = convertView.findViewById<TextView>(R.id.textView_monthCount)
+                val textView_count = convertView.findViewById<TextView>(R.id.textView_monthTap)
                 val textView_number = convertView.findViewById<TextView>(R.id.textView_monthNumber)
                 val info = groupList[groupPosition]
                 textView_date.text = _String.format(info.month) + "月"
@@ -266,7 +265,7 @@ class BuddhaActivity : AppCompatActivity(), OnActionFragmentBackListener {
                 convertView = View.inflate(this@BuddhaActivity, R.layout.inflate_list_item_buddha_child, null)
                 val textView_date = convertView.findViewById<View>(R.id.textView_date) as TextView
                 val textView_duration = convertView.findViewById<View>(R.id.textView_monthDuration) as TextView
-                val textView_count = convertView.findViewById<View>(R.id.textView_monthCount) as TextView
+                val textView_count = convertView.findViewById<View>(R.id.textView_monthTap) as TextView
                 val textView_number = convertView.findViewById<View>(R.id.textView_monthNumber) as TextView
                 val childInfo = childListList[groupPosition][childPosition]
                 textView_date.text = _String.format(childInfo.day)

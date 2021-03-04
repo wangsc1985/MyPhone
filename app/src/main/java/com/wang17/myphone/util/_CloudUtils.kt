@@ -15,7 +15,6 @@ import com.wang17.myphone.util._OkHttpUtil.postRequestByJsonStr
 import org.json.JSONArray
 import java.util.*
 import java.util.concurrent.CountDownLatch
-import kotlin.math.exp
 
 object _CloudUtils {
     private var newMsgCount = 0
@@ -98,7 +97,8 @@ object _CloudUtils {
                 args.add(PostArgument("phone", "18509513143"))
                 args.add(PostArgument("startTime", buddha.startTime.timeInMillis))
                 args.add(PostArgument("duration", buddha.duration))
-                args.add(PostArgument("count", buddha.count))
+                args.add(PostArgument("tap", buddha.tap))
+                args.add(PostArgument("tapCount", buddha.tapCount))
                 args.add(PostArgument("summary", buddha.summary))
                 args.add(PostArgument("type", buddha.type))
                 postRequestByJson(url, args, HttpCallback { html ->
@@ -169,7 +169,8 @@ object _CloudUtils {
                     json.append("{")
                     json.append("\"startTime\":\"${ buddhaList[i].startTime.timeInMillis}\"")
                     json.append(",\"duration\":\"${buddhaList[i].duration}\"")
-                    json.append(",\"count\":\"${buddhaList[i].count}\"")
+                    json.append(",\"tap\":\"${buddhaList[i].tap}\"")
+                    json.append(",\"tapCount\":\"${buddhaList[i].tapCount}\"")
                     json.append(",\"summary\":\"${buddhaList[i].summary}\"")
                     json.append(",\"type\":\"${buddhaList[i].type}\"")
                     json.append("}")
@@ -217,7 +218,7 @@ object _CloudUtils {
                 var json = StringBuilder()
                 json.append("{\"phone\":\"18509513143\",")
                 if(lastBuddha!=null){
-                    json.append("\"lastdata\":{\"startTime\":\"${lastBuddha.startTime.timeInMillis}\",\"duration\":\"${lastBuddha.duration}\",\"count\":\"${lastBuddha.count}\",\"summary\":\"${lastBuddha.summary}\",\"type\":\"${lastBuddha.type}\"},")
+                    json.append("\"lastdata\":{\"startTime\":\"${lastBuddha.startTime.timeInMillis}\",\"duration\":\"${lastBuddha.duration}\",\"tap\":\"${lastBuddha.tap}\",\"tapCount\":\"${lastBuddha.tapCount}\",\"summary\":\"${lastBuddha.summary}\",\"type\":\"${lastBuddha.type}\"},")
                 }
                 json.append("\"newdata\":[");
                 for (i in buddhaList.indices)
@@ -225,7 +226,8 @@ object _CloudUtils {
                     json.append("{");
                     json.append("\"startTime\":\"${ buddhaList[i].startTime.timeInMillis}\"");
                     json.append(",\"duration\":\"${buddhaList[i].duration}\"");
-                    json.append(",\"count\":\"${buddhaList[i].count}\"");
+                    json.append(",\"tap\":\"${buddhaList[i].tap}\"");
+                    json.append(",\"tapCount\":\"${buddhaList[i].tapCount}\"");
                     json.append(",\"summary\":\"${buddhaList[i].summary}\"");
                     json.append(",\"type\":\"${buddhaList[i].type}\"");
                     json.append("}");

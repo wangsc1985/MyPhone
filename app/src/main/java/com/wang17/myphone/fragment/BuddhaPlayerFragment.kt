@@ -75,10 +75,11 @@ class BuddhaPlayerFragment : Fragment() {
                     for (i in jsonArray.indices) {
                         val startTime = _JsonUtils.getValueByKey(jsonArray[i], "startTime").toLong()
                         val duration = _JsonUtils.getValueByKey(jsonArray[i], "duration").toLong()
-                        val count = _JsonUtils.getValueByKey(jsonArray[i], "count").toInt()
+                        val tap = _JsonUtils.getValueByKey(jsonArray[i], "tap").toInt()
+                        val tapCount = _JsonUtils.getValueByKey(jsonArray[i], "tapCount").toInt()
                         val summary = _JsonUtils.getValueByKey(jsonArray[i], "summary")
                         val type = _JsonUtils.getValueByKey(jsonArray[i], "type").toInt()
-                        buddhaS.add(BuddhaRecord(DateTime(startTime), duration, count, type, summary))
+                        buddhaS.add(BuddhaRecord(DateTime(startTime), duration, tap,tapCount, type, summary))
                     }
 
                     dc.addBuddhas(buddhaS)
@@ -102,14 +103,18 @@ class BuddhaPlayerFragment : Fragment() {
         var totalDayCount = 0
         var totalMonthDuration: Long = 0
         var totalMonthCount = 0
+        var totalDayTap=0
+        var totalMonthTap=0
         val monthBuddhas = dc.getBuddhas(now.year, now.month)
         monthBuddhas.forEach {
-            totalMonthCount += it.count
+            totalMonthTap+=it.tap
+            totalMonthCount += it.tap*it.tapCount
             totalMonthDuration += it.duration
         }
         val dayBuddhas = dc.getBuddhas(now)
         dayBuddhas.forEach {
-            totalDayCount += it.count
+            totalDayTap+=it.tap
+            totalDayCount += it.tap*it.tapCount
             totalDayDuration += it.duration
         }
 
@@ -135,8 +140,8 @@ class BuddhaPlayerFragment : Fragment() {
         val formatter1 = DecimalFormat("0.0")
         val formatter2 = DecimalFormat("0.00")
         uiHandler.post {
-            tv_monthTotal.setText("${hourS}${miniteS}  ${formatter2.format((totalMonthCount * 1080).toMyDecimal() / 10000.toBigDecimal())}万  ${formatter1.format(totalMonthCount.toMyDecimal() / now.day.toBigDecimal())}圈")
-            tv_dayTotal.setText("${hourS1}${miniteS1}  ${formatter.format(totalDayCount * 1080)}  ${totalDayCount}圈")
+            tv_monthTotal.setText("${hourS}${miniteS}  ${formatter2.format((totalMonthCount).toMyDecimal() / 10000.toBigDecimal())}万  ${formatter1.format(totalMonthTap.toMyDecimal() / now.day.toBigDecimal())}圈")
+            tv_dayTotal.setText("${hourS1}${miniteS1}  ${formatter.format(totalDayCount)}  ${totalDayTap}圈")
         }
     }
 
@@ -174,10 +179,10 @@ class BuddhaPlayerFragment : Fragment() {
             val setting = dc.getSetting(Setting.KEYS.buddha_duration)
             setting?.let {
                 val duration = setting.long
-                val count = duration / getCurrentCircleDuration()
-                val avgDuration = if (count == 0L) duration else duration / count
+                val tap = duration / getCurrentCircleDuration()
+                val avgDuration = if (tap == 0L) duration else duration / tap
                 AlertDialog.Builder(context).setMessage("缓存中存在念佛记录，是否存档？").setPositiveButton("存档", DialogInterface.OnClickListener { dialog, which ->
-                    buildBuddhaListAndSave(count.toInt(), dc.getSetting(Setting.KEYS.buddha_stoptime, System.currentTimeMillis()).long, avgDuration, CloudCallback { code, result ->
+                    buildBuddhaListAndSave(tap.toInt(),1080, dc.getSetting(Setting.KEYS.buddha_stoptime, System.currentTimeMillis()).long, avgDuration, CloudCallback { code, result ->
                         if (code == 0) {
                             dc.deleteSetting(Setting.KEYS.buddha_duration)
                             dc.deleteSetting(Setting.KEYS.buddha_stoptime)
@@ -287,8 +292,8 @@ class BuddhaPlayerFragment : Fragment() {
                 val miniteS = if (minite < 10) "0${minite}" else "${minite}"
                 val secondS = if (second < 10) "0${second}" else "${second}"
 
-                totalCount += dayBuddhaList[index].count
-                items[index] = "${dayBuddhaList[index].startTime.toShortTimeString()}   ${hourS}:${miniteS}:${secondS}   ${dayBuddhaList[index].count}"
+                totalCount += dayBuddhaList[index].tap
+                items[index] = "${dayBuddhaList[index].startTime.toShortTimeString()}   ${hourS}:${miniteS}:${secondS}   ${dayBuddhaList[index].tap}"
             }
             if (dayBuddhaList.size > 0)
                 AlertDialog.Builder(context).setItems(items, DialogInterface.OnClickListener { dialog, index ->
@@ -320,19 +325,21 @@ class BuddhaPlayerFragment : Fragment() {
             var start = DateTime(today.year, today.month, 1)
             var sb = StringBuilder()
             var totalDuration = 0L
-            var totalCount = 0
+            var totalTap = 0
             while (start.year == today.year && start.get(Calendar.DAY_OF_YEAR) <= today.get(Calendar.DAY_OF_YEAR)) {
                 var list = monthBuddhaList.filter {
                     val time = it.startTime
                     time.year == start.year && time.get(Calendar.DAY_OF_YEAR) == start.get(Calendar.DAY_OF_YEAR)
                 }
                 var duration = 0L
-                var count = 0
+                var tap = 0
+                var number=0
                 var time = start
 
                 list.forEach {
                     time = it.startTime
-                    count += it.count
+                    tap += it.tap
+                    number += it.tap*it.tapCount
                     duration += it.duration
                     e("time : ${time.toLongDateTimeString()}")
                 }
@@ -345,9 +352,9 @@ class BuddhaPlayerFragment : Fragment() {
                 } else {
                     if (minite < 10) "0${minite}" else "${minite}"
                 }
-                sb.append("${time.toShortDateString1()} \t ${if (count > 0) "${hourS}:${miniteS} \t ${DecimalFormat("#,##0").format(count * 1080)} \t ${count}" else ""}\n")
+                sb.append("${time.toShortDateString1()} \t ${if (tap > 0) "${hourS}:${miniteS} \t ${DecimalFormat("#,##0").format(number)} \t ${tap}" else ""}\n")
 
-                totalCount += count
+                totalTap += tap
                 totalDuration += duration
                 start = start.addDays(1)
             }
@@ -355,9 +362,9 @@ class BuddhaPlayerFragment : Fragment() {
             val minite = totalDuration % (60000 * 60) / 60000
             val hourS = "${hour}"
             val miniteS = if (minite < 10) "0${minite}" else "${minite}"
-            val avgCount = totalCount.toBigDecimal().setScale(1) / today.day.toBigDecimal()
-            sb.append("\n${hourS}:${miniteS} \t ${DecimalFormat("#,##0").format(totalCount * 1080)} \t ${totalCount} \t ${avgCount}\n")
-            if (totalCount > 0)
+            val avgCount = totalTap.toBigDecimal().setScale(1) / today.day.toBigDecimal()
+            sb.append("\n${hourS}:${miniteS} \t ${DecimalFormat("#,##0").format(totalTap)} \t ${totalTap} \t ${avgCount}\n")
+            if (totalTap > 0)
                 AlertDialog.Builder(context).setMessage(sb.toString()).show()
         }
 
@@ -399,20 +406,20 @@ class BuddhaPlayerFragment : Fragment() {
             val dialog = AlertDialog.Builder(context).setView(view).show()
             btn.setOnClickListener {
                 dialog.dismiss()
-                val count = etCount.text.toString().toInt()
+                val tap = etCount.text.toString().toInt()
                 val latestBuddha = dc.latestBuddha
                 val hour = number_hour.value
                 val min = number_min.value
                 var avgDuration = (10 * 60000).toLong()
                 if (latestBuddha != null) {
-                    avgDuration = latestBuddha.duration / latestBuddha.count
+                    avgDuration = latestBuddha.duration / latestBuddha.tap
                 }
                 var time = DateTime()
                 time.set(Calendar.HOUR_OF_DAY,hour)
                 time.set(Calendar.MINUTE,min)
                 var stoptimeInMillis = time.timeInMillis
 
-                buildBuddhaListAndSave(count, stoptimeInMillis, avgDuration) { code, result ->
+                buildBuddhaListAndSave(tap,1080, stoptimeInMillis, avgDuration) { code, result ->
                     if (code == 0) {
                         uiHandler.post {
                             refreshTotalView()
@@ -426,6 +433,7 @@ class BuddhaPlayerFragment : Fragment() {
 
             val btnTo = view.findViewById<Button>(R.id.btn_to)
             btnTo.setOnClickListener {
+                dialog.dismiss()
                 addBuddhaRecordDialog()
             }
             true
@@ -473,10 +481,18 @@ class BuddhaPlayerFragment : Fragment() {
     fun addBuddhaRecordDialog(){
         val view = View.inflate(context,R.layout.inflate_dialog_add_buddha1,null)
         val cvDate = view.findViewById<CalendarView>(R.id.cv_date)
+        var year = 2014
+        var month = 4
+        var day = 16
+        val now = DateTime(year,month,day)
+        cvDate.date = now.timeInMillis
         val etNum = view.findViewById<EditText>(R.id.et_count)
-        cvDate.date = System.currentTimeMillis()
+        cvDate.setOnDateChangeListener { view, y, m, d ->
+            year = y
+            month =m
+            day = d
+        }
 
-        val now = DateTime()
         val hourNumbers = arrayOfNulls<String>(24)
         for (i in 0..23) {
             hourNumbers[i] = i.toString() + "点"
@@ -490,42 +506,52 @@ class BuddhaPlayerFragment : Fragment() {
         number_hour.minValue = 0
         number_hour.displayedValues = hourNumbers
         number_hour.maxValue = 23
-        number_hour.value = now.hour
+        number_hour.value = 9
         number_hour.descendantFocusability = NumberPicker.FOCUS_BLOCK_DESCENDANTS // 禁止对话框打开后数字选择框被选中
         number_hour.value=21
         number_min.minValue = 0
         number_min.displayedValues = minNumbers
         number_min.maxValue = 59
-        number_min.value = now.minite
+        number_min.value = 0
         number_min.descendantFocusability = NumberPicker.FOCUS_BLOCK_DESCENDANTS // 禁止对话框打开后数字选择框被选中
         val btn = view.findViewById<Button>(R.id.btn_ok)
         val dialog = AlertDialog.Builder(context).setView(view).setCancelable(false).show()
         btn.setOnClickListener {
-            val num = etNum.text.toString().toInt()
-            val count = Math.round(num.toFloat() /1080)
-// TODO: 2021/3/3 asdfasdf
-            val hour = number_hour.value
-            val min = number_min.value
-            var avgDuration = (10 * 60000).toLong()
+            dialog.dismiss()
+        }
+        etNum.setOnEditorActionListener { v, actionId, event ->
+            if (actionId == EditorInfo.IME_ACTION_DONE) {
 
-            var time = DateTime(cvDate.date)
-            time.set(Calendar.HOUR_OF_DAY,hour)
-            time.set(Calendar.MINUTE,min)
-            var stoptimeInMillis = time.timeInMillis
+                val num = etNum.text.toString().toInt()
+                val tapCount = 1000
+                val tapMinute = 9
+                val tap = Math.round(num.toFloat() /tapCount)
+                val hour = number_hour.value
+                val min = number_min.value
+                var avgDuration = (tapMinute * 60000).toLong()
 
-            buildBuddhaListAndSave(count, stoptimeInMillis, avgDuration) { code, result ->
-                if (code == 0) {
+                var time = DateTime(year,month,day)
+                time.set(Calendar.HOUR_OF_DAY,hour)
+                time.set(Calendar.MINUTE,min)
+                var stoptimeInMillis = time.timeInMillis
+
+                buildBuddhaListAndSave(tap,tapCount, stoptimeInMillis, avgDuration) { code, result ->
+                    if (code == 0) {
+                        uiHandler.post {
+                            refreshTotalView()
+                            time = time.addDays(1)
+                            cvDate.date= time.timeInMillis
+                            year = time.year
+                            month = time.month
+                            day = time.day
+                            etNum.setText("")
+                        }
+                    }
                     uiHandler.post {
-                        refreshTotalView()
+                        AlertDialog.Builder(context!!).setMessage(result.toString()).show()
                     }
                 }
-                uiHandler.post {
-                    AlertDialog.Builder(context!!).setMessage(result.toString()).show()
-                }
             }
-        }
-        btn.setOnLongClickListener {
-            dialog.dismiss()
             true
         }
     }
@@ -614,32 +640,32 @@ class BuddhaPlayerFragment : Fragment() {
         return circleMinite
     }
 
-    private fun buildBuddhaListAndSave(count: Int, stoptimeInMillis: Long, avgDuration: Long, callback: CloudCallback) {
+    private fun buildBuddhaListAndSave(tap: Int,tapCount:Int, stoptimeInMillis: Long, avgDuration: Long, callback: CloudCallback) {
         e("build buddha list and save")
         var buddhaList: MutableList<BuddhaRecord> = ArrayList()
         var tmpTime: DateTime? = null
         var buddha: BuddhaRecord? = null
-        for (index in count downTo 1) {
+        for (index in tap downTo 1) {
             if (tmpTime == null || buddha == null) {
                 tmpTime = DateTime(stoptimeInMillis)
                 tmpTime.add(Calendar.MILLISECOND, (-1 * avgDuration * index).toInt())
                 if (buddhaType == 11) {
-                    buddha = BuddhaRecord(tmpTime, avgDuration, 1, 11, "计时计数念佛")
+                    buddha = BuddhaRecord(tmpTime, avgDuration, 1,tapCount, 11, "计时计数念佛")
                 } else {
-                    buddha = BuddhaRecord(tmpTime, avgDuration, 0, 0, "耳听念佛")
+                    buddha = BuddhaRecord(tmpTime, avgDuration, 0,0, 0, "耳听念佛")
                 }
             } else {
                 var startTime = DateTime(stoptimeInMillis)
                 startTime.add(Calendar.MILLISECOND, (-1 * avgDuration * index).toInt())
                 if (startTime.get(Calendar.DAY_OF_YEAR) == tmpTime.get(Calendar.DAY_OF_YEAR) && startTime.hour == tmpTime.hour) {
                     buddha.duration += avgDuration
-                    buddha.count += 1
+                    buddha.tap += 1
                 } else {
                     buddhaList.add(buddha)
                     if (buddhaType == 11) {
-                        buddha = BuddhaRecord(startTime, avgDuration, 1, 11, "计时计数念佛")
+                        buddha = BuddhaRecord(startTime, avgDuration, 1,tapCount, 11, "计时计数念佛")
                     } else {
-                        buddha = BuddhaRecord(startTime, avgDuration, 0, 0, "耳听念佛")
+                        buddha = BuddhaRecord(startTime, avgDuration, 0,0, 0, "耳听念佛")
                     }
                     tmpTime = DateTime(startTime.timeInMillis)
                 }
@@ -663,15 +689,15 @@ class BuddhaPlayerFragment : Fragment() {
         }
     }
 
-    private fun createBuddhas2upload2save(count: Int, stoptimeInMillis: Long, avgDuration: Long, callback: CloudCallback) {
+/*    private fun createBuddhas2upload2save(tap: Int, stoptimeInMillis: Long, avgDuration: Long, callback: CloudCallback) {
         var newBuddhaList: MutableList<BuddhaRecord> = ArrayList()
         var lastBuddha: BuddhaRecord? = dc.latestBuddha
-        if (count == 0) {
+        if (tap == 0) {
             val startTime = DateTime(stoptimeInMillis)
             startTime.add(Calendar.MILLISECOND, (-1 * avgDuration).toInt())
             newBuddhaList.add(BuddhaRecord(startTime, avgDuration, 0, 11, "计时计数念佛"))
         } else {
-            for (i in count downTo 1) {
+            for (i in tap downTo 1) {
                 val startTime = DateTime(stoptimeInMillis)
                 startTime.add(Calendar.MILLISECOND, (-1 * avgDuration * i).toInt())
                 e("start time : ${startTime.toLongDateTimeString()}")
@@ -697,7 +723,7 @@ class BuddhaPlayerFragment : Fragment() {
                 }
             }
         }
-    }
+    }*/
 
     lateinit var buddhaIntent: Intent
     private fun playBuddha() {
@@ -730,7 +756,7 @@ class BuddhaPlayerFragment : Fragment() {
         val setDuration = dc.getSetting(Setting.KEYS.buddha_duration)
         if (setDuration != null) {
             var duration = setDuration.long
-            var count = duration / (60000*getCurrentCircleDuration())
+            var tap = duration / (60000*getCurrentCircleDuration())
             val second = duration % 60000 / 1000
             val hour = duration / (60000 * 60)
             val minite = duration % (60000 * 60) / 60000
@@ -739,12 +765,12 @@ class BuddhaPlayerFragment : Fragment() {
             val secondS = if (second < 10) "0${second}" else "${second}"
 
             val stoptimeInMillis = dc.getSetting(Setting.KEYS.buddha_stoptime, System.currentTimeMillis()).long
-            val msg = "${hourS}:${miniteS}:${secondS} \t ${DateTime(stoptimeInMillis).toLongDateString3()}${if (buddhaType == 11) "\t ${count}" else ""}"
+            val msg = "${hourS}:${miniteS}:${secondS} \t ${DateTime(stoptimeInMillis).toLongDateString3()}${if (buddhaType == 11) "\t ${tap}" else ""}"
 //                if(count>0){
             uiHandler.post {
                 val dialog = AlertDialog.Builder(context).setMessage("缓存中存在念佛记录\n[ ${msg} ]\n是否存档？").setNegativeButton("存档", DialogInterface.OnClickListener { dialog, which ->
-                    val avgDuration = if (count > 0) duration / count else duration
-                    buildBuddhaListAndSave(count.toInt(), stoptimeInMillis, avgDuration, CloudCallback { code, result ->
+                    val avgDuration = if (tap > 0) duration / tap else duration
+                    buildBuddhaListAndSave(tap.toInt(),1080, stoptimeInMillis, avgDuration, CloudCallback { code, result ->
                         if (code == 0) {
                             dc.deleteSetting(Setting.KEYS.buddha_duration)
                             dc.deleteSetting(Setting.KEYS.buddha_stoptime)

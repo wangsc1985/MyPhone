@@ -149,7 +149,8 @@ public class DataContext {
             values.put("id", model.getId().toString());
             values.put("startTime", model.getStartTime().getTimeInMillis());
             values.put("duration", model.getDuration());
-            values.put("count", model.getCount());
+            values.put("tap", model.getTap());
+            values.put("tapCount",model.getTapCount());
             values.put("type", model.getType());
             values.put("summary", model.getSummary());
 
@@ -177,7 +178,8 @@ public class DataContext {
                 values.put("id", model.getId().toString());
                 values.put("startTime", model.getStartTime().getTimeInMillis());
                 values.put("duration", model.getDuration());
-                values.put("count", model.getCount());
+                values.put("tap", model.getTap());
+                values.put("tapCount",model.getTapCount());
                 values.put("type", model.getType());
                 values.put("summary", model.getSummary());
                 //调用方法插入数据
@@ -210,7 +212,8 @@ public class DataContext {
                         cursor.getLong(2),
                         cursor.getInt(3),
                         cursor.getInt(4),
-                        cursor.getString(5));
+                        cursor.getInt(5),
+                        cursor.getString(6));
                 cursor.close();
                 db.close();
                 return model;
@@ -249,7 +252,8 @@ public class DataContext {
                         cursor.getLong(2),
                         cursor.getInt(3),
                         cursor.getInt(4),
-                        cursor.getString(5));
+                        cursor.getInt(5),
+                        cursor.getString(6));
                 cursor.close();
                 db.close();
                 return model;
@@ -274,7 +278,8 @@ public class DataContext {
                         cursor.getLong(2),
                         cursor.getInt(3),
                         cursor.getInt(4),
-                        cursor.getString(5));
+                        cursor.getInt(5),
+                        cursor.getString(6));
                 cursor.close();
                 db.close();
                 return model;
@@ -308,7 +313,8 @@ public class DataContext {
                         cursor.getLong(2),
                         cursor.getInt(3),
                         cursor.getInt(4),
-                        cursor.getString(5));
+                        cursor.getInt(5),
+                        cursor.getString(6));
                 result.add(model);
             }
             cursor.close();
@@ -335,7 +341,8 @@ public class DataContext {
                         cursor.getLong(2),
                         cursor.getInt(3),
                         cursor.getInt(4),
-                        cursor.getString(5));
+                        cursor.getInt(5),
+                        cursor.getString(6));
                 result.add(model);
             }
             cursor.close();
@@ -366,7 +373,8 @@ public class DataContext {
                         cursor.getLong(2),
                         cursor.getInt(3),
                         cursor.getInt(4),
-                        cursor.getString(5));
+                        cursor.getInt(5),
+                        cursor.getString(6));
                 cursor.close();
                 db.close();
                 return model;
@@ -391,7 +399,8 @@ public class DataContext {
                         cursor.getLong(2),
                         cursor.getInt(3),
                         cursor.getInt(4),
-                        cursor.getString(5));
+                        cursor.getInt(5),
+                        cursor.getString(6));
                 result.add(model);
             }
             cursor.close();
@@ -423,7 +432,8 @@ public class DataContext {
                         cursor.getLong(2),
                         cursor.getInt(3),
                         cursor.getInt(4),
-                        cursor.getString(5));
+                        cursor.getInt(5),
+                        cursor.getString(6));
                 result.add(model);
             }
             cursor.close();
@@ -448,7 +458,8 @@ public class DataContext {
                         cursor.getLong(2),
                         cursor.getInt(3),
                         cursor.getInt(4),
-                        cursor.getString(5));
+                        cursor.getInt(5),
+                        cursor.getString(6));
                 result.add(model);
             }
             cursor.close();
@@ -476,7 +487,8 @@ public class DataContext {
                         cursor.getLong(2),
                         cursor.getInt(3),
                         cursor.getInt(4),
-                        cursor.getString(5));
+                        cursor.getInt(5),
+                        cursor.getString(6));
                 result.add(model);
             }
             cursor.close();
@@ -497,7 +509,8 @@ public class DataContext {
             ContentValues values = new ContentValues();
             values.put("startTime", model.getStartTime().getTimeInMillis());
             values.put("duration", model.getDuration());
-            values.put("count", model.getCount());
+            values.put("tap", model.getTap());
+            values.put("tapCount",model.getTapCount());
             values.put("type", model.getType());
             values.put("summary", model.getSummary());
 

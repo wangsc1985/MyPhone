@@ -38,12 +38,12 @@
         android:text="1小时50分钟"
         android:textSize="12sp"
         app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toStartOf="@+id/textView_monthCount"
+        app:layout_constraintEnd_toStartOf="@+id/textView_monthTap"
         app:layout_constraintRight_toRightOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
 
     <TextView
-        android:id="@+id/textView_monthCount"
+        android:id="@+id/textView_monthTap"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginEnd="8dp"
