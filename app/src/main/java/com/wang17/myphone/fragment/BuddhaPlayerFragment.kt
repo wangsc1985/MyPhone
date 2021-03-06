@@ -170,9 +170,15 @@ class BuddhaPlayerFragment : Fragment() {
 //                btn_speed.text = "快"
 //            }
 //        }
+
         val buddhaName = dc.getSetting(Setting.KEYS.buddha_music_name, "阿弥陀佛.mp3").string
         tv_buddha_name.text = buddhaName
-        buddhaType = dc.getSetting(buddhaName, 0).int
+        val file = _Session.getFile(buddhaName)
+        val bf = dc.getBuddhaFile(buddhaName, file.length())
+        buddhaType = 0
+        if (bf != null) {
+            buddhaType = bf.type
+        }
         sw_count.isChecked = buddhaType == 11
 
         tv_time.setOnLongClickListener {
