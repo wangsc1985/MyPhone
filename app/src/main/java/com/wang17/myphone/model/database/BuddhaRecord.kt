@@ -12,19 +12,14 @@ class BuddhaRecord {
     var startTime:DateTime
 
     /**
-     * 念佛总时长
+     * 总时长
      */
     var duration:Long
 
     /**
-     * 总共念了几圈
+     * 总数量
      */
-    var tap:Int
-
-    /**
-     * 单圈数量
-     */
-    var tapCount:Int
+    var count:Int
 
     /**
      * 1：计时念佛 11：计时计数念佛
@@ -40,17 +35,15 @@ class BuddhaRecord {
      * @param id
      * @param startTime
      * @param duration
-     * @param tap
-     * @param tapCount
+     * @param count
      * @param type
      * @param summary
      */
-    constructor(id:UUID, startTime: DateTime, duration: Long, tap: Int,tapCount:Int, type: Int, summary: String) {
+    constructor(id:UUID, startTime: DateTime, duration: Long, count:Int, type: Int, summary: String) {
         this.id = id
         this.startTime = startTime
         this.duration = duration
-        this.tap = tap
-        this.tapCount = tapCount
+        this.count = count
         this.type = type
         this.summary = summary
     }
@@ -58,17 +51,15 @@ class BuddhaRecord {
     /**
      * @param startTime
      * @param duration
-     * @param tap
-     * @param tapCount
+     * @param count
      * @param type
      * @param summary
      */
-    constructor(startTime: DateTime, duration: Long, tap: Int,tapCount:Int, type: Int, summary: String) {
+    constructor(startTime: DateTime, duration: Long, count:Int, type: Int, summary: String) {
         this.id = UUID.randomUUID()
         this.startTime = startTime
         this.duration = duration
-        this.tap = tap
-        this.tapCount = tapCount
+        this.count = count
         this.type = type
         this.summary = summary
     }

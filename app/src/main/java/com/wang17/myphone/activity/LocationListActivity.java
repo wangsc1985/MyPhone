@@ -381,7 +381,7 @@ public class LocationListActivity extends AppCompatActivity {
     private void initData() {
         dataContext = new DataContext(this);
 
-        locationList = dataContext.getLocatiosByDayspan(_Session.UUID_NULL,dataContext.getSetting(Setting.KEYS.location_search_days,90).getInt(), true);
+        locationList = dataContext.getLocatiosByYear(_Session.UUID_NULL,dataContext.getSetting(Setting.KEYS.location_search_year,2019).getInt(), true);
 
         initListData(locationList);
 

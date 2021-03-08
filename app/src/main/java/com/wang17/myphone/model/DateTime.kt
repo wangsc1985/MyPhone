@@ -254,9 +254,9 @@ class DateTime : GregorianCalendar {
                 var minite =  (timeInMillis / 60000 % 60).toInt()
                 var hour = (timeInMillis / 60000 / 60).toInt()
                 if (hour == 0) {
-                    return "${minite}分钟";
+                    return "${minite}分";
                 }
-                return _String.concat(if( hour > 0)  "${hour}小时" else "",if(minite > 0) "${minite}分钟" else "");
+                return _String.concat(if( hour > 0)  "${hour}时" else "",if(minite > 0) "${if(minite<10) "0"+minite else minite}分" else "");
             }
 
         /**
@@ -302,8 +302,8 @@ class DateTime : GregorianCalendar {
             }
 
             val sday = if (day > 0) day.toString() + "天" else ""
-            val shour = if (hour > 0) hour.toString() + "小时" else ""
-            val smin = if (minite > 0) minite.toString() + "分钟" else ""
+            val shour = if (hour > 0) hour.toString() + "时" else ""
+            val smin = if (minite > 0) minite.toString() + "分" else ""
             val ssecond = if (second > 0) second.toString() + "秒" else ""
 
             when (startTag) {

@@ -7,7 +7,6 @@ import android.content.Intent
 import android.os.Bundle
 import android.os.Handler
 import android.support.v4.app.Fragment
-import android.support.v4.content.ContextCompat.getSystemService
 import android.support.v7.app.AlertDialog
 import android.text.Editable
 import android.text.TextWatcher
@@ -16,24 +15,17 @@ import android.view.View
 import android.view.ViewGroup
 import android.view.inputmethod.EditorInfo
 import android.view.inputmethod.InputMethodManager
-import android.widget.Button
 import android.widget.EditText
-import android.widget.ImageView
-import android.widget.NumberPicker
 import com.wang17.myphone.R
 import com.wang17.myphone.activity.*
 import com.wang17.myphone.callback.CloudCallback
 import com.wang17.myphone.callback.HttpCallback
 import com.wang17.myphone.e
-import com.wang17.myphone.model.DateTime
 import com.wang17.myphone.model.database.BuddhaRecord
 import com.wang17.myphone.model.database.Setting
 import com.wang17.myphone.util.*
 import com.wang17.myphone.view._Button
 import kotlinx.android.synthetic.main.fragment_button.*
-import okhttp3.internal.wait
-import java.lang.StringBuilder
-import java.sql.BatchUpdateException
 import java.text.DecimalFormat
 import java.util.*
 import java.util.concurrent.CountDownLatch
@@ -82,40 +74,49 @@ class ButtonFragment : Fragment() {
         kotlin.run {
             btn = _Button(context!!, "念佛")
             btn.setOnClickListener {
-//                startActivity(Intent(context!!, BuddhaActivity::class.java))
-                AlertDialog.Builder(context!!).setItems(arrayOf("详单","木鱼"), DialogInterface.OnClickListener { dialog, which ->
+                startActivity(Intent(context!!, BuddhaActivity::class.java))
+//                AlertDialog.Builder(context!!).setItems(arrayOf("详单","木鱼"), DialogInterface.OnClickListener { dialog, which ->
+//                    when (which) {
+//                        0 -> {
+//                            startActivity(Intent(context!!, BuddhaActivity::class.java))
+//                        }
+//                        1->{
+//                            startActivity(Intent(context!!, KnockerActivity::class.java))
+//                        }
+//                    }
+//                }).show()
+            }
+            btn.setOnLongClickListener {
+                AlertDialog.Builder(context!!).setItems(arrayOf("整合","上传"), DialogInterface.OnClickListener { dialog, which ->
                     when (which) {
-           /*             0 -> {
-                            val dc = DataContext(context)
-                            val buddhaList = dc.getBuddhas("11")
-                            val removeList: MutableList<BuddhaRecord> = ArrayList()
-                            var tmp: BuddhaRecord? = null
-                            buddhaList.forEach { buddha ->
-                                if (tmp != null) {
-                                    if (buddha.startTime.get(Calendar.DAY_OF_YEAR) != tmp!!.startTime.get(Calendar.DAY_OF_YEAR)) {
-                                        dc.editBuddha(tmp)
-                                        tmp = buddha
-                                    } else {
-                                        if (buddha.startTime.hour == tmp!!.startTime.hour) {
-                                            tmp!!.duration += buddha.duration
-                                            tmp!!.count += buddha.count
-                                            removeList.add(buddha)
-                                        } else {
-                                            dc.editBuddha(tmp)
-                                            tmp = buddha
-                                        }
-                                    }
-                                } else {
-                                    tmp = buddha
-                                }
-                            }
-                            tmp?.let {
-                                dc.editBuddha(tmp)
-                            }
-                            dc.deleteBuddhaList(removeList)
-                            AlertDialog.Builder(context!!).setMessage("整合完毕！").show()
-                        }
-                        1 -> {
+                                     0 -> {
+                                         val dc = DataContext(context)
+                                         val buddhaList = dc.allBuddhas
+                                         val removeList: MutableList<BuddhaRecord> = ArrayList()
+                                         var preBuddhaRecord: BuddhaRecord? = null
+                                         var count =0
+                                         buddhaList.forEach { buddha ->
+                                             if (preBuddhaRecord != null) {
+                                                 if(buddha.startTime.timeInMillis-(preBuddhaRecord!!.startTime.timeInMillis+ preBuddhaRecord!!.duration)<60000*5){
+                                                     preBuddhaRecord!!.duration+=buddha.duration
+                                                     preBuddhaRecord!!.count+=buddha.count
+                                                     removeList.add(buddha)
+                                                     count++
+                                                 }else{
+                                                     dc.editBuddha(preBuddhaRecord)
+                                                     preBuddhaRecord = buddha
+                                                 }
+                                             } else {
+                                                 preBuddhaRecord = buddha
+                                             }
+                                         }
+                                         preBuddhaRecord?.let {
+                                             dc.editBuddha(preBuddhaRecord)
+                                         }
+                                         dc.deleteBuddhaList(removeList)
+                                         AlertDialog.Builder(context!!).setMessage("整合完毕！共整合${count}条记录").show()
+                                     }
+                       1 -> {
                             Thread {
                                 val buddhaList = dataContext.allBuddhas
                                 e("buddha size : ${buddhaList.size}")
@@ -123,12 +124,12 @@ class ButtonFragment : Fragment() {
                                 val uploadList: MutableList<BuddhaRecord> = ArrayList()
                                 for (i in buddhaList.indices) {
                                     uploadList.add(buddhaList[i])
-                                    if (i % 200 == 0 && i != 0) {
+                                    if (i % 100 == 0 && i != 0) {
                                         var latch = CountDownLatch(1)
                                         _CloudUtils.addBuddhaList(context!!, uploadList, CloudCallback { code, result ->
                                             e(result)
                                             uiHandler.post {
-                                                AlertDialog.Builder(context!!).setMessage("当前索引：${i}  网络反馈：${result.toString()}").setCancelable(false).setPositiveButton("继续", DialogInterface.OnClickListener { dialog, which ->
+                                                AlertDialog.Builder(context!!).setMessage("当前索引：${i} 网络反馈：code ${code} result ${result.toString()}").setCancelable(false).setPositiveButton("继续", DialogInterface.OnClickListener { dialog, which ->
                                                     uploadList.clear()
                                                     latch.countDown()
                                                 }).show()
@@ -145,15 +146,10 @@ class ButtonFragment : Fragment() {
 
                             }.start()
 
-                        }*/
-                        0 -> {
-                            startActivity(Intent(context!!, BuddhaActivity::class.java))
-                        }
-                        1->{
-                            startActivity(Intent(context!!, KnockerActivity::class.java))
                         }
                     }
                 }).show()
+                true
             }
             layout_flexbox.addView(btn)
         }

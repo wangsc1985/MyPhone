@@ -97,8 +97,7 @@ object _CloudUtils {
                 args.add(PostArgument("phone", "18509513143"))
                 args.add(PostArgument("startTime", buddha.startTime.timeInMillis))
                 args.add(PostArgument("duration", buddha.duration))
-                args.add(PostArgument("tap", buddha.tap))
-                args.add(PostArgument("tapCount", buddha.tapCount))
+                args.add(PostArgument("count", buddha.count))
                 args.add(PostArgument("summary", buddha.summary))
                 args.add(PostArgument("type", buddha.type))
                 postRequestByJson(url, args, HttpCallback { html ->
@@ -169,8 +168,7 @@ object _CloudUtils {
                     json.append("{")
                     json.append("\"startTime\":\"${ buddhaList[i].startTime.timeInMillis}\"")
                     json.append(",\"duration\":\"${buddhaList[i].duration}\"")
-                    json.append(",\"tap\":\"${buddhaList[i].tap}\"")
-                    json.append(",\"tapCount\":\"${buddhaList[i].tapCount}\"")
+                    json.append(",\"count\":\"${buddhaList[i].count}\"")
                     json.append(",\"summary\":\"${buddhaList[i].summary}\"")
                     json.append(",\"type\":\"${buddhaList[i].type}\"")
                     json.append("}")
@@ -196,14 +194,14 @@ object _CloudUtils {
                                 else-> callback?.excute(-1, msg)
                             }
                         }else{
-                            callback?.excute(-1, errmsg)
+                            callback?.excute(-2, errmsg)
                         }
                     } catch (e: Exception) {
-                        callback?.excute(-2, e.message)
+                        callback?.excute(-3, e.message)
                     }
                 })
             } catch (e: Exception) {
-                callback?.excute(-1, e.message)
+                callback?.excute(-4, e.message)
             }
 
         }.start()
@@ -218,7 +216,7 @@ object _CloudUtils {
                 var json = StringBuilder()
                 json.append("{\"phone\":\"18509513143\",")
                 if(lastBuddha!=null){
-                    json.append("\"lastdata\":{\"startTime\":\"${lastBuddha.startTime.timeInMillis}\",\"duration\":\"${lastBuddha.duration}\",\"tap\":\"${lastBuddha.tap}\",\"tapCount\":\"${lastBuddha.tapCount}\",\"summary\":\"${lastBuddha.summary}\",\"type\":\"${lastBuddha.type}\"},")
+                    json.append("\"lastdata\":{\"startTime\":\"${lastBuddha.startTime.timeInMillis}\",\"duration\":\"${lastBuddha.duration}\",\"count\":\"${lastBuddha.count}\",\"summary\":\"${lastBuddha.summary}\",\"type\":\"${lastBuddha.type}\"},")
                 }
                 json.append("\"newdata\":[");
                 for (i in buddhaList.indices)
@@ -226,8 +224,7 @@ object _CloudUtils {
                     json.append("{");
                     json.append("\"startTime\":\"${ buddhaList[i].startTime.timeInMillis}\"");
                     json.append(",\"duration\":\"${buddhaList[i].duration}\"");
-                    json.append(",\"tap\":\"${buddhaList[i].tap}\"");
-                    json.append(",\"tapCount\":\"${buddhaList[i].tapCount}\"");
+                    json.append(",\"count\":\"${buddhaList[i].count}\"");
                     json.append(",\"summary\":\"${buddhaList[i].summary}\"");
                     json.append(",\"type\":\"${buddhaList[i].type}\"");
                     json.append("}");

@@ -149,8 +149,7 @@ public class DataContext {
             values.put("id", model.getId().toString());
             values.put("startTime", model.getStartTime().getTimeInMillis());
             values.put("duration", model.getDuration());
-            values.put("tap", model.getTap());
-            values.put("tapCount",model.getTapCount());
+            values.put("count",model.getCount());
             values.put("type", model.getType());
             values.put("summary", model.getSummary());
 
@@ -178,8 +177,7 @@ public class DataContext {
                 values.put("id", model.getId().toString());
                 values.put("startTime", model.getStartTime().getTimeInMillis());
                 values.put("duration", model.getDuration());
-                values.put("tap", model.getTap());
-                values.put("tapCount",model.getTapCount());
+                values.put("count",model.getCount());
                 values.put("type", model.getType());
                 values.put("summary", model.getSummary());
                 //调用方法插入数据
@@ -212,8 +210,7 @@ public class DataContext {
                         cursor.getLong(2),
                         cursor.getInt(3),
                         cursor.getInt(4),
-                        cursor.getInt(5),
-                        cursor.getString(6));
+                        cursor.getString(5));
                 cursor.close();
                 db.close();
                 return model;
@@ -252,8 +249,7 @@ public class DataContext {
                         cursor.getLong(2),
                         cursor.getInt(3),
                         cursor.getInt(4),
-                        cursor.getInt(5),
-                        cursor.getString(6));
+                        cursor.getString(5));
                 cursor.close();
                 db.close();
                 return model;
@@ -278,8 +274,7 @@ public class DataContext {
                         cursor.getLong(2),
                         cursor.getInt(3),
                         cursor.getInt(4),
-                        cursor.getInt(5),
-                        cursor.getString(6));
+                        cursor.getString(5));
                 cursor.close();
                 db.close();
                 return model;
@@ -313,8 +308,7 @@ public class DataContext {
                         cursor.getLong(2),
                         cursor.getInt(3),
                         cursor.getInt(4),
-                        cursor.getInt(5),
-                        cursor.getString(6));
+                        cursor.getString(5));
                 result.add(model);
             }
             cursor.close();
@@ -341,8 +335,7 @@ public class DataContext {
                         cursor.getLong(2),
                         cursor.getInt(3),
                         cursor.getInt(4),
-                        cursor.getInt(5),
-                        cursor.getString(6));
+                        cursor.getString(5));
                 result.add(model);
             }
             cursor.close();
@@ -373,8 +366,7 @@ public class DataContext {
                         cursor.getLong(2),
                         cursor.getInt(3),
                         cursor.getInt(4),
-                        cursor.getInt(5),
-                        cursor.getString(6));
+                        cursor.getString(5));
                 cursor.close();
                 db.close();
                 return model;
@@ -399,8 +391,7 @@ public class DataContext {
                         cursor.getLong(2),
                         cursor.getInt(3),
                         cursor.getInt(4),
-                        cursor.getInt(5),
-                        cursor.getString(6));
+                        cursor.getString(5));
                 result.add(model);
             }
             cursor.close();
@@ -432,8 +423,7 @@ public class DataContext {
                         cursor.getLong(2),
                         cursor.getInt(3),
                         cursor.getInt(4),
-                        cursor.getInt(5),
-                        cursor.getString(6));
+                        cursor.getString(5));
                 result.add(model);
             }
             cursor.close();
@@ -458,8 +448,7 @@ public class DataContext {
                         cursor.getLong(2),
                         cursor.getInt(3),
                         cursor.getInt(4),
-                        cursor.getInt(5),
-                        cursor.getString(6));
+                        cursor.getString(5));
                 result.add(model);
             }
             cursor.close();
@@ -487,8 +476,7 @@ public class DataContext {
                         cursor.getLong(2),
                         cursor.getInt(3),
                         cursor.getInt(4),
-                        cursor.getInt(5),
-                        cursor.getString(6));
+                        cursor.getString(5));
                 result.add(model);
             }
             cursor.close();
@@ -509,8 +497,7 @@ public class DataContext {
             ContentValues values = new ContentValues();
             values.put("startTime", model.getStartTime().getTimeInMillis());
             values.put("duration", model.getDuration());
-            values.put("tap", model.getTap());
-            values.put("tapCount",model.getTapCount());
+            values.put("count",model.getCount());
             values.put("type", model.getType());
             values.put("summary", model.getSummary());
 
@@ -1286,6 +1273,47 @@ public class DataContext {
             _Utils.printException(context, e);
         }
         return model;
+    }
+
+    public List<Location> getLocatiosByYear(UUID UserId, int year, boolean isTimeDesc) {
+        List<Location> result = new ArrayList<>();
+        try {
+            DateTime start = new DateTime(year,0,1);
+            DateTime end = new DateTime(year+1,0,1);
+            //获取数据库对象
+            SQLiteDatabase db = dbHelper.getReadableDatabase();
+            //查询获得游标
+            Cursor cursor = db.query("location", null, "UserId=? AND Time>? AND Time<?", new String[]{UserId.toString() + "", start.getTimeInMillis() + "", end.getTimeInMillis() + ""}, null, null, isTimeDesc ? "time DESC" : null);
+            while (cursor.moveToNext()) {
+                Location model = new Location();
+                model.Id = UUID.fromString(cursor.getString(0));
+                model.UserId = UUID.fromString(cursor.getString(1));
+                model.LocationType = cursor.getInt(2);
+                model.Longitude = cursor.getDouble(3);
+                model.Latitude = cursor.getDouble(4);
+                model.Accuracy = cursor.getFloat(5);
+                model.Provider = cursor.getString(6);
+                model.Speed = cursor.getFloat(7);
+                model.Bearing = cursor.getFloat(8);
+                model.Satellites = cursor.getInt(9);
+                model.Country = cursor.getString(10);
+                model.Province = cursor.getString(11);
+                model.City = cursor.getString(12);
+                model.CityCode = cursor.getString(13);
+                model.District = cursor.getString(14);
+                model.AdCode = cursor.getString(15);
+                model.Address = cursor.getString(16);
+                model.PoiName = cursor.getString(17);
+                model.Time = cursor.getLong(18);
+                model.Summary = cursor.getString(19);
+                result.add(model);
+            }
+            cursor.close();
+            db.close();
+        } catch (Exception e) {
+            _Utils.printException(context, e);
+        }
+        return result;
     }
 
     public List<Location> getLocatiosByDayspan(UUID UserId, int daySpan, boolean isTimeDesc) {

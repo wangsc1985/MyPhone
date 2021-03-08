@@ -23,7 +23,7 @@ object BuddhaUtils {
                 } else {
                     if (buddha.startTime.hour == tmp!!.startTime.hour) {
                         tmp!!.duration += buddha.duration
-                        tmp!!.tap += buddha.tap
+                        tmp!!.count += buddha.count
                         removeList.add(buddha)
                     } else {
                         dc.editBuddha(tmp)
@@ -57,7 +57,7 @@ object BuddhaUtils {
                 } else {
                     if (buddha.startTime.hour == tmp!!.startTime.hour) {
                         tmp!!.duration += buddha.duration
-                        tmp!!.tap += buddha.tap
+                        tmp!!.count += buddha.count
                         removeList.add(buddha)
                     } else {
                         tmp = buddha
@@ -81,7 +81,7 @@ object BuddhaUtils {
                 } else {
                     if (buddha.startTime.hour == tmp!!.startTime.hour) {
                         tmp!!.duration += buddha.duration
-                        tmp!!.tap += buddha.tap
+                        tmp!!.count += buddha.count
                         removeList.add(buddha)
                     } else {
                         tmp = buddha

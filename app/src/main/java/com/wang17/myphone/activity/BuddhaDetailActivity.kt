@@ -1,13 +1,11 @@
 package com.wang17.myphone.activity
 
 import android.app.AlertDialog
-import android.content.DialogInterface
 import android.os.Bundle
 import android.support.v7.app.AppCompatActivity
 import android.view.View
 import android.view.ViewGroup
 import android.widget.*
-import android.widget.AdapterView.OnItemClickListener
 import android.widget.AdapterView.OnItemLongClickListener
 import com.wang17.myphone.R
 import com.wang17.myphone.e
@@ -15,7 +13,6 @@ import com.wang17.myphone.fragment.ActionBarFragment.OnActionFragmentBackListene
 import com.wang17.myphone.model.DateTime
 import com.wang17.myphone.model.DateTime.Companion.toSpanString
 import com.wang17.myphone.model.database.BuddhaRecord
-import com.wang17.myphone.model.database.Setting
 import com.wang17.myphone.util.DataContext
 import com.wang17.myphone.util._CloudUtils
 import com.wang17.myphone.util._Utils.printException
@@ -29,8 +26,7 @@ class BuddhaDetailActivity : AppCompatActivity(), OnActionFragmentBackListener {
     private lateinit var recordListdAdapter: RecordListdAdapter
 
     var duration=0L
-    var tap = 0
-    var number =0
+    var count =0
 
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -72,14 +68,13 @@ class BuddhaDetailActivity : AppCompatActivity(), OnActionFragmentBackListener {
     private fun refreshData() {
         buddhaList = dataContext.getBuddhas(DateTime(start))
         duration = 0L
-        tap = 0
-        number = 0
+        count = 0
         buddhaList.forEach {
             duration += it.duration
-            tap += it.tap
-            number += it.tap * it.tapCount
+            count += it.count
         }
-        tv_info.text="${DateTime(start).toShortDateString()}   ${tap}圈   ${DateTime.toSpanString2(duration)}   ${DecimalFormat("#,##0").format(number)}"
+        val tap = count.toFloat()/1080
+        tv_info.text="${DateTime(start).toShortDateString()}   ${if(tap>0) "${DecimalFormat("0").format(tap)}圈" else ""}   ${DateTime.toSpanString2(duration)}   ${if(count>0) DecimalFormat("#,##0").format(count) else ""}"
     }
 
     override fun onBackButtonClickListener() {
@@ -109,12 +104,13 @@ class BuddhaDetailActivity : AppCompatActivity(), OnActionFragmentBackListener {
                 val tv_item = convertView.findViewById<View>(R.id.textView_item) as TextView
                 val tv_duration = convertView.findViewById<View>(R.id.textView_monthDuration) as TextView
                 val tv_tap = convertView.findViewById<View>(R.id.textView_monthTap) as TextView
-                val tv_number = convertView.findViewById<View>(R.id.textView_monthNumber) as TextView
+                val tv_number = convertView.findViewById<View>(R.id.textView_monthCount) as TextView
                 tv_date.text = "" + buddha.startTime.hourStr + "点" + buddha.startTime.miniteStr + "分"
                 tv_item.text = if (buddha.summary == null || buddha.summary.isEmpty()) "默认" else buddha.summary
                 tv_duration.text = "" + toSpanString(buddha.duration, 3, 2)
-                tv_tap.text = buddha.tap.toString() + "圈"
-                tv_number.text = DecimalFormat("#,##0").format((buddha.tap * buddha.tapCount).toLong())
+                val tap = buddha.count/1080
+                tv_tap.text =  "${if(tap>0) "${tap}圈" else ""}"
+                tv_number.text = if(buddha.count>0) DecimalFormat("#,##0").format(buddha.count) else ""
             } catch (e: Exception) {
                 printException(this@BuddhaDetailActivity, e)
             }

@@ -137,16 +137,6 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/iv_buddha" />
 
-    <Switch
-        android:id="@+id/sw_count"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="8dp"
-        android:text="计数"
-        android:textColor="@color/calendar_yl_color"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/iv_buddha" />
-
     <LinearLayout
         android:id="@+id/constraintLayout"
         android:layout_width="wrap_content"
