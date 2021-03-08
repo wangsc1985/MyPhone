@@ -2,14 +2,14 @@
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
-    android:layout_width="wrap_content"
+    android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:orientation="vertical">
 
 
     <android.support.constraint.ConstraintLayout
         android:id="@+id/linearLayout13"
-        android:layout_width="wrap_content"
+        android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:layout_gravity="center"
         android:orientation="horizontal"
@@ -40,7 +40,7 @@
             app:layout_constraintBottom_toBottomOf="@+id/number_min"
             app:layout_constraintStart_toEndOf="@+id/number_min"
             app:layout_constraintTop_toTopOf="@+id/number_min"
-            app:srcCompat="@drawable/minus_box" />
+            android:src="@drawable/minus_box" />
 
         <EditText
             android:id="@+id/et_count"
@@ -64,15 +64,26 @@
             app:layout_constraintBottom_toBottomOf="@+id/et_count"
             app:layout_constraintStart_toEndOf="@+id/et_count"
             app:layout_constraintTop_toTopOf="@+id/et_count"
-            app:srcCompat="@drawable/add_box" />
+            android:src="@drawable/add_box" />
 
 
         <Button
-            android:id="@+id/btn_ok"
+            android:id="@+id/btn_time"
             style="@style/Widget.AppCompat.Button.Colored"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="添加"
+            android:layout_marginEnd="8dp"
+            android:layout_weight="1"
+            android:text="计时"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toStartOf="@+id/btn_count" />
+
+        <Button
+            android:id="@+id/btn_count"
+            style="@style/Widget.AppCompat.Button.Colored"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="计数"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent" />
 
@@ -81,7 +92,7 @@
             style="@style/Widget.AppCompat.Button.Colored"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="计数"
+            android:text="TO"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintTop_toTopOf="parent" />
 
