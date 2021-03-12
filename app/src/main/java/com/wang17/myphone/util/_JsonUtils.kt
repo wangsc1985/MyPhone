@@ -1,5 +1,6 @@
 package com.wang17.myphone.util
 
+import com.wang17.myphone.model.Lottery
 import org.json.JSONArray
 import org.json.JSONException
 import org.json.JSONObject
@@ -26,6 +27,11 @@ object _JsonUtils {
     @Throws(JSONException::class)
     fun isContainsKey(json: Any, key: Any): Boolean {
         val res = JSONObject(json.toString())
+
+
+
+
+
         return !res.isNull(key.toString())
     }
 }

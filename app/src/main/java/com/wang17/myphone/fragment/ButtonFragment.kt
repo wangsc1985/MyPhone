@@ -16,20 +16,23 @@ import android.view.ViewGroup
 import android.view.inputmethod.EditorInfo
 import android.view.inputmethod.InputMethodManager
 import android.widget.EditText
+import android.widget.ImageView
+import android.widget.LinearLayout
+import android.widget.TextView
+import com.alibaba.fastjson.JSONArray
 import com.wang17.myphone.R
 import com.wang17.myphone.activity.*
 import com.wang17.myphone.callback.CloudCallback
 import com.wang17.myphone.callback.HttpCallback
 import com.wang17.myphone.e
+import com.wang17.myphone.model.Lottery
 import com.wang17.myphone.model.database.BuddhaRecord
 import com.wang17.myphone.model.database.Setting
 import com.wang17.myphone.util.*
 import com.wang17.myphone.view._Button
 import kotlinx.android.synthetic.main.fragment_button.*
 import java.text.DecimalFormat
-import java.util.*
 import java.util.concurrent.CountDownLatch
-import java.util.regex.Pattern
 import kotlin.collections.ArrayList
 
 
@@ -87,36 +90,36 @@ class ButtonFragment : Fragment() {
 //                }).show()
             }
             btn.setOnLongClickListener {
-                AlertDialog.Builder(context!!).setItems(arrayOf("整合","上传"), DialogInterface.OnClickListener { dialog, which ->
+                AlertDialog.Builder(context!!).setItems(arrayOf("整合", "上传"), DialogInterface.OnClickListener { dialog, which ->
                     when (which) {
-                                     0 -> {
-                                         val dc = DataContext(context)
-                                         val buddhaList = dc.allBuddhas
-                                         val removeList: MutableList<BuddhaRecord> = ArrayList()
-                                         var preBuddhaRecord: BuddhaRecord? = null
-                                         var count =0
-                                         buddhaList.forEach { buddha ->
-                                             if (preBuddhaRecord != null) {
-                                                 if(buddha.startTime.timeInMillis-(preBuddhaRecord!!.startTime.timeInMillis+ preBuddhaRecord!!.duration)<60000*5){
-                                                     preBuddhaRecord!!.duration+=buddha.duration
-                                                     preBuddhaRecord!!.count+=buddha.count
-                                                     removeList.add(buddha)
-                                                     count++
-                                                 }else{
-                                                     dc.editBuddha(preBuddhaRecord)
-                                                     preBuddhaRecord = buddha
-                                                 }
-                                             } else {
-                                                 preBuddhaRecord = buddha
-                                             }
-                                         }
-                                         preBuddhaRecord?.let {
-                                             dc.editBuddha(preBuddhaRecord)
-                                         }
-                                         dc.deleteBuddhaList(removeList)
-                                         AlertDialog.Builder(context!!).setMessage("整合完毕！共整合${count}条记录").show()
-                                     }
-                       1 -> {
+                        0 -> {
+                            val dc = DataContext(context)
+                            val buddhaList = dc.allBuddhas
+                            val removeList: MutableList<BuddhaRecord> = ArrayList()
+                            var preBuddhaRecord: BuddhaRecord? = null
+                            var count = 0
+                            buddhaList.forEach { buddha ->
+                                if (preBuddhaRecord != null) {
+                                    if (buddha.startTime.timeInMillis - (preBuddhaRecord!!.startTime.timeInMillis + preBuddhaRecord!!.duration) < 60000 * 5) {
+                                        preBuddhaRecord!!.duration += buddha.duration
+                                        preBuddhaRecord!!.count += buddha.count
+                                        removeList.add(buddha)
+                                        count++
+                                    } else {
+                                        dc.editBuddha(preBuddhaRecord)
+                                        preBuddhaRecord = buddha
+                                    }
+                                } else {
+                                    preBuddhaRecord = buddha
+                                }
+                            }
+                            preBuddhaRecord?.let {
+                                dc.editBuddha(preBuddhaRecord)
+                            }
+                            dc.deleteBuddhaList(removeList)
+                            AlertDialog.Builder(context!!).setMessage("整合完毕！共整合${count}条记录").show()
+                        }
+                        1 -> {
                             Thread {
                                 val buddhaList = dataContext.allBuddhas
                                 e("buddha size : ${buddhaList.size}")
@@ -170,34 +173,16 @@ class ButtonFragment : Fragment() {
             }
             layout_flexbox.addView(btn)
         }
-
         kotlin.run {
             btn = _Button(context!!, "彩票")
             btn.setOnClickListener {
                 AlertDialog.Builder(context!!).setItems(arrayOf("大乐透", "双色球")) { dialog, which ->
                     when (which) {
                         0 -> {
-                            _OkHttpUtil.getRequest("https://www.xinti.com/prizedetail/dlt.html", HttpCallback {html ->
-                                try {
-                                    var cc=  html.replace("\r","").replace("\n","")
-                                    var matcher = Pattern.compile("(?<=<span class=\"iballs\">).{10,300}(?=</span>)").matcher(cc)
-                                    matcher.find()
-                                    cc = matcher.group().trim()
-                                    matcher = Pattern.compile("\\d").matcher(cc)
-                                    var winLottery= StringBuffer()
-                                    while(matcher.find()){
-                                        cc = matcher.group()
-                                        winLottery.append(cc+";")
-                                    }
-
-                                    LotteryUtil.dlt("",winLottery.toString())
-                                } catch (e: Exception) {
-                                    println(e.message)
-                                }
-                            })
+                            redeemLottery(1)
                         }
                         1 -> {
-
+                            redeemLottery(2)
                         }
                     }
                 }.show()
@@ -206,16 +191,17 @@ class ButtonFragment : Fragment() {
                 AlertDialog.Builder(context!!).setItems(arrayOf("大乐透", "双色球")) { dialog, which ->
                     when (which) {
                         0 -> {
-
+                            addLottery(1)
                         }
                         1 -> {
-
+                            addLottery(2)
                         }
                     }
                 }.show()
                 true
             }
             layout_flexbox.addView(btn)
+
         }
 
         kotlin.run {
@@ -340,6 +326,402 @@ class ButtonFragment : Fragment() {
 //        }
     }
 
+    fun redeemLottery(type:Int){
+        val view = View.inflate(context!!, R.layout.dialog_lottery, null)
+        var etP = view.findViewById<EditText>(R.id.et_period)
+        var etM = view.findViewById<EditText>(R.id.et_multiple)
+        etM.isEnabled=false
+        var et1 = view.findViewById<EditText>(R.id.et_1)
+        var et2 = view.findViewById<EditText>(R.id.et_2)
+        var et3 = view.findViewById<EditText>(R.id.et_3)
+        var et4 = view.findViewById<EditText>(R.id.et_4)
+        var et5 = view.findViewById<EditText>(R.id.et_5)
+        var et6 = view.findViewById<EditText>(R.id.et_6)
+        var et7 = view.findViewById<EditText>(R.id.et_7)
+        var tvInfo = view.findViewById<TextView>(R.id.tvInfo)
+        etP.setOnFocusChangeListener { v, hasFocus ->
+            if(hasFocus){
+                etP.selectAll()
+            }
+        }
+        etP.setOnEditorActionListener { v, actionId, event ->
+            if (actionId == EditorInfo.IME_ACTION_NEXT) {
+                etM.requestFocus()
+                etM.selectAll()
+            }
+            true
+        }
+        etM.setOnEditorActionListener { v, actionId, event ->
+            if (actionId == EditorInfo.IME_ACTION_NEXT) {
+                et1.requestFocus()
+                et1.selectAll()
+            }
+            true
+        }
+        et1.setOnEditorActionListener { v, actionId, event ->
+            if (actionId == EditorInfo.IME_ACTION_NEXT) {
+                et2.requestFocus()
+                et2.selectAll()
+            }
+            true
+        }
+        et1.addTextChangedListener(object:TextWatcher{
+            override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {
+            }
+
+            override fun afterTextChanged(s: Editable?) {
+                if(s.toString().length==2){
+                    et2.requestFocus()
+                    et2.selectAll()
+                }
+            }
+
+            override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {
+            }
+        })
+        et2.setOnEditorActionListener { v, actionId, event ->
+            if (actionId == EditorInfo.IME_ACTION_NEXT) {
+                et3.requestFocus()
+                et3.selectAll()
+            }
+
+            true
+        }
+        et2.addTextChangedListener(object:TextWatcher{
+            override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {
+            }
+
+            override fun afterTextChanged(s: Editable?) {
+                if(s.toString().length==2){
+                    et3.requestFocus()
+                    et3.selectAll()
+                }
+            }
+
+            override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {
+            }
+        })
+        et3.setOnEditorActionListener { v, actionId, event ->
+            if (actionId == EditorInfo.IME_ACTION_NEXT) {
+                et4.requestFocus()
+                et4.selectAll()
+            }
+            true
+        }
+        et3.addTextChangedListener(object:TextWatcher{
+            override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {
+            }
+
+            override fun afterTextChanged(s: Editable?) {
+                if(s.toString().length==2){
+                    et4.requestFocus()
+                    et4.selectAll()
+                }
+            }
+
+            override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {
+            }
+        })
+        et4.setOnEditorActionListener { v, actionId, event ->
+            if (actionId == EditorInfo.IME_ACTION_NEXT) {
+                et5.requestFocus()
+                et5.selectAll()
+            }
+            true
+        }
+        et4.addTextChangedListener(object:TextWatcher{
+            override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {
+            }
+
+            override fun afterTextChanged(s: Editable?) {
+                if(s.toString().length==2){
+                    et5.requestFocus()
+                    et5.selectAll()
+                }
+            }
+
+            override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {
+            }
+        })
+        et5.setOnEditorActionListener { v, actionId, event ->
+            if (actionId == EditorInfo.IME_ACTION_NEXT) {
+                et6.requestFocus()
+                et6.selectAll()
+            }
+            true
+        }
+        et5.addTextChangedListener(object:TextWatcher{
+            override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {
+            }
+
+            override fun afterTextChanged(s: Editable?) {
+                if(s.toString().length==2){
+                    et6.requestFocus()
+                    et6.selectAll()
+                }
+            }
+
+            override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {
+            }
+        })
+        et6.setOnEditorActionListener { v, actionId, event ->
+            if (actionId == EditorInfo.IME_ACTION_NEXT) {
+                et7.requestFocus()
+                et7.selectAll()
+            }
+            true
+        }
+        et6.addTextChangedListener(object:TextWatcher{
+            override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {
+            }
+
+            override fun afterTextChanged(s: Editable?) {
+                if(s.toString().length==2){
+                    et7.requestFocus()
+                    et7.selectAll()
+                }
+            }
+
+            override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {
+            }
+        })
+
+        val lots = LotteryUtil.fromJSONArray(dataContext.getSetting(Setting.KEYS.lotterys,"[]").string)
+        val period = if(lots.size>0) lots[0].period else 0
+        etP.setText("${period}")
+        etP.isEnabled=false
+        et7.addTextChangedListener(object:TextWatcher{
+            override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {
+            }
+
+            override fun afterTextChanged(s: Editable?) {
+                if(s.toString().length==2){
+                    val winLottery = Lottery(period,
+                            arrayListOf(et1.text.toString().toInt(), et2.text.toString().toInt(), et3.text.toString().toInt(), et4.text.toString().toInt(), et5.text.toString().toInt(),et6.text.toString().toInt(), et7.text.toString().toInt()),
+                            0, type)
+                    when(type)
+                    {
+                        1->{
+                            tvInfo.setText(LotteryUtil.dlt(lots,winLottery))
+                        }
+                        2->{
+                            tvInfo.setText(LotteryUtil.ssq(lots,winLottery))
+                        }
+                    }
+                }
+            }
+
+            override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {
+            }
+        })
+        AlertDialog.Builder(context!!).setView(view).setCancelable(false).setPositiveButton("确定", null).show()
+    }
+
+    fun addLottery(type: Int) {
+        val view = View.inflate(context!!, R.layout.dialog_lottery, null)
+        var etP = view.findViewById<EditText>(R.id.et_period)
+        var etM = view.findViewById<EditText>(R.id.et_multiple)
+        var et1 = view.findViewById<EditText>(R.id.et_1)
+        var et2 = view.findViewById<EditText>(R.id.et_2)
+        var et3 = view.findViewById<EditText>(R.id.et_3)
+        var et4 = view.findViewById<EditText>(R.id.et_4)
+        var et5 = view.findViewById<EditText>(R.id.et_5)
+        var et6 = view.findViewById<EditText>(R.id.et_6)
+        var et7 = view.findViewById<EditText>(R.id.et_7)
+        var tvInfo = view.findViewById<TextView>(R.id.tvInfo)
+        etP.setOnFocusChangeListener { v, hasFocus ->
+            if(hasFocus){
+                etP.selectAll()
+            }
+        }
+        etP.setOnEditorActionListener { v, actionId, event ->
+            if (actionId == EditorInfo.IME_ACTION_NEXT) {
+                etM.requestFocus()
+                etM.selectAll()
+            }
+            true
+        }
+        etM.setOnEditorActionListener { v, actionId, event ->
+            if (actionId == EditorInfo.IME_ACTION_NEXT) {
+                et1.requestFocus()
+                et1.selectAll()
+            }
+            true
+        }
+        et1.setOnEditorActionListener { v, actionId, event ->
+            if (actionId == EditorInfo.IME_ACTION_NEXT) {
+                et2.requestFocus()
+                et2.selectAll()
+            }
+            true
+        }
+        et1.addTextChangedListener(object:TextWatcher{
+            override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {
+            }
+
+            override fun afterTextChanged(s: Editable?) {
+                if(s.toString().length==2){
+                    et2.requestFocus()
+                    et2.selectAll()
+                }
+            }
+
+            override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {
+            }
+        })
+        et2.setOnEditorActionListener { v, actionId, event ->
+            if (actionId == EditorInfo.IME_ACTION_NEXT) {
+                et3.requestFocus()
+                et3.selectAll()
+            }
+
+            true
+        }
+        et2.addTextChangedListener(object:TextWatcher{
+            override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {
+            }
+
+            override fun afterTextChanged(s: Editable?) {
+                if(s.toString().length==2){
+                    et3.requestFocus()
+                    et3.selectAll()
+                }
+            }
+
+            override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {
+            }
+        })
+        et3.setOnEditorActionListener { v, actionId, event ->
+            if (actionId == EditorInfo.IME_ACTION_NEXT) {
+                et4.requestFocus()
+                et4.selectAll()
+            }
+            true
+        }
+        et3.addTextChangedListener(object:TextWatcher{
+            override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {
+            }
+
+            override fun afterTextChanged(s: Editable?) {
+                if(s.toString().length==2){
+                    et4.requestFocus()
+                    et4.selectAll()
+                }
+            }
+
+            override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {
+            }
+        })
+        et4.setOnEditorActionListener { v, actionId, event ->
+            if (actionId == EditorInfo.IME_ACTION_NEXT) {
+                et5.requestFocus()
+                et5.selectAll()
+            }
+            true
+        }
+        et4.addTextChangedListener(object:TextWatcher{
+            override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {
+            }
+
+            override fun afterTextChanged(s: Editable?) {
+                if(s.toString().length==2){
+                    et5.requestFocus()
+                    et5.selectAll()
+                }
+            }
+
+            override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {
+            }
+        })
+        et5.setOnEditorActionListener { v, actionId, event ->
+            if (actionId == EditorInfo.IME_ACTION_NEXT) {
+                et6.requestFocus()
+                et6.selectAll()
+            }
+            true
+        }
+        et5.addTextChangedListener(object:TextWatcher{
+            override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {
+            }
+
+            override fun afterTextChanged(s: Editable?) {
+                if(s.toString().length==2){
+                    et6.requestFocus()
+                    et6.selectAll()
+                }
+            }
+
+            override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {
+            }
+        })
+        et6.setOnEditorActionListener { v, actionId, event ->
+            if (actionId == EditorInfo.IME_ACTION_NEXT) {
+                et7.requestFocus()
+                et7.selectAll()
+            }
+            true
+        }
+        et6.addTextChangedListener(object:TextWatcher{
+            override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {
+            }
+
+            override fun afterTextChanged(s: Editable?) {
+                if(s.toString().length==2){
+                    et7.requestFocus()
+                    et7.selectAll()
+                }
+            }
+
+            override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {
+            }
+        })
+
+        var lots = ArrayList<Lottery>()
+        et7.addTextChangedListener(object:TextWatcher{
+            override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {
+            }
+
+            override fun afterTextChanged(s: Editable?) {
+                if(s.toString().length==2){
+                    val lot = Lottery(etP.text.toString().toInt(),
+                            arrayListOf(et1.text.toString().toInt(), et2.text.toString().toInt(), et3.text.toString().toInt(), et4.text.toString().toInt(), et5.text.toString().toInt(),et6.text.toString().toInt(), et7.text.toString().toInt()),
+                            etM.text.toString().toInt(), type)
+                    lots.add(lot)
+                    et1.setText("")
+                    et2.setText("")
+                    et3.setText("")
+                    et4.setText("")
+                    et5.setText("")
+                    et6.setText("")
+                    et7.setText("")
+                    et1.requestFocus()
+                    var ss = StringBuffer()
+                    lots.forEach { lot ->
+                        if (type == 1)
+                            ss.appendLine("${lot.period}期  ${lot.redArr[0]}  ${lot.redArr[1]}  ${lot.redArr[2]}  ${lot.redArr[3]}  ${lot.redArr[4]} + ${lot.blueArr[0]}  ${lot.blueArr[1]}  ${lot.multiple}倍")
+                        else
+                            ss.appendLine("${lot.period}期  ${lot.redArr[0]}  ${lot.redArr[1]}  ${lot.redArr[2]}  ${lot.redArr[3]}  ${lot.redArr[4]}  ${lot.redArr[5]} + ${lot.blueArr[0]}  ${lot.multiple}倍")
+                    }
+                    tvInfo.setText(ss.toString())
+
+                }
+            }
+
+            override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {
+            }
+        })
+
+        et7.setOnEditorActionListener { v, actionId, event ->
+            if (actionId == EditorInfo.IME_ACTION_NEXT) {
+            }
+            true
+        }
+
+        AlertDialog.Builder(context!!).setView(view).setCancelable(false).setPositiveButton("确定", DialogInterface.OnClickListener { dialog, which ->
+            dataContext.editSetting(Setting.KEYS.lotterys, JSONArray.toJSON(lots).toString())
+        }).show()
+    }
+
     fun interest(data: String): String {
         var result = StringBuffer()
         var totalInterest = 0f
@@ -365,8 +747,7 @@ class ButtonFragment : Fragment() {
         return result.toString()
     }
 
-    override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?,
-                              savedInstanceState: Bundle?): View? {
+    override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
         return inflater.inflate(R.layout.fragment_button, container, false)
     }
 

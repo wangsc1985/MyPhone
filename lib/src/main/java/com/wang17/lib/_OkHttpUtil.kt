@@ -1,6 +1,5 @@
 package com.wang17.lib
 
-import com.alibaba.fastjson.JSONException
 import com.alibaba.fastjson.JSONObject
 import okhttp3.*
 import okhttp3.MediaType.Companion.toMediaTypeOrNull
@@ -54,7 +53,7 @@ object _OkHttpUtil {
                     }
                 }
             })
-        } catch (e: JSONException) {
+        } catch (e: Exception) {
             e.printStackTrace()
         }
     }

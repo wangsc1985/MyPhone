@@ -389,7 +389,7 @@ class BuddhaPlayerFragment : Fragment() {
                 time.set(Calendar.MINUTE, min)
                 var stoptimeInMillis = time.timeInMillis
 
-                buildBuddhaAndSave(0, tap*5*600000.toLong(), stoptimeInMillis,1) { code, result ->
+                buildBuddhaAndSave(0, tap*5*60000.toLong(), stoptimeInMillis,1) { code, result ->
                     if (code == 0) {
                         uiHandler.post {
                             refreshTotalView()
@@ -427,8 +427,8 @@ class BuddhaPlayerFragment : Fragment() {
                 }
             }
 
-            val btnTo = view.findViewById<Button>(R.id.btn_to)
-            btnTo.setOnClickListener {
+            val ivTo = view.findViewById<ImageView>(R.id.iv_to)
+            ivTo.setOnClickListener {
                 dialog.dismiss()
                 addBuddhaRecordDialog()
             }

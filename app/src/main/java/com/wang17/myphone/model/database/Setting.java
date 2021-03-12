@@ -63,7 +63,7 @@ public class Setting{
     }
 
     public enum KEYS{
-        buddha_float_window_x, buddha_float_window_y,buddha_float_window_width, buddha_float_window_size,location_search_year,
+        buddha_float_window_x, buddha_float_window_y,buddha_float_window_width, buddha_float_window_size,location_search_year,lotterys,
         buddha_duration,buddha_startime,buddha_volume,buddha_stoptime,
         stock_reflush_time,buddha_load_time,interest,buddha_speed,
         main_start_page_index,wisdom,map_search_radius,

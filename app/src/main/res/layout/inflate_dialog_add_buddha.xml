@@ -33,40 +33,6 @@
             app:layout_constraintTop_toTopOf="parent" />
 
 
-        <ImageView
-            android:id="@+id/iv_minus"
-            android:layout_width="40dp"
-            android:layout_height="40dp"
-            app:layout_constraintBottom_toBottomOf="@+id/number_min"
-            app:layout_constraintStart_toEndOf="@+id/number_min"
-            app:layout_constraintTop_toTopOf="@+id/number_min"
-            android:src="@drawable/minus_box" />
-
-        <EditText
-            android:id="@+id/et_count"
-            style="@style/Widget.AppCompat.AutoCompleteTextView"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:duplicateParentState="false"
-            android:ems="3"
-            android:enabled="false"
-            android:gravity="center_horizontal"
-            android:inputType="number"
-            android:text="1"
-            app:layout_constraintBottom_toBottomOf="@+id/iv_minus"
-            app:layout_constraintStart_toEndOf="@+id/iv_minus"
-            app:layout_constraintTop_toTopOf="@+id/iv_minus" />
-
-        <ImageView
-            android:id="@+id/iv_add"
-            android:layout_width="40dp"
-            android:layout_height="40dp"
-            app:layout_constraintBottom_toBottomOf="@+id/et_count"
-            app:layout_constraintStart_toEndOf="@+id/et_count"
-            app:layout_constraintTop_toTopOf="@+id/et_count"
-            android:src="@drawable/add_box" />
-
-
         <Button
             android:id="@+id/btn_time"
             style="@style/Widget.AppCompat.Button.Colored"
@@ -77,6 +43,14 @@
             android:text="计时"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toStartOf="@+id/btn_count" />
+
+        <ImageView
+            android:id="@+id/iv_to"
+            android:layout_width="50dp"
+            android:layout_height="40dp"
+            android:src="@drawable/forward"
+            app:layout_constraintEnd_toEndOf="@+id/linearLayout14"
+            app:layout_constraintTop_toTopOf="parent" />
 
         <Button
             android:id="@+id/btn_count"
@@ -94,7 +68,43 @@
             android:layout_height="wrap_content"
             android:text="TO"
             app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintTop_toTopOf="parent" />
+            app:layout_constraintTop_toTopOf="parent"
+            tools:visibility="gone" />
+
+        <LinearLayout
+            android:id="@+id/linearLayout14"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            app:layout_constraintBottom_toBottomOf="@+id/number_min"
+            app:layout_constraintEnd_toEndOf="@+id/btn_count"
+            app:layout_constraintStart_toStartOf="@+id/btn_time"
+            app:layout_constraintTop_toTopOf="@+id/number_min">
+
+            <ImageView
+                android:id="@+id/iv_minus"
+                android:layout_width="40dp"
+                android:layout_height="40dp"
+                android:src="@drawable/minus_box" />
+
+            <EditText
+                android:id="@+id/et_count"
+                style="@style/Widget.AppCompat.AutoCompleteTextView"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:duplicateParentState="false"
+                android:ems="3"
+                android:enabled="false"
+                android:gravity="center_horizontal"
+                android:inputType="number"
+                android:text="1" />
+
+            <ImageView
+                android:id="@+id/iv_add"
+                android:layout_width="40dp"
+                android:layout_height="40dp"
+                android:src="@drawable/add_box" />
+        </LinearLayout>
 
     </android.support.constraint.ConstraintLayout>
 

@@ -9,7 +9,8 @@ java {
 }
 
 dependencies {
+    implementation fileTree(include: ['*.jar'], dir: 'libs')
     implementation "org.jetbrains.kotlin:kotlin-stdlib:$kotlin_version"
-    api 'com.squareup.okhttp3:okhttp:4.9.0'
     implementation 'com.alibaba:fastjson:1.2.73'
+    api 'com.squareup.okhttp3:okhttp:4.9.0'
 }

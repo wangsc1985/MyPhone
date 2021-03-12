@@ -1,9 +1,13 @@
 package com.wang17.lib
 
+import com.alibaba.fastjson.JSONArray
+import com.alibaba.fastjson.JSONObject
+import com.sun.xml.internal.ws.binding.WebServiceFeatureList.toList
 import java.io.*
 import java.math.BigDecimal
 import java.util.*
 import java.util.regex.Pattern
+import java.util.stream.Collectors.toList
 import kotlin.collections.ArrayList
 
 class MyClass {
@@ -26,7 +30,50 @@ class MyClass {
     }
     companion object {
         @JvmStatic
+        fun parseJSONArray(jsonStr:String):ArrayList<Lottery>{
+            val result = ArrayList<Lottery>()
+            val arr = JSONArray.parse(jsonStr) as JSONArray
+            arr.forEach {
+                val lotJson = it as JSONObject
+                val period = lotJson.get("period").toString().toInt()
+                val redA = lotJson.get("redArr").toString().replace("[","").replace("]","").split(",")
+                val redArr = ArrayList<Int>()
+                redA.forEach {
+                    redArr.add(it.toInt())
+                }
+                val blueA = lotJson.get("blueArr").toString().replace("[","").replace("]","").split(",")
+                val blueArr = ArrayList<Int>()
+                blueA.forEach {
+                    blueArr.add(it.toInt())
+                }
+                val multiple = lotJson.get("multiple").toString().toInt()
+                val type = lotJson.get("type").toString().toInt()
+                result.add(Lottery(period,redArr,blueArr,multiple,type))
+            }
+            return result
+        }
+
+        @JvmStatic
         fun main(args: Array<String>) {
+//            val lotterys = ArrayList<Lottery>()
+//            lotterys.add(Lottery(21025, arrayListOf(3,4,22,23,28,1), arrayListOf(1,4),1,1))
+//            lotterys.add(Lottery(21025, arrayListOf(17,24,28,30,33), arrayListOf(3,12),1,1))
+//            lotterys.add(Lottery(21025, arrayListOf(13,20,22,32,35), arrayListOf(1,10),1,1))
+//            lotterys.add(Lottery(21025, arrayListOf(3,10,16,27,33), arrayListOf(3,4),1,1))
+//            lotterys.add(Lottery(21025, arrayListOf(10,13,24,31,35), arrayListOf(2,11),1,1))
+//            val winLottery= Lottery(21025, arrayListOf(17,18,23,30,31), arrayListOf(10,12),0,1)
+//
+//            val jsonStr = JSONArray.toJSON(lotterys).toString()
+//            println(jsonStr)
+//
+//           val arr =  parseJSONArray(jsonStr)
+//            arr.forEach {
+//                println(it.redArr[1])
+//            }
+
+
+
+//            LotteryUtil.dlt(lotterys,winLottery)
 
 //            var content="勿泄露验证码！验证码646777，5分钟内输入有效。您尾号7086的信用卡正在进行【财付通公司】快捷支付-签约。【交通银行】"
 //            var matcher = Pattern.compile("(?<=验证码).{0,2}[0-9]{4,8}").matcher(content)
@@ -38,15 +85,16 @@ class MyClass {
 //            println(matcher.group())
 
 
-            _OkHttpUtil.getRequest("https://www.xinti.com/prizedetail/ssq.html", HttpCallback {html ->
+            _OkHttpUtil.getRequest("http://kaijiang.500.com/shtml/dlt/21025.shtml?0_ala_baidu", HttpCallback {html ->
                 try {
                     var cc=  html.replace("\r","").replace("\n","")
-//                    var matcher = Pattern.compile("(?<=<span class=\"iballs\">).{10,300}(?=</span>)").matcher(cc)
-                    var matcher = Pattern.compile("(?<=<div class=\"lefts\">).{10,3000}(?=</div>)").matcher(cc)
-                    //
-                    matcher.find()
-                    cc = matcher.group().trim()
                     println(cc)
+//                    var matcher = Pattern.compile("(?<=<span class=\"iballs\">).{10,300}(?=</span>)").matcher(cc)
+//                    var matcher = Pattern.compile("(?<=<div class=\"lefts\">).{10,3000}(?=</div>)").matcher(cc)
+//                    //
+//                    matcher.find()
+//                    cc = matcher.group().trim()
+//                    println(cc)
 //                    matcher = Pattern.compile("\\d").matcher(cc)
 //                    while(matcher.find()){
 //                        cc = matcher.group()

@@ -1,36 +1,8 @@
-package com.wang17.myphone.util
+package com.wang17.lib
 
-import com.alibaba.fastjson.JSONArray
-import com.alibaba.fastjson.JSONObject
-import com.wang17.myphone.model.Lottery
 import java.text.DecimalFormat
 
 object LotteryUtil {
-
-
-    @JvmStatic
-    fun fromJSONArray(jsonStr:String):ArrayList<Lottery>{
-        val result = ArrayList<Lottery>()
-        val arr = JSONArray.parse(jsonStr) as JSONArray
-        arr.forEach {
-            val lotJson = it as JSONObject
-            val period = lotJson.get("period").toString().toInt()
-            val redA = lotJson.get("redArr").toString().replace("[","").replace("]","").split(",")
-            val arr = ArrayList<Int>()
-            redA.forEach {
-                arr.add(it.toInt())
-            }
-            val blueA = lotJson.get("blueArr").toString().replace("[","").replace("]","").split(",")
-            blueA.forEach {
-                arr.add(it.toInt())
-            }
-            val multiple = lotJson.get("multiple").toString().toInt()
-            val type = lotJson.get("type").toString().toInt()
-            result.add(Lottery(period,arr,multiple,type))
-        }
-        return result
-    }
-
     /**
      * 大乐透
      * 号码之间用“,”  号组之间用“;”
@@ -111,8 +83,7 @@ object LotteryUtil {
     /**
      * 大乐透
      */
-    fun dlt(lotterys: List<Lottery>, winLottery: Lottery):String {
-        var result = ""
+    fun dlt(lotterys: List<Lottery>, winLottery: Lottery) {
         val bonus = arrayOf(
                 arrayOf(5, 2, "一", 5000000),
                 arrayOf(5, 1, "二", 100000),
@@ -166,13 +137,12 @@ object LotteryUtil {
                     val rc = it[0] as Int
                     val bc = it[1] as Int
                     if (rc == redWinCount && bc == blueWinCount) {
-                        result +="${redWinStr}${blueWinStr}"
-                       result+="${it[2]}等奖 奖金${DecimalFormat("#,###").format((it[3] as Int) * multiple)}元"
+                        println("${redWinStr}${blueWinStr}")
+                        println("${it[2]}等奖 奖金${DecimalFormat("#,###").format((it[3] as Int) * multiple)}元")
                     }
                 }
             }
         }
-        return result
     }
 
     /**
@@ -253,8 +223,7 @@ object LotteryUtil {
     /**
      * 双色球
      */
-    fun ssq(lotterys: List<Lottery>, winLottery: Lottery):String {
-        var result = ""
+    fun ssq(lotterys: List<Lottery>, winLottery: Lottery) {
         val bonus = arrayOf(
                 arrayOf(6, 1, "一", 5000000),
                 arrayOf(6, 0, "二", 100000),
@@ -305,13 +274,12 @@ object LotteryUtil {
                         val award = (it[3] as Int) * multiple
                         totalWin++
                         totalAward += award
-                        result+="${redWinStr}${blueWinStr}"
-                        result+="${it[2]}等奖 奖金${DecimalFormat("#,###").format(award)}元"
+                        println("${redWinStr}${blueWinStr}")
+                        println("${it[2]}等奖 奖金${DecimalFormat("#,###").format(award)}元")
                     }
                 }
             }
         }
-        result+="中奖${totalWin}注，奖金${totalAward}元"
-        return result
+        println("中奖${totalWin}注，奖金${totalAward}元")
     }
 }
