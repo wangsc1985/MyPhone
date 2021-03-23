@@ -18,11 +18,10 @@ import android.view.WindowManager;
 import android.widget.TextView;
 
 import com.wang17.myphone.R;
-import com.wang17.myphone.model.database.Setting;
-import com.wang17.myphone.model.database.Position;
+import com.wang17.myphone.database.Setting;
+import com.wang17.myphone.database.Position;
 import com.wang17.myphone.util.DataContext;
 import com.wang17.myphone.util._LogUtils;
-import com.wang17.myphone.util._String;
 import com.wang17.myphone.util._Utils;
 
 import java.util.List;
@@ -211,7 +210,6 @@ public class NianfoDarkRunActivity extends AppCompatActivity {
                     int dataLevel = mDataContext.getSetting(Setting.KEYS.battery, 0).getInt();
                     if (dataLevel != level) {
                         long span = System.currentTimeMillis() - (preBatteryTime == 0 ? System.currentTimeMillis() : preBatteryTime);
-                        mDataContext.addLog("battery", _String.concat("{", level, "%}{", span / 60000, "分", span % 60000 / 1000, "秒}",""),"");
                         preBatteryTime = System.currentTimeMillis();
                         mDataContext.editSetting(Setting.KEYS.battery, level);
                     }

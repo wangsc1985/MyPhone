@@ -1,6 +1,5 @@
 package com.wang17.myphone.activity;
 
-import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.database.Cursor;
@@ -14,7 +13,6 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.AdapterView;
 import android.widget.BaseAdapter;
 import android.widget.EditText;
 import android.widget.LinearLayout;
@@ -22,20 +20,13 @@ import android.widget.ListView;
 import android.widget.TextView;
 
 import com.wang17.myphone.R;
-import com.wang17.myphone.model.database.BankToDo;
 import com.wang17.myphone.model.DateTime;
-import com.wang17.myphone.model.database.PhoneMessage;
-import com.wang17.myphone.model.database.Setting;
+import com.wang17.myphone.database.PhoneMessage;
 import com.wang17.myphone.util.DataContext;
-import com.wang17.myphone.util._Session;
 import com.wang17.myphone.util._Utils;
 import com.wang17.myphone.widget.MyWidgetProvider;
 
-import org.json.JSONArray;
-import org.json.JSONException;
-
 import java.util.ArrayList;
-import java.util.Calendar;
 import java.util.HashMap;
 import java.util.List;
 import java.util.regex.Matcher;

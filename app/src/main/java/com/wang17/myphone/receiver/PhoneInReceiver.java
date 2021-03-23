@@ -25,16 +25,13 @@ public class PhoneInReceiver extends BroadcastReceiver {
             case TelephonyManager.CALL_STATE_RINGING:
                 // 响铃时
                 number = intent.getStringExtra("incoming_number");
-                dataContext.addLog("来电广播", "来电", "时间：" + new DateTime().toLongDateTimeString());
                 break;
             case TelephonyManager.CALL_STATE_OFFHOOK:
                 // 按接听按钮时
-                dataContext.addLog("来电广播", "接听", "时间：" + new DateTime().toLongDateTimeString());
                 break;
 
             case TelephonyManager.CALL_STATE_IDLE:
                 // 按挂断按钮时
-                dataContext.addLog("来电广播", "挂断", "时间：" + new DateTime().toLongDateTimeString());
                 break;
         }
     }

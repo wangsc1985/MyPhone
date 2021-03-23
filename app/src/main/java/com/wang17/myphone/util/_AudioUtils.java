@@ -4,7 +4,7 @@ import android.content.Context;
 import android.database.Cursor;
 import android.provider.MediaStore;
 
-import com.wang17.myphone.model.database.Song;
+import com.wang17.myphone.database.Song;
 
 import java.util.ArrayList;
 import java.util.UUID;

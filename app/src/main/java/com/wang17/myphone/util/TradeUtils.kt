@@ -1,7 +1,7 @@
 package com.wang17.myphone.util
 
 import com.wang17.myphone.*
-import com.wang17.myphone.model.database.Trade
+import com.wang17.myphone.database.Trade
 import java.math.BigDecimal
 
 object TradeUtils {

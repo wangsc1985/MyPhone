@@ -10,15 +10,14 @@
         android:layout_gravity="center"
         android:background="@color/floating_window_background"
         android:gravity="center"
-        android:orientation="horizontal"
+        android:orientation="vertical"
         android:padding="5dp">
 
         <TextView
             android:id="@+id/tv_zj"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_gravity="top"
-            android:layout_marginLeft="10dp"
+            android:layout_gravity="center|top"
             android:text="66.89"
             android:textSize="24sp" />
 
@@ -26,11 +25,10 @@
             android:id="@+id/tv_sz"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_gravity="top"
-            android:layout_marginLeft="10dp"
-            android:layout_marginRight="10dp"
+            android:layout_gravity="center|top"
             android:text="0.98"
             android:textSize="12sp" />
+
     </LinearLayout>
 
 </LinearLayout>

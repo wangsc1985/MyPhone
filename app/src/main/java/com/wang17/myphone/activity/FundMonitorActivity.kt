@@ -19,12 +19,11 @@ import android.view.Window
 import android.view.WindowManager
 import com.wang17.myphone.R
 import com.wang17.myphone.model.StockInfo
-import com.wang17.myphone.model.database.Position
-import com.wang17.myphone.model.database.Setting
+import com.wang17.myphone.database.Position
+import com.wang17.myphone.database.Setting
 import com.wang17.myphone.util.DataContext
 import com.wang17.myphone.util._SinaStockUtils.OnLoadStockInfoListListener
 import com.wang17.myphone.util._SinaStockUtils.getStockInfoList
-import com.wang17.myphone.util._String
 import com.wang17.myphone.util._Utils
 import kotlinx.android.synthetic.main.activity_fund_monitor.*
 import java.math.BigDecimal
@@ -215,7 +214,6 @@ class FundMonitorActivity : AppCompatActivity() {
                     val dataLevel = mDataContext.getSetting(Setting.KEYS.battery, 0).int
                     if (dataLevel != level) {
                         val span = System.currentTimeMillis() - if (preBatteryTime == 0L) System.currentTimeMillis() else preBatteryTime
-                        mDataContext.addLog("battery", _String.concat("{", level, "%}{", span / 60000, "分", span % 60000 / 1000, "秒}", ""), "")
                         preBatteryTime = System.currentTimeMillis()
                         mDataContext.editSetting(Setting.KEYS.battery, level)
                     }

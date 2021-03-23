@@ -6,9 +6,9 @@ import com.wang17.myphone.callback.HttpCallback
 import com.wang17.myphone.e
 import com.wang17.myphone.model.DateTime
 import com.wang17.myphone.model.PostArgument
-import com.wang17.myphone.model.database.BuddhaRecord
-import com.wang17.myphone.model.database.Position
-import com.wang17.myphone.model.database.Setting
+import com.wang17.myphone.database.BuddhaRecord
+import com.wang17.myphone.database.Position
+import com.wang17.myphone.database.Setting
 import com.wang17.myphone.util._OkHttpUtil.getRequest
 import com.wang17.myphone.util._OkHttpUtil.postRequestByJson
 import com.wang17.myphone.util._OkHttpUtil.postRequestByJsonStr
@@ -33,18 +33,18 @@ object _CloudUtils {
                 /**
                  * token过期
                  */
-                e("本地token已过期，微软网站获取新的token。")
+//                e("本地token已过期，微软网站获取新的token。")
                 return loadNewTokenFromHttp((context))
             } else {
                 /**
                  * token仍有效
                  */
 //                e(dc.getSetting("token").string)
-                e("有效期：${DateTime(exprires).toLongDateTimeString()}")
+//                e("有效期：${DateTime(exprires).toLongDateTimeString()}")
                 return dc.getSetting("token").string
             }
         } else {
-            e("本地不存在token信息，微软网站获取新的token。")
+//            e("本地不存在token信息，微软网站获取新的token。")
             return loadNewTokenFromHttp(context)
         }
     }
@@ -71,7 +71,7 @@ object _CloudUtils {
 
 
                     val b = System.currentTimeMillis()
-                    e("从微软获取到token：$token, 有效期：${DateTime(exprires).toLongDateTimeString()} 用时：${b - a}")
+//                    e("从微软获取到token：$token, 有效期：${DateTime(exprires).toLongDateTimeString()} 用时：${b - a}")
                 }
             } catch (e: Exception) {
                 e(e.message!!)

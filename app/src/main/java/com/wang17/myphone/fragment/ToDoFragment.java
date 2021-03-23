@@ -15,7 +15,7 @@ import android.widget.ListView;
 import android.widget.TextView;
 
 import com.wang17.myphone.R;
-import com.wang17.myphone.model.database.BankToDo;
+import com.wang17.myphone.database.BankToDo;
 import com.wang17.myphone.model.DateTime;
 import com.wang17.myphone.util.DataContext;
 import com.wang17.myphone.util._DialogUtils;

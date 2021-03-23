@@ -2,9 +2,8 @@ package com.wang17.myphone.util
 
 import android.graphics.Color
 import com.wang17.myphone.activity.StockPositionHistoryActivity.AttTrades
-import com.wang17.myphone.e
 import com.wang17.myphone.model.StockInfo
-import com.wang17.myphone.model.database.Position
+import com.wang17.myphone.database.Position
 import com.wang17.myphone.service.StockService.Companion.findCommodity
 import com.wang17.myphone.setMyScale
 import com.wang17.myphone.toMyDecimal

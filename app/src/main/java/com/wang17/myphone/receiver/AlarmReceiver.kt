@@ -20,8 +20,8 @@ import com.wang17.myphone.activity.FuturePositionActivity
 import com.wang17.myphone.activity.StockPositionActivity
 import com.wang17.myphone.event.NianfoOverEvent
 import com.wang17.myphone.model.DateTime
-import com.wang17.myphone.model.database.Setting
-import com.wang17.myphone.model.database.TallyRecord
+import com.wang17.myphone.database.Setting
+import com.wang17.myphone.database.TallyRecord
 import com.wang17.myphone.service.NianfoMusicService
 import com.wang17.myphone.service.SpeakerService
 import com.wang17.myphone.util.BackupTask

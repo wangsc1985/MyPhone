@@ -1,6 +1,6 @@
 package com.wang17.myphone.model;
 
-import com.wang17.myphone.model.database.BillRecord;
+import com.wang17.myphone.database.BillRecord;
 
 import java.util.List;
 

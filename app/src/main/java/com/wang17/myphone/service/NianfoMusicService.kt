@@ -19,8 +19,8 @@ import com.wang17.myphone.MainActivity
 import com.wang17.myphone.R
 import com.wang17.myphone.event.NianfoPauseEvent
 import com.wang17.myphone.model.DateTime
-import com.wang17.myphone.model.database.Setting
-import com.wang17.myphone.model.database.TallyRecord
+import com.wang17.myphone.database.Setting
+import com.wang17.myphone.database.TallyRecord
 import com.wang17.myphone.receiver.AlarmReceiver
 import com.wang17.myphone.receiver.HeadsetPlugReceiver
 import com.wang17.myphone.util.*
@@ -159,7 +159,6 @@ class NianfoMusicService : Service() {
     }
 
     fun play() {
-        mDataContext.addLog("NianfoMusicService","play","")
         try {
             if (requestFocus()) {
                 var volumn = mDataContext.getSetting(Setting.KEYS.media_player_volumn, 1.0f).float
@@ -223,7 +222,6 @@ class NianfoMusicService : Service() {
     }
 
     fun pause() {
-        mDataContext.addLog("NianfoMusicService","pause","")
             mPlayer.pause()
             mDataContext.editSetting(Setting.KEYS.media_player_position, mPlayer.currentPosition)
             mDataContext.editSetting(Setting.KEYS.tally_music_is_playing, false)
@@ -238,7 +236,6 @@ class NianfoMusicService : Service() {
     }
 
     fun resume() {
-        mDataContext.addLog("NianfoMusicService","resume","")
             mPlayer.start()
 
         mDataContext.editSetting(Setting.KEYS.tally_music_is_playing, true)
@@ -249,8 +246,7 @@ class NianfoMusicService : Service() {
 
     fun stop() {
         try {
-            mDataContext.addLog("NianfoMusicService","stop","")
-            
+
                 mDataContext.editSetting(Setting.KEYS.media_player_position, mPlayer.currentPosition)
                 mPlayer.stop()
                 mPlayer.release()
@@ -275,7 +271,6 @@ class NianfoMusicService : Service() {
              * 添加 tally_sectionStartInMillis
              * 添加 tally_endInMillis
              */
-            mDataContext.addLog("NianfoMusicService","restartNianfoTally","")
             // 删除
             val setting = mDataContext.getSetting(Setting.KEYS.tally_intervalInMillis)
             if (setting != null) {
@@ -311,7 +306,6 @@ class NianfoMusicService : Service() {
              *
              * 添加 tally_intervalInMillis    剩余时间长度
              */
-            mDataContext.addLog("NianfoMusicService","pauseNianfoTally","")
             // 向数据库中保存“已经完成的时间”
             val now = System.currentTimeMillis()
             val sectionStartInMillis = mDataContext.getSetting(Setting.KEYS.tally_sectionStartMillis).string.toLong()
@@ -336,7 +330,6 @@ class NianfoMusicService : Service() {
 
     private fun saveSection(context: Context, partStartMillis: Long, partSpanMillis: Long) {
         try {
-            mDataContext.addLog("NianfoMusicService","saveSection","")
             val tallyRecord = TallyRecord(DateTime(partStartMillis), partSpanMillis.toInt(), mDataContext.getSetting(Setting.KEYS.tally_record_item_text, "").string)
             if (mDataContext.getRecord(partStartMillis) == null) {
                 mDataContext.addRecord(tallyRecord)
@@ -348,7 +341,6 @@ class NianfoMusicService : Service() {
 
 
     fun startAlarm(context: Context, endTimeInMillis: Long) {
-        mDataContext.addLog("NianfoMusicService","startAlarm","")
         val intent = Intent(_Session.ACTION_ALARM_NIANFO_OVER)
         // 念佛结束闹钟
         val pi = PendingIntent.getBroadcast(context, AlarmReceiver.ALARM_NIANFO_OVER, intent, PendingIntent.FLAG_UPDATE_CURRENT)
@@ -364,7 +356,6 @@ class NianfoMusicService : Service() {
 
     fun stopAlarm(context: Context) {
         try {
-            mDataContext.addLog("NianfoMusicService","stopAlarm","")
             val intent = Intent(_Session.NIAN_FO_TIMER)
             val pi = PendingIntent.getBroadcast(context, AlarmReceiver.ALARM_NIANFO_OVER, intent, PendingIntent.FLAG_UPDATE_CURRENT)
             val am = context.getSystemService(ALARM_SERVICE) as AlarmManager
@@ -390,17 +381,14 @@ class NianfoMusicService : Service() {
         if (focusChange == AudioManager.AUDIOFOCUS_LOSS_TRANSIENT) {
             // Pause playback
             Log.e("wangsc", "pause.................")
-            mDataContext.addLog("NianfoMusicService","念佛音乐 - 暂停","")
             pause()
         } else if (focusChange == AudioManager.AUDIOFOCUS_GAIN) {
             // Resume playback
             Log.e("wangsc", "resume.................")
-            mDataContext.addLog("NianfoMusicService","念佛音乐 - 开始","")
             resume()
         } else if (focusChange == AudioManager.AUDIOFOCUS_LOSS) {
             // Stop playback
             Log.e("wangsc", "stop.................")
-            mDataContext.addLog("NianfoMusicService","念佛音乐 - 停止","")
             stop()
         }
     }
@@ -410,7 +398,6 @@ class NianfoMusicService : Service() {
         val result = mAm!!.requestAudioFocus(afChangeListener,
                 AudioManager.STREAM_MUSIC,
                 AudioManager.AUDIOFOCUS_GAIN)
-        mDataContext.addLog("NianfoMusicService","requestFocus - $result","")
         return result == AudioManager.AUDIOFOCUS_REQUEST_GRANTED
     }
 

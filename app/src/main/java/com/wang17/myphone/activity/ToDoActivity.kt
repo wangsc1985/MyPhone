@@ -11,13 +11,12 @@ import android.util.Log
 import android.view.View
 import android.view.ViewGroup
 import android.widget.BaseAdapter
-import android.widget.ListView
 import android.widget.TextView
 import com.wang17.myphone.R
 import com.wang17.myphone.e
 import com.wang17.myphone.model.DateTime
 import com.wang17.myphone.model.DateTime.Companion.dayOffset
-import com.wang17.myphone.model.database.BankToDo
+import com.wang17.myphone.database.BankToDo
 import com.wang17.myphone.util.DataContext
 import com.wang17.myphone.util._DialogUtils
 import com.wang17.myphone.util._Utils

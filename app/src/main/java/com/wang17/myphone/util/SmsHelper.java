@@ -10,7 +10,7 @@ import android.net.Uri;
 import android.telephony.SmsManager;
 
 import com.wang17.myphone.model.DateTime;
-import com.wang17.myphone.model.database.PhoneMessage;
+import com.wang17.myphone.database.PhoneMessage;
 import com.wang17.myphone.structure.SmsStatus;
 import com.wang17.myphone.structure.SmsType;
 

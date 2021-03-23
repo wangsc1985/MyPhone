@@ -23,10 +23,9 @@ import android.widget.RemoteViews;
 import com.wang17.myphone.R;
 import com.wang17.myphone.model.Commodity;
 import com.wang17.myphone.model.DateTime;
-import com.wang17.myphone.model.database.Setting;
-import com.wang17.myphone.model.database.Position;
+import com.wang17.myphone.database.Setting;
+import com.wang17.myphone.database.Position;
 import com.wang17.myphone.util.DataContext;
-import com.wang17.myphone.util._LogUtils;
 import com.wang17.myphone.util._Session;
 import com.wang17.myphone.util._Utils;
 
@@ -316,7 +315,6 @@ public class MediaLoopTimerService extends Service {
                         int dataLevel = mDataContext.getSetting(Setting.KEYS.battery, 0).getInt();
                         if (dataLevel != level) {
                             long span = System.currentTimeMillis() - (preBatteryTime == 0 ? System.currentTimeMillis() : preBatteryTime);
-                            mDataContext.addLog("电量","{" + level + "%}{" + span / 60000 + "分" + span % 60000 / 1000 + "秒}","");
                             preBatteryTime = System.currentTimeMillis();
                             mDataContext.editSetting(Setting.KEYS.battery, level);
                         }

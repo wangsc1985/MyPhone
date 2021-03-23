@@ -17,9 +17,8 @@ import android.widget.*
 import android.widget.AdapterView.OnItemLongClickListener
 import com.wang17.myphone.R
 import com.wang17.myphone.model.Commodity
-import com.wang17.myphone.model.database.Position
-import com.wang17.myphone.model.database.Setting
-import com.wang17.myphone.roundMode
+import com.wang17.myphone.database.Position
+import com.wang17.myphone.database.Setting
 import com.wang17.myphone.util.*
 import com.wang17.myphone.util._LogUtils.log2file
 import kotlinx.android.synthetic.main.activity_attention_future.*

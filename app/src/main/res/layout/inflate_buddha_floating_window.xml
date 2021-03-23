@@ -4,7 +4,17 @@
     android:id="@+id/layout_root"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:orientation="horizontal">
+    android:orientation="vertical">
+
+    <TextView
+        android:id="@+id/tv_duration"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center"
+        android:background="@drawable/my_progressbar3"
+        android:gravity="center"
+        android:text="1:12"
+        android:textSize="14sp" />
 
     <ImageView
         android:id="@+id/iv_control"

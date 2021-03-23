@@ -34,7 +34,7 @@ import com.wang17.myphone.util.BackupTask;
 import com.wang17.myphone.util.DataContext;
 import com.wang17.myphone.util._DialogUtils;
 import com.wang17.myphone.util._Utils;
-import com.wang17.myphone.model.database.Setting;
+import com.wang17.myphone.database.Setting;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -62,14 +62,14 @@ public class MainActivity extends AppCompatActivity implements BackupTask.OnFini
     @Override
     protected void onPause() {
         super.onPause();
-        e("main activity on pause");
+//        e("main activity on pause");
     }
 
 
     @Override
     protected void onStop() {
         super.onStop();
-        e("main activity on stop");
+//        e("main activity on stop");
     }
 
     @Override
@@ -78,13 +78,13 @@ public class MainActivity extends AppCompatActivity implements BackupTask.OnFini
 //        new BackupTask(this).execute(BackupTask.COMMAND_BACKUP);
 //        receiver.unRegisterScreenActionReceiver(this);
         super.onDestroy();
-        e("main activity on destory");
+//        e("main activity on destory");
     }
 
     @Override
     protected void onStart() {
         super.onStart();
-        e("main activity on start");
+//        e("main activity on start");
     }
 
     NetWorkStateReceiver netWorkStateReceiver;
@@ -92,7 +92,7 @@ public class MainActivity extends AppCompatActivity implements BackupTask.OnFini
     @Override
     protected void onResume() {
         super.onResume();
-        e("main activity on resume");
+//        e("main activity on resume");
     }
 
 

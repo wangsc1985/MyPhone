@@ -16,8 +16,8 @@ import android.widget.Toast;
 
 import com.wang17.myphone.R;
 import com.wang17.myphone.model.DateTime;
-import com.wang17.myphone.model.database.Setting;
-import com.wang17.myphone.model.database.TallyRecord;
+import com.wang17.myphone.database.Setting;
+import com.wang17.myphone.database.TallyRecord;
 import com.wang17.myphone.util.DataContext;
 
 import java.util.Calendar;

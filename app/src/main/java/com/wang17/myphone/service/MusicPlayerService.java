@@ -12,10 +12,10 @@ import com.wang17.myphone.fragment.MusicPlayerFragment;
 import com.wang17.myphone.util.DataContext;
 import com.wang17.myphone.util._Utils;
 import com.wang17.myphone.util._Session;
-import com.wang17.myphone.model.database.PlayList;
+import com.wang17.myphone.database.PlayList;
 import com.wang17.myphone.model.ProgressEvent;
-import com.wang17.myphone.model.database.Setting;
-import com.wang17.myphone.model.database.Song;
+import com.wang17.myphone.database.Setting;
+import com.wang17.myphone.database.Song;
 
 import org.greenrobot.eventbus.EventBus;
 import org.greenrobot.eventbus.Subscribe;

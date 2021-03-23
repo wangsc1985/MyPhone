@@ -17,8 +17,8 @@ import com.wang17.myphone.event.LocationIsAutomaticEvent;
 import com.wang17.myphone.util.AMapUtil;
 import com.wang17.myphone.util.DataContext;
 import com.wang17.myphone.util._Session;
-import com.wang17.myphone.model.database.Location;
-import com.wang17.myphone.model.database.Setting;
+import com.wang17.myphone.database.Location;
+import com.wang17.myphone.database.Setting;
 
 import org.greenrobot.eventbus.EventBus;
 import org.greenrobot.eventbus.Subscribe;

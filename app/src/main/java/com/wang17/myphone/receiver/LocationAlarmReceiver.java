@@ -10,7 +10,7 @@ import android.media.SoundPool;
 import android.os.Build;
 
 import com.wang17.myphone.R;
-import com.wang17.myphone.model.database.Setting;
+import com.wang17.myphone.database.Setting;
 import com.wang17.myphone.service.LocationService;
 import com.wang17.myphone.util.DataContext;
 import com.wang17.myphone.util._Utils;
@@ -35,7 +35,7 @@ public class LocationAlarmReceiver extends BroadcastReceiver {
             });
 
         }
-        if (!_Utils.isServiceRunning(context, "com.wang17.myphone.service.LocationService")) {
+        if (!_Utils.isServiceRunning(context, LocationService.class.getCanonicalName())) {
             dataContext.addRunLog("定位闹钟 - 重新启动定位服务", "");
             context.startService(new Intent(context, LocationService.class));
         }

@@ -22,9 +22,9 @@ import com.wang17.myphone.eventbus.EventBusMessage
 import com.wang17.myphone.eventbus.SenderBuddhaServiceOnDestroy
 import com.wang17.myphone.eventbus.SenderTimerRuning
 import com.wang17.myphone.model.DateTime
-import com.wang17.myphone.model.database.BuddhaFile
-import com.wang17.myphone.model.database.BuddhaRecord
-import com.wang17.myphone.model.database.Setting
+import com.wang17.myphone.database.BuddhaFile
+import com.wang17.myphone.database.BuddhaRecord
+import com.wang17.myphone.database.Setting
 import com.wang17.myphone.service.BuddhaService
 import com.wang17.myphone.service.StockService
 import com.wang17.myphone.toMyDecimal
@@ -47,12 +47,12 @@ class BuddhaPlayerFragment : Fragment() {
 
     override fun onResume() {
         super.onResume()
-        if (_Utils.isRunService(context!!, StockService::class.qualifiedName!!)) {
+        if (_Utils.isServiceRunning(context!!, StockService::class.qualifiedName!!)) {
             animatorSuofang(abtn_stockAnimator)
         } else {
             stopAnimatorSuofang(abtn_stockAnimator)
         }
-        if (_Utils.isRunService(context!!, BuddhaService::class.qualifiedName!!)) {
+        if (_Utils.isServiceRunning(context!!, BuddhaService::class.qualifiedName!!)) {
             animatorSuofang(btn_buddha_animator)
         } else {
             stopAnimatorSuofang(btn_buddha_animator)
@@ -111,7 +111,6 @@ class BuddhaPlayerFragment : Fragment() {
             totalDayDuration += it.duration
         }
 
-        e("month buddha size : ${monthBuddhas.size} , day buddha size : ${dayBuddhas.size}")
         val hour = totalMonthDuration / (60000 * 60)
         val minite = totalMonthDuration % (60000 * 60) / 60000
         val hourS = "${hour}:"
@@ -137,11 +136,14 @@ class BuddhaPlayerFragment : Fragment() {
             tv_dayTotal.setText("${hourS1}${miniteS1}  ${formatter.format(totalDayCount)}  ${totalDayCount / 1080}圈")
         }
     }
-
+    var circleSecond:Int=600
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         buddhaIntent = Intent(context, BuddhaService::class.java)
         abtn_stockAnimator = AnimatorSuofangView(abtn_stock)
         btn_buddha_animator = AnimatorSuofangView(abtn_buddha)
+
+        dc = DataContext(context)
+        circleSecond = getCurrentCircleSecond()
 
         val setting = dc.getSetting(Setting.KEYS.buddha_duration)
         setting?.let {
@@ -150,8 +152,8 @@ class BuddhaPlayerFragment : Fragment() {
             val miniteT = duration / 60000
             val minite = miniteT % 60
             val hour = miniteT / 60
-            var count = (miniteT / getCurrentCircleDuration()).toInt()
-            tv_time.text = "$hour:${if (minite < 10) "0" + minite else minite}:${if (second < 10) "0" + second else second} \t $count \t "
+            var tap = (duration/1000 /circleSecond).toInt()
+            tv_time.text = "$hour:${if (minite < 10) "0" + minite else minite}:${if (second < 10) "0" + second else second} \t $tap \t "
         }
 
 //        val buddhaSpeed = dc.getSetting(Setting.KEYS.buddha_speed, 2).int
@@ -170,7 +172,7 @@ class BuddhaPlayerFragment : Fragment() {
             val setting = dc.getSetting(Setting.KEYS.buddha_duration)
             setting?.let {
                 val duration = setting.long
-                val tap = duration / getCurrentCircleDuration()
+                val tap = duration/1000 / circleSecond
                 val avgDuration = if (tap == 0L) duration else duration / tap
                 AlertDialog.Builder(context).setMessage("缓存中存在念佛记录，是否存档？").setPositiveButton("存档") { dialog, which ->
                     buildBuddhaAndSave(tap.toInt(), duration, dc.getSetting(Setting.KEYS.buddha_stoptime, System.currentTimeMillis()).long,buddhaType()) { code, result ->
@@ -196,10 +198,10 @@ class BuddhaPlayerFragment : Fragment() {
         var wakeLock: PowerManager.WakeLock? = null
         tv_buddha_name.setOnLongClickListener {
 
-            if (!_Utils.isRunService(context!!, BuddhaService::class.qualifiedName!!)) {
+            if (!_Utils.isServiceRunning(context!!, BuddhaService::class.qualifiedName!!)) {
                 wakeLock = _Utils.acquireWakeLock(context!!, PowerManager.SCREEN_BRIGHT_WAKE_LOCK)
                 var msg = """
-                愿将此功德：
+                愿将这些功德：
                 
                     回向给我今生今世及累生累世冤亲债主、历代宗亲、六亲眷属、一切护法，及一切有缘众生。
                     
@@ -207,9 +209,9 @@ class BuddhaPlayerFragment : Fragment() {
                     
                     回向给法界一切众生，愿所有众生，业障消除，善根增长，脱轮回苦，生极乐国。
                     
-                    愿我念佛精进，愿心不退，早得三昧，速证菩提。
+                    愿我念佛不断，精进不退，早得三昧，速证菩提。
                     
-                    祈求观音菩萨，慈悲加持，入我梦中，除我病苦。
+                    天罗神，地罗神，人离难，难离身，一切灾殃化为尘。
                     
                     愿我身心健康，无病无灾。财富丰足，无忧无虑。家庭和睦，无烦无恼。所有恶习，尽除无余。所有冤孽，勿近我身。
                     
@@ -245,10 +247,12 @@ class BuddhaPlayerFragment : Fragment() {
                 val bf = dc.getBuddhaFile(_Session.BUDDHA_MUSIC_NAME_ARR[which], file.length())
 
                 if (bf == null) {
-                    dc.addBuddhaFile(BuddhaFile(_Session.BUDDHA_MUSIC_NAME_ARR[which], file.length(), _Utils.getMD5(file.path), 1.0f, 1.0f, 0, 10))
+                    dc.addBuddhaFile(BuddhaFile(_Session.BUDDHA_MUSIC_NAME_ARR[which], file.length(),"md5", 1.0f, 1.0f, 0, 600))
                 }
 
-                if (_Utils.isRunService(context!!, BuddhaService::class.qualifiedName!!)) {
+                circleSecond = getCurrentCircleSecond()
+
+                if (_Utils.isServiceRunning(context!!, BuddhaService::class.qualifiedName!!)) {
                     isChangeConfig = true
                     context?.stopService(buddhaIntent)
                     context?.startService(buddhaIntent)
@@ -294,6 +298,9 @@ class BuddhaPlayerFragment : Fragment() {
         }
 
         layout_monthTotal.setOnClickListener {
+
+
+
             val today = DateTime.today
             val monthBuddhaList = dc.getBuddhas(today.year, today.month)
             var start = DateTime(today.year, today.month, 1)
@@ -327,7 +334,7 @@ class BuddhaPlayerFragment : Fragment() {
                 }
                 tap = count / 1080
                 totalTap += tap
-                sb.append("${time.toShortDateString1()} \t ${if (count > 0) "${hourS}:${miniteS} \t ${DecimalFormat("#,##0").format(count)} \t ${tap}" else ""}\n")
+                sb.append("${time.toShortDateString1()}\t${if (count > 0) "${hourS}:${miniteS}\t${DecimalFormat("#,##0").format(count)}" else ""}\n")
 
                 totalDuration += duration
                 start = start.addDays(1)
@@ -438,7 +445,7 @@ class BuddhaPlayerFragment : Fragment() {
 
         abtn_stock.setOnClickListener {
             //region 在StockReportService里面执行
-            if (!_Utils.isRunService(context!!, StockService::class.qualifiedName!!)) {
+            if (!_Utils.isServiceRunning(context!!, StockService::class.qualifiedName!!)) {
                 context!!.startService(Intent(context, StockService::class.java))
                 dc.editSetting(Setting.KEYS.is_stocks_listener, true)
                 animatorSuofang(abtn_stockAnimator)
@@ -446,7 +453,7 @@ class BuddhaPlayerFragment : Fragment() {
             //endregion
         }
         abtn_stock.setOnLongClickListener { //region 在StockReportService里面执行
-            if (_Utils.isRunService(context!!, StockService::class.qualifiedName!!)) {
+            if (_Utils.isServiceRunning(context!!, StockService::class.qualifiedName!!)) {
                 context!!.stopService(Intent(context, StockService::class.java))
                 dc.editSetting(Setting.KEYS.is_stocks_listener, false)
                 stopAnimatorSuofang(abtn_stockAnimator)
@@ -586,7 +593,7 @@ class BuddhaPlayerFragment : Fragment() {
                         spType.setSelection(2)
                     }
                 }
-                etDuration.setText(bf.duration.toString())
+                etDuration.setText(bf.circleSecond.toString())
                 etPitch.setOnEditorActionListener { v, actionId, event ->
                     if (actionId == EditorInfo.IME_ACTION_DONE) {
                         bf.pitch = etPitch.text.toString().toFloat()
@@ -610,13 +617,14 @@ class BuddhaPlayerFragment : Fragment() {
 
                 val dialog = AlertDialog.Builder(context).setTitle(set.string).setView(view).show()
                 btnUpdate.setOnClickListener {
-                    bf.duration = etDuration.text.toString().toInt()
+                    bf.circleSecond = etDuration.text.toString().toInt()
+                    circleSecond = bf.circleSecond
                     bf.type = spType.selectedItem.toString().toInt()
                     bf.speed = etSpeed.text.toString().toFloat()
                     bf.pitch = etPitch.text.toString().toFloat()
                     dc.editBuddhaFile(bf)
                     isChangeConfig = true
-                    if (_Utils.isRunService(context!!, BuddhaService::class.qualifiedName!!)) {
+                    if (_Utils.isServiceRunning(context!!, BuddhaService::class.qualifiedName!!)) {
                         context?.stopService(buddhaIntent)
                         context?.startService(buddhaIntent)
                     } else {
@@ -633,17 +641,17 @@ class BuddhaPlayerFragment : Fragment() {
         }
     }
 
-    private fun getCurrentCircleDuration(): Int {
+    private fun getCurrentCircleSecond(): Int {
         val setName = dc.getSetting(Setting.KEYS.buddha_music_name)
-        var circleMinite = 10
+        var circleSecond = 600
         setName?.let {
             val file = _Session.getFile(setName.string)
             val bf = dc.getBuddhaFile(setName.string, file.length())
             bf?.let {
-                circleMinite = bf.duration
+                circleSecond = bf.circleSecond
             }
         }
-        return circleMinite
+        return circleSecond
     }
 
     private fun buddhaType():Int{
@@ -809,7 +817,7 @@ class BuddhaPlayerFragment : Fragment() {
     lateinit var buddhaIntent: Intent
     private fun playBuddha() {
         try {
-            if (!_Utils.isRunService(context!!, BuddhaService::class.qualifiedName!!)) {
+            if (!_Utils.isServiceRunning(context!!, BuddhaService::class.qualifiedName!!)) {
                 checkDuration { code, result ->
                     if (code == 0) {
                         context?.startService(buddhaIntent)
@@ -837,7 +845,7 @@ class BuddhaPlayerFragment : Fragment() {
         val setDuration = dc.getSetting(Setting.KEYS.buddha_duration)
         if (setDuration != null) {
             var duration = setDuration.long
-            var tap = duration / (60000 * getCurrentCircleDuration())
+            var tap = duration/1000 / circleSecond
             val second = duration % 60000 / 1000
             val hour = duration / (60000 * 60)
             val minite = duration % (60000 * 60) / 60000
@@ -885,7 +893,6 @@ class BuddhaPlayerFragment : Fragment() {
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
         EventBus.getDefault().register(this)
-        dc = DataContext(context)
         return inflater.inflate(R.layout.fragment_player, container, false)
     }
 
@@ -911,7 +918,7 @@ class BuddhaPlayerFragment : Fragment() {
                 val miniteT = duration / 1000 / 60
                 val minite = miniteT % 60
                 val hour = miniteT / 60
-                var count = (miniteT / getCurrentCircleDuration()).toInt()
+                var count = (duration/1000 / circleSecond).toInt()
                 var time = "$hour:${if (minite < 10) "0" + minite else minite}:${if (second < 10) "0" + second else second}"
                 tv_time.text = "$time  ${count}"
             }

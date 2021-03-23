@@ -20,9 +20,9 @@ import com.wang17.myphone.*
 import com.wang17.myphone.callback.CloudCallback
 import com.wang17.myphone.model.DateTime
 import com.wang17.myphone.model.StockInfo
-import com.wang17.myphone.model.database.Position
-import com.wang17.myphone.model.database.Setting
-import com.wang17.myphone.model.database.Trade
+import com.wang17.myphone.database.Position
+import com.wang17.myphone.database.Setting
+import com.wang17.myphone.database.Trade
 import com.wang17.myphone.util.*
 import com.wang17.myphone.util.TradeUtils.commission
 import com.wang17.myphone.util.TradeUtils.tax

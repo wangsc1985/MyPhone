@@ -2,12 +2,11 @@ package com.wang17.myphone.util;
 
 import android.content.Context;
 
-import com.wang17.myphone.model.database.BillRecord;
-import com.wang17.myphone.model.database.BillStatement;
-import com.wang17.myphone.model.database.CreditCard;
+import com.wang17.myphone.database.BillRecord;
+import com.wang17.myphone.database.BillStatement;
+import com.wang17.myphone.database.CreditCard;
 import com.wang17.myphone.model.CreditCardResult;
 import com.wang17.myphone.model.DateTime;
-import com.wang17.myphone.model.database.RunLog;
 import com.wang17.myphone.structure.RepayType;
 
 import java.util.Calendar;

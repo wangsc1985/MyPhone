@@ -29,9 +29,9 @@ import com.wang17.myphone.event.NianfoPauseEvent
 import com.wang17.myphone.event.NianfoResumeEvent
 import com.wang17.myphone.model.DateTime
 import com.wang17.myphone.model.DateTime.Companion.toSpanString
-import com.wang17.myphone.model.database.Setting
-import com.wang17.myphone.model.database.TallyPlan
-import com.wang17.myphone.model.database.TallyRecord
+import com.wang17.myphone.database.Setting
+import com.wang17.myphone.database.TallyPlan
+import com.wang17.myphone.database.TallyRecord
 import com.wang17.myphone.service.BuddhaTimerService
 import com.wang17.myphone.service.StockService
 import com.wang17.myphone.structure.TimerDisplayStatus
@@ -467,7 +467,6 @@ class BuddhaFragment : Fragment() {
     private fun startBuddha() {
         try {
             val dataContext = DataContext(context)
-            dataContext.addLog("BuddhaFragment","开始念佛","")
             listView_tallyPlan!!.visibility = View.INVISIBLE
             // 检查系统音量
             val mAudioManager = activity!!.getSystemService(Context.AUDIO_SERVICE) as AudioManager
@@ -508,7 +507,6 @@ class BuddhaFragment : Fragment() {
 
     private fun pauseBuddha() {
         val dataContext = DataContext(context)
-        dataContext.addLog("BuddhaFragment","暂停念佛","")
         try {
             val dataContext = DataContext(context)
             vibrator!!.vibrate(vibrateTime.toLong())
@@ -551,7 +549,6 @@ class BuddhaFragment : Fragment() {
 
     private fun restartBuddha() {
         val dataContext = DataContext(context)
-        dataContext.addLog("BuddhaFragment","重新开始念佛","")
         try {
             vibrator!!.vibrate(vibrateTime.toLong())
             val dataContext = DataContext(context)
@@ -583,7 +580,6 @@ class BuddhaFragment : Fragment() {
 
     private fun stopBuddha() {
         val dataContext = DataContext(context)
-        dataContext.addLog("BuddhaFragment","停止念佛","")
         try {
 //            listViewTallayPlan.setVisibility(View.VISIBLE);
             val dataContext = DataContext(context)

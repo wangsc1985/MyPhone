@@ -18,7 +18,7 @@ import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import com.wang17.myphone.R;
-import com.wang17.myphone.model.database.Setting;
+import com.wang17.myphone.database.Setting;
 import com.wang17.myphone.service.NianfoMusicService;
 import com.wang17.myphone.util.DataContext;
 import com.wang17.myphone.util._Session;

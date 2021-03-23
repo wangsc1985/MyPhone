@@ -8,7 +8,7 @@ import android.content.Intent;
 import android.content.IntentFilter;
 import android.os.Build;
 
-import com.wang17.myphone.model.database.Setting;
+import com.wang17.myphone.database.Setting;
 import com.wang17.myphone.receiver.LocationAlarmReceiver;
 import com.wang17.myphone.service.LocationService;
 
@@ -60,7 +60,7 @@ public class _LocationUtils {
             DataContext dataContext = new DataContext(context);
             dataContext.addRunLog("定位闹钟", intent.getAction());
             if (intent.getAction().equals("LOCATION")) {
-                if (!_Utils.isServiceRunning(context, "com.wang17.myphone.service.LocationService")) {
+                if (!_Utils.isServiceRunning(context, LocationService.class.getCanonicalName())) {
                     dataContext.addRunLog("定位闹钟 - 启动定位服务", "");
                     context.startService(new Intent(context, LocationService.class));
                 }

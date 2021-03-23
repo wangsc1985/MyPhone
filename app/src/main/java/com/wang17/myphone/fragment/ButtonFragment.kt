@@ -4,6 +4,8 @@ import android.annotation.SuppressLint
 import android.content.Context.INPUT_METHOD_SERVICE
 import android.content.DialogInterface
 import android.content.Intent
+import android.media.AudioManager
+import android.media.SoundPool
 import android.os.Bundle
 import android.os.Handler
 import android.support.v4.app.Fragment
@@ -16,18 +18,17 @@ import android.view.ViewGroup
 import android.view.inputmethod.EditorInfo
 import android.view.inputmethod.InputMethodManager
 import android.widget.EditText
-import android.widget.ImageView
-import android.widget.LinearLayout
 import android.widget.TextView
 import com.alibaba.fastjson.JSONArray
 import com.wang17.myphone.R
 import com.wang17.myphone.activity.*
 import com.wang17.myphone.callback.CloudCallback
-import com.wang17.myphone.callback.HttpCallback
 import com.wang17.myphone.e
 import com.wang17.myphone.model.Lottery
-import com.wang17.myphone.model.database.BuddhaRecord
-import com.wang17.myphone.model.database.Setting
+import com.wang17.myphone.database.BuddhaRecord
+import com.wang17.myphone.database.Setting
+import com.wang17.myphone.service.BuddhaService
+import com.wang17.myphone.service.StockService
 import com.wang17.myphone.util.*
 import com.wang17.myphone.view._Button
 import kotlinx.android.synthetic.main.fragment_button.*
@@ -40,7 +41,6 @@ import kotlin.collections.ArrayList
  * A simple [Fragment] subclass.
  */
 class ButtonFragment : Fragment() {
-    private lateinit var numberSpeaker: NumberSpeaker
     private lateinit var dataContext: DataContext
     var uiHandler = Handler()
 
@@ -48,7 +48,6 @@ class ButtonFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         dataContext = DataContext(context)
-        numberSpeaker = NumberSpeaker(context)
 
 
         var btn = _Button(context!!, "设置")
@@ -73,7 +72,6 @@ class ButtonFragment : Fragment() {
             true
         }
         layout_flexbox.addView(btn)
-
         kotlin.run {
             btn = _Button(context!!, "念佛")
             btn.setOnClickListener {
@@ -90,8 +88,11 @@ class ButtonFragment : Fragment() {
 //                }).show()
             }
             btn.setOnLongClickListener {
-                AlertDialog.Builder(context!!).setItems(arrayOf("整合", "上传"), DialogInterface.OnClickListener { dialog, which ->
+                AlertDialog.Builder(context!!).setItems(arrayOf("整合", "is run","木鱼"), DialogInterface.OnClickListener { dialog, which ->
                     when (which) {
+                        /**
+                         * 整合念佛记录
+                         */
                         0 -> {
                             val dc = DataContext(context)
                             val buddhaList = dc.allBuddhas
@@ -119,7 +120,20 @@ class ButtonFragment : Fragment() {
                             dc.deleteBuddhaList(removeList)
                             AlertDialog.Builder(context!!).setMessage("整合完毕！共整合${count}条记录").show()
                         }
+                        /**
+                         * 判断念佛服务是否在运行
+                         */
                         1 -> {
+                            AlertDialog.Builder(context!!).setMessage("BuddhaService运行：${_Utils.isServiceRunning(context!!,BuddhaService::class.qualifiedName!!)}").show()
+
+                        }
+                        2->{
+                            startActivity(Intent(context!!, KnockerActivity::class.java))
+                        }
+                        /**
+                         * 向云端上传念佛记录
+                         */
+                        100 -> {
                             Thread {
                                 val buddhaList = dataContext.allBuddhas
                                 e("buddha size : ${buddhaList.size}")
@@ -219,7 +233,7 @@ class ButtonFragment : Fragment() {
         kotlin.run {
             btn = _Button(context!!, "trade")
             btn.setOnClickListener {
-                AlertDialog.Builder(context!!).setItems(arrayOf("stock", "futrue", "history", "fund"), DialogInterface.OnClickListener { dialog, which ->
+                AlertDialog.Builder(context!!).setItems(arrayOf("stock", "futrue", "history", "fund","is run"), DialogInterface.OnClickListener { dialog, which ->
                     when (which) {
                         0 -> {
                             context!!.startActivity(Intent(context, StockPositionActivity::class.java))
@@ -236,6 +250,9 @@ class ButtonFragment : Fragment() {
                         }
                         3 -> {
                             startActivity(Intent(context, FundMonitorActivity::class.java))
+                        }
+                        4->{
+                            AlertDialog.Builder(context!!).setMessage("StockService运行状态：${_Utils.isServiceRunning(context!!, StockService::class.qualifiedName!!)}").show()
                         }
                     }
                 }).show()
@@ -316,6 +333,16 @@ class ButtonFragment : Fragment() {
             layout_flexbox.addView(btn)
         }
 
+//        kotlin.run {
+//
+//            var xiaoKnockSound = SoundPool(100, AudioManager.STREAM_MUSIC,0)
+//            xiaoKnockSound.load(context,R.raw.gang,1)
+//            btn = _Button(context!!, "测试")
+//            btn.setOnClickListener {
+//                xiaoKnockSound.play(1,1.0f,1.0f,0,0,1.0f)
+//            }
+//            layout_flexbox.addView(btn)
+//        }
 //        kotlin.run {
 //            btn = _Button(context!!, "intr")
 //            btn.setOnClickListener {

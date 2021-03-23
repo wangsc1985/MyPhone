@@ -15,8 +15,8 @@ import android.widget.BaseAdapter
 import com.wang17.myphone.R
 import com.wang17.myphone.model.StockInfo
 import com.wang17.myphone.model.ViewHolder
-import com.wang17.myphone.model.database.Position
-import com.wang17.myphone.model.database.Setting
+import com.wang17.myphone.database.Position
+import com.wang17.myphone.database.Setting
 import com.wang17.myphone.setMyScale
 import com.wang17.myphone.util.*
 import com.wang17.myphone.util.TradeUtils.commission

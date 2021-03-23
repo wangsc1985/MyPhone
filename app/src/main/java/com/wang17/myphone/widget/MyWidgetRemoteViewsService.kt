@@ -18,7 +18,7 @@ import com.wang17.myphone.callback.CloudCallback
 import com.wang17.myphone.model.DateTime
 import com.wang17.myphone.model.Lunar
 import com.wang17.myphone.model.SolarTerm
-import com.wang17.myphone.model.database.Setting
+import com.wang17.myphone.database.Setting
 import com.wang17.myphone.util.*
 import org.json.JSONException
 import java.io.DataInputStream
@@ -126,9 +126,6 @@ class MyWidgetRemoteViewsService : RemoteViewsService() {
         override fun onDataSetChanged() {
             try {
                 mDataContext = DataContext(mContext)
-                mDataContext.addLog("widgetservice", "刷新小部件列表", "onDataSetChanged()")
-//                val isAllowWidgetListStock = mDataContext.getSetting(Setting.KEYS.is_allow_widget_list_stock, true).boolean
-//                e("is stock list : ${MyWidgetProvider.isStockList} , is allow widget list stock : $isAllowWidgetListStock")
                 if (MyWidgetProvider.isStockList) {
                     var time = ""
                     for (info in MyWidgetProvider.stockInfoList) {
@@ -163,7 +160,7 @@ class MyWidgetRemoteViewsService : RemoteViewsService() {
                      */
                     _CloudUtils.getNewMsg(applicationContext, object : CloudCallback {
                         override fun excute(code: Int, msg: Any?) {
-                            e("get new msg code : $code")
+//                            e("get new msg code : $code")
                             when (code) {
                                 1 -> {
                                     mToDoList.add(ToDo("          ", "          ", msg.toString(), WARNING3_COLOR, true, R.raw.bi))
@@ -186,6 +183,7 @@ class MyWidgetRemoteViewsService : RemoteViewsService() {
 
                     //region 恢复小部件余额颜色
                     uiHandler.post {
+                        e("云端处理完毕，更新小部件。。。")
                         val remoteViews = RemoteViews(mContext.packageName, R.layout.widget_timer)
                         val myComponentName = ComponentName(mContext, MyWidgetProvider::class.java)
                         val appWidgetManager = AppWidgetManager.getInstance(mContext)
@@ -446,6 +444,7 @@ class MyWidgetRemoteViewsService : RemoteViewsService() {
             val remoteViews = RemoteViews(mContext.packageName, R.layout.widget_timer_list_item)
             try {
                 val toDo = mToDoList[position]
+                e("${toDo.title}   ${toDo.summary}")
                 remoteViews.setTextViewText(R.id.textView_days, toDo.header)
                 remoteViews.setTextViewText(R.id.textView_name, toDo.title)
                 remoteViews.setTextViewText(R.id.textView_money, toDo.summary)

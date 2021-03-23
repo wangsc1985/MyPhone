@@ -10,11 +10,10 @@ import com.amap.api.services.route.DistanceResult;
 import com.wang17.myphone.R;
 import com.wang17.myphone.callback.CloudCallback;
 import com.wang17.myphone.model.DateTime;
-import com.wang17.myphone.model.database.Location;
-import com.wang17.myphone.model.database.Setting;
+import com.wang17.myphone.database.Location;
+import com.wang17.myphone.database.Setting;
 import com.wang17.myphone.util.AMapUtil;
 import com.wang17.myphone.util.DataContext;
-import com.wang17.myphone.util._LogUtils;
 import com.wang17.myphone.util._Session;
 import com.wang17.myphone.util._CloudUtils;
 import com.wang17.myphone.util._SoundUtils;
@@ -53,12 +52,10 @@ public class ScreenBroadcaseReceiver extends BroadcastReceiver {
                                     @Override
                                     public void OnLocationedListener(final Location newLocation) {
                                         long t2 = System.currentTimeMillis();
-                                        dataContext.addLog("ScreenBroadcase-Span","获取位置用时："+(t2-t1)+"毫秒","");
                                         AMapUtil.getDistants(context, oldLocation, newLocation, new AMapUtil.DistanceSearchCallback() {
                                             @Override
                                             public void OnDistanceSearchListener(DistanceResult distanceResult) {
                                                 long t3 = System.currentTimeMillis();
-                                                dataContext.addLog("ScreenBroadcase-Span","获取位置距离用时："+(t3-t2)+"毫秒","");
                                                 List<DistanceItem> distanceItems = distanceResult.getDistanceResults();
                                                 float distance = 0;
                                                 for (DistanceItem item : distanceItems) {
@@ -78,7 +75,6 @@ public class ScreenBroadcaseReceiver extends BroadcastReceiver {
                                                     @Override
                                                     public void excute(int code, Object result) {
                                                         long t5 = System.currentTimeMillis();
-                                                        dataContext.addLog("ScreenBroadcase-Span","云添加位置用时："+(t5-t4)+"毫秒","");
                                                     }
                                                 });
                                             }

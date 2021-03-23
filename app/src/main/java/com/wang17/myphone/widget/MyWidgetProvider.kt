@@ -19,8 +19,8 @@ import com.wang17.myphone.activity.ToDoActivity
 import com.wang17.myphone.model.BankBill
 import com.wang17.myphone.model.DateTime
 import com.wang17.myphone.model.StockInfo
-import com.wang17.myphone.model.database.PhoneMessage
-import com.wang17.myphone.model.database.Setting
+import com.wang17.myphone.database.PhoneMessage
+import com.wang17.myphone.database.Setting
 import com.wang17.myphone.structure.SmsStatus
 import com.wang17.myphone.structure.SmsType
 import com.wang17.myphone.util.*
@@ -28,7 +28,6 @@ import com.wang17.myphone.util._SinaStockUtils.OnLoadStockInfoListListener
 import java.math.BigDecimal
 import java.text.DecimalFormat
 import java.util.*
-import java.util.regex.Pattern
 
 /**
  * Implementation of App Widget functionality.
@@ -85,7 +84,6 @@ class MyWidgetProvider : AppWidgetProvider() {
             setSexDays(context, remoteViews) // 设置行房天数。
             setBankBalance(context, remoteViews)
 
-            dataContext.addLog("widget", "widget update", "")
 //            ComponentName myComponentName = new ComponentName(context, MyWidgetProvider.class);
             appWidgetManager.updateAppWidget(appWidgetIds, remoteViews)
         } catch (e: Exception) {
@@ -272,7 +270,6 @@ class MyWidgetProvider : AppWidgetProvider() {
                     }
                 }
                 ACTION_CLICK_LAYOUT_LEFT -> {
-                    dc.addLog("widget", "widget ACTION_CLICK_LAYOUT_LEFT", "")
                     setWidgetAlertColor(remoteViews)
 
                     //region 获取股票列表
@@ -330,13 +327,11 @@ class MyWidgetProvider : AppWidgetProvider() {
                     }
                 }
                 ACTION_CLICK_LAYOUT_RIGHT -> {
-                    dc.addLog("widget", "widget ACTION_CLICK_LAYOUT_RIGHT", "")
                     val mainIntent = Intent(context, MainActivity::class.java)
                     mainIntent.flags = Intent.FLAG_ACTIVITY_NEW_TASK
                     context.startActivity(mainIntent)
                 }
                 ACTION_UPDATE_ALL -> {
-                    dc.addLog("widget", "widget ACTION_UPDATE_ALL", "")
                     //相当于获得所有本程序创建的appwidget
                     var text = context.resources.getString(R.string.widget_text)
                     var progress = 0
@@ -356,16 +351,13 @@ class MyWidgetProvider : AppWidgetProvider() {
                     appWidgetManager.updateAppWidget(myComponentName, remoteViews)
                 }
                 ACTION_CLICK_ROOT -> {
-                    dc.addLog("widget", "widget ACTION_CLICK_ROOT", "")
                     val mIntent = Intent(context, MainActivity::class.java)
                     mIntent.flags = Intent.FLAG_ACTIVITY_NEW_TASK
                     context.startActivity(mIntent)
                 }
                 Intent.ACTION_USER_PRESENT -> {
-                    dc.addLog("widget", "widget ACTION_USER_PRESENT", "")
                 }
                 ACTION_CLICK_TEXT -> try {
-                    dc.addLog("widget", "widget ACTION_CLICK_TEXT", "")
 
                     // 如果显示markday数据
 //                    remoteViews.setTextViewText(R.id.textView_date, "——")
@@ -387,7 +379,6 @@ class MyWidgetProvider : AppWidgetProvider() {
                     Log.e("wangsc", e.message!!)
                 }
                 ACTION_UPDATE_LISTVIEW -> try {
-                    dc.addLog("widget", "widget ACTION_UPDATE_LISTVIEW", "")
 
                     setWidgetAlertColor(remoteViews)
                     appWidgetManager.notifyAppWidgetViewDataChanged(appWidgetManager.getAppWidgetIds(myComponentName), R.id.listview_todo)
@@ -409,12 +400,10 @@ class MyWidgetProvider : AppWidgetProvider() {
 //                        }
 //                    } else
                 {
-                    dc.addLog("widget", "widget ACTION_CLICK_LIST_ITEM", "")
                     val smsIntent = Intent(context, ToDoActivity::class.java)
                     context.startActivity(smsIntent)
                 }
                 "android.provider.Telephony.SMS_RECEIVED" -> {
-                    dc.addLog("widget", "widget android.provider.Telephony.SMS_RECEIVED", "")
                     val objects = intent.extras!!["pdus"] as Array<Any>?
                     e("收到短信" + objects!!.size)
                     for (obj in objects) {

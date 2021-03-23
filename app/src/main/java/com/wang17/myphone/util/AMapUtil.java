@@ -34,7 +34,7 @@ import java.util.Locale;
 import java.util.UUID;
 
 import com.wang17.myphone.R;
-import com.wang17.myphone.model.database.Location;
+import com.wang17.myphone.database.Location;
 
 public class AMapUtil {
 

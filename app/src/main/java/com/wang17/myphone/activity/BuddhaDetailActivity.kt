@@ -12,7 +12,7 @@ import com.wang17.myphone.e
 import com.wang17.myphone.fragment.ActionBarFragment.OnActionFragmentBackListener
 import com.wang17.myphone.model.DateTime
 import com.wang17.myphone.model.DateTime.Companion.toSpanString
-import com.wang17.myphone.model.database.BuddhaRecord
+import com.wang17.myphone.database.BuddhaRecord
 import com.wang17.myphone.util.DataContext
 import com.wang17.myphone.util._CloudUtils
 import com.wang17.myphone.util._Utils.printException

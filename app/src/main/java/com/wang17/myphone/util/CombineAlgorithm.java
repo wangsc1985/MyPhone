@@ -11,7 +11,7 @@ package com.wang17.myphone.util;
  */
 
 
-import com.wang17.myphone.model.database.BillRecord;
+import com.wang17.myphone.database.BillRecord;
 import com.wang17.myphone.model.DateTime;
 
 import java.util.ArrayList;

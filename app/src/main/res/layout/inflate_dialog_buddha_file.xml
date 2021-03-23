@@ -96,7 +96,7 @@
             android:layout_width="60dp"
             android:layout_height="wrap_content"
             android:layout_weight="1"
-            android:text="分钟：" />
+            android:text="秒/圈：" />
 
         <EditText
             android:id="@+id/et_duration"

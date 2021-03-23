@@ -265,7 +265,7 @@ class BuddhaActivity : AppCompatActivity(), OnActionFragmentBackListener {
                 textView_date.text = _String.format(childInfo.day)
                 textView_tap.text =  (DecimalFormat("0").format(childInfo.count.toFloat()/1080))+ "圈"
                 textView_duration.text = toSpanString2(childInfo.duration)
-                textView_count.text = DecimalFormat("0.00").format(childInfo.count.toDouble() / 1000) + " 千"
+                textView_count.text = DecimalFormat("0.0").format(childInfo.count.toDouble() / 1000) + " 千"
                 val textViewItem = convertView.findViewById<TextView>(R.id.textView_item)
                 textViewItem.visibility = View.GONE
                 if (childInfo.duration == 0L) {

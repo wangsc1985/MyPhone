@@ -32,8 +32,8 @@ import com.wang17.myphone.R
 import com.wang17.myphone.activity.StockPositionActivity
 import com.wang17.myphone.callback.CloudCallback
 import com.wang17.myphone.model.Commodity
-import com.wang17.myphone.model.database.Position
-import com.wang17.myphone.model.database.Setting
+import com.wang17.myphone.database.Position
+import com.wang17.myphone.database.Setting
 import com.wang17.myphone.setMyScale
 import com.wang17.myphone.util.*
 import com.wang17.myphone.util.TradeUtils.commission
@@ -81,7 +81,6 @@ class StockService : Service() {
     @RequiresApi(Build.VERSION_CODES.M)
     override fun onStartCommand(intent: Intent, flags: Int, startId: Int): Int {
         try {
-            e("stock service on start command")
             mDataContext = DataContext(this)
             // TODO: 2019/4/26 test
             //region test
@@ -98,7 +97,6 @@ class StockService : Service() {
             positions = mDataContext.positions
 //            positions = getPositionsFromCloud()
             preTime = System.currentTimeMillis()
-            e("position size : ${positions.size}")
             if (positions.size > 0)
                 startMediaPlay()
 
@@ -303,14 +301,14 @@ class StockService : Service() {
                          */
                         sizeS++
                         val urlS = "https://hq.sinajs.cn/list=" + position.exchange + position.code
-                        e("url : $urlS")
+//                        e("url : $urlS")
                         val clientS = _OkHttpUtil.client
                         val requestS = Request.Builder().url(urlS).build()
                         val responseS = clientS.newCall(requestS).execute()
                         if (responseS.isSuccessful) {
                             try {
                                 val sss = responseS.body!!.string()
-                                e("数据：$sss")
+//                                e("数据：$sss")
                                 val result = sss.substring(sss.indexOf("\"")).replace("\"", "").split(",".toRegex()).toTypedArray()
                                 val price = result[3].toBigDecimal()
                                 mTimeS = result[31]
@@ -426,6 +424,7 @@ class StockService : Service() {
                 uiHandler.post {
                     val zjIndex = floatingWindowView.findViewById<TextView>(R.id.tv_zj)
                     val szIndex = floatingWindowView.findViewById<TextView>(R.id.tv_sz)
+
 //
                     zjIndex.setText(DecimalFormat("0.00").format(averageTotalIncreaseS * 100.toBigDecimal()))
                     if (averageTotalIncreaseS > 0.toBigDecimal()) {
@@ -436,7 +435,7 @@ class StockService : Service() {
                         zjIndex.setTextColor(resources.getColor(R.color.DARK_GREEN))
                     }
 
-                    szIndex.setText(DecimalFormat("0.00").format(szIncrease * 100))
+                    szIndex.setText("${DecimalFormat("0.00").format(szIncrease * 100)} [${mTimeS.split(":").get(1)}]")
 
                     if (szIncrease > 0) {
                         szIndex.setTextColor(resources.getColor(R.color.month_text_color))
@@ -501,7 +500,6 @@ class StockService : Service() {
                         val dataLevel = mDataContext.getSetting(Setting.KEYS.battery, 0).int
                         if (dataLevel != level) {
                             val span = System.currentTimeMillis() - if (preBatteryTime == 0L) System.currentTimeMillis() else preBatteryTime
-                            mDataContext.addLog("battery", _String.concat("{", level, "%}{", span / 60000, "分", span % 60000 / 1000, "秒}", ""), "")
                             preBatteryTime = System.currentTimeMillis()
                             mDataContext.editSetting(Setting.KEYS.battery, level)
                         }

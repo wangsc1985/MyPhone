@@ -40,23 +40,6 @@ import java.util.*
  * Created by 阿弥陀佛 on 2016/10/18.
  */
 object _Utils {
-    /**
-     * 判断服务是否在运行
-     * @param context
-     * @param serviceName
-     * @return
-     * 服务名称为全路径 例如com.ghost.WidgetUpdateService
-     */
-    fun isRunService(context: Context, serviceName: String): Boolean {
-        val manager = context.getSystemService(Context.ACTIVITY_SERVICE) as ActivityManager
-        for (service in manager.getRunningServices(Int.MAX_VALUE)) {
-            e("${service.service.className}")
-            if (serviceName == service.service.className) {
-                return true
-            }
-        }
-        return false
-    }
 
     /**
      * 隐藏虚拟按键，并且全屏
@@ -404,6 +387,7 @@ object _Utils {
 
     /**
      * 检查service是否还在允许。
+     * 例：Utils.isServiceRunning(context!!, BuddhaService.javaClass.canonicalName)
      *
      * @param context
      * @param serverPackageName
