@@ -333,16 +333,16 @@ class ButtonFragment : Fragment() {
             layout_flexbox.addView(btn)
         }
 
-//        kotlin.run {
-//
-//            var xiaoKnockSound = SoundPool(100, AudioManager.STREAM_MUSIC,0)
-//            xiaoKnockSound.load(context,R.raw.gang,1)
-//            btn = _Button(context!!, "测试")
-//            btn.setOnClickListener {
-//                xiaoKnockSound.play(1,1.0f,1.0f,0,0,1.0f)
-//            }
-//            layout_flexbox.addView(btn)
-//        }
+        kotlin.run {
+
+            var xiaoKnockSound = SoundPool(100, AudioManager.STREAM_MUSIC,0)
+            xiaoKnockSound.load(context,R.raw.yq,1)
+            btn = _Button(context!!, "测试")
+            btn.setOnClickListener {
+                xiaoKnockSound.play(1,1.0f,1.0f,0,0,1.0f)
+            }
+            layout_flexbox.addView(btn)
+        }
 //        kotlin.run {
 //            btn = _Button(context!!, "intr")
 //            btn.setOnClickListener {

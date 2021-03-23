@@ -79,7 +79,7 @@ class BuddhaService : Service() {
         try {
 
             guSound = SoundPool(100,AudioManager.STREAM_MUSIC,0)
-            guSound.load(this,R.raw.muyu,1)
+            guSound.load(this,R.raw.yq,1)
             dc = DataContext(applicationContext)
             val setting = dc.getSetting(Setting.KEYS.buddha_duration)
             setting?.let {
