@@ -12,7 +12,7 @@ import android.os.Build;
 import com.wang17.myphone.R;
 import com.wang17.myphone.database.Setting;
 import com.wang17.myphone.service.LocationService;
-import com.wang17.myphone.util.DataContext;
+import com.wang17.myphone.database.DataContext;
 import com.wang17.myphone.util._Utils;
 
 import static android.content.Context.ALARM_SERVICE;

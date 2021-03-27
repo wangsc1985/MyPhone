@@ -26,6 +26,7 @@ import com.wang17.myphone.callback.CloudCallback
 import com.wang17.myphone.e
 import com.wang17.myphone.model.Lottery
 import com.wang17.myphone.database.BuddhaRecord
+import com.wang17.myphone.database.DataContext
 import com.wang17.myphone.database.Setting
 import com.wang17.myphone.service.BuddhaService
 import com.wang17.myphone.service.StockService

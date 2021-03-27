@@ -8,6 +8,7 @@ import android.content.Intent;
 import android.content.IntentFilter;
 import android.os.Build;
 
+import com.wang17.myphone.database.DataContext;
 import com.wang17.myphone.database.Setting;
 import com.wang17.myphone.receiver.LocationAlarmReceiver;
 import com.wang17.myphone.service.LocationService;

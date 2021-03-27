@@ -26,6 +26,7 @@ import android.view.View
 import android.widget.Toast
 import com.ta.utdid2.android.utils.AESUtils
 import com.wang17.myphone.MainActivity
+import com.wang17.myphone.database.DataContext
 import com.wang17.myphone.model.DateTime
 import com.wang17.myphone.receiver.LockReceiver
 import com.wang17.myphone.service.MyAccessbilityService

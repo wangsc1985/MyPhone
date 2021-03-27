@@ -22,7 +22,7 @@ class BuddhaRecord {
     var count:Int
 
     /**
-     * 1：计时念佛 11：计时计数念佛
+     * 0：耳听念佛 1：计时念佛 11：计时计数念佛
      */
     var type:Int
 

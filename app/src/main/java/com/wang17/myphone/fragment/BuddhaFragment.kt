@@ -24,6 +24,7 @@ import android.widget.TextView
 import com.wang17.myphone.R
 import com.wang17.myphone.activity.BuddhaActivity
 import com.wang17.myphone.activity.BuddhaDetailActivity
+import com.wang17.myphone.database.DataContext
 import com.wang17.myphone.event.NianfoOverEvent
 import com.wang17.myphone.event.NianfoPauseEvent
 import com.wang17.myphone.event.NianfoResumeEvent

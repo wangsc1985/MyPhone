@@ -63,7 +63,7 @@ import com.amap.api.services.poisearch.PoiSearch;
 import com.wang17.myphone.R;
 import com.wang17.myphone.event.AmapGearEvent;
 import com.wang17.myphone.util.AMapUtil;
-import com.wang17.myphone.util.DataContext;
+import com.wang17.myphone.database.DataContext;
 import com.wang17.myphone.util.OffLineMapUtils;
 import com.wang17.myphone.util._Utils;
 import com.wang17.myphone.util._Session;

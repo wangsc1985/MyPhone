@@ -18,7 +18,7 @@ import com.wang17.myphone.fragment.AddTallyFragment
 import com.wang17.myphone.model.DateTime
 import com.wang17.myphone.model.DateTime.Companion.toSpanString2
 import com.wang17.myphone.model.DateTime.Companion.today
-import com.wang17.myphone.util.DataContext
+import com.wang17.myphone.database.DataContext
 import com.wang17.myphone.util._String
 import com.wang17.myphone.util._Utils.printException
 import kotlinx.android.synthetic.main.activity_buddha.*

@@ -30,7 +30,7 @@ import com.wang17.myphone.eventbus.SenderBuddhaServiceOnDestroy
 import com.wang17.myphone.eventbus.SenderTimerRuning
 import com.wang17.myphone.database.BuddhaFile
 import com.wang17.myphone.database.Setting
-import com.wang17.myphone.util.DataContext
+import com.wang17.myphone.database.DataContext
 import com.wang17.myphone.util._NotificationUtils
 import com.wang17.myphone.util._Session
 import com.wang17.myphone.util._Utils
@@ -99,7 +99,7 @@ class BuddhaService : Service() {
             val file = _Session.getFile(musicName.string)
             var bf = dc.getBuddhaFile(musicName.string, file.length())
             if (bf == null) {
-                bf = BuddhaFile(musicName.string,file.length(),"md5",1.0f,1.0f,0,600)
+                bf = BuddhaFile(musicName.string,file.length(),"md5",1.0f,1.0f,11,600)
             }
 
             buddhaType = bf.type

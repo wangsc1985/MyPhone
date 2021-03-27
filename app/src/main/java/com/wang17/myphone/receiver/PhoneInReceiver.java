@@ -6,9 +6,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.telephony.TelephonyManager;
 
-import com.wang17.myphone.util.DataContext;
-import com.wang17.myphone.util._LogUtils;
-import com.wang17.myphone.model.DateTime;
+import com.wang17.myphone.database.DataContext;
 
 public class PhoneInReceiver extends BroadcastReceiver {
 

@@ -24,6 +24,7 @@ import com.wang17.myphone.eventbus.SenderTimerRuning
 import com.wang17.myphone.model.DateTime
 import com.wang17.myphone.database.BuddhaFile
 import com.wang17.myphone.database.BuddhaRecord
+import com.wang17.myphone.database.DataContext
 import com.wang17.myphone.database.Setting
 import com.wang17.myphone.service.BuddhaService
 import com.wang17.myphone.service.StockService
@@ -247,16 +248,18 @@ class BuddhaPlayerFragment : Fragment() {
                 val bf = dc.getBuddhaFile(_Session.BUDDHA_MUSIC_NAME_ARR[which], file.length())
 
                 if (bf == null) {
-                    dc.addBuddhaFile(BuddhaFile(_Session.BUDDHA_MUSIC_NAME_ARR[which], file.length(),"md5", 1.0f, 1.0f, 0, 600))
+                    dc.addBuddhaFile(BuddhaFile(_Session.BUDDHA_MUSIC_NAME_ARR[which], file.length(),"md5", 1.0f, 1.0f, 11, 600))
+                    updateConfig()
+                }else{
+                    circleSecond = getCurrentCircleSecond()
+
+                    if (_Utils.isServiceRunning(context!!, BuddhaService::class.qualifiedName!!)&&dc.getSetting(Setting.KEYS.buddha_startime)!=null) {
+                        isChangeConfig = true
+                        context?.stopService(buddhaIntent)
+                        context?.startService(buddhaIntent)
+                    }
                 }
 
-                circleSecond = getCurrentCircleSecond()
-
-                if (_Utils.isServiceRunning(context!!, BuddhaService::class.qualifiedName!!)) {
-                    isChangeConfig = true
-                    context?.stopService(buddhaIntent)
-                    context?.startService(buddhaIntent)
-                }
             }.show()
         }
 
@@ -624,12 +627,27 @@ class BuddhaPlayerFragment : Fragment() {
                     bf.pitch = etPitch.text.toString().toFloat()
                     dc.editBuddhaFile(bf)
                     isChangeConfig = true
-                    if (_Utils.isServiceRunning(context!!, BuddhaService::class.qualifiedName!!)) {
+                    if (_Utils.isServiceRunning(context!!, BuddhaService::class.qualifiedName!!)&&dc.getSetting(Setting.KEYS.buddha_startime)!=null) {
                         context?.stopService(buddhaIntent)
                         context?.startService(buddhaIntent)
                     } else {
                         dialog.dismiss()
                     }
+
+//                    Thread{
+                        var list = ArrayList<BuddhaFile>()
+                        var bfs = dc.buddhaFiles
+//                        e(bfs.size)
+                        bfs.forEach {
+                            if(!_Session.BUDDHA_MUSIC_NAME_ARR.contains(it.name)){
+                                e(it.name)
+                                list.add(it)
+                            }
+                        }
+//                        e(list.size)
+                        dc.deleteBuddhaFileList(list)
+//                    }.start()
+
                 }
 
                 //                        btnClose.setOnClickListener {
@@ -675,9 +693,14 @@ class BuddhaPlayerFragment : Fragment() {
         val startTime = DateTime(stopTimeInMillis-duration)
 
         var buddha: BuddhaRecord? = null
+        var buddha_name = dc.getSetting(Setting.KEYS.buddha_music_name).string
+        var index = buddha_name.indexOf(".")
+        if(index>0){
+            buddha_name = buddha_name.substring(0,index)
+        }
         when (buddhaType) {
             11 -> {
-                buddha = BuddhaRecord(startTime, duration, count, 11, "计时计数念佛")
+                buddha = BuddhaRecord(startTime, duration, count, 11, "计数念佛")
             }
             1 -> {
                 buddha = BuddhaRecord(startTime, duration, 0, 1, "计时念佛")

@@ -21,7 +21,7 @@ import com.wang17.myphone.R
 import com.wang17.myphone.model.StockInfo
 import com.wang17.myphone.database.Position
 import com.wang17.myphone.database.Setting
-import com.wang17.myphone.util.DataContext
+import com.wang17.myphone.database.DataContext
 import com.wang17.myphone.util._SinaStockUtils.OnLoadStockInfoListListener
 import com.wang17.myphone.util._SinaStockUtils.getStockInfoList
 import com.wang17.myphone.util._Utils

@@ -1,4 +1,4 @@
-package com.wang17.myphone.util;
+package com.wang17.myphone.database;
 
 import android.content.Context;
 import android.database.SQLException;

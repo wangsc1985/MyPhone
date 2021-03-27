@@ -2,12 +2,9 @@ package com.wang17.myphone.util
 
 import android.content.Context
 import android.util.Log
+import com.wang17.myphone.database.*
 import com.wang17.myphone.model.BankBill
 import com.wang17.myphone.model.DateTime
-import com.wang17.myphone.database.BillRecord
-import com.wang17.myphone.database.BillStatement
-import com.wang17.myphone.database.CreditCard
-import com.wang17.myphone.database.PhoneMessage
 import com.wang17.myphone.structure.CardType
 import com.wang17.myphone.structure.RepayType
 import com.wang17.myphone.structure.SmsType

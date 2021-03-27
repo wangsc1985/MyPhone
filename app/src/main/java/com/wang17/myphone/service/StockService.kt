@@ -31,6 +31,7 @@ import com.wang17.myphone.MainActivity
 import com.wang17.myphone.R
 import com.wang17.myphone.activity.StockPositionActivity
 import com.wang17.myphone.callback.CloudCallback
+import com.wang17.myphone.database.DataContext
 import com.wang17.myphone.model.Commodity
 import com.wang17.myphone.database.Position
 import com.wang17.myphone.database.Setting

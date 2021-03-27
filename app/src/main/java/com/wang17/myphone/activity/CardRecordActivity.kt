@@ -17,7 +17,7 @@ import com.wang17.myphone.database.CreditCard
 import com.wang17.myphone.structure.CardType
 import com.wang17.myphone.structure.RepayType
 import com.wang17.myphone.util.CreditCardHelper
-import com.wang17.myphone.util.DataContext
+import com.wang17.myphone.database.DataContext
 import com.wang17.myphone.util._String
 import com.wang17.myphone.util._Utils
 import kotlinx.android.synthetic.main.activity_card_record.*

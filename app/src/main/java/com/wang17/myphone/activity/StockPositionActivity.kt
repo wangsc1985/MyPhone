@@ -13,6 +13,7 @@ import android.view.View.OnLongClickListener
 import android.view.ViewGroup
 import android.widget.BaseAdapter
 import com.wang17.myphone.R
+import com.wang17.myphone.database.DataContext
 import com.wang17.myphone.model.StockInfo
 import com.wang17.myphone.model.ViewHolder
 import com.wang17.myphone.database.Position

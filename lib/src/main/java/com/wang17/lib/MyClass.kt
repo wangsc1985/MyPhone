@@ -2,12 +2,10 @@ package com.wang17.lib
 
 import com.alibaba.fastjson.JSONArray
 import com.alibaba.fastjson.JSONObject
-import com.sun.xml.internal.ws.binding.WebServiceFeatureList.toList
 import java.io.*
 import java.math.BigDecimal
 import java.util.*
 import java.util.regex.Pattern
-import java.util.stream.Collectors.toList
 import kotlin.collections.ArrayList
 
 class MyClass {
@@ -85,21 +83,14 @@ class MyClass {
 //            println(matcher.group())
 
 
-            _OkHttpUtil.getRequest("http://kaijiang.500.com/shtml/dlt/21025.shtml?0_ala_baidu", HttpCallback {html ->
+            _OkHttpUtil.getRequest("https://weizhao1985.lofter.com/post/4c3be773_1cbccf784", HttpCallback {html ->
                 try {
-                    var cc=  html.replace("\r","").replace("\n","")
-                    println(cc)
-//                    var matcher = Pattern.compile("(?<=<span class=\"iballs\">).{10,300}(?=</span>)").matcher(cc)
-//                    var matcher = Pattern.compile("(?<=<div class=\"lefts\">).{10,3000}(?=</div>)").matcher(cc)
-//                    //
-//                    matcher.find()
-//                    cc = matcher.group().trim()
-//                    println(cc)
-//                    matcher = Pattern.compile("\\d").matcher(cc)
-//                    while(matcher.find()){
-//                        cc = matcher.group()
-//                        println(cc)
-//                    }
+                    var html=  html.replace("\r","").replace("\n","")
+                    println(html)
+                    var matcher = Pattern.compile("(?<=寿康宝鉴日历版本号)[0-9]*(?=</p>)").matcher(html)
+                    matcher.find()
+                    val version = matcher.group().trim()
+                    println(version)
                 } catch (e: Exception) {
                     println(e.message)
                 }

@@ -22,7 +22,7 @@ import android.widget.Spinner;
 
 import com.wang17.myphone.R;
 import com.wang17.myphone.database.Setting;
-import com.wang17.myphone.util.DataContext;
+import com.wang17.myphone.database.DataContext;
 import com.wang17.myphone.util._Utils;
 
 import java.util.ArrayList;

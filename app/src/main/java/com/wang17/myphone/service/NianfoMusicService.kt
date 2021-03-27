@@ -17,6 +17,7 @@ import android.os.PowerManager.WakeLock
 import android.util.Log
 import com.wang17.myphone.MainActivity
 import com.wang17.myphone.R
+import com.wang17.myphone.database.DataContext
 import com.wang17.myphone.event.NianfoPauseEvent
 import com.wang17.myphone.model.DateTime
 import com.wang17.myphone.database.Setting

@@ -27,6 +27,7 @@ import java.text.DecimalFormat
 import java.util.*
 import java.util.concurrent.CountDownLatch
 import android.os.Handler
+import com.wang17.myphone.database.DataContext
 import kotlin.collections.ArrayList
 
 class MyWidgetRemoteViewsService : RemoteViewsService() {
@@ -153,7 +154,7 @@ class MyWidgetRemoteViewsService : RemoteViewsService() {
                     setToDos()
                 }
 
-                Thread {
+//                Thread {
                     val latch = CountDownLatch(1)
                     /**
                      * 新消息提醒
@@ -193,7 +194,7 @@ class MyWidgetRemoteViewsService : RemoteViewsService() {
                         appWidgetManager.updateAppWidget(myComponentName, remoteViews)
                     }
                     //endregion
-                }.start()
+//                }.start()
 
             } catch (e: JSONException) {
                 _Utils.printException(mContext, e)

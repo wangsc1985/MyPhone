@@ -11,7 +11,7 @@ import android.widget.AdapterView.OnItemClickListener
 import android.widget.AdapterView.OnItemLongClickListener
 import com.wang17.myphone.R
 import com.wang17.myphone.database.RunLog
-import com.wang17.myphone.util.DataContext
+import com.wang17.myphone.database.DataContext
 import com.wang17.myphone.util._Utils
 import com.wang17.myphone.util._Utils.e
 import kotlinx.android.synthetic.main.activity_runlog.*

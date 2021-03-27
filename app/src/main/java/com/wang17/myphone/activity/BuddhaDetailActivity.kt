@@ -13,7 +13,7 @@ import com.wang17.myphone.fragment.ActionBarFragment.OnActionFragmentBackListene
 import com.wang17.myphone.model.DateTime
 import com.wang17.myphone.model.DateTime.Companion.toSpanString
 import com.wang17.myphone.database.BuddhaRecord
-import com.wang17.myphone.util.DataContext
+import com.wang17.myphone.database.DataContext
 import com.wang17.myphone.util._CloudUtils
 import com.wang17.myphone.util._Utils.printException
 import kotlinx.android.synthetic.main.activity_buddha_detail.*

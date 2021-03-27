@@ -1,4 +1,4 @@
-package com.wang17.myphone.util;
+package com.wang17.myphone.database;
 
 import android.content.ContentValues;
 import android.content.Context;
@@ -7,28 +7,12 @@ import android.database.sqlite.SQLiteDatabase;
 import android.util.Log;
 
 import com.wang17.myphone.model.DateTime;
-import com.wang17.myphone.database.BankToDo;
-import com.wang17.myphone.database.BillRecord;
-import com.wang17.myphone.database.BillStatement;
-import com.wang17.myphone.database.BuddhaFile;
-import com.wang17.myphone.database.BuddhaRecord;
-import com.wang17.myphone.database.CreditCard;
-import com.wang17.myphone.database.DayItem;
-import com.wang17.myphone.database.Location;
-import com.wang17.myphone.database.MarkDay;
-import com.wang17.myphone.database.PhoneMessage;
-import com.wang17.myphone.database.PlayList;
-import com.wang17.myphone.database.RunLog;
-import com.wang17.myphone.database.Setting;
-import com.wang17.myphone.database.Song;
-import com.wang17.myphone.database.Position;
-import com.wang17.myphone.database.TallyPlan;
-import com.wang17.myphone.database.TallyRecord;
-import com.wang17.myphone.database.Trade;
 import com.wang17.myphone.structure.CardType;
 import com.wang17.myphone.structure.RepayType;
 import com.wang17.myphone.structure.SmsStatus;
 import com.wang17.myphone.structure.SmsType;
+import com.wang17.myphone.util._Session;
+import com.wang17.myphone.util._Utils;
 
 import org.jetbrains.annotations.NotNull;
 
@@ -81,6 +65,35 @@ public class DataContext {
         }
     }
 
+    public List<BuddhaFile> getBuddhaFiles() {
+        List<BuddhaFile> result = new ArrayList<>();
+        try {
+            //获取数据库对象
+            SQLiteDatabase db = dbHelper.getReadableDatabase();
+            //查询获得游标
+            Cursor cursor = db.query("buddhaFile", null, null,null, null, null, null);
+            //判断游标是否为空
+            if (cursor.moveToNext()) {
+                BuddhaFile model = new BuddhaFile(UUID.randomUUID(),
+                        cursor.getString(1),
+                        cursor.getLong(2),
+                        cursor.getString(3),
+                        cursor.getFloat(4),
+                        cursor.getFloat(5),
+                        cursor.getInt(6),
+                        cursor.getInt(7));
+//                e(model.getName());
+                result.add(model);
+            }
+            cursor.close();
+            db.close();
+        } catch (Exception e) {
+            _Utils.printException(context, e);
+        }
+        return result;
+    }
+
+
     public BuddhaFile getBuddhaFile(String name,long size) {
 
         try {
@@ -125,6 +138,20 @@ public class DataContext {
             values.put("duration", model.getCircleSecond());
             //调用方法插入数据
             db.update("buddhaFile", values, "id=?", new String[]{model.getId().toString()});
+            db.close();
+        } catch (Exception e) {
+            _Utils.printException(context, e);
+        }
+    }
+
+    public void deleteBuddhaFileList(List<BuddhaFile> list) {
+        try {
+            //获取数据库对象
+            SQLiteDatabase db = dbHelper.getWritableDatabase();
+            for (int i = 0; i < list.size(); i++) {
+                db.delete("buddhaFile", "id=?", new String[]{list.get(i).getId().toString()});
+            }
+            //关闭SQLiteDatabase对象
             db.close();
         } catch (Exception e) {
             _Utils.printException(context, e);
@@ -266,7 +293,7 @@ public class DataContext {
             //获取数据库对象
             SQLiteDatabase db = dbHelper.getReadableDatabase();
             //查询获得游标
-            Cursor cursor = db.query("buddha", null, "type!=0", null, null, null, "startTime asc");
+            Cursor cursor = db.query("buddha", null, null, null, null, null, "startTime asc");
             //判断游标是否为空
             if (cursor.moveToNext()) {
                 BuddhaRecord model = new BuddhaRecord(UUID.fromString(cursor.getString(0)),
@@ -300,7 +327,7 @@ public class DataContext {
             DateTime startDate = new DateTime(date.getYear(), date.getMonth(), date.getDay());
             DateTime endDate = startDate.addDays(1);
             //查询获得游标
-            Cursor cursor = db.query("buddha", null, "startTime>=? and startTime<? and type!=0", new String[]{startDate.getTimeInMillis() + "", endDate.getTimeInMillis() + ""}, null, null, "startTime asc");
+            Cursor cursor = db.query("buddha", null, "startTime>=? and startTime<?", new String[]{startDate.getTimeInMillis() + "", endDate.getTimeInMillis() + ""}, null, null, "startTime asc");
             //判断游标是否为空
             while (cursor.moveToNext()) {
                 BuddhaRecord model = new BuddhaRecord(UUID.fromString(cursor.getString(0)),
@@ -327,7 +354,7 @@ public class DataContext {
             SQLiteDatabase db = dbHelper.getReadableDatabase();
             startDate = startDate.getDate();
             //查询获得游标
-            Cursor cursor = db.query("buddha", null, "startTime>=? and type!=0", new String[]{startDate.getTimeInMillis() + ""}, null, null, "startTime asc");
+            Cursor cursor = db.query("buddha", null, "startTime>=?", new String[]{startDate.getTimeInMillis() + ""}, null, null, "startTime asc");
             //判断游标是否为空
             while (cursor.moveToNext()) {
                 BuddhaRecord model = new BuddhaRecord(UUID.fromString(cursor.getString(0)),
@@ -383,7 +410,7 @@ public class DataContext {
             //获取数据库对象
             SQLiteDatabase db = dbHelper.getReadableDatabase();
             //查询获得游标
-            Cursor cursor = db.query("buddha", null, "type!=0",null, null, null, "startTime asc");
+            Cursor cursor = db.query("buddha", null, null,null, null, null, "startTime asc");
             //判断游标是否为空
             while (cursor.moveToNext()) {
                 BuddhaRecord model = new BuddhaRecord(UUID.fromString(cursor.getString(0)),
@@ -415,7 +442,7 @@ public class DataContext {
             DateTime startDate = new DateTime(year, 0, 1);
             DateTime endDate = new DateTime(year + 1, 0, 1);
             //查询获得游标
-            Cursor cursor = db.query("buddha", null, "startTime>=? AND startTime<? and type!=0", new String[]{startDate.getTimeInMillis() + "", endDate.getTimeInMillis() + ""}, null, null, "startTime asc");
+            Cursor cursor = db.query("buddha", null, "startTime>=? AND startTime<?", new String[]{startDate.getTimeInMillis() + "", endDate.getTimeInMillis() + ""}, null, null, "startTime asc");
             //判断游标是否为空
             while (cursor.moveToNext()) {
                 BuddhaRecord model = new BuddhaRecord(UUID.fromString(cursor.getString(0)),
@@ -468,7 +495,7 @@ public class DataContext {
             DateTime endDate = new DateTime(year, month, 1);
             endDate = endDate.addMonths(1);
             //查询获得游标
-            Cursor cursor = db.query("buddha", null, "startTime>=? AND startTime<? and type!=0", new String[]{startDate.getTimeInMillis() + "", endDate.getTimeInMillis() + ""}, null, null, "startTime asc");
+            Cursor cursor = db.query("buddha", null, "startTime>=? AND startTime<?", new String[]{startDate.getTimeInMillis() + "", endDate.getTimeInMillis() + ""}, null, null, "startTime asc");
             //判断游标是否为空
             while (cursor.moveToNext()) {
                 BuddhaRecord model = new BuddhaRecord(UUID.fromString(cursor.getString(0)),

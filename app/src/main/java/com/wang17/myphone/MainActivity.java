@@ -31,15 +31,13 @@ import com.wang17.myphone.fragment.BuddhaPlayerFragment;
 import com.wang17.myphone.fragment.ReligiousFragment;
 import com.wang17.myphone.receiver.NetWorkStateReceiver;
 import com.wang17.myphone.util.BackupTask;
-import com.wang17.myphone.util.DataContext;
+import com.wang17.myphone.database.DataContext;
 import com.wang17.myphone.util._DialogUtils;
 import com.wang17.myphone.util._Utils;
 import com.wang17.myphone.database.Setting;
 
 import java.util.ArrayList;
 import java.util.List;
-
-import static com.wang17.myphone.util._Utils.e;
 
 public class MainActivity extends AppCompatActivity implements BackupTask.OnFinishedListener, ActionBarFragment.OnActionFragmentSettingListener {
 

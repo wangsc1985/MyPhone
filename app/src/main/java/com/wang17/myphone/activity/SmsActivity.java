@@ -22,7 +22,7 @@ import android.widget.TextView;
 import com.wang17.myphone.R;
 import com.wang17.myphone.model.DateTime;
 import com.wang17.myphone.database.PhoneMessage;
-import com.wang17.myphone.util.DataContext;
+import com.wang17.myphone.database.DataContext;
 import com.wang17.myphone.util._Utils;
 import com.wang17.myphone.widget.MyWidgetProvider;
 
