@@ -159,7 +159,7 @@ class BuddhaService : Service() {
                     notificationTime = "$hour:${if (minite < 10) "0" + minite else minite}:${if (second < 10) "0" + second else second}"
                     EventBus.getDefault().post(EventBusMessage.getInstance(SenderTimerRuning(), duration.toString()))
                     tv_duration?.setText(notificationTime)
-                    if(prvCount<notificationCount&&buddhaType==11 &&dc.getSetting(Setting.KEYS.is_buddha_gu,true).boolean){
+                    if(prvCount<notificationCount &&dc.getSetting(Setting.KEYS.is_buddha_gu,true).boolean){
                         guSound.play(1,1.0f,1.0f,0,0,1.0f)
                         prvCount=notificationCount
                     }

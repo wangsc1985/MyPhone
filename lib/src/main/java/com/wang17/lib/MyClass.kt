@@ -82,19 +82,20 @@ class MyClass {
 //            matcher.find()
 //            println(matcher.group())
 
+            println(3120/300*300)
 
-            _OkHttpUtil.getRequest("https://weizhao1985.lofter.com/post/4c3be773_1cbccf784", HttpCallback {html ->
-                try {
-                    var html=  html.replace("\r","").replace("\n","")
-                    println(html)
-                    var matcher = Pattern.compile("(?<=寿康宝鉴日历版本号)[0-9]*(?=</p>)").matcher(html)
-                    matcher.find()
-                    val version = matcher.group().trim()
-                    println(version)
-                } catch (e: Exception) {
-                    println(e.message)
-                }
-            })
+//            _OkHttpUtil.getRequest("https://weizhao1985.lofter.com/post/4c3be773_1cbccf784", HttpCallback {html ->
+//                try {
+//                    var html=  html.replace("\r","").replace("\n","")
+//                    println(html)
+//                    var matcher = Pattern.compile("(?<=寿康宝鉴日历版本号)[0-9]*(?=</p>)").matcher(html)
+//                    matcher.find()
+//                    val version = matcher.group().trim()
+//                    println(version)
+//                } catch (e: Exception) {
+//                    println(e.message)
+//                }
+//            })
         }
 
         private fun religiousTest() {

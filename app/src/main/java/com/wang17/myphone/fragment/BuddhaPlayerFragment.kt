@@ -32,6 +32,7 @@ import com.wang17.myphone.toMyDecimal
 import com.wang17.myphone.util.*
 import com.wang17.myphone.util._Utils.getFilesWithSuffix
 import kotlinx.android.synthetic.main.fragment_player.*
+import kotlinx.android.synthetic.main.poikeywordsearch_uri.*
 import org.greenrobot.eventbus.EventBus
 import org.greenrobot.eventbus.Subscribe
 import org.greenrobot.eventbus.ThreadMode
@@ -689,15 +690,20 @@ class BuddhaPlayerFragment : Fragment() {
     }
 
     private fun buildBuddhaAndSave( count: Int, duration: Long,stopTimeInMillis: Long,  buddhaType:Int,callback: CloudCallback) {
-
+        var duration = duration
+        if(buddhaType!=11){
+            duration = (duration/60000)*60000
+        }
+        if(duration<=0)
+            return
         val startTime = DateTime(stopTimeInMillis-duration)
 
         var buddha: BuddhaRecord? = null
-        var buddha_name = dc.getSetting(Setting.KEYS.buddha_music_name).string
-        var index = buddha_name.indexOf(".")
-        if(index>0){
-            buddha_name = buddha_name.substring(0,index)
-        }
+//        var buddha_name = dc.getSetting(Setting.KEYS.buddha_music_name).string
+//        var index = buddha_name.indexOf(".")
+//        if(index>0){
+//            buddha_name = buddha_name.substring(0,index)
+//        }
         when (buddhaType) {
             11 -> {
                 buddha = BuddhaRecord(startTime, duration, count, 11, "计数念佛")
