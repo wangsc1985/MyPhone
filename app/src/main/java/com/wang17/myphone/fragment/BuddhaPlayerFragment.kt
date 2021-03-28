@@ -138,7 +138,8 @@ class BuddhaPlayerFragment : Fragment() {
             tv_dayTotal.setText("${hourS1}${miniteS1}  ${formatter.format(totalDayCount)}  ${totalDayCount / 1080}圈")
         }
     }
-    var circleSecond:Int=600
+
+    var circleSecond: Int = 600
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         buddhaIntent = Intent(context, BuddhaService::class.java)
         abtn_stockAnimator = AnimatorSuofangView(abtn_stock)
@@ -154,7 +155,7 @@ class BuddhaPlayerFragment : Fragment() {
             val miniteT = duration / 60000
             val minite = miniteT % 60
             val hour = miniteT / 60
-            var tap = (duration/1000 /circleSecond).toInt()
+            var tap = (duration / 1000 / circleSecond).toInt()
             tv_time.text = "$hour:${if (minite < 10) "0" + minite else minite}:${if (second < 10) "0" + second else second} \t $tap \t "
         }
 
@@ -173,26 +174,40 @@ class BuddhaPlayerFragment : Fragment() {
         tv_time.setOnLongClickListener {
             val setting = dc.getSetting(Setting.KEYS.buddha_duration)
             setting?.let {
-                val duration = setting.long
-                val tap = duration/1000 / circleSecond
-                val avgDuration = if (tap == 0L) duration else duration / tap
-                AlertDialog.Builder(context).setMessage("缓存中存在念佛记录，是否存档？").setPositiveButton("存档") { dialog, which ->
-                    buildBuddhaAndSave(tap.toInt(), duration, dc.getSetting(Setting.KEYS.buddha_stoptime, System.currentTimeMillis()).long,buddhaType()) { code, result ->
-                        if (code == 0) {
-                            dc.deleteSetting(Setting.KEYS.buddha_duration)
-                            dc.deleteSetting(Setting.KEYS.buddha_stoptime)
-                            refreshTotalView()
-                            uiHandler.post {
-                                tv_time.text = ""
-                                AlertDialog.Builder(context).setMessage(result.toString()).show()
+                var duration = setting.long
+                val tap = duration / 1000 / circleSecond
+
+                if (buddhaType() != 11) {
+                    duration = (duration / 60000) * 60000
+                }
+                if (duration > 0) {
+                    AlertDialog.Builder(context).setMessage("缓存中存在念佛记录，是否存档？").setPositiveButton("存档") { dialog, which ->
+                        buildBuddhaAndSave(tap.toInt(), duration, dc.getSetting(Setting.KEYS.buddha_stoptime, System.currentTimeMillis()).long, buddhaType()) { code, result ->
+                            if (code == 0) {
+                                dc.deleteSetting(Setting.KEYS.buddha_duration)
+                                dc.deleteSetting(Setting.KEYS.buddha_stoptime)
+                                refreshTotalView()
+                                uiHandler.post {
+                                    tv_time.text = ""
+                                    AlertDialog.Builder(context).setMessage(result.toString()).show()
+                                }
                             }
                         }
-                    }
-                }.setNegativeButton("清空", DialogInterface.OnClickListener { dialog, which ->
+                    }.setNegativeButton("清空", DialogInterface.OnClickListener { dialog, which ->
+                        dc.deleteSetting(Setting.KEYS.buddha_duration)
+                        dc.deleteSetting(Setting.KEYS.buddha_stoptime)
+                        tv_time.text = ""
+                    }).show()
+                }else{
                     dc.deleteSetting(Setting.KEYS.buddha_duration)
                     dc.deleteSetting(Setting.KEYS.buddha_stoptime)
-                    tv_time.text = ""
-                }).show()
+                    refreshTotalView()
+                    uiHandler.post {
+                        tv_time.text = ""
+                    }
+                }
+
+
             }
             true
         }
@@ -249,12 +264,12 @@ class BuddhaPlayerFragment : Fragment() {
                 val bf = dc.getBuddhaFile(_Session.BUDDHA_MUSIC_NAME_ARR[which], file.length())
 
                 if (bf == null) {
-                    dc.addBuddhaFile(BuddhaFile(_Session.BUDDHA_MUSIC_NAME_ARR[which], file.length(),"md5", 1.0f, 1.0f, 11, 600))
+                    dc.addBuddhaFile(BuddhaFile(_Session.BUDDHA_MUSIC_NAME_ARR[which], file.length(), "md5", 1.0f, 1.0f, 11, 600))
                     updateConfig()
-                }else{
+                } else {
                     circleSecond = getCurrentCircleSecond()
 
-                    if (_Utils.isServiceRunning(context!!, BuddhaService::class.qualifiedName!!)&&dc.getSetting(Setting.KEYS.buddha_startime)!=null) {
+                    if (_Utils.isServiceRunning(context!!, BuddhaService::class.qualifiedName!!) && dc.getSetting(Setting.KEYS.buddha_startime) != null) {
                         isChangeConfig = true
                         context?.stopService(buddhaIntent)
                         context?.startService(buddhaIntent)
@@ -302,7 +317,6 @@ class BuddhaPlayerFragment : Fragment() {
         }
 
         layout_monthTotal.setOnClickListener {
-
 
 
             val today = DateTime.today
@@ -400,7 +414,7 @@ class BuddhaPlayerFragment : Fragment() {
                 time.set(Calendar.MINUTE, min)
                 var stoptimeInMillis = time.timeInMillis
 
-                buildBuddhaAndSave(0, tap*5*60000.toLong(), stoptimeInMillis,1) { code, result ->
+                buildBuddhaAndSave(0, tap * 5 * 60000.toLong(), stoptimeInMillis, 1) { code, result ->
                     if (code == 0) {
                         uiHandler.post {
                             refreshTotalView()
@@ -426,7 +440,7 @@ class BuddhaPlayerFragment : Fragment() {
                 time.set(Calendar.MINUTE, min)
                 var stoptimeInMillis = time.timeInMillis
 
-                buildBuddhaAndSave(tap*1080, tap*avgDuration, stoptimeInMillis,11) { code, result ->
+                buildBuddhaAndSave(tap * 1080, tap * avgDuration, stoptimeInMillis, 11) { code, result ->
                     if (code == 0) {
                         uiHandler.post {
                             refreshTotalView()
@@ -549,7 +563,7 @@ class BuddhaPlayerFragment : Fragment() {
                     val tapCount = 100
                     val tap = count / tapCount
 
-                    buildBuddhaAndSave(count,tap*tapDuration, stoptimeInMillis,11) { code, result ->
+                    buildBuddhaAndSave(count, tap * tapDuration, stoptimeInMillis, 11) { code, result ->
                         if (code == 0) {
                             uiHandler.post {
                                 refreshTotalView()
@@ -628,7 +642,7 @@ class BuddhaPlayerFragment : Fragment() {
                     bf.pitch = etPitch.text.toString().toFloat()
                     dc.editBuddhaFile(bf)
                     isChangeConfig = true
-                    if (_Utils.isServiceRunning(context!!, BuddhaService::class.qualifiedName!!)&&dc.getSetting(Setting.KEYS.buddha_startime)!=null) {
+                    if (_Utils.isServiceRunning(context!!, BuddhaService::class.qualifiedName!!) && dc.getSetting(Setting.KEYS.buddha_startime) != null) {
                         context?.stopService(buddhaIntent)
                         context?.startService(buddhaIntent)
                     } else {
@@ -636,17 +650,17 @@ class BuddhaPlayerFragment : Fragment() {
                     }
 
 //                    Thread{
-                        var list = ArrayList<BuddhaFile>()
-                        var bfs = dc.buddhaFiles
+                    var list = ArrayList<BuddhaFile>()
+                    var bfs = dc.buddhaFiles
 //                        e(bfs.size)
-                        bfs.forEach {
-                            if(!_Session.BUDDHA_MUSIC_NAME_ARR.contains(it.name)){
-                                e(it.name)
-                                list.add(it)
-                            }
+                    bfs.forEach {
+                        if (!_Session.BUDDHA_MUSIC_NAME_ARR.contains(it.name)) {
+                            e(it.name)
+                            list.add(it)
                         }
+                    }
 //                        e(list.size)
-                        dc.deleteBuddhaFileList(list)
+                    dc.deleteBuddhaFileList(list)
 //                    }.start()
 
                 }
@@ -673,7 +687,7 @@ class BuddhaPlayerFragment : Fragment() {
         return circleSecond
     }
 
-    private fun buddhaType():Int{
+    private fun buddhaType(): Int {
         var buddhaType = 11
         val durationSet = dc.getSetting(Setting.KEYS.buddha_duration)
         if (durationSet != null) {
@@ -689,14 +703,8 @@ class BuddhaPlayerFragment : Fragment() {
         return buddhaType
     }
 
-    private fun buildBuddhaAndSave( count: Int, duration: Long,stopTimeInMillis: Long,  buddhaType:Int,callback: CloudCallback) {
-        var duration = duration
-        if(buddhaType!=11){
-            duration = (duration/60000)*60000
-        }
-        if(duration<=0)
-            return
-        val startTime = DateTime(stopTimeInMillis-duration)
+    private fun buildBuddhaAndSave(count: Int, duration: Long, stopTimeInMillis: Long, buddhaType: Int, callback: CloudCallback) {
+        val startTime = DateTime(stopTimeInMillis - duration)
 
         var buddha: BuddhaRecord? = null
 //        var buddha_name = dc.getSetting(Setting.KEYS.buddha_music_name).string
@@ -874,7 +882,7 @@ class BuddhaPlayerFragment : Fragment() {
         val setDuration = dc.getSetting(Setting.KEYS.buddha_duration)
         if (setDuration != null) {
             var duration = setDuration.long
-            var tap = duration/1000 / circleSecond
+            var tap = duration / 1000 / circleSecond
             val second = duration % 60000 / 1000
             val hour = duration / (60000 * 60)
             val minite = duration % (60000 * 60) / 60000
@@ -886,33 +894,47 @@ class BuddhaPlayerFragment : Fragment() {
             val msg = "${hourS}:${miniteS}:${secondS} \t ${DateTime(stoptimeInMillis).toLongDateString3()}"
 //                if(count>0){
             uiHandler.post {
-                val dialog = AlertDialog.Builder(context).setMessage("缓存中存在念佛记录\n[ ${msg} ]\n是否存档？").setNegativeButton("存档", DialogInterface.OnClickListener { dialog, which ->
-                    val avgDuration = if (tap > 0) duration / tap else duration
-                    buildBuddhaAndSave(tap.toInt()*1080, duration, stoptimeInMillis,buddhaType()) { code, result ->
-                        if (code == 0) {
-                            dc.deleteSetting(Setting.KEYS.buddha_duration)
-                            dc.deleteSetting(Setting.KEYS.buddha_stoptime)
-                            refreshTotalView()
-                            uiHandler.post {
-                                tv_time.text = ""
-                                AlertDialog.Builder(context).setMessage(result.toString()).show()
+
+                if (buddhaType() != 11) {
+                    duration = (duration / 60000) * 60000
+                }
+                if (duration > 0) {
+
+                    val dialog = AlertDialog.Builder(context).setMessage("缓存中存在念佛记录\n[ ${msg} ]\n是否存档？").setNegativeButton("存档", DialogInterface.OnClickListener { dialog, which ->
+
+                        buildBuddhaAndSave(tap.toInt() * 1080, duration, stoptimeInMillis, buddhaType()) { code, result ->
+                            if (code == 0) {
+                                dc.deleteSetting(Setting.KEYS.buddha_duration)
+                                dc.deleteSetting(Setting.KEYS.buddha_stoptime)
+                                refreshTotalView()
+                                uiHandler.post {
+                                    tv_time.text = ""
+                                    AlertDialog.Builder(context).setMessage(result.toString()).show()
+                                }
                             }
+                            callback?.excute(code, result)
                         }
-                        callback?.excute(code, result)
+                    }).setNeutralButton("丢弃", DialogInterface.OnClickListener { dialog, which ->
+                        dc.deleteSetting(Setting.KEYS.buddha_duration)
+                        dc.deleteSetting(Setting.KEYS.buddha_stoptime)
+                        tv_time.text = ""
+                        callback?.excute(0, "丢弃完毕！")
+                    })
+
+                    if (callback != null) {
+                        dialog.setPositiveButton("使用", DialogInterface.OnClickListener { dialog, which ->
+                            callback?.excute(0, "")
+                        }).setCancelable(false)
                     }
-                }).setNeutralButton("丢弃", DialogInterface.OnClickListener { dialog, which ->
+                    dialog.show()
+                }else{
                     dc.deleteSetting(Setting.KEYS.buddha_duration)
                     dc.deleteSetting(Setting.KEYS.buddha_stoptime)
-                    tv_time.text = ""
-                    callback?.excute(0, "丢弃完毕！")
-                })
-
-                if (callback != null) {
-                    dialog.setPositiveButton("使用", DialogInterface.OnClickListener { dialog, which ->
-                        callback?.excute(0, "")
-                    }).setCancelable(false)
+                    refreshTotalView()
+                    uiHandler.post {
+                        tv_time.text = ""
+                    }
                 }
-                dialog.show()
             }
         } else {
             callback?.excute(0, "缓存中记录为空！")
@@ -947,7 +969,7 @@ class BuddhaPlayerFragment : Fragment() {
                 val miniteT = duration / 1000 / 60
                 val minite = miniteT % 60
                 val hour = miniteT / 60
-                var count = (duration/1000 / circleSecond).toInt()
+                var count = (duration / 1000 / circleSecond).toInt()
                 var time = "$hour:${if (minite < 10) "0" + minite else minite}:${if (second < 10) "0" + second else second}"
                 tv_time.text = "$time  ${count}"
             }
