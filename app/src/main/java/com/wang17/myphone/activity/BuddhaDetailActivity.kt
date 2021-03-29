@@ -100,7 +100,7 @@ class BuddhaDetailActivity : AppCompatActivity(), OnActionFragmentBackListener {
             try {
                 convertView = View.inflate(this@BuddhaDetailActivity, R.layout.inflate_list_item_buddha_child, null)
                 val buddha = buddhaList[position]
-                val tv_date = convertView.findViewById<View>(R.id.textView_date) as TextView
+                val tv_date = convertView.findViewById<View>(R.id.tv_att_date) as TextView
                 val tv_item = convertView.findViewById<View>(R.id.textView_item) as TextView
                 val tv_duration = convertView.findViewById<View>(R.id.textView_monthDuration) as TextView
                 val tv_tap = convertView.findViewById<View>(R.id.textView_monthTap) as TextView

@@ -228,7 +228,7 @@ class BuddhaActivity : AppCompatActivity(), OnActionFragmentBackListener {
             var convertView = convertView
             try {
                 convertView = View.inflate(this@BuddhaActivity, R.layout.inflate_list_item_buddha_group, null)
-                val textView_date = convertView.findViewById<TextView>(R.id.textView_date)
+                val textView_date = convertView.findViewById<TextView>(R.id.tv_att_date)
                 val textView_duration = convertView.findViewById<TextView>(R.id.textView_monthDuration)
                 val textView_tap = convertView.findViewById<TextView>(R.id.textView_monthTap)
                 val textView_count = convertView.findViewById<TextView>(R.id.textView_monthCount)
@@ -257,7 +257,7 @@ class BuddhaActivity : AppCompatActivity(), OnActionFragmentBackListener {
             var convertView = convertView
             try {
                 convertView = View.inflate(this@BuddhaActivity, R.layout.inflate_list_item_buddha_child, null)
-                val textView_date = convertView.findViewById<View>(R.id.textView_date) as TextView
+                val textView_date = convertView.findViewById<View>(R.id.tv_att_date) as TextView
                 val textView_duration = convertView.findViewById<View>(R.id.textView_monthDuration) as TextView
                 val textView_tap = convertView.findViewById<View>(R.id.textView_monthTap) as TextView
                 val textView_count = convertView.findViewById<View>(R.id.textView_monthCount) as TextView

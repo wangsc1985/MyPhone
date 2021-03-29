@@ -17,7 +17,7 @@ object _SinaStockUtils {
         Thread(Runnable {
             try {
                 val format = DecimalFormat("#,##0.00")
-                for ((code, tradePrice, type, tvPrice2) in attTrades) {
+                for ((code,tradePrice,tradeAmount,type,tvIncrease) in attTrades) {
                     val url = "https://hq.sinajs.cn/list=" + (if (code.startsWith("6")) "sh" else "sz") + code
                     val client = _OkHttpUtil.client
                     val request = Request.Builder().url(url).build()
@@ -26,13 +26,43 @@ object _SinaStockUtils {
                         val body = response.body!!.string()
                         val result = body.substring(body.indexOf("\"")).replace("\"", "").split(",".toRegex()).toTypedArray()
                         val newPrice = result[3].toBigDecimal()
-                        tvPrice2.text = "${format.format(Math.abs((newPrice-tradePrice).toDouble()))}  ${format.format((Math.abs((newPrice-tradePrice).toDouble())*100).toMyDecimal()/tradePrice)}%"
-                        if (type.toBigDecimal() * (tradePrice - newPrice) < 0.toBigDecimal()) {
-                            tvPrice2.setTextColor(Color.RED)
-                        } else if (type.toBigDecimal() * (tradePrice - newPrice) > 0.toBigDecimal()) {
-                            tvPrice2.setTextColor(Color.CYAN)
+                        var newCommission = 0.toBigDecimal()
+                        var newTransferFee=0.toBigDecimal()
+                        var newFax=0.toBigDecimal()
+                        var tradeCommission = 0.toBigDecimal()
+                        var tradeTransferFee=0.toBigDecimal()
+                        var tradeFax=0.toBigDecimal()
+
+                        var increase=0.toMyDecimal()
+                        when(type){
+                            // 关注的是 买入的交易
+                            1->{
+                                tradeCommission = TradeUtils.commission(tradePrice,tradeAmount)
+                                tradeTransferFee = TradeUtils.transferFee(tradePrice,tradeAmount)
+                                newCommission = TradeUtils.commission(newPrice,tradeAmount)
+                                newTransferFee = TradeUtils.transferFee(newPrice,tradeAmount)
+                                newFax = TradeUtils.tax(-1,newPrice,tradeAmount)
+
+                                increase =((newPrice-tradePrice)*tradeAmount.toMyDecimal()*100.toMyDecimal() - tradeCommission -tradeTransferFee-tradeFax -newCommission-newTransferFee-newFax)/(tradePrice*tradeAmount.toBigDecimal()*100.toBigDecimal())
+                            }
+                            // 关注的是 卖出的交易
+                            -1->{
+                                tradeCommission = TradeUtils.commission(tradePrice,tradeAmount)
+                                tradeTransferFee = TradeUtils.transferFee(tradePrice,tradeAmount)
+                                tradeFax = TradeUtils.tax(-1,tradePrice,tradeAmount)
+                                newCommission = TradeUtils.commission(newPrice,tradeAmount)
+                                newTransferFee = TradeUtils.transferFee(newPrice,tradeAmount)
+
+                                increase =((newPrice-tradePrice)*tradeAmount.toMyDecimal()*100.toMyDecimal() - tradeCommission -tradeTransferFee-tradeFax -newCommission-newTransferFee-newFax)/(tradePrice*tradeAmount.toBigDecimal()*100.toBigDecimal())
+                            }
+                        }
+                        tvIncrease.text = "${format.format(Math.abs((newPrice-tradePrice).toDouble()))}  ${format.format(increase*100.toBigDecimal())}%"
+                        if (increase>0.toBigDecimal()) {
+                            tvIncrease.setTextColor(Color.RED)
+                        } else if (increase<0.toBigDecimal()) {
+                            tvIncrease.setTextColor(Color.CYAN)
                         } else {
-                            tvPrice2.setTextColor(Color.WHITE)
+                            tvIncrease.setTextColor(Color.WHITE)
                         }
                     } else {
                         _LogUtils.log2file("获取数据失败...")

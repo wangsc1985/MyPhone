@@ -682,17 +682,17 @@ class StockPositionHistoryActivity() : AppCompatActivity() {
 
                         trades.forEach {
                             val view = View.inflate(this@StockPositionHistoryActivity, R.layout.inflate_list_item_position_trade, null)
-                            val tvDate = view.findViewById<TextView>(R.id.textView_date)
-                            val tvType = view.findViewById<TextView>(R.id.textView_type)
-                            val tvPrice = view.findViewById<TextView>(R.id.textView_price)
-                            val tvAmount2 = view.findViewById<TextView>(R.id.textView_amount2)
-                            var tvPrice2 = view.findViewById<TextView>(R.id.textView_price2)
+                            val tvAttDate = view.findViewById<TextView>(R.id.tv_att_date)
+                            val tvAttType = view.findViewById<TextView>(R.id.tv_att_type)
+                            val tvAttPrice = view.findViewById<TextView>(R.id.tv_att_price)
+                            val tvAttAmount = view.findViewById<TextView>(R.id.tv_att_amount)
+                            var tvAttIncrease = view.findViewById<TextView>(R.id.tv_att_increase)
 
-                            tvDate.text = it.dateTime.toShortDateString1()
-                            tvType.text = if (it.type == 1) "买入" else "卖出"
-                            tvPrice.text = format.format(it.price)
-                            tvAmount2.text = (it.amount * 100).toString()
-                            attTrades.add(AttTrades(it.code, it.price, it.type, tvPrice2))
+                            tvAttDate.text = it.dateTime.toShortDateString1()
+                            tvAttType.text = if (it.type == 1) "买入" else "卖出"
+                            tvAttPrice.text = format.format(it.price)
+                            tvAttAmount.text = (it.amount * 100).toString()
+                            attTrades.add(AttTrades(it.code, it.price,it.amount, it.type, tvAttIncrease))
 
                             layout_trade.addView(view)
                         }
@@ -726,9 +726,10 @@ class StockPositionHistoryActivity() : AppCompatActivity() {
 
     data class AttTrades(
             var code: String,
-            var lastPrice: BigDecimal,
+            var price: BigDecimal,
+            var amount:Int,
             var type: Int,
-            var tvPrice2: TextView
+            var tvIncrease: TextView
     )
 
     init {

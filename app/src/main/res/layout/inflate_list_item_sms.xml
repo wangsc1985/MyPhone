@@ -14,7 +14,7 @@
         android:visibility="gone">
 
         <TextView
-            android:id="@+id/textView_date"
+            android:id="@+id/tv_att_date"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_gravity="center_vertical|center_horizontal"

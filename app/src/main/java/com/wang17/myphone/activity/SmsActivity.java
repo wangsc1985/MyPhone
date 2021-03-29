@@ -121,7 +121,7 @@ public class SmsActivity extends AppCompatActivity {
                     PhoneMessage sms = mSmsList.get(position);
                     LinearLayout layoutDate = convertView.findViewById(R.id.layout_date);
                     LinearLayout root = convertView.findViewById(R.id.linearLayout_root);
-                    TextView textViewDate = convertView.findViewById(R.id.textView_date);
+                    TextView textViewDate = convertView.findViewById(R.id.tv_att_date);
                     TextView textViewDateTime = convertView.findViewById(R.id.textView_dateTime);
                     TextView textViewBody = convertView.findViewById(R.id.textView_body);
                     TextView textViewNumber = convertView.findViewById(R.id.textView_number);

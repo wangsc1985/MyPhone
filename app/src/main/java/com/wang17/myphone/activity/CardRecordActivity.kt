@@ -176,7 +176,7 @@ class CardRecordActivity : AppCompatActivity(), OnActionFragmentBackListener {
                 val textView_number = convertView.findViewById<View>(R.id.textView_number) as TextView // 卡号
                 val textView_cardType = convertView.findViewById<View>(R.id.textView_cardType) as TextView // 卡类型
                 val textView_bankName = convertView.findViewById<View>(R.id.textView_bankName) as TextView // 银行
-                val textView_date = convertView.findViewById<View>(R.id.textView_date) as TextView //
+                val textView_date = convertView.findViewById<View>(R.id.tv_att_date) as TextView //
                 val textView_money = convertView.findViewById<View>(R.id.textView_money) as TextView //
                 val textView_days = convertView.findViewById<View>(R.id.textView_days) as TextView //
                 val textView_fee = convertView.findViewById<View>(R.id.textView_fee) as TextView //

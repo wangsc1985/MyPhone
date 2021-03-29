@@ -96,7 +96,7 @@ class ToDoActivity : FragmentActivity() {
                 val bankToDo = mBankToDoList[position]
                 val now = DateTime()
                 val dayOffset = dayOffset(now, bankToDo.dateTime)
-                val textViewDate = convertView.findViewById<TextView>(R.id.textView_date)
+                val textViewDate = convertView.findViewById<TextView>(R.id.tv_att_date)
                 val textViewDays = convertView.findViewById<TextView>(R.id.textView_days)
                 val textViewName = convertView.findViewById<TextView>(R.id.textView_name)
                 val textViewMoney = convertView.findViewById<TextView>(R.id.textView_money)

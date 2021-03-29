@@ -42,7 +42,7 @@
         tools:layout_editor_absoluteY="5dp" />
 
     <TextView
-        android:id="@+id/textView_type"
+        android:id="@+id/tv_att_type"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginTop="5dp"
@@ -57,7 +57,7 @@
         app:layout_constraintStart_toEndOf="@+id/textView_name" />
 
     <TextView
-        android:id="@+id/textView_price"
+        android:id="@+id/tv_att_price"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginTop="5dp"
@@ -69,7 +69,7 @@
         android:padding="5dp"
         android:text="12.38"
         android:textSize="10dp"
-        app:layout_constraintStart_toEndOf="@+id/textView_type"
+        app:layout_constraintStart_toEndOf="@+id/tv_att_type"
         tools:layout_editor_absoluteY="5dp" />
 
     <TextView
@@ -85,6 +85,6 @@
         android:padding="5dp"
         android:text="3900"
         android:textSize="10dp"
-        app:layout_constraintStart_toEndOf="@+id/textView_price"
+        app:layout_constraintStart_toEndOf="@+id/tv_att_price"
         tools:layout_editor_absoluteY="5dp" />
 </LinearLayout>

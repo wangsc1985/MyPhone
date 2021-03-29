@@ -173,9 +173,9 @@ class TradesActivity : AppCompatActivity() {
                 val trade = trades!![position]
                 val textViewDate = convertView.findViewById<TextView>(R.id.textView_dateTime)
                 val textViewName = convertView.findViewById<TextView>(R.id.textView_name)
-                val textViewPrice = convertView.findViewById<TextView>(R.id.textView_price)
+                val textViewPrice = convertView.findViewById<TextView>(R.id.tv_att_price)
                 val textViewAmount = convertView.findViewById<TextView>(R.id.textView_amount)
-                val textViewType = convertView.findViewById<TextView>(R.id.textView_type)
+                val textViewType = convertView.findViewById<TextView>(R.id.tv_att_type)
                 textViewDate.text = trade.dateTime.toShortDateString()
                 textViewName.text = trade.name
                 var priceFormat = DecimalFormat("#0.00")

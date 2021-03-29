@@ -247,7 +247,7 @@ public class CardFragment extends Fragment {
                         TextView textView_number = (TextView) convertView.findViewById(R.id.textView_number); // 卡号
                         TextView textView_cardType = (TextView) convertView.findViewById(R.id.textView_cardType); // 卡类型
                         TextView textView_bankName = (TextView) convertView.findViewById(R.id.textView_bankName); // 银行
-                        TextView textView_date = (TextView) convertView.findViewById(R.id.textView_date); //
+                        TextView textView_date = (TextView) convertView.findViewById(R.id.tv_att_date); //
                         TextView textView_money = (TextView) convertView.findViewById(R.id.textView_money); //
                         TextView textView_days = (TextView) convertView.findViewById(R.id.textView_days); //
                         TextView textView_fee = (TextView) convertView.findViewById(R.id.textView_fee); //

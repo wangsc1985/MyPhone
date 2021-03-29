@@ -196,7 +196,7 @@ class StockPositionActivity : AppCompatActivity() {
                     viewHolder.textViewName = cv.findViewById(R.id.textView_name)
                     viewHolder.textViewCode = cv.findViewById(R.id.textView_code)
                     viewHolder.textViewIncrease = cv.findViewById(R.id.textView_increase)
-                    viewHolder.textViewPrice = cv.findViewById(R.id.textView_price)
+                    viewHolder.textViewPrice = cv.findViewById(R.id.tv_att_price)
                     viewHolder.textViewProfit = cv.findViewById(R.id.textView_profit)
                     viewHolder.textViewCost = cv.findViewById(R.id.textView_cost)
                     cv.tag = viewHolder
