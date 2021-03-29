@@ -515,9 +515,9 @@ class MyWidgetProvider : AppWidgetProvider() {
 
     private fun setWidgetAlertColor(remoteViews: RemoteViews) {
         //region 警戒余额颜色
-        remoteViews.setTextColor(R.id.textView_balance1, Color.WHITE)
-        remoteViews.setTextColor(R.id.textView_balance2, Color.WHITE)
-        remoteViews.setTextColor(R.id.textView_markDay, Color.WHITE)
+//        remoteViews.setTextColor(R.id.textView_balance1, Color.WHITE)
+//        remoteViews.setTextColor(R.id.textView_balance2, Color.WHITE)
+//        remoteViews.setTextColor(R.id.textView_markDay, Color.WHITE)
         //endregion
     }
 

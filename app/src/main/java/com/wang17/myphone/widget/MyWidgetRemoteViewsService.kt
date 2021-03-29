@@ -1,7 +1,5 @@
 package com.wang17.myphone.widget
 
-import android.appwidget.AppWidgetManager
-import android.content.ComponentName
 import android.content.Context
 import android.content.Intent
 import android.content.res.Resources.NotFoundException
@@ -154,13 +152,17 @@ class MyWidgetRemoteViewsService : RemoteViewsService() {
                 }
 
                 if (dc.getSetting(Setting.KEYS.is_broadcast_big_figure, true).boolean) {
-                    var balance = dc.getSetting(Setting.KEYS.bank1_balance, 0).int
+                    var balanceStr = dc.getSetting(Setting.KEYS.bank1_balance, 0).string
+                    var balance =balanceStr.replace(",","").toDouble()
+                    e("balance 1 : "+balanceStr)
                     if (balance > 3000) {
-                        mToDoList.add(ToDo("          ", "          ", balance.toString(), WARNING3_COLOR, true, R.raw.yq))
+                        mToDoList.add(ToDo("          ", "          ", balanceStr.toString(), WARNING3_COLOR, true, R.raw.yq))
                     }
-                    balance = dc.getSetting(Setting.KEYS.bank2_balance, 0).int
+                    balanceStr = dc.getSetting(Setting.KEYS.bank2_balance, 0).string
+                    balance =balanceStr.replace(",","").toDouble()
+                    e("balance 2 : "+balanceStr)
                     if (balance > 2000) {
-                        mToDoList.add(ToDo("          ", "          ", balance.toString(), WARNING3_COLOR, true, R.raw.yq))
+                        mToDoList.add(ToDo("          ", "          ", balanceStr.toString(), WARNING3_COLOR, true, R.raw.yq))
                     }
                 }
                 val newMsg = dc.getSetting(Setting.KEYS.wx_new_msg)
@@ -202,16 +204,16 @@ class MyWidgetRemoteViewsService : RemoteViewsService() {
 
 
                     //region 恢复小部件余额颜色
-                    uiHandler.post {
-                        e("云端处理完毕，更新小部件。。。")
-                        val remoteViews = RemoteViews(mContext.packageName, R.layout.widget_timer)
-                        val myComponentName = ComponentName(mContext, MyWidgetProvider::class.java)
-                        val appWidgetManager = AppWidgetManager.getInstance(mContext)
-                        remoteViews.setTextColor(R.id.textView_balance1, mContext.resources.getColor(R.color.calendar_yl_color))
-                        remoteViews.setTextColor(R.id.textView_balance2, mContext.resources.getColor(R.color.calendar_yl_color))
-                        remoteViews.setTextColor(R.id.textView_markDay, MyWidgetProvider.markday_color)
-                        appWidgetManager.updateAppWidget(myComponentName, remoteViews)
-                    }
+//                    uiHandler.post {
+//                        e("云端处理完毕，更新小部件。。。")
+//                        val remoteViews = RemoteViews(mContext.packageName, R.layout.widget_timer)
+//                        val myComponentName = ComponentName(mContext, MyWidgetProvider::class.java)
+//                        val appWidgetManager = AppWidgetManager.getInstance(mContext)
+//                        remoteViews.setTextColor(R.id.textView_balance1, mContext.resources.getColor(R.color.calendar_yl_color))
+//                        remoteViews.setTextColor(R.id.textView_balance2, mContext.resources.getColor(R.color.calendar_yl_color))
+//                        remoteViews.setTextColor(R.id.textView_markDay, MyWidgetProvider.markday_color)
+//                        appWidgetManager.updateAppWidget(myComponentName, remoteViews)
+//                    }
                     //endregion
                 }.start()
 

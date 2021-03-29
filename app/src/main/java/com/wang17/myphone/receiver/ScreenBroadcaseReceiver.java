@@ -36,7 +36,6 @@ public class ScreenBroadcaseReceiver extends BroadcastReceiver {
 
         switch (intent.getAction()) {
             case Intent.ACTION_USER_PRESENT:
-
                 try {
                     long now = System.currentTimeMillis();
                     if (now - preDateTime >= 10000) {
@@ -142,7 +141,6 @@ public class ScreenBroadcaseReceiver extends BroadcastReceiver {
                 } catch (Exception e) {
                     e.printStackTrace();
                 }
-
 
                 break;
             case Intent.ACTION_SCREEN_ON:
