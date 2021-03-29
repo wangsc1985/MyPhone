@@ -25,7 +25,6 @@ import java.io.DataInputStream
 import java.io.EOFException
 import java.text.DecimalFormat
 import java.util.*
-import java.util.concurrent.CountDownLatch
 import android.os.Handler
 import com.wang17.myphone.database.DataContext
 import kotlin.collections.ArrayList
@@ -102,7 +101,7 @@ class MyWidgetRemoteViewsService : RemoteViewsService() {
     inner class MyWidgetRemoteViewsFactory(applicationContext: Context?, intent: Intent?) : RemoteViewsFactory {
 
         private lateinit var mContext: Context
-        private lateinit var mDataContext: DataContext
+        private lateinit var dc: DataContext
 
         private var solarTermMap: TreeMap<DateTime, SolarTerm>
         private var mToDoList: MutableList<ToDo>
@@ -126,7 +125,7 @@ class MyWidgetRemoteViewsService : RemoteViewsService() {
 
         override fun onDataSetChanged() {
             try {
-                mDataContext = DataContext(mContext)
+                dc = DataContext(mContext)
                 if (MyWidgetProvider.isStockList) {
                     var time = ""
                     for (info in MyWidgetProvider.stockInfoList) {
@@ -145,7 +144,7 @@ class MyWidgetRemoteViewsService : RemoteViewsService() {
                         } else {
                             Color.GREEN
                         }
-                        val isListStock = mDataContext.getSetting(Setting.KEYS.is_widget_list_stock, true).boolean
+                        val isListStock = dc.getSetting(Setting.KEYS.is_widget_list_stock, true).boolean
                         val format = if (isListStock) "0.00%" else "0"
                         mToDoList.add(ToDo(info.name, DecimalFormat("0.00").format(info.price), DecimalFormat(format).format(info.increase), color1, color, color, false))
                     }
@@ -154,8 +153,25 @@ class MyWidgetRemoteViewsService : RemoteViewsService() {
                     setToDos()
                 }
 
-//                Thread {
-                    val latch = CountDownLatch(1)
+                if (dc.getSetting(Setting.KEYS.is_broadcast_big_figure, true).boolean) {
+                    var balance = dc.getSetting(Setting.KEYS.bank1_balance, 0).int
+                    if (balance > 3000) {
+                        mToDoList.add(ToDo("          ", "          ", balance.toString(), WARNING3_COLOR, true, R.raw.yq))
+                    }
+                    balance = dc.getSetting(Setting.KEYS.bank2_balance, 0).int
+                    if (balance > 2000) {
+                        mToDoList.add(ToDo("          ", "          ", balance.toString(), WARNING3_COLOR, true, R.raw.yq))
+                    }
+                }
+                val newMsg = dc.getSetting(Setting.KEYS.wx_new_msg)
+                newMsg?.let {
+                    mToDoList.add(ToDo("          ", "          ", it.string, WARNING3_COLOR, true, R.raw.bi))
+                }
+
+
+
+                Thread {
+//                    val latch = CountDownLatch(1)
                     /**
                      * 新消息提醒
                      */
@@ -163,23 +179,26 @@ class MyWidgetRemoteViewsService : RemoteViewsService() {
                         override fun excute(code: Int, msg: Any?) {
 //                            e("get new msg code : $code")
                             when (code) {
-                                1 -> {
-                                    mToDoList.add(ToDo("          ", "          ", msg.toString(), WARNING3_COLOR, true, R.raw.bi))
-                                    e("查询完毕 $msg")
+                                0->{
+                                    dc.deleteSetting(Setting.KEYS.wx_new_msg)
                                 }
-                                -1 -> {
-                                    mToDoList.add(ToDo("          ", "          ", msg.toString(), WARNING3_COLOR, false, R.raw.bi))
-                                    e("$msg")
+                                else -> {
+                                    dc.editSetting(Setting.KEYS.wx_new_msg, msg.toString())
+//                                    mToDoList.add(ToDo("          ", "          ", msg.toString(), WARNING3_COLOR, true, R.raw.bi))
                                 }
-                                -2 -> {
-                                    mToDoList.add(ToDo("          ", "          ", msg.toString(), WARNING3_COLOR, false, R.raw.bi))
-                                    e("$msg")
-                                }
+//                                -1 -> {
+//                                    mToDoList.add(ToDo("          ", "          ", msg.toString(), WARNING3_COLOR, false, R.raw.bi))
+//                                    e("$msg")
+//                                }
+//                                -2 -> {
+//                                    mToDoList.add(ToDo("          ", "          ", msg.toString(), WARNING3_COLOR, false, R.raw.bi))
+//                                    e("$msg")
+//                                }
                             }
-                            latch.countDown()
+//                            latch.countDown()
                         }
                     })
-                    latch.await()
+//                    latch.await()
 
 
                     //region 恢复小部件余额颜色
@@ -194,14 +213,14 @@ class MyWidgetRemoteViewsService : RemoteViewsService() {
                         appWidgetManager.updateAppWidget(myComponentName, remoteViews)
                     }
                     //endregion
-//                }.start()
+                }.start()
 
             } catch (e: JSONException) {
                 _Utils.printException(mContext, e)
                 e(e.message!!)
             } catch (e: Exception) {
                 _Utils.printException(mContext, e)
-                e( e.message!!)
+                e(e.message!!)
             }
         }
 
@@ -217,7 +236,7 @@ class MyWidgetRemoteViewsService : RemoteViewsService() {
             mToDoList.add(ToDo("          ", "${now.toShortDateString1()}   ${lunar.monthStr}${lunar.dayStr}   ${lunar.hourStr}时", "          ", Color.WHITE, false))
 
 
-            val bankToDos = mDataContext.bankToDos
+            val bankToDos = dc.bankToDos
             /**
              * BankToDo
              */
@@ -228,7 +247,7 @@ class MyWidgetRemoteViewsService : RemoteViewsService() {
                 val toDo = ToDo()
                 val now = DateTime()
                 val dayOffset = DateTime.dayOffset(now, bankToDo.dateTime)
-                if (dayOffset > mDataContext.getSetting(Setting.KEYS.todo_visible_dayoffset, 3).int && bankToDo.money != 0.0) continue
+                if (dayOffset > dc.getSetting(Setting.KEYS.todo_visible_dayoffset, 3).int && bankToDo.money != 0.0) continue
                 if (dayOffset < 0) {
                     toDo.header = "+" + -dayOffset
                     toDo.color1 = Color.RED
@@ -282,10 +301,10 @@ class MyWidgetRemoteViewsService : RemoteViewsService() {
             when (today.day) {
                 9 ->                     // 交行 放款日
                     mToDoList.add(ToDo("放款", "COMM",
-                            "7086", WARNING3_COLOR, mDataContext.getSetting(Setting.KEYS.is_make_loan_alert, false).boolean))
+                            "7086", WARNING3_COLOR, dc.getSetting(Setting.KEYS.is_make_loan_alert, false).boolean))
                 18 ->                     // 工行 放款日
                     mToDoList.add(ToDo("放款", "ICB",
-                            "0174", WARNING3_COLOR, mDataContext.getSetting(Setting.KEYS.is_make_loan_alert, false).boolean))
+                            "0174", WARNING3_COLOR, dc.getSetting(Setting.KEYS.is_make_loan_alert, false).boolean))
             }
 
             /**
@@ -303,15 +322,15 @@ class MyWidgetRemoteViewsService : RemoteViewsService() {
             /**
              * 忌日
              */
-            if(lunar0.month==2){
-                when(lunar0.day){
-                    10->{
+            if (lunar0.month == 2) {
+                when (lunar0.day) {
+                    10 -> {
                         mToDoList.add(ToDo("后天", "忌日", "上坟", WARNING1_COLOR, false))
                     }
-                    11->{
+                    11 -> {
                         mToDoList.add(ToDo("明天", "忌日", "上坟", WARNING2_COLOR, false))
                     }
-                    12->{
+                    12 -> {
                         mToDoList.add(ToDo("今天", "忌日", "上坟", WARNING3_COLOR, false))
                     }
                 }
@@ -320,37 +339,37 @@ class MyWidgetRemoteViewsService : RemoteViewsService() {
             /**
              * 清明节
              */
-            val qmMap = solarTermMap.filter { m->m.value==SolarTerm.清明&&m.key.year==today.year }
+            val qmMap = solarTermMap.filter { m -> m.value == SolarTerm.清明 && m.key.year == today.year }
             val qmDate = qmMap.keys.firstOrNull()
             qmDate?.let {
-                    when(it.get(Calendar.DAY_OF_YEAR)-today.get(Calendar.DAY_OF_YEAR)){
-                        0->{
-                            mToDoList.add(ToDo("今天", "清明节", "上坟", WARNING1_COLOR, false))
-                        }
-                        1->{
-                            mToDoList.add(ToDo("明天", "清明节", "上坟", WARNING2_COLOR, false))
-                        }
-                        2->{
-                            mToDoList.add(ToDo("后天", "清明节", "上坟", WARNING3_COLOR, false))
-                        }
-                        else->{
-
-                        }
+                when (it.get(Calendar.DAY_OF_YEAR) - today.get(Calendar.DAY_OF_YEAR)) {
+                    0 -> {
+                        mToDoList.add(ToDo("今天", "清明节", "上坟", WARNING1_COLOR, false))
                     }
+                    1 -> {
+                        mToDoList.add(ToDo("明天", "清明节", "上坟", WARNING2_COLOR, false))
+                    }
+                    2 -> {
+                        mToDoList.add(ToDo("后天", "清明节", "上坟", WARNING3_COLOR, false))
+                    }
+                    else -> {
+
+                    }
+                }
             }
 
             /**
              * 鬼节
              */
-            if(lunar0.month==7){
-                when(lunar0.day){
-                    13->{
+            if (lunar0.month == 7) {
+                when (lunar0.day) {
+                    13 -> {
                         mToDoList.add(ToDo("后天", "中元节", "上坟", WARNING1_COLOR, false))
                     }
-                    14->{
+                    14 -> {
                         mToDoList.add(ToDo("明天", "中元节", "上坟", WARNING2_COLOR, false))
                     }
-                    15->{
+                    15 -> {
                         mToDoList.add(ToDo("今天", "中元节", "上坟", WARNING3_COLOR, false))
                     }
                 }
@@ -359,18 +378,18 @@ class MyWidgetRemoteViewsService : RemoteViewsService() {
             /**
              * 十月初一
              */
-            if(lunar2.month==10&&lunar2.day==1){
+            if (lunar2.month == 10 && lunar2.day == 1) {
                 mToDoList.add(ToDo("后天", "十月初一", "上坟", WARNING1_COLOR, false))
-            }else if(lunar1.month==10&&lunar1.day==1){
+            } else if (lunar1.month == 10 && lunar1.day == 1) {
                 mToDoList.add(ToDo("明天", "十月初一", "上坟", WARNING2_COLOR, false))
-            }else if(lunar0.month==10&&lunar0.day==1){
+            } else if (lunar0.month == 10 && lunar0.day == 1) {
                 mToDoList.add(ToDo("今天", "十月初一", "上坟", WARNING3_COLOR, false))
             }
 
             /**
              * 戒期
              */
-            val latestDay = mDataContext.getSetting(Setting.KEYS.list_religious_day, 0).int
+            val latestDay = dc.getSetting(Setting.KEYS.list_religious_day, 0).int
             if (today.day != latestDay) {
 
                 /**
@@ -415,15 +434,15 @@ class MyWidgetRemoteViewsService : RemoteViewsService() {
                 }
 
                 if (list_religious.isEmpty()) {
-                    list_religious = mDataContext.getSetting(Setting.KEYS.wisdom, "南无阿弥陀佛").string
+                    list_religious = dc.getSetting(Setting.KEYS.wisdom, "南无阿弥陀佛").string
                     mToDoList.add(ToDo(list_religious, "", "", Color.WHITE, false))
                 }
 
                 //
-                mDataContext.editSetting(Setting.KEYS.list_religious_day, today.day)
-                mDataContext.editSetting(Setting.KEYS.list_religious, list_religious)
+                dc.editSetting(Setting.KEYS.list_religious_day, today.day)
+                dc.editSetting(Setting.KEYS.list_religious, list_religious)
             } else {
-                val religious = mDataContext.getSetting(Setting.KEYS.list_religious, "").string.split("\n").toTypedArray()
+                val religious = dc.getSetting(Setting.KEYS.list_religious, "").string.split("\n").toTypedArray()
                 for (str in religious) {
                     var color: Int
                     color = if (findReligiousKeyWord(str) == 1) {
@@ -473,7 +492,7 @@ class MyWidgetRemoteViewsService : RemoteViewsService() {
                     remoteViews.setViewVisibility(R.id.textView_money, View.VISIBLE)
                 }
                 val now = DateTime()
-                if (toDo.isAlert && now.hour >= 7 && now.hour != mDataContext.getSetting(Setting.KEYS.pre_alert_hour, 0).int) {
+                if (toDo.isAlert && now.hour >= 7 && now.hour != dc.getSetting(Setting.KEYS.pre_alert_hour, 0).int) {
                     _SoundUtils.mediaPlay(applicationContext, toDo.rawId)
                     //                    playSound(toDo.rawId);
                 }
@@ -489,7 +508,7 @@ class MyWidgetRemoteViewsService : RemoteViewsService() {
             soundPool.load(mContext, rawId, 1)
             soundPool.setOnLoadCompleteListener { soundPool, sampleId, status ->
                 soundPool.play(1, 1f, 1f, 0, 0, 1f)
-                mDataContext.editSetting(Setting.KEYS.pre_alert_hour, DateTime().hour)
+                dc.editSetting(Setting.KEYS.pre_alert_hour, DateTime().hour)
             }
         }
 

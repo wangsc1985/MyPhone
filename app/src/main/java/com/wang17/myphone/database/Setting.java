@@ -60,7 +60,7 @@ public class Setting{
     }
 
     public enum KEYS{
-        buddha_float_window_x, buddha_float_window_y,buddha_float_window_width, buddha_float_window_size,location_search_year,lotterys,is_buddha_gu,
+        buddha_float_window_x, buddha_float_window_y,buddha_float_window_width, buddha_float_window_size,location_search_year,lotterys,is_buddha_gu,is_broadcast_big_figure,
         buddha_duration,buddha_startime,buddha_volume,buddha_stoptime,
         stock_reflush_time,buddha_load_time,interest,buddha_speed,
         main_start_page_index,wisdom,map_search_radius,
@@ -86,7 +86,7 @@ public class Setting{
         media_player_volumn,media_player, bmob_file_url,SyncTime,wx_sex_date,bank_balance, bank_date_millis,is_widget_update_noice,
         is_stock_broadcast, // 记录是不是语音报送盈利
         is_flush_widget_when_screen_on, is_make_loan_alert, black_list, tally_once_minute, ignore_todo, sms_to_number, pre_alert_hour,
-        location_search_month, speaker_pitch, speaker_speech, todo_visible_dayoffset, wx_db_mark_date, wx_new_msg_count, wx_request_code, is_allow_widget_list_stock,tv_ip,clock_ip,
+        location_search_month, speaker_pitch, speaker_speech, todo_visible_dayoffset, wx_db_mark_date, wx_new_msg, wx_request_code, is_allow_widget_list_stock,tv_ip,clock_ip,
         bank1_balance,bank1_date_millis,bank2_balance,bank2_date_millis
     }
     //endregion
