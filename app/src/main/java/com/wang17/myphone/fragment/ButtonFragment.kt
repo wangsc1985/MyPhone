@@ -1,13 +1,19 @@
 package com.wang17.myphone.fragment
 
 import android.annotation.SuppressLint
+import android.annotation.TargetApi
+import android.app.KeyguardManager
 import android.content.Context.INPUT_METHOD_SERVICE
 import android.content.DialogInterface
 import android.content.Intent
+import android.hardware.fingerprint.FingerprintManager
 import android.media.AudioManager
 import android.media.SoundPool
+import android.os.Build
 import android.os.Bundle
 import android.os.Handler
+import android.security.keystore.KeyGenParameterSpec
+import android.security.keystore.KeyProperties
 import android.support.v4.app.Fragment
 import android.support.v7.app.AlertDialog
 import android.text.Editable
@@ -19,6 +25,7 @@ import android.view.inputmethod.EditorInfo
 import android.view.inputmethod.InputMethodManager
 import android.widget.EditText
 import android.widget.TextView
+import android.widget.Toast
 import com.alibaba.fastjson.JSONArray
 import com.wang17.myphone.R
 import com.wang17.myphone.activity.*
@@ -40,9 +47,13 @@ import com.wang17.myphone.view._Button
 import kotlinx.android.synthetic.main.fragment_button.*
 import kotlinx.android.synthetic.main.inflate_list_card_record_child.*
 import org.w3c.dom.Text
+import java.security.KeyStore
 import java.text.DecimalFormat
 import java.util.*
 import java.util.concurrent.CountDownLatch
+import javax.crypto.Cipher
+import javax.crypto.KeyGenerator
+import javax.crypto.SecretKey
 import kotlin.collections.ArrayList
 
 
@@ -293,85 +304,11 @@ class ButtonFragment : Fragment() {
 
         kotlin.run {
             btn = _Button(context!!, "sms")
-            btn.setOnLongClickListener {
-                true
-            }
             btn.setOnClickListener {
-                val view = View.inflate(context, R.layout.inflate_dialog_pwd, null)
-                val et = view.findViewById<EditText>(R.id.et_pwd)
-                et.isEnabled = false
-                val tv1 = view.findViewById<TextView>(R.id.tv_1)
-                tv1.setOnClickListener {
-                    et.setText(et.text.toString()+"1")
+                if (supportFingerprint()) {
+                    initKey();
+                    initCipher();
                 }
-                val tv2 = view.findViewById<TextView>(R.id.tv_2)
-                tv2.setOnClickListener {
-                    et.setText(et.text.toString()+"2")
-                }
-                val tv3 = view.findViewById<TextView>(R.id.tv_3)
-                tv3.setOnClickListener {
-                    et.setText(et.text.toString()+"3")
-                }
-                val tv4 = view.findViewById<TextView>(R.id.tv_4)
-                tv4.setOnClickListener {
-                    et.setText(et.text.toString()+"4")
-                }
-                val tv5 = view.findViewById<TextView>(R.id.tv_5)
-                tv5.setOnClickListener {
-                    et.setText(et.text.toString()+"5")
-                }
-                tv5.setOnLongClickListener {
-                    et.setText(et.text.toString()+"0")
-                    true
-                }
-                val tv6 = view.findViewById<TextView>(R.id.tv_6)
-                tv6.setOnClickListener {
-                    et.setText(et.text.toString()+"6")
-                }
-                val tv7 = view.findViewById<TextView>(R.id.tv_7)
-                tv7.setOnClickListener {
-                    et.setText(et.text.toString()+"7")
-                }
-                val tv8 = view.findViewById<TextView>(R.id.tv_8)
-                tv8.setOnClickListener {
-                    et.setText(et.text.toString()+"8")
-                }
-                val tv9 = view.findViewById<TextView>(R.id.tv_9)
-                tv9.setOnClickListener {
-                    et.setText(et.text.toString()+"9")
-                }
-                var dialog = AlertDialog.Builder(context!!).setView(view).show()
-                et.setOnEditorActionListener { v, actionId, event ->
-                    if (actionId == EditorInfo.IME_ACTION_DONE) {
-                        if (et.text.toString() == "6639") {
-                            context!!.startActivity(Intent(context, SmsActivity::class.java))
-                        } else {
-                            AlertDialog.Builder(context!!).setMessage(et.text.toString()).show()
-                        }
-                        dialog.dismiss()
-                    }
-                    true
-                }
-                et.addTextChangedListener(object : TextWatcher {
-                    override fun afterTextChanged(s: Editable?) {
-                        val text = s ?: ""
-
-                        if (text.length == 4) {
-                            if (et.text.toString() == "6639") {
-                                context!!.startActivity(Intent(context, SmsActivity::class.java))
-                            } else {
-                                _DialogUtils.showDesktopDialog(context!!, "welcome")
-                            }
-                            dialog.dismiss()
-                        }
-                    }
-
-                    override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {
-                    }
-
-                    override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {
-                    }
-                })
             }
             layout_flexbox.addView(btn)
         }
@@ -401,6 +338,84 @@ class ButtonFragment : Fragment() {
 //            }
 //            layout_flexbox.addView(btn)
 //        }
+    }
+
+    private fun passwordLoginSms() {
+        val view = View.inflate(context, R.layout.inflate_dialog_pwd, null)
+        val et = view.findViewById<EditText>(R.id.et_pwd)
+        et.isEnabled = false
+        val tv1 = view.findViewById<TextView>(R.id.tv_1)
+        tv1.setOnClickListener {
+            et.setText(et.text.toString() + "1")
+        }
+        val tv2 = view.findViewById<TextView>(R.id.tv_2)
+        tv2.setOnClickListener {
+            et.setText(et.text.toString() + "2")
+        }
+        val tv3 = view.findViewById<TextView>(R.id.tv_3)
+        tv3.setOnClickListener {
+            et.setText(et.text.toString() + "3")
+        }
+        val tv4 = view.findViewById<TextView>(R.id.tv_4)
+        tv4.setOnClickListener {
+            et.setText(et.text.toString() + "4")
+        }
+        val tv5 = view.findViewById<TextView>(R.id.tv_5)
+        tv5.setOnClickListener {
+            et.setText(et.text.toString() + "5")
+        }
+        tv5.setOnLongClickListener {
+            et.setText(et.text.toString() + "0")
+            true
+        }
+        val tv6 = view.findViewById<TextView>(R.id.tv_6)
+        tv6.setOnClickListener {
+            et.setText(et.text.toString() + "6")
+        }
+        val tv7 = view.findViewById<TextView>(R.id.tv_7)
+        tv7.setOnClickListener {
+            et.setText(et.text.toString() + "7")
+        }
+        val tv8 = view.findViewById<TextView>(R.id.tv_8)
+        tv8.setOnClickListener {
+            et.setText(et.text.toString() + "8")
+        }
+        val tv9 = view.findViewById<TextView>(R.id.tv_9)
+        tv9.setOnClickListener {
+            et.setText(et.text.toString() + "9")
+        }
+        var dialog = AlertDialog.Builder(context!!).setView(view).show()
+        et.setOnEditorActionListener { v, actionId, event ->
+            if (actionId == EditorInfo.IME_ACTION_DONE) {
+                if (et.text.toString() == "6639") {
+                    context!!.startActivity(Intent(context, SmsActivity::class.java))
+                } else {
+                    AlertDialog.Builder(context!!).setMessage(et.text.toString()).show()
+                }
+                dialog.dismiss()
+            }
+            true
+        }
+        et.addTextChangedListener(object : TextWatcher {
+            override fun afterTextChanged(s: Editable?) {
+                val text = s ?: ""
+
+                if (text.length == 4) {
+                    if (et.text.toString() == "6639") {
+                        context!!.startActivity(Intent(context, SmsActivity::class.java))
+                    } else {
+                        _DialogUtils.showDesktopDialog(context!!, "welcome")
+                    }
+                    dialog.dismiss()
+                }
+            }
+
+            override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {
+            }
+
+            override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {
+            }
+        })
     }
 
     fun redeemLottery(type: Int){
@@ -827,4 +842,71 @@ class ButtonFragment : Fragment() {
         return inflater.inflate(R.layout.fragment_button, container, false)
     }
 
+    //region 指纹验证
+    var keyStore: KeyStore? = null
+    fun supportFingerprint(): Boolean {
+        if (Build.VERSION.SDK_INT < 23) {
+            Toast.makeText(context, "您的系统版本过低，不支持指纹功能", Toast.LENGTH_SHORT).show()
+            return false
+        } else {
+            val keyguardManager = context?.getSystemService(KeyguardManager::class.java)
+            val fingerprintManager = context?.getSystemService(FingerprintManager::class.java)
+            if (!fingerprintManager?.isHardwareDetected!!) {
+                Toast.makeText(context, "您的手机不支持指纹功能", Toast.LENGTH_SHORT).show()
+                return false
+            } else if (!keyguardManager?.isKeyguardSecure!!) {
+                Toast.makeText(context, "您还未设置锁屏，请先设置锁屏并添加一个指纹", Toast.LENGTH_SHORT).show()
+                return false
+            } else if (!fingerprintManager?.hasEnrolledFingerprints()) {
+                Toast.makeText(context, "您至少需要在系统设置中添加一个指纹", Toast.LENGTH_SHORT).show()
+                return false
+            }
+        }
+        return true
+    }
+
+    @TargetApi(23)
+    private fun initKey() {
+        try {
+            keyStore = KeyStore.getInstance("AndroidKeyStore")
+            keyStore?.load(null)
+            val keyGenerator = KeyGenerator.getInstance(KeyProperties.KEY_ALGORITHM_AES, "AndroidKeyStore")
+            val builder = KeyGenParameterSpec.Builder(DEFAULT_KEY_NAME,
+                    KeyProperties.PURPOSE_ENCRYPT or
+                            KeyProperties.PURPOSE_DECRYPT)
+                    .setBlockModes(KeyProperties.BLOCK_MODE_CBC)
+                    .setUserAuthenticationRequired(true)
+                    .setEncryptionPaddings(KeyProperties.ENCRYPTION_PADDING_PKCS7)
+            keyGenerator.init(builder.build())
+            keyGenerator.generateKey()
+        } catch (e: Exception) {
+            throw RuntimeException(e)
+        }
+    }
+
+    @TargetApi(23)
+    private fun initCipher() {
+        try {
+            val key = keyStore!!.getKey(DEFAULT_KEY_NAME, null) as SecretKey
+            val cipher = Cipher.getInstance(KeyProperties.KEY_ALGORITHM_AES + "/"
+                    + KeyProperties.BLOCK_MODE_CBC + "/"
+                    + KeyProperties.ENCRYPTION_PADDING_PKCS7)
+            cipher.init(Cipher.ENCRYPT_MODE, key)
+            showFingerPrintDialog(cipher)
+        } catch (e: Exception) {
+            throw RuntimeException(e)
+        }
+    }
+
+    private fun showFingerPrintDialog(cipher: Cipher) {
+        val fragment = FingerprintDialogFragment()
+        fragment.setCipher(cipher)
+        fragment.show(activity?.supportFragmentManager, "fingerprint")
+    }
+
+
+    companion object {
+        private const val DEFAULT_KEY_NAME = "default_key"
+    }
+    //endregion
 }

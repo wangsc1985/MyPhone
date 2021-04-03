@@ -1,6 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="com.wang17.myphone">
+<!--    指纹-->
+    <uses-permission android:name="android.permission.USE_FINGERPRINT" />
+
     <!-- 收发短信 -->
     <uses-permission android:name="android.permission.READ_SMS" />
     <uses-permission android:name="android.permission.SEND_SMS" /> <!-- 监听蓝牙 -->
@@ -8,6 +11,8 @@
     <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED" /> <!-- GPS服务的权限 coarse慢的，fine快的 -->
     <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
     <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" /> <!-- 手机振动权限 -->
+    <uses-permission android:name="android.permission.USE_BIOMETRIC" />
+    <uses-permission android:name="android.permission.USE_FINGERPRINT" />
     <uses-permission android:name="android.permission.VIBRATE" /> <!-- 接收短信 -->
     <uses-permission android:name="android.permission.RECEIVE_SMS" /> <!-- 读取短信 -->
     <!-- 读写文件 -->
