@@ -69,7 +69,7 @@ class SmsActivity : AppCompatActivity() {
                         &&!m.body.contains("转账")&&!m.body.contains("转出")&&!m.body.contains("转入")&&!m.body.contains("账单")
                         &&!m.body.contains("还款")&&!m.body.contains("借款")&&!m.body.contains("贷款")
                         &&!m.body.contains("快递")&&!m.body.contains("物流")
-                        &&m.body.contains("验证码")&&m.body.contains("动态密码")
+                        ||m.body.contains("验证码")||m.body.contains("动态密码")
                 }
                 dc.deletePhoneMessage(removeList)
                 loadSmsData()
