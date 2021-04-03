@@ -52,6 +52,7 @@
         android:gravity="right"
         android:text="3圈"
         android:textSize="12sp"
+        android:visibility="gone"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toStartOf="@+id/textView_monthCount"
         app:layout_constraintRight_toRightOf="parent"

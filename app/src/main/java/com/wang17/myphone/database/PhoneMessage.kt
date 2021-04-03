@@ -1,16 +1,15 @@
-package com.wang17.myphone.database;
+package com.wang17.myphone.database
 
-import android.telephony.SmsMessage;
-
-import com.wang17.myphone.model.DateTime;
-import com.wang17.myphone.structure.SmsStatus;
-import com.wang17.myphone.structure.SmsType;
+import android.telephony.SmsMessage
+import com.wang17.myphone.model.DateTime
+import com.wang17.myphone.structure.SmsStatus
+import com.wang17.myphone.structure.SmsType
+import java.util.*
 
 /**
  * Created by 阿弥陀佛 on 2016/10/24.
  */
-public class PhoneMessage {
-
+class PhoneMessage {
     /**
      * 获取所有短息记录
      * _id => 短消息序号 如100
@@ -25,127 +24,22 @@ public class PhoneMessage {
      * body => 短消息内容
      * service_center => 短信服务中心号码编号。如+8613800755500
      */
+    var id = UUID.randomUUID()
+    var address = "" // 发送方
+    var body = ""
+    var type = SmsType.接收到
+    var status = SmsStatus.接收 // 值为-1，说明此数据已删除。
+    var createTime = DateTime()
 
-    private int id;
-    private int threadId;
-    private String phoneNumber; //接收方
-    private String address; // 发送方
-    private String body;
-    private SmsType type;
-    private SmsStatus status;// 值为-1，说明此数据已删除。
-    private DateTime createTime;
-    private long updateTime=1;
-    private long syncTime=1;
-
-    public PhoneMessage(){
-    }
-
-    public PhoneMessage(SmsMessage sms){
-        this.id=-1;
-        this.threadId = -1;
-        this.phoneNumber = "新信息自动转换";
-        this.address= sms.getOriginatingAddress();
-        this.body = sms.getMessageBody();
-        this.type = SmsType.新信息;
-        this.address= sms.getOriginatingAddress();
-        this.body = sms.getMessageBody();
-        this.status = SmsStatus.接受;
-        this.createTime = new DateTime(sms.getTimestampMillis());
-    }
-
-    public int getId() {
-        return id;
-    }
-
-    public void setId(int id) {
-        this.id = id;
-    }
-
-    public int getThreadId() {
-        return threadId;
-    }
-
-    public void setThreadId(int threadId) {
-        this.threadId = threadId;
-    }
-
-    /**
-     * 收件人地址
-     * @return
-     */
-    public String getPhoneNumber() {
-        return phoneNumber;
-    }
-
-    /**
-     * 收件人地址
-     * @param phoneNumber
-     */
-    public void setPhoneNumber(String phoneNumber) {
-        this.phoneNumber = phoneNumber;
-    }
-
-    /**
-     * 发件人地址
-     * @return
-     */
-    public String getAddress() {
-        return address;
-    }
-
-    /**
-     * 发件人地址
-     * @param address
-     */
-    public void setAddress(String address) {
-        this.address = address;
-    }
-
-    public String getBody() {
-        return body;
-    }
-
-    public void setBody(String body) {
-        this.body = body;
-    }
-
-    public DateTime getCreateTime() {
-        return createTime;
-    }
-
-    public void setCreateTime(DateTime createTime) {
-        this.createTime = createTime;
-    }
-
-    public SmsType getType() {
-        return type;
-    }
-
-    public void setType(SmsType type) {
-        this.type = type;
-    }
-
-    public SmsStatus getStatus() {
-        return status;
-    }
-
-    public void setStatus(SmsStatus status) {
-        this.status = status;
-    }
-
-    public long getUpdateTime() {
-        return updateTime;
-    }
-
-    public void setUpdateTime(long updateTime) {
-        this.updateTime = updateTime;
-    }
-
-    public long getSyncTime() {
-        return syncTime;
-    }
-
-    public void setSyncTime(long syncTime) {
-        this.syncTime = syncTime;
+    constructor() {}
+    constructor(sms: SmsMessage) {
+        id = UUID.randomUUID()
+        address = sms.originatingAddress?:""
+        body = sms.messageBody
+        type = SmsType.新信息
+        address = sms.originatingAddress?:""
+        body = sms.messageBody
+        status = SmsStatus.接收
+        createTime = DateTime(sms.timestampMillis)
     }
 }

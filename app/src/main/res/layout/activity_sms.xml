@@ -6,10 +6,45 @@
     android:layout_height="match_parent"
     tools:context=".activity.SmsActivity">
 
-    <ListView
+    <android.support.design.widget.FloatingActionButton
+        android:id="@+id/fab_express"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginEnd="16dp"
+        android:layout_marginBottom="16dp"
+        android:clickable="true"
+        app:layout_constraintBottom_toBottomOf="@+id/listView_sms"
+        app:layout_constraintEnd_toStartOf="@+id/fab_clean_history"
+        app:srcCompat="@drawable/express" />
+
+    <android.support.design.widget.FloatingActionButton
+        android:id="@+id/fab_clean"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginEnd="16dp"
+        android:layout_marginBottom="16dp"
+        android:clickable="true"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:srcCompat="@drawable/clean" />
+
+    <android.support.design.widget.FloatingActionButton
+        android:id="@+id/fab_clean_history"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginEnd="16dp"
+        android:layout_marginBottom="16dp"
+        android:clickable="true"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toStartOf="@+id/fab_clean"
+        app:srcCompat="@drawable/remove_history" />
+
+    <ExpandableListView
         android:id="@+id/listView_sms"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:divider="@null" />
+        android:divider="@null" >
+
+    </ExpandableListView>
 
 </android.support.constraint.ConstraintLayout>

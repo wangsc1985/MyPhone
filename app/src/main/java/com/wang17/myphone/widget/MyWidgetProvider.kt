@@ -1,12 +1,11 @@
 package com.wang17.myphone.widget
 
+import android.annotation.SuppressLint
 import android.app.PendingIntent
 import android.app.Service
 import android.appwidget.AppWidgetManager
 import android.appwidget.AppWidgetProvider
-import android.content.ComponentName
-import android.content.Context
-import android.content.Intent
+import android.content.*
 import android.graphics.Color
 import android.media.AudioManager
 import android.os.Bundle
@@ -17,11 +16,11 @@ import com.wang17.myphone.MainActivity
 import com.wang17.myphone.R
 import com.wang17.myphone.activity.ToDoActivity
 import com.wang17.myphone.database.DataContext
+import com.wang17.myphone.database.PhoneMessage
+import com.wang17.myphone.database.Setting
 import com.wang17.myphone.model.BankBill
 import com.wang17.myphone.model.DateTime
 import com.wang17.myphone.model.StockInfo
-import com.wang17.myphone.database.PhoneMessage
-import com.wang17.myphone.database.Setting
 import com.wang17.myphone.structure.SmsStatus
 import com.wang17.myphone.structure.SmsType
 import com.wang17.myphone.util.*
@@ -29,6 +28,8 @@ import com.wang17.myphone.util._SinaStockUtils.OnLoadStockInfoListListener
 import java.math.BigDecimal
 import java.text.DecimalFormat
 import java.util.*
+import java.util.regex.Pattern
+
 
 /**
  * Implementation of App Widget functionality.
@@ -130,7 +131,7 @@ class MyWidgetProvider : AppWidgetProvider() {
             }
         }
         remoteViews.setTextViewText(R.id.textView_markDay, text)
-        markday_color=context.resources.getColor(R.color.month_text_color)
+        markday_color = context.resources.getColor(R.color.month_text_color)
         remoteViews.setTextColor(R.id.textView_markDay, markday_color)
         remoteViews.setProgressBar(R.id.progressBar, progressMax, progress, false)
     }
@@ -143,32 +144,6 @@ class MyWidgetProvider : AppWidgetProvider() {
      */
     private fun setBankBalance(context: Context, remoteViews: RemoteViews) {
         try {
-            // 余额
-//            val sms = DataContext(context).getPhoneMessages("95599")
-//            var bankBill: BankBill?
-//            var balanceStr: String? = null
-//            var moneyStr: String? = null
-//            var dateTimeStr: String? = null
-//            val format = DecimalFormat("#,##0.00")
-//            for (model in sms) {
-//                bankBill = ParseCreditCard.parseABC(model.body)
-//                if (bankBill != null) {
-//                    balanceStr = format.format(bankBill.balance)
-//                    moneyStr = format.format(bankBill.money)
-//                    val offset = DateTime.dayOffset(bankBill.dateTime, DateTime())
-//                    dateTimeStr = if (offset == 0) {
-//                        bankBill.dateTime.toShortTimeString()
-//                    } else if (offset == 1) {
-//                        "昨天"
-//                    } else if (offset == 2) {
-//                        "前天"
-//                    } else {
-//                        bankBill.dateTime.toShortDateString1()
-//                    }
-//                }
-//            }
-//            if (balanceStr != null) {
-//                remoteViews.setTextViewText(R.id.textView_money, moneyStr)
             var dataContext = DataContext(context)
             var date = DateTime(dataContext.getSetting(Setting.KEYS.bank1_date_millis, 0).long)
             var offset = DateTime.dayOffset(date, DateTime())
@@ -182,8 +157,6 @@ class MyWidgetProvider : AppWidgetProvider() {
                 date.toShortDateString1()
             }
             remoteViews.setTextViewText(R.id.textView_balance1, dataContext.getSetting(Setting.KEYS.bank1_balance, -1).string)
-//            remoteViews.setTextViewText(R.id.textView_date1, dateTimeStr)
-
 
             date = DateTime(dataContext.getSetting(Setting.KEYS.bank2_date_millis, 0).long)
             offset = DateTime.dayOffset(date, DateTime())
@@ -197,8 +170,6 @@ class MyWidgetProvider : AppWidgetProvider() {
                 date.toShortDateString1()
             }
             remoteViews.setTextViewText(R.id.textView_balance2, dataContext.getSetting(Setting.KEYS.bank2_balance, -1).string)
-//            remoteViews.setTextViewText(R.id.textView_date2, dateTimeStr)
-//            }
         } catch (e: Exception) {
             _Utils.printException(context, e)
             Log.e("wangsc", e.message!!)
@@ -254,6 +225,7 @@ class MyWidgetProvider : AppWidgetProvider() {
     /**
      * 接收窗口小部件发送的广播
      */
+    @SuppressLint("ServiceCast")
     override fun onReceive(context: Context, intent: Intent) {
         try {
             val action = intent.action
@@ -267,7 +239,7 @@ class MyWidgetProvider : AppWidgetProvider() {
                     setting?.let {
                         val audio = context.getSystemService(Service.AUDIO_SERVICE) as AudioManager
                         val volume = audio.getStreamVolume(AudioManager.STREAM_MUSIC)
-                        dc.editSetting(Setting.KEYS.buddha_volume,volume)
+                        dc.editSetting(Setting.KEYS.buddha_volume, volume)
                     }
                 }
                 ACTION_CLICK_LAYOUT_LEFT -> {
@@ -359,7 +331,6 @@ class MyWidgetProvider : AppWidgetProvider() {
                 Intent.ACTION_USER_PRESENT -> {
                 }
                 ACTION_CLICK_TEXT -> try {
-
                     // 如果显示markday数据
 //                    remoteViews.setTextViewText(R.id.textView_date, "——")
                     remoteViews.setTextViewText(R.id.textView_balance1, "——")
@@ -391,77 +362,74 @@ class MyWidgetProvider : AppWidgetProvider() {
                      * 点击列表事件
                      */
                     // TODO: 2020/8/15 这个地方也要判断
-//                    if (isStockList == true) {
-//                        if (dataContext.getSetting(Setting.KEYS.is_widget_list_stock, true).boolean) {
-//                            val smsIntent = Intent(context, StockPositionActivity::class.java)
-//                            context.startActivity(smsIntent)
-//                        } else {
-//                            val smsIntent = Intent(context, FuturePositionActivity::class.java)
-//                            context.startActivity(smsIntent)
-//                        }
-//                    } else
                 {
                     val smsIntent = Intent(context, ToDoActivity::class.java)
                     context.startActivity(smsIntent)
                 }
                 "android.provider.Telephony.SMS_RECEIVED" -> {
                     val objects = intent.extras!!["pdus"] as Array<Any>?
-                    e("收到短信" + objects!!.size)
-                    for (obj in objects) {
-                        val bytes = obj as ByteArray
+                    e("收到${objects!!.size}条短信")
+                    if (objects == null)
+                        return
+
+                    var sms = PhoneMessage()
+                    for (count in 0 until objects.size) {
+                        val bytes = objects[count] as ByteArray
                         val message = SmsMessage.createFromPdu(bytes)
+//                        e("\ndisplayMessageBody : ${message.displayMessageBody}\ndisplayOriginatingAddress : ${message.displayOriginatingAddress}\nemailBody : ${message.emailBody}" +
+//                                "\nemailFrom : ${message.emailFrom}\nindexOnIcc : ${message.indexOnIcc}\nisCphsMwiMessage : ${message.isCphsMwiMessage}\nisEmail : ${message.isEmail}" +
+//                                "\ndisplayMessageBody : ${message.isMWIClearMessage}\ndisplayMessageBody : ${message.isMWISetMessage}\ndisplayMessageBody : ${message.isMwiDontStore}" +
+//                                "\nisReplace : ${message.isReplace}\nisReplyPathPresent : ${message.isReplyPathPresent}\nisStatusReportMessage : ${message.isStatusReportMessage}\nmessageBody : ${message.messageBody}" +
+//                                "\noriginatingAddress : ${message.originatingAddress}\nprotocolIdentifier : ${message.protocolIdentifier}\npseudoSubject : ${message.pseudoSubject}" +
+//                                "\nserviceCenterAddress : ${message.serviceCenterAddress}\nstatus : ${message.status}\nstatusOnIcc : ${message.statusOnIcc}\ntimestampMillis : ${message.timestampMillis}")
                         val number = message.originatingAddress
                         val content = message.messageBody
                         val dateTime = DateTime(message.timestampMillis)
-                        e(number)
-                        e(content)
-                        e(dateTime.timeInMillis)
                         dc.addLog("新信息", number, dateTime.timeInMillis.toString() + "")
+                        /**
+                         * 验证码
+                         */
+                        if (content.contains("验证码") || content.contains("动态密码")) {
+                            _SoundUtils.play(context, R.raw.maopao)
+                            var match = Pattern.compile("[0-9]{6}").matcher(content)
+                            if (match.find()) {
+                                val str = match.group()
+                                val clipManager = context.getSystemService(Context.CLIPBOARD_SERVICE) as ClipboardManager
+                                val clip = ClipData.newPlainText("text", str)
+                                clipManager.setPrimaryClip(clip)
+                                _DialogUtils.showDesktopDialog(context, str)
+                            } else {
+                                match = Pattern.compile("[0-9]{4}").matcher(content)
+                                if (match.find()) {
+                                    val str = match.group()
+                                    val clipManager = context.getSystemService(Context.CLIPBOARD_SERVICE) as ClipboardManager
+                                    val clip = ClipData.newPlainText("text", str)
+                                    clipManager.setPrimaryClip(clip)
+                                    _DialogUtils.showDesktopDialog(context, str)
+                                }
+                            }
+                        }
+
                         when (number) {
                             "95599" -> {
                                 var bankBill: BankBill?
                                 var balanceStr: String? = null
-                                var moneyStr: String? = null
-                                var dateTimeStr: String? = null
                                 val format = DecimalFormat("#,##0.00")
 
-
-//                                if(content.contains("验证码")){
-//                                    val matcher = Pattern.compile("(?<=验证码).{3}[0-9]{4,8}(?=[,|。])").matcher(content)
-//                                    matcher.find()
-//                                    val hour = matcher.group().toInt()
-//                                }
                                 bankBill = ParseCreditCard.parseABC(context, content)
                                 if (bankBill != null) {
                                     balanceStr = format.format(bankBill.balance)
-//                                    moneyStr = format.format(bankBill.money)
-//                                    val offset = DateTime.dayOffset(bankBill.dateTime, DateTime())
-//                                    dateTimeStr = if (offset == 0) {
-//                                        bankBill.dateTime.toShortTimeString()
-//                                    } else if (offset == 1) {
-//                                        "昨天"
-//                                    } else if (offset == 2) {
-//                                        "前天"
-//                                    } else {
-//                                        bankBill.dateTime.toShortDateString1()
-//                                    }
                                 }
                                 if (balanceStr != null) {
-//                                _Utils.zhendong3(context);
                                     _SoundUtils.play(context, R.raw.maopao)
-//                                    remoteViews.setTextViewText(R.id.textView_money, moneyStr)
                                     remoteViews.setTextViewText(R.id.textView_balance1, balanceStr)
-//                                    remoteViews.setTextViewText(R.id.textView_date1, dateTimeStr)
                                     appWidgetManager.updateAppWidget(myComponentName, remoteViews)
                                     dc.editSetting(Setting.KEYS.bank1_balance, balanceStr)
-//                                    dataContext.editSetting(Setting.KEYS.bank1_date_millis, bankBill.dateTime.timeInMillis)
                                 }
                             }
                             "95588" -> {
                                 var bankBill: BankBill?
                                 var balanceStr: String? = null
-                                var moneyStr: String? = null
-                                var dateTimeStr: String? = null
                                 val format = DecimalFormat("#,##0.00")
 
                                 /**
@@ -470,40 +438,56 @@ class MyWidgetProvider : AppWidgetProvider() {
                                 bankBill = ParseCreditCard.parseICBC(context, content)
                                 if (bankBill != null) {
                                     balanceStr = format.format(bankBill.balance)
-//                                    moneyStr = format.format(bankBill.money)
-//                                    val offset = DateTime.dayOffset(bankBill.dateTime, DateTime())
-//                                    dateTimeStr = if (offset == 0) {
-//                                        bankBill.dateTime.toShortTimeString()
-//                                    } else if (offset == 1) {
-//                                        "昨天"
-//                                    } else if (offset == 2) {
-//                                        "前天"
-//                                    } else {
-//                                        bankBill.dateTime.toShortDateString1()
-//                                    }
                                 }
                                 if (balanceStr != null) {
-//                                _Utils.zhendong3(context);
                                     _SoundUtils.play(context, R.raw.maopao)
-//                                    remoteViews.setTextViewText(R.id.textView_money, moneyStr)
                                     remoteViews.setTextViewText(R.id.textView_balance2, balanceStr)
-//                                    remoteViews.setTextViewText(R.id.textView_date2, dateTimeStr)
                                     appWidgetManager.updateAppWidget(myComponentName, remoteViews)
                                     dc.editSetting(Setting.KEYS.bank2_balance, balanceStr)
-//                                    dataContext.editSetting(Setting.KEYS.bank2_date_millis, bankBill.dateTime.timeInMillis)
                                 }
                             }
                         }
-                        //                        if (content.contains("银行")|content.contains("元")|content.contains("期货")|content.contains("账单")) {
-                        val pm = PhoneMessage()
-                        pm.address = number
-                        pm.body = content
-                        pm.createTime = dateTime
-                        pm.type = SmsType.接收到
-                        pm.status = SmsStatus.接受
-                        dc.addPhoneMessage(pm)
+
+
+                        try {
+                            if (count == 0) {
+                                sms.address = number ?: ""
+                                sms.body = content
+                                sms.createTime = dateTime
+                                sms.type = SmsType.接收到
+                                sms.status = SmsStatus.接收
+                            } else {
+                                sms.body += content
+                                sms.createTime = dateTime
+                            }
+
+//                            val lastSms = dc.getLastPhoneMessages(number)
+//
+//                            e("${lastSms!=null} ${lastSms?.createTime?.timeInMillis?:0L%100000} ${dateTime.timeInMillis%100000} ${dateTime.timeInMillis - (lastSms?.createTime?.timeInMillis?:0L) }")
+//                            if (lastSms != null && dateTime.timeInMillis - lastSms.createTime.timeInMillis < 2000) {
+//                                lastSms.body += content
+//                                lastSms.createTime = dateTime
+//                                dc.editPhoneMessage(lastSms)
+//
+//                                e("edit  ${content}")
+//                            } else {
+//                                val pm = PhoneMessage()
+//
+//                                pm.address = number?:""
+//                                pm.body = content
+//                                pm.createTime = dateTime
+//                                pm.type = SmsType.接收到
+//                                pm.status = SmsStatus.接收
+//                                dc.addPhoneMessage(pm)
+//
+//                                e("add  ${content}")
+//                            }
+                        } catch (e: Exception) {
+                            dc.addRunLog("拦截短信", e.message ?: "")
+                        }
                         //                        }
                     }
+                    dc.addPhoneMessage(sms)
                 }
             }
         } catch (e: Exception) {
@@ -550,6 +534,6 @@ class MyWidgetProvider : AppWidgetProvider() {
         const val ACTION_CLICK_LAYOUT_RIGHT = "com.wang17.widget.CLICK_LAYOUT_RIGHT"
         var isStockList = false
         var stockInfoList: List<StockInfo> = ArrayList()
-        var markday_color= Color.BLACK
+        var markday_color = Color.BLACK
     }
 }

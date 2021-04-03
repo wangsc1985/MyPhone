@@ -244,7 +244,7 @@ public class CardFragment extends Fragment {
                         //region Description
                         convertView = View.inflate(context, R.layout.inflate_list_item_card_wld, null);
                         TextView textView_name = (TextView) convertView.findViewById(R.id.textView_name); // 账户名
-                        TextView textView_number = (TextView) convertView.findViewById(R.id.textView_number); // 卡号
+                        TextView textView_number = (TextView) convertView.findViewById(R.id.tv_number); // 卡号
                         TextView textView_cardType = (TextView) convertView.findViewById(R.id.textView_cardType); // 卡类型
                         TextView textView_bankName = (TextView) convertView.findViewById(R.id.textView_bankName); // 银行
                         TextView textView_date = (TextView) convertView.findViewById(R.id.tv_att_date); //
@@ -349,7 +349,7 @@ public class CardFragment extends Fragment {
                 @Override
                 public void run() {
                     try {
-                        changed = ParseCreditCard.scanPhoneMessage(getContext());
+//                        changed = ParseCreditCard.scanPhoneMessage(getContext());
                         uiThreadHandler.post(new Runnable() {
                             @Override
                             public void run() {

@@ -53,6 +53,29 @@ class MyClass {
 
         @JvmStatic
         fun main(args: Array<String>) {
+
+            val body="【交通银行信用卡】送你1次抽奖机会！9月20日登录交通银行信用卡周周刷活动主页即可获得！百发百中送您积分、刷卡金或者金砖哦，戳 cc."
+            var matcher = Pattern.compile("(?<=【).{1,10}(?=】)").matcher(body)
+            if (matcher.find())
+                println(matcher.group().trim())
+
+
+            val a:String?=null
+            val b:String?="asdfasdfasdf"
+            println(b?:"ccc")
+
+//
+//            var match = Pattern.compile("[0-9]{6}").matcher("【去哪儿网】验证码: 7782，十分钟后失效，请勿向任何人提供验证码")
+//            if (match.find()) {
+//                println(match.group())
+//            } else {
+//                match = Pattern.compile("[0-9]{4}").matcher("【去哪儿网】验证码: 7782，十分钟后失效，请勿向任何人提供验证码")
+//                if (match.find()) {
+//                    println(match.group())
+//                }
+//            }
+
+
 //            val lotterys = ArrayList<Lottery>()
 //            lotterys.add(Lottery(21025, arrayListOf(3,4,22,23,28,1), arrayListOf(1,4),1,1))
 //            lotterys.add(Lottery(21025, arrayListOf(17,24,28,30,33), arrayListOf(3,12),1,1))
@@ -82,13 +105,13 @@ class MyClass {
 //            matcher.find()
 //            println(matcher.group())
 
-            println(3120/300*300)
-
+//            println(3120/300*300)
+//
 //            _OkHttpUtil.getRequest("https://weizhao1985.lofter.com/post/4c3be773_1cbccf784", HttpCallback {html ->
 //                try {
 //                    var html=  html.replace("\r","").replace("\n","")
 //                    println(html)
-//                    var matcher = Pattern.compile("(?<=寿康宝鉴日历版本号)[0-9]*(?=</p>)").matcher(html)
+//                    var matcher = Pattern.compile("(?<=寿康宝鉴日历版本z)[0-9]*(?=</p>)").matcher(html)
 //                    matcher.find()
 //                    val version = matcher.group().trim()
 //                    println(version)

@@ -23,17 +23,25 @@ import com.alibaba.fastjson.JSONArray
 import com.wang17.myphone.R
 import com.wang17.myphone.activity.*
 import com.wang17.myphone.callback.CloudCallback
-import com.wang17.myphone.e
-import com.wang17.myphone.model.Lottery
 import com.wang17.myphone.database.BuddhaRecord
 import com.wang17.myphone.database.DataContext
+import com.wang17.myphone.database.PhoneMessage
 import com.wang17.myphone.database.Setting
+import com.wang17.myphone.e
+import com.wang17.myphone.model.DateTime
+import com.wang17.myphone.model.Lottery
 import com.wang17.myphone.service.BuddhaService
+import com.wang17.myphone.service.MuyuService
 import com.wang17.myphone.service.StockService
+import com.wang17.myphone.structure.SmsStatus
+import com.wang17.myphone.structure.SmsType
 import com.wang17.myphone.util.*
 import com.wang17.myphone.view._Button
 import kotlinx.android.synthetic.main.fragment_button.*
+import kotlinx.android.synthetic.main.inflate_list_card_record_child.*
+import org.w3c.dom.Text
 import java.text.DecimalFormat
+import java.util.*
 import java.util.concurrent.CountDownLatch
 import kotlin.collections.ArrayList
 
@@ -89,7 +97,7 @@ class ButtonFragment : Fragment() {
 //                }).show()
             }
             btn.setOnLongClickListener {
-                AlertDialog.Builder(context!!).setItems(arrayOf("整合", "is run","木鱼"), DialogInterface.OnClickListener { dialog, which ->
+                AlertDialog.Builder(context!!).setItems(arrayOf("整合", "is run", "木鱼"), DialogInterface.OnClickListener { dialog, which ->
                     when (which) {
                         /**
                          * 整合念佛记录
@@ -125,10 +133,10 @@ class ButtonFragment : Fragment() {
                          * 判断念佛服务是否在运行
                          */
                         1 -> {
-                            AlertDialog.Builder(context!!).setMessage("BuddhaService运行：${_Utils.isServiceRunning(context!!,BuddhaService::class.qualifiedName!!)}").show()
+                            AlertDialog.Builder(context!!).setMessage("BuddhaService运行：${_Utils.isServiceRunning(context!!, BuddhaService::class.qualifiedName!!)}").show()
 
                         }
-                        2->{
+                        2 -> {
                             startActivity(Intent(context!!, KnockerActivity::class.java))
                         }
                         /**
@@ -144,7 +152,7 @@ class ButtonFragment : Fragment() {
                                     uploadList.add(buddhaList[i])
                                     if (i % 100 == 0 && i != 0) {
                                         var latch = CountDownLatch(1)
-                                        _CloudUtils.addBuddhaList(context!!, uploadList, CloudCallback { code, result ->
+                                        _CloudUtils.addBuddhaList(context!!, uploadList) { code, result ->
                                             e(result)
                                             uiHandler.post {
                                                 AlertDialog.Builder(context!!).setMessage("当前索引：${i} 网络反馈：code ${code} result ${result.toString()}").setCancelable(false).setPositiveButton("继续", DialogInterface.OnClickListener { dialog, which ->
@@ -152,15 +160,15 @@ class ButtonFragment : Fragment() {
                                                     latch.countDown()
                                                 }).show()
                                             }
-                                        })
+                                        }
                                         latch.await()
                                     }
                                 }
-                                _CloudUtils.addBuddhaList(context!!, uploadList, CloudCallback { code, result ->
+                                _CloudUtils.addBuddhaList(context!!, uploadList) { code, result ->
                                     uiHandler.post {
                                         AlertDialog.Builder(context!!).setMessage(result.toString()).setCancelable(false).setPositiveButton("上传完毕", null).show()
                                     }
-                                })
+                                }
 
                             }.start()
 
@@ -234,7 +242,7 @@ class ButtonFragment : Fragment() {
         kotlin.run {
             btn = _Button(context!!, "trade")
             btn.setOnClickListener {
-                AlertDialog.Builder(context!!).setItems(arrayOf("stock", "futrue", "history", "fund","is run"), DialogInterface.OnClickListener { dialog, which ->
+                AlertDialog.Builder(context!!).setItems(arrayOf("stock", "futrue", "history", "fund", "is run"), DialogInterface.OnClickListener { dialog, which ->
                     when (which) {
                         0 -> {
                             context!!.startActivity(Intent(context, StockPositionActivity::class.java))
@@ -252,7 +260,7 @@ class ButtonFragment : Fragment() {
                         3 -> {
                             startActivity(Intent(context, FundMonitorActivity::class.java))
                         }
-                        4->{
+                        4 -> {
                             AlertDialog.Builder(context!!).setMessage("StockService运行状态：${_Utils.isServiceRunning(context!!, StockService::class.qualifiedName!!)}").show()
                         }
                     }
@@ -285,20 +293,54 @@ class ButtonFragment : Fragment() {
 
         kotlin.run {
             btn = _Button(context!!, "sms")
+            btn.setOnLongClickListener {
+                true
+            }
             btn.setOnClickListener {
                 val view = View.inflate(context, R.layout.inflate_dialog_pwd, null)
                 val et = view.findViewById<EditText>(R.id.et_pwd)
-                et.requestFocus()
-                val imm = et.context.getSystemService(INPUT_METHOD_SERVICE) as InputMethodManager
-                imm.showSoftInput(et, 0)
-                var dialog = AlertDialog.Builder(context!!).setTitle("提示").setView(view).setNegativeButton("确定") { dialog, which ->
-                    if (et.text.toString() == "6639") {
-                        context!!.startActivity(Intent(context, SmsActivity::class.java))
-                    } else {
-                        AlertDialog.Builder(context!!).setMessage(et.text.toString()).show()
-                    }
-                }.show()
-
+                et.isEnabled = false
+                val tv1 = view.findViewById<TextView>(R.id.tv_1)
+                tv1.setOnClickListener {
+                    et.setText(et.text.toString()+"1")
+                }
+                val tv2 = view.findViewById<TextView>(R.id.tv_2)
+                tv2.setOnClickListener {
+                    et.setText(et.text.toString()+"2")
+                }
+                val tv3 = view.findViewById<TextView>(R.id.tv_3)
+                tv3.setOnClickListener {
+                    et.setText(et.text.toString()+"3")
+                }
+                val tv4 = view.findViewById<TextView>(R.id.tv_4)
+                tv4.setOnClickListener {
+                    et.setText(et.text.toString()+"4")
+                }
+                val tv5 = view.findViewById<TextView>(R.id.tv_5)
+                tv5.setOnClickListener {
+                    et.setText(et.text.toString()+"5")
+                }
+                tv5.setOnLongClickListener {
+                    et.setText(et.text.toString()+"0")
+                    true
+                }
+                val tv6 = view.findViewById<TextView>(R.id.tv_6)
+                tv6.setOnClickListener {
+                    et.setText(et.text.toString()+"6")
+                }
+                val tv7 = view.findViewById<TextView>(R.id.tv_7)
+                tv7.setOnClickListener {
+                    et.setText(et.text.toString()+"7")
+                }
+                val tv8 = view.findViewById<TextView>(R.id.tv_8)
+                tv8.setOnClickListener {
+                    et.setText(et.text.toString()+"8")
+                }
+                val tv9 = view.findViewById<TextView>(R.id.tv_9)
+                tv9.setOnClickListener {
+                    et.setText(et.text.toString()+"9")
+                }
+                var dialog = AlertDialog.Builder(context!!).setView(view).show()
                 et.setOnEditorActionListener { v, actionId, event ->
                     if (actionId == EditorInfo.IME_ACTION_DONE) {
                         if (et.text.toString() == "6639") {
@@ -318,7 +360,7 @@ class ButtonFragment : Fragment() {
                             if (et.text.toString() == "6639") {
                                 context!!.startActivity(Intent(context, SmsActivity::class.java))
                             } else {
-                                AlertDialog.Builder(context!!).setMessage(et.text.toString()).show()
+                                _DialogUtils.showDesktopDialog(context!!, "welcome")
                             }
                             dialog.dismiss()
                         }
@@ -336,11 +378,18 @@ class ButtonFragment : Fragment() {
 
         kotlin.run {
 
-            var xiaoKnockSound = SoundPool(100, AudioManager.STREAM_MUSIC,0)
-            xiaoKnockSound.load(context,R.raw.yq,1)
-            btn = _Button(context!!, "测试")
+            var xiaoKnockSound = SoundPool(100, AudioManager.STREAM_MUSIC, 0)
+            xiaoKnockSound.load(context, R.raw.yq, 1)
+            btn = _Button(context!!, "木鱼")
             btn.setOnClickListener {
-                xiaoKnockSound.play(1,1.0f,1.0f,0,0,1.0f)
+                if(_Utils.isServiceRunning(context!!, MuyuService::class.qualifiedName!!)){
+                    context?.stopService(Intent(context!!, MuyuService::class.java))
+                }else{
+                    context?.startService(Intent(context!!, MuyuService::class.java))
+                }
+//                xiaoKnockSound.play(1,1.0f,1.0f,0,0,1.0f)
+//                Thread.sleep(dataContext.getSetting(Setting.KEYS.muyu_period,500).long)
+//                xiaoKnockSound.play(1,1.0f,1.0f,0,0,1.0f)
             }
             layout_flexbox.addView(btn)
         }
@@ -354,7 +403,7 @@ class ButtonFragment : Fragment() {
 //        }
     }
 
-    fun redeemLottery(type:Int){
+    fun redeemLottery(type: Int){
         val view = View.inflate(context!!, R.layout.dialog_lottery, null)
         var etP = view.findViewById<EditText>(R.id.et_period)
         var etM = view.findViewById<EditText>(R.id.et_multiple)
@@ -393,12 +442,12 @@ class ButtonFragment : Fragment() {
             }
             true
         }
-        et1.addTextChangedListener(object:TextWatcher{
+        et1.addTextChangedListener(object : TextWatcher {
             override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {
             }
 
             override fun afterTextChanged(s: Editable?) {
-                if(s.toString().length==2){
+                if (s.toString().length == 2) {
                     et2.requestFocus()
                     et2.selectAll()
                 }
@@ -415,12 +464,12 @@ class ButtonFragment : Fragment() {
 
             true
         }
-        et2.addTextChangedListener(object:TextWatcher{
+        et2.addTextChangedListener(object : TextWatcher {
             override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {
             }
 
             override fun afterTextChanged(s: Editable?) {
-                if(s.toString().length==2){
+                if (s.toString().length == 2) {
                     et3.requestFocus()
                     et3.selectAll()
                 }
@@ -436,12 +485,12 @@ class ButtonFragment : Fragment() {
             }
             true
         }
-        et3.addTextChangedListener(object:TextWatcher{
+        et3.addTextChangedListener(object : TextWatcher {
             override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {
             }
 
             override fun afterTextChanged(s: Editable?) {
-                if(s.toString().length==2){
+                if (s.toString().length == 2) {
                     et4.requestFocus()
                     et4.selectAll()
                 }
@@ -457,12 +506,12 @@ class ButtonFragment : Fragment() {
             }
             true
         }
-        et4.addTextChangedListener(object:TextWatcher{
+        et4.addTextChangedListener(object : TextWatcher {
             override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {
             }
 
             override fun afterTextChanged(s: Editable?) {
-                if(s.toString().length==2){
+                if (s.toString().length == 2) {
                     et5.requestFocus()
                     et5.selectAll()
                 }
@@ -478,12 +527,12 @@ class ButtonFragment : Fragment() {
             }
             true
         }
-        et5.addTextChangedListener(object:TextWatcher{
+        et5.addTextChangedListener(object : TextWatcher {
             override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {
             }
 
             override fun afterTextChanged(s: Editable?) {
-                if(s.toString().length==2){
+                if (s.toString().length == 2) {
                     et6.requestFocus()
                     et6.selectAll()
                 }
@@ -499,12 +548,12 @@ class ButtonFragment : Fragment() {
             }
             true
         }
-        et6.addTextChangedListener(object:TextWatcher{
+        et6.addTextChangedListener(object : TextWatcher {
             override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {
             }
 
             override fun afterTextChanged(s: Editable?) {
-                if(s.toString().length==2){
+                if (s.toString().length == 2) {
                     et7.requestFocus()
                     et7.selectAll()
                 }
@@ -514,26 +563,25 @@ class ButtonFragment : Fragment() {
             }
         })
 
-        val lots = LotteryUtil.fromJSONArray(dataContext.getSetting(Setting.KEYS.lotterys,"[]").string)
+        val lots = LotteryUtil.fromJSONArray(dataContext.getSetting(Setting.KEYS.lotterys, "[]").string)
         val period = if(lots.size>0) lots[0].period else 0
         etP.setText("${period}")
         etP.isEnabled=false
-        et7.addTextChangedListener(object:TextWatcher{
+        et7.addTextChangedListener(object : TextWatcher {
             override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {
             }
 
             override fun afterTextChanged(s: Editable?) {
-                if(s.toString().length==2){
+                if (s.toString().length == 2) {
                     val winLottery = Lottery(period,
-                            arrayListOf(et1.text.toString().toInt(), et2.text.toString().toInt(), et3.text.toString().toInt(), et4.text.toString().toInt(), et5.text.toString().toInt(),et6.text.toString().toInt(), et7.text.toString().toInt()),
+                            arrayListOf(et1.text.toString().toInt(), et2.text.toString().toInt(), et3.text.toString().toInt(), et4.text.toString().toInt(), et5.text.toString().toInt(), et6.text.toString().toInt(), et7.text.toString().toInt()),
                             0, type)
-                    when(type)
-                    {
-                        1->{
-                            tvInfo.setText(LotteryUtil.dlt(lots,winLottery))
+                    when (type) {
+                        1 -> {
+                            tvInfo.setText(LotteryUtil.dlt(lots, winLottery))
                         }
-                        2->{
-                            tvInfo.setText(LotteryUtil.ssq(lots,winLottery))
+                        2 -> {
+                            tvInfo.setText(LotteryUtil.ssq(lots, winLottery))
                         }
                     }
                 }
@@ -583,12 +631,12 @@ class ButtonFragment : Fragment() {
             }
             true
         }
-        et1.addTextChangedListener(object:TextWatcher{
+        et1.addTextChangedListener(object : TextWatcher {
             override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {
             }
 
             override fun afterTextChanged(s: Editable?) {
-                if(s.toString().length==2){
+                if (s.toString().length == 2) {
                     et2.requestFocus()
                     et2.selectAll()
                 }
@@ -605,12 +653,12 @@ class ButtonFragment : Fragment() {
 
             true
         }
-        et2.addTextChangedListener(object:TextWatcher{
+        et2.addTextChangedListener(object : TextWatcher {
             override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {
             }
 
             override fun afterTextChanged(s: Editable?) {
-                if(s.toString().length==2){
+                if (s.toString().length == 2) {
                     et3.requestFocus()
                     et3.selectAll()
                 }
@@ -626,12 +674,12 @@ class ButtonFragment : Fragment() {
             }
             true
         }
-        et3.addTextChangedListener(object:TextWatcher{
+        et3.addTextChangedListener(object : TextWatcher {
             override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {
             }
 
             override fun afterTextChanged(s: Editable?) {
-                if(s.toString().length==2){
+                if (s.toString().length == 2) {
                     et4.requestFocus()
                     et4.selectAll()
                 }
@@ -647,12 +695,12 @@ class ButtonFragment : Fragment() {
             }
             true
         }
-        et4.addTextChangedListener(object:TextWatcher{
+        et4.addTextChangedListener(object : TextWatcher {
             override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {
             }
 
             override fun afterTextChanged(s: Editable?) {
-                if(s.toString().length==2){
+                if (s.toString().length == 2) {
                     et5.requestFocus()
                     et5.selectAll()
                 }
@@ -668,12 +716,12 @@ class ButtonFragment : Fragment() {
             }
             true
         }
-        et5.addTextChangedListener(object:TextWatcher{
+        et5.addTextChangedListener(object : TextWatcher {
             override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {
             }
 
             override fun afterTextChanged(s: Editable?) {
-                if(s.toString().length==2){
+                if (s.toString().length == 2) {
                     et6.requestFocus()
                     et6.selectAll()
                 }
@@ -689,12 +737,12 @@ class ButtonFragment : Fragment() {
             }
             true
         }
-        et6.addTextChangedListener(object:TextWatcher{
+        et6.addTextChangedListener(object : TextWatcher {
             override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {
             }
 
             override fun afterTextChanged(s: Editable?) {
-                if(s.toString().length==2){
+                if (s.toString().length == 2) {
                     et7.requestFocus()
                     et7.selectAll()
                 }
@@ -705,14 +753,14 @@ class ButtonFragment : Fragment() {
         })
 
         var lots = ArrayList<Lottery>()
-        et7.addTextChangedListener(object:TextWatcher{
+        et7.addTextChangedListener(object : TextWatcher {
             override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {
             }
 
             override fun afterTextChanged(s: Editable?) {
-                if(s.toString().length==2){
+                if (s.toString().length == 2) {
                     val lot = Lottery(etP.text.toString().toInt(),
-                            arrayListOf(et1.text.toString().toInt(), et2.text.toString().toInt(), et3.text.toString().toInt(), et4.text.toString().toInt(), et5.text.toString().toInt(),et6.text.toString().toInt(), et7.text.toString().toInt()),
+                            arrayListOf(et1.text.toString().toInt(), et2.text.toString().toInt(), et3.text.toString().toInt(), et4.text.toString().toInt(), et5.text.toString().toInt(), et6.text.toString().toInt(), et7.text.toString().toInt()),
                             etM.text.toString().toInt(), type)
                     lots.add(lot)
                     et1.setText("")

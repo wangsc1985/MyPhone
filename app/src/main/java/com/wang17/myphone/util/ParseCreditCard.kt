@@ -16,57 +16,6 @@ import java.util.regex.Pattern
  */
 object ParseCreditCard {
     private var changed = false
-    @JvmStatic
-    fun scanPhoneMessage(context: Context): Boolean {
-        try {
-            changed = false
-            val smsHelper = SmsHelper(context)
-            val sms = SmsHelper.getSMS(context, SmsType.接收到)
-            for (model in sms) {
-                var billRecord: BillRecord? = null
-                val billStatement: BillStatement? = null
-                val body = model.body
-                if (billRecord == null) billRecord = weiLiDaiJK(context, model)
-                if (billRecord == null) billRecord = weiLiDaiHK(context, model)
-                if (billRecord == null) billRecord = jieBeiJK(context, model)
-
-
-//                if (billRecord == null)
-//                    billRecord = jiaoTongCreditRepay(context, model);
-                if (billRecord != null) {
-                    val dataContext = DataContext(context)
-                    val phoneMessage = dataContext.getPhoneMessage(model.id)
-                    if (phoneMessage == null) {
-                        dataContext.addPhoneMessage(model)
-                        //                        smsHelper.delSms(model, true);
-                        dataContext.addBillRecord(billRecord)
-                        val xxx = false
-                        val bill = dataContext.getLastBillRecord(billRecord.cardNumber)
-                        if (bill != null && bill.dateTime.timeInMillis <= billRecord.dateTime.timeInMillis) {
-                            val creditCard = dataContext.getCreditCard(billRecord.cardNumber)
-                            creditCard.balance = billRecord.balance
-                            dataContext.updateCreditCard(creditCard)
-                        }
-                        changed = true
-                    }
-                }
-                if (billStatement != null) {
-                    val dataContext = DataContext(context)
-                    val phoneMessage = dataContext.getPhoneMessage(model.id)
-                    if (phoneMessage == null) {
-                        dataContext.addPhoneMessage(model)
-                        //                        smsHelper.delSms(model, true);
-                        dataContext.addBillStatement(billStatement)
-                        changed = true
-                    }
-                }
-            }
-            return changed
-        } catch (e: Exception) {
-            _Utils.printException(context, e)
-        }
-        return false
-    }
     //region 微粒贷
     /**
      * 借款成功通知：您好，您在手机微信申请的微粒贷  5000.00  元已成功发放，收款卡   农业银行(3919)，   预计3分钟内到账。【微众银行】
@@ -92,9 +41,9 @@ object ParseCreditCard {
                 } else {
                     cardNumber = creditCard.cardNumber
                 }
-                val billRecord = BillRecord(cardNumber, dateTime, money, money, phoneMessage.id)
-                billRecord.summary = "借款中"
-                return billRecord
+//                val billRecord = BillRecord(cardNumber, dateTime, money, money, phoneMessage.id)
+//                billRecord.summary = "借款中"
+//                return billRecord
             }
         } catch (e: Exception) {
             _Utils.printException(context, e)
@@ -140,9 +89,9 @@ object ParseCreditCard {
                         continue
                     }
                 }
-                val billRecord = BillRecord(cardNumber, repayDate, money, money, phoneMessage.id)
-                billRecord.summary = "还款"
-                return billRecord
+//                val billRecord = BillRecord(cardNumber, repayDate, money, money, phoneMessage.id)
+//                billRecord.summary = "还款"
+//                return billRecord
             }
         } catch (e: Exception) {
             _Utils.printException(context, e)
@@ -174,9 +123,9 @@ object ParseCreditCard {
                 } else {
                     cardNumber = creditCard.cardNumber
                 }
-                val billRecord = BillRecord(cardNumber, dateTime, money, money, phoneMessage.id)
-                billRecord.summary = "借款中"
-                return billRecord
+//                val billRecord = BillRecord(cardNumber, dateTime, money, money, phoneMessage.id)
+//                billRecord.summary = "借款中"
+//                return billRecord
             }
         } catch (e: Exception) {
             _Utils.printException(context, e)
@@ -225,11 +174,11 @@ object ParseCreditCard {
                 } else {
                     cardNumber = creditCard.cardNumber
                 }
-                val billRecord = BillRecord(cardNumber, dateTime, money, balance, phoneMessage.id)
-                if (money > 0) {
-                    billRecord.summary = "收入"
-                }
-                return billRecord
+//                val billRecord = BillRecord(cardNumber, dateTime, money, balance, phoneMessage.id)
+//                if (money > 0) {
+//                    billRecord.summary = "收入"
+//                }
+//                return billRecord
             }
         } catch (e: Exception) {
             _Utils.printException(context, e)

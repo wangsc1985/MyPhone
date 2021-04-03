@@ -5,7 +5,7 @@ package com.wang17.myphone.structure;
  */
 //    * status => 状态 -1接收，0 complete, 64 pending, 128 failed
 public enum SmsStatus {
-    接受(-1), 发送完成(0), 等待发送(64), 发送失败(128);
+    接收(-1), 发送完成(0), 等待发送(64), 发送失败(128);
 
     private int value;
 
@@ -16,7 +16,7 @@ public enum SmsStatus {
     public static SmsStatus fromInt(int value) {
         switch (value) {
             case -1:
-                return 接受;
+                return 接收;
             case 0:
                 return 发送完成;
             case 64:

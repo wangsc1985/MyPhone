@@ -13,6 +13,7 @@ import com.wang17.myphone.structure.SmsStatus;
 import com.wang17.myphone.structure.SmsType;
 import com.wang17.myphone.util._Session;
 import com.wang17.myphone.util._Utils;
+import com.wangsc.commons.codec.language.bm.Rule;
 
 import org.jetbrains.annotations.NotNull;
 
@@ -36,6 +37,7 @@ public class DataContext {
     }
 
     //region BuddhaFile
+
     /**
      * 增加一条记录
      *
@@ -71,7 +73,7 @@ public class DataContext {
             //获取数据库对象
             SQLiteDatabase db = dbHelper.getReadableDatabase();
             //查询获得游标
-            Cursor cursor = db.query("buddhaFile", null, null,null, null, null, null);
+            Cursor cursor = db.query("buddhaFile", null, null, null, null, null, null);
             //判断游标是否为空
             if (cursor.moveToNext()) {
                 BuddhaFile model = new BuddhaFile(UUID.randomUUID(),
@@ -94,13 +96,13 @@ public class DataContext {
     }
 
 
-    public BuddhaFile getBuddhaFile(String name,long size) {
+    public BuddhaFile getBuddhaFile(String name, long size) {
 
         try {
             //获取数据库对象
             SQLiteDatabase db = dbHelper.getReadableDatabase();
             //查询获得游标
-            Cursor cursor = db.query("buddhaFile", null, "name = ? and size = ?", new String[]{name,size+""}, null, null, null);
+            Cursor cursor = db.query("buddhaFile", null, "name = ? and size = ?", new String[]{name, size + ""}, null, null, null);
             //判断游标是否为空
             if (cursor.moveToNext()) {
                 BuddhaFile model = new BuddhaFile(UUID.fromString(cursor.getString(0)),
@@ -176,7 +178,7 @@ public class DataContext {
             values.put("id", model.getId().toString());
             values.put("startTime", model.getStartTime().getTimeInMillis());
             values.put("duration", model.getDuration());
-            values.put("count",model.getCount());
+            values.put("count", model.getCount());
             values.put("type", model.getType());
             values.put("summary", model.getSummary());
 
@@ -204,7 +206,7 @@ public class DataContext {
                 values.put("id", model.getId().toString());
                 values.put("startTime", model.getStartTime().getTimeInMillis());
                 values.put("duration", model.getDuration());
-                values.put("count",model.getCount());
+                values.put("count", model.getCount());
                 values.put("type", model.getType());
                 values.put("summary", model.getSummary());
                 //调用方法插入数据
@@ -410,7 +412,7 @@ public class DataContext {
             //获取数据库对象
             SQLiteDatabase db = dbHelper.getReadableDatabase();
             //查询获得游标
-            Cursor cursor = db.query("buddha", null, null,null, null, null, "startTime asc");
+            Cursor cursor = db.query("buddha", null, null, null, null, null, "startTime asc");
             //判断游标是否为空
             while (cursor.moveToNext()) {
                 BuddhaRecord model = new BuddhaRecord(UUID.fromString(cursor.getString(0)),
@@ -524,7 +526,7 @@ public class DataContext {
             ContentValues values = new ContentValues();
             values.put("startTime", model.getStartTime().getTimeInMillis());
             values.put("duration", model.getDuration());
-            values.put("count",model.getCount());
+            values.put("count", model.getCount());
             values.put("type", model.getType());
             values.put("summary", model.getSummary());
 
@@ -1305,8 +1307,8 @@ public class DataContext {
     public List<Location> getLocatiosByYear(UUID UserId, int year, boolean isTimeDesc) {
         List<Location> result = new ArrayList<>();
         try {
-            DateTime start = new DateTime(year,0,1);
-            DateTime end = new DateTime(year+1,0,1);
+            DateTime start = new DateTime(year, 0, 1);
+            DateTime end = new DateTime(year + 1, 0, 1);
             //获取数据库对象
             SQLiteDatabase db = dbHelper.getReadableDatabase();
             //查询获得游标
@@ -1772,9 +1774,7 @@ public class DataContext {
             SQLiteDatabase db = dbHelper.getWritableDatabase();
             //使用insert方法向表中插入数据
             ContentValues values = new ContentValues();
-            values.put("id", phoneMessage.getId());
-            values.put("threadId", phoneMessage.getThreadId());
-            values.put("phoneNumber", phoneMessage.getPhoneNumber());
+            values.put("id", phoneMessage.getId().toString());
             values.put("address", phoneMessage.getAddress());
             values.put("body", phoneMessage.getBody());
             values.put("type", phoneMessage.getType().toInt());
@@ -1790,31 +1790,25 @@ public class DataContext {
         }
     }
 
-    public PhoneMessage getPhoneMessage(int id) {
+    public void editPhoneMessage(PhoneMessage phoneMessage) {
         try {
             //获取数据库对象
-            SQLiteDatabase db = dbHelper.getReadableDatabase();
-            //查询获得游标
-            Cursor cursor = db.query("sms", null, "id=?", new String[]{id + ""}, null, null, null);
-            //判断游标是否为空
-            while (cursor.moveToNext()) {
-                PhoneMessage model = new PhoneMessage();
-                model.setId(cursor.getInt(0));
-                model.setThreadId(cursor.getInt(1));
-                model.setPhoneNumber(cursor.getString(2));
-                model.setAddress(cursor.getString(3));
-                model.setBody(cursor.getString(4));
-                model.setType(SmsType.fromInt(cursor.getInt(5)));
-                model.setStatus(SmsStatus.fromInt(cursor.getInt(6)));
-                model.setCreateTime(new DateTime(cursor.getLong(7)));
-                cursor.close();
-                db.close();
-                return model;
-            }
+            SQLiteDatabase db = dbHelper.getWritableDatabase();
+
+            //使用update方法更新表中的数据
+            ContentValues values = new ContentValues();
+//            values.put("id",phoneMessage.getId().toString());
+            values.put("address", phoneMessage.getAddress());
+            values.put("body", phoneMessage.getBody());
+            values.put("type", phoneMessage.getType().toInt());
+            values.put("status", phoneMessage.getStatus().toInt());
+            values.put("createTime", phoneMessage.getCreateTime().getTimeInMillis());
+            //调用方法插入数据
+            db.update("sms", values, "id=?", new String[]{phoneMessage.getId().toString()});
+            db.close();
         } catch (Exception e) {
             _Utils.printException(context, e);
         }
-        return null;
     }
 
     public List<PhoneMessage> getPhoneMessages(String number) {
@@ -1832,17 +1826,47 @@ public class DataContext {
             //判断游标是否为空
             while (cursor.moveToNext()) {
                 PhoneMessage model = new PhoneMessage();
-                model.setId(cursor.getInt(0));
-                model.setThreadId(cursor.getInt(1));
-                model.setPhoneNumber(cursor.getString(2));
-                model.setAddress(cursor.getString(3));
-                model.setBody(cursor.getString(4));
-                model.setType(SmsType.fromInt(cursor.getInt(5)));
-                model.setStatus(SmsStatus.fromInt(cursor.getInt(6)));
-                model.setCreateTime(new DateTime(cursor.getLong(7)));
+                model.setId(UUID.fromString(cursor.getString(0)));
+                model.setAddress(cursor.getString(1));
+                model.setBody(cursor.getString(2));
+                model.setType(SmsType.fromInt(cursor.getInt(3)));
+                model.setStatus(SmsStatus.fromInt(cursor.getInt(4)));
+                model.setCreateTime(new DateTime(cursor.getLong(5)));
                 result.add(model);
             }
             return result;
+        } catch (Exception e) {
+            _Utils.printException(context, e);
+        } finally {
+            if (cursor != null)
+                cursor.close();
+            if (db != null)
+                db.close();
+        }
+        return null;
+    }
+    public PhoneMessage getLastPhoneMessages(String number) {
+        //获取数据库对象
+        SQLiteDatabase db = null;
+        //查询获得游标
+        Cursor cursor = null;
+
+        try {
+            //获取数据库对象
+            db = dbHelper.getReadableDatabase();
+            //查询获得游标
+            cursor = db.query("sms", null, "address=?", new String[]{number + ""}, null, null, "createTime desc");
+            //判断游标是否为空
+            while (cursor.moveToNext()) {
+                PhoneMessage model = new PhoneMessage();
+                model.setId(UUID.fromString(cursor.getString(0)));
+                model.setAddress(cursor.getString(1));
+                model.setBody(cursor.getString(2));
+                model.setType(SmsType.fromInt(cursor.getInt(3)));
+                model.setStatus(SmsStatus.fromInt(cursor.getInt(4)));
+                model.setCreateTime(new DateTime(cursor.getLong(5)));
+                return model;
+            }
         } catch (Exception e) {
             _Utils.printException(context, e);
         } finally {
@@ -1869,14 +1893,12 @@ public class DataContext {
             //判断游标是否为空
             while (cursor.moveToNext()) {
                 PhoneMessage model = new PhoneMessage();
-                model.setId(cursor.getInt(0));
-                model.setThreadId(cursor.getInt(1));
-                model.setPhoneNumber(cursor.getString(2));
-                model.setAddress(cursor.getString(3));
-                model.setBody(cursor.getString(4));
-                model.setType(SmsType.fromInt(cursor.getInt(5)));
-                model.setStatus(SmsStatus.fromInt(cursor.getInt(6)));
-                model.setCreateTime(new DateTime(cursor.getLong(7)));
+                model.setId(UUID.fromString(cursor.getString(0)));
+                model.setAddress(cursor.getString(1));
+                model.setBody(cursor.getString(2));
+                model.setType(SmsType.fromInt(cursor.getInt(3)));
+                model.setStatus(SmsStatus.fromInt(cursor.getInt(4)));
+                model.setCreateTime(new DateTime(cursor.getLong(5)));
                 result.add(model);
             }
             return result;
@@ -1895,13 +1917,12 @@ public class DataContext {
         Log.e("wangsc", log.toString());
     }
 
-    public void deletePhoneMessage(int id) {
+
+    public void deletePhoneMessage() {
         try {
-            if (id < 0)
-                return;
             //获取数据库对象
             SQLiteDatabase db = dbHelper.getWritableDatabase();
-            db.delete("sms", "id=?", new String[]{id + ""});
+            db.delete("sms", null, null);
             //关闭SQLiteDatabase对象
             db.close();
         } catch (Exception e) {
@@ -1909,11 +1930,37 @@ public class DataContext {
         }
     }
 
-    public void deletePhoneMessage() {
+    public void deletePhoneMessage(UUID id) {
         try {
             //获取数据库对象
             SQLiteDatabase db = dbHelper.getWritableDatabase();
-            db.delete("sms", null, null);
+            db.delete("sms", "id=?", new String[]{id.toString()});
+            //关闭SQLiteDatabase对象
+            db.close();
+        } catch (Exception e) {
+            _Utils.printException(context, e);
+        }
+    }
+
+    public void deletePhoneMessage(List<PhoneMessage> list) {
+        try {
+            //获取数据库对象
+            SQLiteDatabase db = dbHelper.getWritableDatabase();
+            for (int i = 0; i < list.size(); i++) {
+                db.delete("sms", "id=?", new String[]{list.get(i).getId().toString()});
+            }
+            //关闭SQLiteDatabase对象
+            db.close();
+        } catch (Exception e) {
+            _Utils.printException(context, e);
+        }
+    }
+
+    public void deletePhoneMessageFrom(long timeInMillis) {
+        try {
+            //获取数据库对象
+            SQLiteDatabase db = dbHelper.getWritableDatabase();
+            db.delete("sms", "createTime < ?", new String[]{timeInMillis + ""});
             //关闭SQLiteDatabase对象
             db.close();
         } catch (Exception e) {

@@ -72,10 +72,8 @@ class CardRecordActivity : AppCompatActivity(), OnActionFragmentBackListener {
                 } else {
                     val billRecord = childInfos[groupPosition][childPosition]
                     var message: String? = "确认删除当前记录吗？"
-                    if (billRecord.smsId > 0) message = dataContext.getPhoneMessage(billRecord.smsId).body
                     AlertDialog.Builder(this@CardRecordActivity).setMessage(message).setNegativeButton("删除当前记录") { dialog, which ->
                         dataContext.deleteBillRecord(billRecord.id)
-                        if (billRecord.smsId > 0) dataContext.deletePhoneMessage(billRecord.smsId)
                         childInfos[groupPosition].removeAt(childPosition)
                         expandableListAdapter.notifyDataSetChanged()
                         header.removeAllViews()
@@ -156,7 +154,7 @@ class CardRecordActivity : AppCompatActivity(), OnActionFragmentBackListener {
             return if (cardType == CardType.储蓄卡) {
                 convertView = View.inflate(this, R.layout.inflate_card_deposit_header, null)
                 val textView_name = convertView.findViewById<View>(R.id.textView_name) as TextView // 账户名
-                val textView_number = convertView.findViewById<View>(R.id.textView_number) as TextView // 卡号
+                val textView_number = convertView.findViewById<View>(R.id.tv_number) as TextView // 卡号
                 val textView_cardType = convertView.findViewById<View>(R.id.textView_cardType) as TextView // 卡类型
                 val textView_bankName = convertView.findViewById<View>(R.id.textView_bankName) as TextView // 银行
                 val textView_monthConsume = convertView.findViewById<View>(R.id.textView_monthConsume) as TextView
@@ -173,7 +171,7 @@ class CardRecordActivity : AppCompatActivity(), OnActionFragmentBackListener {
             } else if (card.cardType == CardType.微粒贷) {
                 convertView = View.inflate(this, R.layout.inflate_header_wld_card, null)
                 val textView_name = convertView.findViewById<View>(R.id.textView_name) as TextView // 账户名
-                val textView_number = convertView.findViewById<View>(R.id.textView_number) as TextView // 卡号
+                val textView_number = convertView.findViewById<View>(R.id.tv_number) as TextView // 卡号
                 val textView_cardType = convertView.findViewById<View>(R.id.textView_cardType) as TextView // 卡类型
                 val textView_bankName = convertView.findViewById<View>(R.id.textView_bankName) as TextView // 银行
                 val textView_date = convertView.findViewById<View>(R.id.tv_att_date) as TextView //
@@ -192,7 +190,7 @@ class CardRecordActivity : AppCompatActivity(), OnActionFragmentBackListener {
             } else {
                 convertView = View.inflate(this, R.layout.inflate_card_credit_header, null)
                 val textView_name = convertView.findViewById<View>(R.id.textView_name) as TextView // 账户名
-                val textView_number = convertView.findViewById<View>(R.id.textView_number) as TextView // 卡号
+                val textView_number = convertView.findViewById<View>(R.id.tv_number) as TextView // 卡号
                 val textView_cardType = convertView.findViewById<View>(R.id.textView_cardType) as TextView // 卡类型
                 val textView_bankName = convertView.findViewById<View>(R.id.textView_bankName) as TextView // 银行
                 val textView_repayDays = convertView.findViewById<View>(R.id.textView_repayDays) as TextView // 还款天数

@@ -1,7 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="com.wang17.myphone">
-
     <!-- 收发短信 -->
     <uses-permission android:name="android.permission.READ_SMS" />
     <uses-permission android:name="android.permission.SEND_SMS" /> <!-- 监听蓝牙 -->
@@ -28,7 +27,6 @@
     <uses-permission android:name="android.permission.ACCESS_WIFI_STATE" /> <!-- 悬浮窗 -->
     <uses-permission android:name="android.permission.SYSTEM_ALERT_WINDOW" />
     <uses-permission android:name="android.permission.MODIFY_AUDIO_SETTINGS" />
-
     <application
         android:allowBackup="true"
         android:icon="@mipmap/launcher"
@@ -38,10 +36,24 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.AppCompat.Light.NoActionBar">
         <activity
+            android:name=".activity.DesktopDialogActivity"
+            android:theme="@style/Theme.AppCompat.Dialog"
+            android:alwaysRetainTaskState="true"
+            android:configChanges="keyboardHidden|orientation"
+            android:screenOrientation="portrait"
+            android:launchMode="singleInstance"
+            ></activity>
+
+        <service
+            android:name=".service.MuyuService"
+            android:enabled="true"
+            android:exported="true" />
+
+        <activity
             android:name=".activity.KnockerActivity"
             android:configChanges="orientation|keyboardHidden|screenSize"
             android:label="@string/title_activity_knocker"
-            android:theme="@style/Theme.AppCompat.Light.NoActionBar.Fullscreen"></activity>
+            android:theme="@style/Theme.AppCompat.Light.NoActionBar.Fullscreen" />
 
         <service
             android:name=".service.BuddhaService"

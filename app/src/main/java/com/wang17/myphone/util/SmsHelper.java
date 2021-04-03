@@ -16,6 +16,7 @@ import com.wang17.myphone.structure.SmsType;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.UUID;
 
 /**
  * Created by 阿弥陀佛 on 2016/10/24.
@@ -69,7 +70,6 @@ public class SmsHelper {
                 int typeCloum = cursor.getColumnIndex("type");
                 int bodyCloum = cursor.getColumnIndex("body");
                 do {
-                    id = cursor.getInt(idCloum);
                     threadId = cursor.getInt(threadIdCloum);
                     address = cursor.getString(addressCloum);
                     date = new DateTime(Long.parseLong(cursor.getColumnName(dateCloum)));
@@ -78,8 +78,7 @@ public class SmsHelper {
                     body = cursor.getString(bodyCloum);
 
                     PhoneMessage user = new PhoneMessage();
-                    user.setId(id);
-                    user.setThreadId(threadId);
+                    user.setId(UUID.randomUUID());
                     user.setAddress(address);
                     user.setBody(body);
                     user.setType(SmsType.fromInt(type));
@@ -118,7 +117,6 @@ public class SmsHelper {
                 int typeCloum = cursor.getColumnIndex("type");
                 int bodyCloum = cursor.getColumnIndex("body");
                 do {
-                    id = cursor.getInt(idCloum);
                     threadId = cursor.getInt(threadIdCloum);
                     address = cursor.getString(addressCloum);
                     date = new DateTime(Long.parseLong(cursor.getColumnName(dateCloum)));
@@ -127,8 +125,7 @@ public class SmsHelper {
                     body = cursor.getString(bodyCloum);
 
                     PhoneMessage user = new PhoneMessage();
-                    user.setId(id);
-                    user.setThreadId(threadId);
+                    user.setId(UUID.randomUUID());
                     user.setAddress(address);
                     user.setBody(body);
                     user.setType(SmsType.fromInt(type));
@@ -191,8 +188,7 @@ public class SmsHelper {
                     body = cursor.getString(bodyCloum);
 
                     PhoneMessage phoneMessage = new PhoneMessage();
-                    phoneMessage.setId(id);
-                    phoneMessage.setThreadId(threadId);
+                    phoneMessage.setId(UUID.randomUUID());
                     phoneMessage.setAddress(address);
                     phoneMessage.setBody(body);
                     phoneMessage.setType(SmsType.fromInt(type));
@@ -246,8 +242,7 @@ public class SmsHelper {
                     body = cursor.getString(bodyCloum);
 
                     PhoneMessage user = new PhoneMessage();
-                    user.setId(id);
-                    user.setThreadId(threadId);
+                    user.setId(UUID.randomUUID());
                     user.setAddress(address);
                     user.setBody(body);
                     user.setType(SmsType.fromInt(type));
@@ -300,8 +295,7 @@ public class SmsHelper {
                     body = cursor.getString(bodyCloum);
 
                     PhoneMessage user = new PhoneMessage();
-                    user.setId(id);
-                    user.setThreadId(threadId);
+                    user.setId(UUID.randomUUID());
                     user.setAddress(address);
                     user.setBody(body);
                     user.setType(SmsType.fromInt(type));
@@ -348,8 +342,7 @@ public class SmsHelper {
                 xxxBody = cursor.getString(bodyCloum);
 
                 PhoneMessage user = new PhoneMessage();
-                user.setId(id);
-                user.setThreadId(threadId);
+                user.setId(UUID.randomUUID());
                 user.setAddress(address);
                 user.setBody(xxxBody);
                 user.setType(SmsType.fromInt(type));
@@ -363,25 +356,6 @@ public class SmsHelper {
         return null;
     }
 
-    /**
-     * 发送短信息
-     */
-    public void sendSMS(PhoneMessage user) {
-        try {
-            SmsManager sms = SmsManager.getDefault();
-            PendingIntent pi = PendingIntent.getActivity(context, 0, new Intent(), 0);
-            if (user.getBody().length() > 70) {
-                ArrayList<String> msgs = sms.divideMessage(user.getBody());
-                for (String msg : msgs) {
-                    sms.sendTextMessage(user.getPhoneNumber(), null, msg, pi, null);
-                }
-            } else {
-                sms.sendTextMessage(user.getPhoneNumber(), null, user.getBody(), pi, null);
-            }
-        } catch (Exception e) {
-            _Utils.printException(context,e);
-        }
-    }
 
     /**
      * 删除短信息

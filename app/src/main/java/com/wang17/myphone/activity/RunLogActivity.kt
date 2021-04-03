@@ -113,9 +113,9 @@ class RunLogActivity : FragmentActivity() {
             cv = View.inflate(this@RunLogActivity, R.layout.inflate_runlog, null)
             try {
                 val log = currentRunLogs[position]
-                val textView_dateTime = cv.findViewById<TextView>(R.id.textView_dateTime)
+                val textView_dateTime = cv.findViewById<TextView>(R.id.tv_dateTime)
                 val textView_title = cv.findViewById<TextView>(R.id.textView_title)
-                val textView_body = cv.findViewById<TextView>(R.id.textView_body)
+                val textView_body = cv.findViewById<TextView>(R.id.tv_body)
                 textView_dateTime.text = log.runTime.toLongDateTimeString()
                 textView_title.text = log.item
                 textView_body.text = log.message

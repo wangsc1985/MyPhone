@@ -13,7 +13,7 @@
         android:layout_gravity="center"
         android:background="@drawable/my_progressbar3"
         android:gravity="center"
-        android:text="1:12"
+        android:text="0:00"
         android:textSize="14sp" />
 
     <ImageView

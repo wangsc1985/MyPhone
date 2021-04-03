@@ -9,10 +9,11 @@ import android.view.View.OnFocusChangeListener
 import android.widget.CalendarView
 import android.widget.EditText
 import com.wang17.myphone.R
+import com.wang17.myphone.activity.DesktopDialogActivity
 import com.wang17.myphone.callback.MyCallback
-import com.wang17.myphone.model.DateTime
 import com.wang17.myphone.database.BankToDo
 import com.wang17.myphone.database.DataContext
+import com.wang17.myphone.model.DateTime
 import com.wang17.myphone.util._Utils.e
 import com.wang17.myphone.util._Utils.printException
 import com.wang17.myphone.widget.MyWidgetProvider
@@ -20,17 +21,24 @@ import java.text.DecimalFormat
 
 object _DialogUtils {
 
+    fun showDesktopDialog(context: Context, msg: String){
+        val intent = Intent(context, DesktopDialogActivity::class.java)
+        intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_NO_USER_ACTION
+        intent.putExtra("msg", msg)
+        context.startActivity(intent)
+    }
+
     @JvmStatic
-    fun showMessageBox(context: Context,msg:String){
+    fun showMessageBox(context: Context, msg: String){
         AlertDialog.Builder(context).setMessage(msg).show()
     }
     @JvmStatic
-    fun showMessageBox(context: Context,msg:String,btnText:String){
-        AlertDialog.Builder(context).setMessage(msg).setCancelable(false).setPositiveButton(btnText,null).show()
+    fun showMessageBox(context: Context, msg: String, btnText: String){
+        AlertDialog.Builder(context).setMessage(msg).setCancelable(false).setPositiveButton(btnText, null).show()
     }
     @JvmStatic
-    fun showMessageBox(context: Context, msg:String, btnText:String, btnListener:DialogInterface.OnClickListener?){
-        AlertDialog.Builder(context).setMessage(msg).setCancelable(false).setPositiveButton(btnText,btnListener).show()
+    fun showMessageBox(context: Context, msg: String, btnText: String, btnListener: DialogInterface.OnClickListener?){
+        AlertDialog.Builder(context).setMessage(msg).setCancelable(false).setPositiveButton(btnText, btnListener).show()
     }
     /**
      * 新建todo项

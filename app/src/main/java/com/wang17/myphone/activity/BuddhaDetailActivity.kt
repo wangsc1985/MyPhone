@@ -74,7 +74,7 @@ class BuddhaDetailActivity : AppCompatActivity(), OnActionFragmentBackListener {
             count += it.count
         }
         val tap = count.toFloat()/1080
-        tv_info.text="${DateTime(start).toShortDateString()}   ${if(tap>0) "${DecimalFormat("0").format(tap)}圈" else ""}   ${DateTime.toSpanString2(duration)}   ${if(count>0) DecimalFormat("#,##0").format(count) else ""}"
+        tv_info.text="${DateTime(start).toShortDateString()}   ${DateTime.toSpanString2(duration)}   ${if(count>0) DecimalFormat("#,##0").format(count) else ""}"
     }
 
     override fun onBackButtonClickListener() {
@@ -108,8 +108,7 @@ class BuddhaDetailActivity : AppCompatActivity(), OnActionFragmentBackListener {
                 tv_date.text = "" + buddha.startTime.hourStr + "点" + buddha.startTime.miniteStr + "分"
                 tv_item.text = if (buddha.summary == null || buddha.summary.isEmpty()) "默认" else buddha.summary
                 tv_duration.text = "" + toSpanString(buddha.duration, 3, 2)
-                val tap = buddha.count/1080
-                tv_tap.text =  "${if(tap>0) "${tap}圈" else ""}"
+//                val tap = buddha.count/1080
                 tv_number.text = if(buddha.count>0) DecimalFormat("#,##0").format(buddha.count) else ""
             } catch (e: Exception) {
                 printException(this@BuddhaDetailActivity, e)

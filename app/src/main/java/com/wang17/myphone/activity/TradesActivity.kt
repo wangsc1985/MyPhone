@@ -171,7 +171,7 @@ class TradesActivity : AppCompatActivity() {
             try {
                 convertView = View.inflate(this@TradesActivity, R.layout.inflate_trade, null)
                 val trade = trades!![position]
-                val textViewDate = convertView.findViewById<TextView>(R.id.textView_dateTime)
+                val textViewDate = convertView.findViewById<TextView>(R.id.tv_dateTime)
                 val textViewName = convertView.findViewById<TextView>(R.id.textView_name)
                 val textViewPrice = convertView.findViewById<TextView>(R.id.tv_att_price)
                 val textViewAmount = convertView.findViewById<TextView>(R.id.textView_amount)

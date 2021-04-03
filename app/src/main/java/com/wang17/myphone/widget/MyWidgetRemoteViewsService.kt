@@ -152,17 +152,15 @@ class MyWidgetRemoteViewsService : RemoteViewsService() {
                 }
 
                 if (dc.getSetting(Setting.KEYS.is_broadcast_big_figure, true).boolean) {
-                    var balanceStr = dc.getSetting(Setting.KEYS.bank1_balance, 0).string
-                    var balance =balanceStr.replace(",","").toDouble()
-                    e("balance 1 : "+balanceStr)
+                    var balanceStr = dc.getSetting(Setting.KEYS.bank1_balance, 0).string.replace(",","")
+                    var balance =balanceStr.toDouble()
                     if (balance > 3000) {
-                        mToDoList.add(ToDo("          ", "          ", balanceStr.toString(), WARNING3_COLOR, true, R.raw.yq))
+                        mToDoList.add(ToDo("          ", "ABC","          ",  WARNING3_COLOR, true, R.raw.yq))
                     }
-                    balanceStr = dc.getSetting(Setting.KEYS.bank2_balance, 0).string
-                    balance =balanceStr.replace(",","").toDouble()
-                    e("balance 2 : "+balanceStr)
+                    balanceStr = dc.getSetting(Setting.KEYS.bank2_balance, 0).string.replace(",","")
+                    balance =balanceStr.toDouble()
                     if (balance > 2000) {
-                        mToDoList.add(ToDo("          ", "          ", balanceStr.toString(), WARNING3_COLOR, true, R.raw.yq))
+                        mToDoList.add(ToDo("          ", "ICBC","          ",  WARNING3_COLOR, true, R.raw.yq))
                     }
                 }
                 val newMsg = dc.getSetting(Setting.KEYS.wx_new_msg)
@@ -477,7 +475,7 @@ class MyWidgetRemoteViewsService : RemoteViewsService() {
                     remoteViews.setTextViewTextSize(R.id.textView_name, COMPLEX_UNIT_DIP, 10f)
                 val fillInIntent = Intent()
                 fillInIntent.putExtra("position", position)
-                remoteViews.setOnClickFillInIntent(R.id.linearLayout_root, fillInIntent)
+                remoteViews.setOnClickFillInIntent(R.id.linear_root, fillInIntent)
                 if (toDo.header.isEmpty()) {
                     remoteViews.setViewVisibility(R.id.textView_days, View.GONE)
                 } else {

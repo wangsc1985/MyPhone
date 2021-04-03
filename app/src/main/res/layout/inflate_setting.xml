@@ -8,7 +8,7 @@
 
 
     <TextView
-        android:id="@+id/textView_dateTime"
+        android:id="@+id/tv_dateTime"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_gravity="left"
@@ -30,7 +30,7 @@
         android:textStyle="bold" />
 
     <TextView
-        android:id="@+id/textView_body"
+        android:id="@+id/tv_body"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_weight="1"

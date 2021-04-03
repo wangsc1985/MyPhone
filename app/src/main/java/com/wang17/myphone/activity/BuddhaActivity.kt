@@ -37,7 +37,6 @@ class BuddhaActivity : AppCompatActivity(), OnActionFragmentBackListener {
     private lateinit var childListList: MutableList<List<ChildInfo>>
     var year = 0
     var duration: Long = 0
-    var tap = 0
     var count = 0
     override fun onCreate(savedInstanceState: Bundle?) {
         try {
@@ -59,7 +58,6 @@ class BuddhaActivity : AppCompatActivity(), OnActionFragmentBackListener {
                 recordListdAdapter.notifyDataSetChanged()
             }
             reflushData(year)
-            val listView_records = findViewById<View>(R.id.listView_records) as ExpandableListView
             listView_records.setGroupIndicator(null)
             recordListdAdapter = BuddhaListAdapter()
             listView_records.setAdapter(recordListdAdapter)
@@ -203,9 +201,6 @@ class BuddhaActivity : AppCompatActivity(), OnActionFragmentBackListener {
             return groupList[groupPosition]
         }
 
-        override fun getGroupId(groupPosition: Int): Long {
-            return groupPosition.toLong()
-        }
 
         override fun getChildrenCount(groupPosition: Int): Int {
             return childListList[groupPosition].size
@@ -213,6 +208,10 @@ class BuddhaActivity : AppCompatActivity(), OnActionFragmentBackListener {
 
         override fun getChild(groupPosition: Int, childPosition: Int): Any {
             return childListList[groupPosition][childPosition]
+        }
+
+        override fun getGroupId(groupPosition: Int): Long {
+            return groupPosition.toLong()
         }
 
         override fun getChildId(groupPosition: Int, childPosition: Int): Long {
@@ -223,8 +222,7 @@ class BuddhaActivity : AppCompatActivity(), OnActionFragmentBackListener {
             return true
         }
 
-        override fun getGroupView(groupPosition: Int, isExpanded: Boolean,
-                                  convertView: View?, parent: ViewGroup): View? {
+        override fun getGroupView(groupPosition: Int, isExpanded: Boolean, convertView: View?, parent: ViewGroup): View? {
             var convertView = convertView
             try {
                 convertView = View.inflate(this@BuddhaActivity, R.layout.inflate_list_item_buddha_group, null)
@@ -235,7 +233,7 @@ class BuddhaActivity : AppCompatActivity(), OnActionFragmentBackListener {
                 val info = groupList[groupPosition]
                 textView_date.text = _String.format(info.month) + "月"
                 textView_duration.text = (info.duration / 60000 / 60).toString()+"小时"
-                textView_tap.text = (DecimalFormat("0").format(info.count.toFloat()/1080)) + "圈"
+//                textView_tap.text = (DecimalFormat("0").format(info.count.toFloat()/1080)) + "圈"
                 textView_count.text = DecimalFormat("0.00").format(info.count.toDouble() / 10000) + " 万"
                 if (info.duration == 0L) {
                     textView_duration.text = "--"
@@ -252,8 +250,7 @@ class BuddhaActivity : AppCompatActivity(), OnActionFragmentBackListener {
             return convertView
         }
 
-        override fun getChildView(groupPosition: Int, childPosition: Int,
-                                  isLastChild: Boolean, convertView: View?, parent: ViewGroup): View? {
+        override fun getChildView(groupPosition: Int, childPosition: Int, isLastChild: Boolean, convertView: View?, parent: ViewGroup): View? {
             var convertView = convertView
             try {
                 convertView = View.inflate(this@BuddhaActivity, R.layout.inflate_list_item_buddha_child, null)
@@ -263,7 +260,7 @@ class BuddhaActivity : AppCompatActivity(), OnActionFragmentBackListener {
                 val textView_count = convertView.findViewById<View>(R.id.textView_monthCount) as TextView
                 val childInfo = childListList[groupPosition][childPosition]
                 textView_date.text = _String.format(childInfo.day)
-                textView_tap.text =  (DecimalFormat("0").format(childInfo.count.toFloat()/1080))+ "圈"
+//                textView_tap.text =  (DecimalFormat("0").format(childInfo.count.toFloat()/1080))+ "圈"
                 textView_duration.text = toSpanString2(childInfo.duration)
                 textView_count.text = DecimalFormat("0.0").format(childInfo.count.toDouble() / 1000) + " 千"
                 val textViewItem = convertView.findViewById<TextView>(R.id.textView_item)

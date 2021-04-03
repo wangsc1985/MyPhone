@@ -146,18 +146,19 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="@+id/guideline3">
 
-        <Button
-            android:id="@+id/btn_speed"
+        <android.support.design.widget.FloatingActionButton
+            android:id="@+id/fab_muyu"
             android:layout_width="55dp"
-            android:layout_height="55dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:clickable="true"
             android:layout_margin="10dp"
-            android:background="@drawable/btn_start_shape"
-            android:text="中"
-            android:textColor="@color/progressbar_background"
-            android:textSize="20sp"
-            android:visibility="gone"
+            app:elevation="3dp"
+            app:fabSize="normal"
             app:layout_constraintEnd_toEndOf="parent"
-            tools:layout_editor_absoluteY="90dp" />
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            app:srcCompat="@drawable/muyu" />
 
         <android.support.design.widget.FloatingActionButton
             android:id="@+id/abtn_buddha"

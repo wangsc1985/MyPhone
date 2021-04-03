@@ -550,9 +550,9 @@ public class SettingFragment extends Fragment {
                 convertView = View.inflate(getContext(), R.layout.inflate_setting, null);
                 final Setting set = settings.get(position);
                 LinearLayout root = convertView.findViewById(R.id.layout_root);
-                TextView textViewKey = convertView.findViewById(R.id.textView_dateTime);
+                TextView textViewKey = convertView.findViewById(R.id.tv_dateTime);
                 TextView textViewValue = convertView.findViewById(R.id.textView11);
-                TextView textView2 = convertView.findViewById(R.id.textView_body);
+                TextView textView2 = convertView.findViewById(R.id.tv_body);
                 textViewKey.setText(set.getName());
                 textViewValue.setText(set.getString());
                 textView2.setVisibility(View.GONE);

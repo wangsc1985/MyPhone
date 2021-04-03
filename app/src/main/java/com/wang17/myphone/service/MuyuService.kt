@@ -24,22 +24,21 @@ import android.view.WindowManager
 import android.widget.ImageView
 import android.widget.TextView
 import com.wang17.myphone.R
+import com.wang17.myphone.database.BuddhaFile
+import com.wang17.myphone.database.DataContext
+import com.wang17.myphone.database.Setting
 import com.wang17.myphone.e
 import com.wang17.myphone.eventbus.EventBusMessage
 import com.wang17.myphone.eventbus.FromBuddhaServiceDestroy
 import com.wang17.myphone.eventbus.FromBuddhaServiceTimer
-import com.wang17.myphone.database.BuddhaFile
-import com.wang17.myphone.database.Setting
-import com.wang17.myphone.database.DataContext
+import com.wang17.myphone.eventbus.FromMuyuServiceDestory
 import com.wang17.myphone.util._NotificationUtils
 import com.wang17.myphone.util._Session
 import com.wang17.myphone.util._Utils
 import org.greenrobot.eventbus.EventBus
-import java.io.File
 import java.util.*
 
-
-class BuddhaService : Service() {
+class MuyuService : Service() {
 
     //region 悬浮窗
     private lateinit var windowManager: WindowManager
@@ -65,6 +64,7 @@ class BuddhaService : Service() {
     var yq_period=1000L
 
     lateinit var guSound: SoundPool
+    lateinit var muyuSound:SoundPool
 
     override fun onBind(intent: Intent): IBinder? {
         return null
@@ -80,9 +80,10 @@ class BuddhaService : Service() {
         super.onCreate()
         e("buddha service onCreate")
         try {
-
             guSound = SoundPool(100, AudioManager.STREAM_MUSIC, 0)
             guSound.load(this, R.raw.yq, 1)
+            muyuSound = SoundPool(100, AudioManager.STREAM_MUSIC, 0)
+            muyuSound.load(this, R.raw.muyu, 1)
             dc = DataContext(applicationContext)
             val setting = dc.getSetting(Setting.KEYS.buddha_duration)
             setting?.let {
@@ -100,20 +101,8 @@ class BuddhaService : Service() {
             if (musicName == null)
                 return
 
-
-
-            val file = _Session.getFile(musicName.string)
-            var bf = dc.getBuddhaFile(musicName.string, file.length())
-            if (bf == null) {
-                bf = BuddhaFile(musicName.string, file.length(), "md5", 1.0f, 1.0f, 11, 600)
-            }
-
-            buddhaType = bf.type
-            speed = bf.speed
-            pitch = bf.pitch
-            circleSecond = bf.circleSecond
-                startMediaPlayer(musicName.string)
-                startTimer()
+            startBackgroundMediaPlayer()
+            startTimer()
             showFloatingWindow()
             //
             val filter = IntentFilter()
@@ -129,18 +118,16 @@ class BuddhaService : Service() {
 
     override fun onDestroy() {
         super.onDestroy()
-        stopMediaPlayer()
+        stopBackgroundMediaPlayer()
         stopTimer()
-//        stopTimerMy()
 
         _NotificationUtils.closeNotification(applicationContext, NOTIFICATION_ID)
 
         //
-
         mAm.abandonAudioFocus(afChangeListener)
         unregisterReceiver(buddhaReceiver)
         e("------------- 销毁完毕 ---------------")
-        EventBus.getDefault().post(EventBusMessage.getInstance(FromBuddhaServiceDestroy(), "buddha service destroyed"))
+        EventBus.getDefault().post(EventBusMessage.getInstance(FromMuyuServiceDestory(), "buddha service destroyed"))
         //region 悬浮窗
         windowManager.removeView(floatingWindowView)
     }
@@ -155,6 +142,8 @@ class BuddhaService : Service() {
         timer?.schedule(object : TimerTask() {
             override fun run() {
                 if (timerRuning) {
+                    muyuSound.play(1,1.0f,1.0f,0,0,1.0f)
+
 //                    e("缓存duration : ${savedDuration/1000}秒  此段duration : ${(System.currentTimeMillis() - startTimeInMillis)/1000}秒   此段起始时间 : ${DateTime(startTimeInMillis).toTimeString()}")
                     val duration = savedDuration + System.currentTimeMillis() - startTimeInMillis
                     val second = duration % 60000 / 1000
@@ -176,7 +165,7 @@ class BuddhaService : Service() {
                 }
                 sendNotification(notificationCount, notificationTime)
             }
-        }, 0, 1000)
+        }, 0, muyu_period)
     }
 
     fun restartTimer() {
@@ -201,28 +190,13 @@ class BuddhaService : Service() {
         audio.setStreamVolume(AudioManager.STREAM_MUSIC, volume, AudioManager.FLAG_PLAY_SOUND or AudioManager.FLAG_SHOW_UI)
     }
 
-    private var mPlayer: MediaPlayer?=null
     private var mBackgroundPlayer: MediaPlayer?=null
 
     @RequiresApi(Build.VERSION_CODES.M)
-    fun startMediaPlayer(musicName: String) {
+    fun startBackgroundMediaPlayer() {
         try {
             requestFocus()
-            mPlayer = MediaPlayer()
-            var url = File(_Session.ROOT_DIR, musicName)
-            mPlayer?.reset() //把各项参数恢复到初始状态
-            mPlayer?.setDataSource(url.path)
-            mPlayer?.prepare() //进行缓冲
-            mPlayer?.setVolume(1f, 1f)
-            mPlayer?.setLooping(true)
-            val params = mPlayer?.playbackParams
-            params?.let {
-                params.setPitch(pitch)
-                params.setSpeed(speed)
-                mPlayer?.playbackParams = params
-            }
             chantBuddhaStart()
-
 
             mBackgroundPlayer = MediaPlayer.create(applicationContext, R.raw.second_60)
             mBackgroundPlayer?.setVolume(0.01f, 0.01f)
@@ -234,10 +208,9 @@ class BuddhaService : Service() {
         }
     }
 
-    fun stopMediaPlayer() {
+    fun stopBackgroundMediaPlayer() {
         mBackgroundPlayer?.stop()
         chantBuddhaStop()
-        mPlayer?.stop()
     }
 
     private lateinit var mAm: AudioManager
@@ -259,7 +232,6 @@ class BuddhaService : Service() {
             AudioManager.AUDIOFOCUS_GAIN -> {
                 e("获取永久焦点")
                 chantBuddhaRestart()
-                mPlayer?.setVolume(1.0f, 1.0f)
                 floatingWinButState(false)
                 sendNotification(notificationCount, notificationTime)
             }
@@ -290,7 +262,7 @@ class BuddhaService : Service() {
              */
             AudioManager.AUDIOFOCUS_LOSS_TRANSIENT_CAN_DUCK -> {
                 e("暂时失去焦点并降音")
-                mPlayer?.setVolume(0.3f, 0.3f)
+                chantBuddhaPause()
                 pauseTimer()
                 pauseOrStopData()
             }
@@ -341,26 +313,22 @@ class BuddhaService : Service() {
     }
 
     fun chantBuddhaStart() {
-        mPlayer?.start()
         reOrStartData()
         restartTimer()
     }
 
     fun chantBuddhaRestart() {
-        mPlayer?.start()
         reOrStartData()
         restartTimer()
     }
 
     fun chantBuddhaPause() {
         pauseTimer()
-        mPlayer?.pause()
         pauseOrStopData()
     }
 
     fun chantBuddhaStop() {
         pauseTimer()
-        mPlayer?.pause()
         pauseOrStopData()
     }
 
@@ -368,7 +336,7 @@ class BuddhaService : Service() {
         _NotificationUtils.sendNotification(NOTIFICATION_ID, applicationContext, R.layout.notification_nf) { remoteViews ->
             remoteViews.setTextViewText(R.id.tv_count, if (buddhaType == 11) count.toString() else "")
             remoteViews.setTextViewText(R.id.tv_time, time)
-            if (mPlayer?.isPlaying?:false) {
+            if (timerRuning) {
                 remoteViews.setImageViewResource(R.id.image_control, R.drawable.pause)
                 val intentRootClick = Intent(ACTION_BUDDHA_PAUSE)
                 val pendingIntent = PendingIntent.getBroadcast(applicationContext, 0, intentRootClick, PendingIntent.FLAG_UPDATE_CURRENT)
@@ -424,7 +392,7 @@ class BuddhaService : Service() {
                 tv_duration = floatingWindowView?.findViewById(R.id.tv_duration)
                 iv_control?.setOnClickListener {
                     if (Math.abs(changeX) < 10 && Math.abs(changeY) < 10) {
-                        if (mPlayer?.isPlaying?:false) {
+                        if (timerRuning) {
                             chantBuddhaPause()
                             floatingWinButState(true)
                             mAm.abandonAudioFocus(afChangeListener)
