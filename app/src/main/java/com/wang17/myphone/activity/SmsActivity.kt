@@ -123,19 +123,18 @@ class SmsActivity : AppCompatActivity() {
         childListList.clear()
         smsList = dc.phoneMessages
         smsList.forEach { sms ->
-            var group = groupList.firstOrNull { m -> m.number == sms.address }
+            val group = groupList.firstOrNull { m -> m.number == sms.address }
             var index = groupList.indexOfFirst { m -> m.number == sms.address }
             if (group == null) {
-                group = GroupItem(sms.createTime, sms.address, findName(sms.body)?:sms.address, sms.body)
-                groupList.add(group)
+                groupList.add(GroupItem(sms.createTime, sms.address, findName(sms.body)?:sms.address, sms.body))
                 var childList = ArrayList<ChildItem>()
                 childList.add(ChildItem(sms.id,sms.address,sms.createTime, sms.body))
                 childListList.add(childList)
             } else {
-                if ( sms.createTime.timeInMillis>group.dateTime.timeInMillis) {
-                    group.dateTime = sms.createTime
-                    group.body = sms.body
-                }
+//                if ( sms.createTime.timeInMillis>group.dateTime.timeInMillis) {
+//                    group.dateTime = sms.createTime
+//                    group.body = sms.body
+//                }
                 findName(sms.body)?.let {
                     group.name=it
                 }
