@@ -48,17 +48,7 @@ class SmsActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_sms)
 
-        // 添加异常捕捉
         try {
-//            val cursor = contentResolver.query(Uri.parse("content://sms"), arrayOf("_id", "address", "read", "body", "date"), null, null, "date desc")
-//            if (cursor != null) {
-//                var body = ""
-//                while (cursor.moveToNext()) {
-//                    body = cursor.getString(cursor.getColumnIndex("body")) // 在这里获取短信信息
-//                    val smsdate = cursor.getString(cursor.getColumnIndex("date")).toLong()
-//                    e(body)
-//                }
-//            }
             dc = DataContext(this)
             loadSmsData()
             listView_sms.setGroupIndicator(null)
@@ -75,35 +65,21 @@ class SmsActivity : AppCompatActivity() {
 
             fab_clean.setOnClickListener {
                 val removeList = smsList.filter {
-                    m-> !m.body.contains("银行")&&!m.body.contains("余额")
-                        &&!m.body.contains("金额")&&!m.body.contains("还款")
-                        &&!m.body.contains("借款")&&!m.body.contains("贷款")
-                        &&!m.body.contains("转账")&&!m.body.contains("快递")
+                    m-> !m.body.contains("银行")&&!m.body.contains("信用卡")&&!m.body.contains("金额")&&!m.body.contains("余额")&&!m.body.contains("账号")&&!m.body.contains("账户")
+                        &&!m.body.contains("转账")&&!m.body.contains("转出")&&!m.body.contains("转入")&&!m.body.contains("账单")
+                        &&!m.body.contains("还款")&&!m.body.contains("借款")&&!m.body.contains("贷款")
+                        &&!m.body.contains("快递")&&!m.body.contains("物流")
                 }
                 dc.deletePhoneMessage(removeList)
                 loadSmsData()
                 adapter.notifyDataSetChanged()
+                AlertDialog.Builder(this).setMessage("整理完毕！").show()
             }
             fab_clean.setOnLongClickListener {
-                var smsMap:MutableMap<String,PhoneMessage> = HashMap()
-                smsList.forEach {smsInList->
-                    val smsInMap = smsMap.get(smsInList.address)
-                    if(smsInMap==null){
-                        smsMap.put(smsInList.address,smsInList)
-                    }else{
-                        if(smsInMap.createTime.timeInMillis-smsInList.createTime.timeInMillis<2000){
-                            smsInMap.createTime = smsInList.createTime
-                            smsInMap.body = smsInList.body+smsInMap.body
-                            dc.editPhoneMessage(smsInMap)
-                            dc.deletePhoneMessage(smsInList.id)
-                        }else{
-                            smsMap[smsInList.address] = smsInList
-                        }
-                    }
-                }
+                dc.deletePhoneMessage()
                 loadSmsData()
                 adapter.notifyDataSetChanged()
-                AlertDialog.Builder(this).setMessage("整理完毕！").show()
+                AlertDialog.Builder(this).setMessage("清空完毕！").show()
 
                 true
             }
@@ -147,10 +123,11 @@ class SmsActivity : AppCompatActivity() {
         childListList.clear()
         smsList = dc.phoneMessages
         smsList.forEach { sms ->
-            val group = groupList.firstOrNull { m -> m.number == sms.address }
+            var group = groupList.firstOrNull { m -> m.number == sms.address }
             var index = groupList.indexOfFirst { m -> m.number == sms.address }
             if (group == null) {
-                groupList.add(GroupItem(sms.createTime, sms.address, findName(sms.body) ?: sms.address, sms.body))
+                group = GroupItem(sms.createTime, sms.address, findName(sms.body)?:sms.address, sms.body)
+                groupList.add(group)
                 var childList = ArrayList<ChildItem>()
                 childList.add(ChildItem(sms.id,sms.address,sms.createTime, sms.body))
                 childListList.add(childList)
@@ -158,9 +135,9 @@ class SmsActivity : AppCompatActivity() {
                 if ( sms.createTime.timeInMillis>group.dateTime.timeInMillis) {
                     group.dateTime = sms.createTime
                     group.body = sms.body
-                    findName(sms.body)?.let {
-                        group.name=it
-                    }
+                }
+                findName(sms.body)?.let {
+                    group.name=it
                 }
                 childListList.get(index).add(ChildItem(sms.id,sms.address,sms.createTime, sms.body))
             }
