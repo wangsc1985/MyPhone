@@ -24,16 +24,13 @@ import android.view.WindowManager
 import android.widget.ImageView
 import android.widget.TextView
 import com.wang17.myphone.R
-import com.wang17.myphone.database.BuddhaFile
 import com.wang17.myphone.database.DataContext
 import com.wang17.myphone.database.Setting
 import com.wang17.myphone.e
 import com.wang17.myphone.eventbus.EventBusMessage
-import com.wang17.myphone.eventbus.FromBuddhaServiceDestroy
 import com.wang17.myphone.eventbus.FromBuddhaServiceTimer
 import com.wang17.myphone.eventbus.FromMuyuServiceDestory
 import com.wang17.myphone.util._NotificationUtils
-import com.wang17.myphone.util._Session
 import com.wang17.myphone.util._Utils
 import org.greenrobot.eventbus.EventBus
 import java.util.*
@@ -279,7 +276,7 @@ class MuyuService : Service() {
             startTimeInMillis = System.currentTimeMillis()
             dc.editSetting(Setting.KEYS.buddha_startime, startTimeInMillis)
         } catch (e: Exception) {
-            dc.addLog("err", "pause or stop", e.message)
+            dc.addRunLog("err", "pause or stop", e.message)
         }
     }
 
@@ -308,7 +305,7 @@ class MuyuService : Service() {
                 dc.deleteSetting(Setting.KEYS.buddha_startime)
             }
         } catch (e: Exception) {
-            dc.addLog("err", "pause or stop", e.message)
+            dc.addRunLog("err", "pause or stop", e.message)
         }
     }
 

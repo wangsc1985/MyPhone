@@ -12,9 +12,9 @@ import android.view.ViewGroup
 import android.widget.*
 import android.widget.AdapterView.OnItemClickListener
 import com.wang17.myphone.*
+import com.wang17.myphone.database.DataContext
 import com.wang17.myphone.model.DateTime
 import com.wang17.myphone.database.Trade
-import com.wang17.myphone.database.DataContext
 import com.wang17.myphone.util.TradeUtils.commission
 import com.wang17.myphone.util.TradeUtils.tax
 import com.wang17.myphone.util.TradeUtils.transferFee

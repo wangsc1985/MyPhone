@@ -1007,7 +1007,7 @@ class BuddhaFragment : Fragment() {
             try {
                 val listItem = tallyPlanList[position]
                 val textViewInterval = view.findViewById<View>(R.id.textView_interval) as TextView
-                val textViewItem = view.findViewById<View>(R.id.textView_item) as TextView
+                val textViewItem = view.findViewById<View>(R.id.tv_item) as TextView
                 val textViewSummary = view.findViewById<View>(R.id.textView_summary) as TextView
                 textViewItem.text = listItem.item
                 textViewSummary.text = listItem.summary

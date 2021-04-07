@@ -14,10 +14,10 @@ import com.wang17.myphone.model.DateTime
 import com.wang17.myphone.model.DateTime.Companion.today
 import com.wang17.myphone.database.BillRecord
 import com.wang17.myphone.database.CreditCard
+import com.wang17.myphone.database.DataContext
 import com.wang17.myphone.structure.CardType
 import com.wang17.myphone.structure.RepayType
 import com.wang17.myphone.util.CreditCardHelper
-import com.wang17.myphone.database.DataContext
 import com.wang17.myphone.util._String
 import com.wang17.myphone.util._Utils
 import kotlinx.android.synthetic.main.activity_card_record.*
@@ -43,7 +43,7 @@ class CardRecordActivity : AppCompatActivity(), OnActionFragmentBackListener {
         isChanged = false
         try {
             cardNumber = this.intent.getStringExtra("cardNumber")
-            creditCard = dataContext.getCreditCard(cardNumber)
+            creditCard = dataContext.getCreditCard(cardNumber?:"0000")
             val listView_records = findViewById<View>(R.id.listView_records) as ExpandableListView
 
             // 填充信用卡Info
@@ -407,7 +407,7 @@ class CardRecordActivity : AppCompatActivity(), OnActionFragmentBackListener {
                 val textView_month = convertView.findViewById<View>(R.id.textView_month) as TextView
                 val textView_dateSpan = convertView.findViewById<View>(R.id.textView_dateSpan) as TextView
                 val textView_money = convertView.findViewById<View>(R.id.textView_money) as TextView
-                val textView_item = convertView.findViewById<View>(R.id.textView_item) as TextView
+                val textView_item = convertView.findViewById<View>(R.id.tv_item) as TextView
                 val info = groupInfos[groupPosition]
                 textView_month.text = info.month.toString() + "月"
                 textView_dateSpan.text = info.dateSpan

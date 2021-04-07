@@ -132,7 +132,7 @@ public class ScreenBroadcaseReceiver extends BroadcastReceiver {
 
 
                         }catch (Exception e){
-                            new DataContext(context).addLog("err","运行错误",e.getMessage());
+                            new DataContext(context).addRunLog("err","运行错误",e.getMessage());
                         }
                         finally {
                             preDateTime = now;

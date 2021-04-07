@@ -13,7 +13,7 @@ import com.wang17.myphone.structure.RepayType;
  */
 public class DatabaseHelper extends SQLiteOpenHelper {
 
-    private static final int VERSION = 46;
+    private static final int VERSION = 47;
     private static final String DATABASE_NAME = "mp.db";
 
     public DatabaseHelper(Context context) {
@@ -251,6 +251,8 @@ public class DatabaseHelper extends SQLiteOpenHelper {
                             + "speed REAL,"
                             + "type INT,"
                             + "duration INT)");
+                case 46:
+                    db.execSQL("update buddha set summary='' where summary='计时念佛' or  summary='计数念佛' or summary='耳听念佛' or summary='计时计数念佛'");
 
             }
         } catch (SQLException e) {

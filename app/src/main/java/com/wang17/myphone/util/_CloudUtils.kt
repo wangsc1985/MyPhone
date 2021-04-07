@@ -104,10 +104,18 @@ object _CloudUtils {
                 postRequestByJson(url, args, HttpCallback { html ->
                     try {
                         e(html)
-                        val resp_data: Any = _JsonUtils.getValueByKey(html, "resp_data")
-                        val code = _JsonUtils.getValueByKey(resp_data.toString(), "code").toInt()
-                        when (code) {
-                            0 -> callback?.excute(0, "添加成功")
+                        val errcode = _JsonUtils.getValueByKey(html, "errcode")
+                        val errmsg = _JsonUtils.getValueByKey(html, "errmsg")
+                        if(errcode=="0"){
+                            val resp_data: Any = _JsonUtils.getValueByKey(html, "resp_data")
+                            val code = _JsonUtils.getValueByKey(resp_data.toString(), "code").toInt()
+                            val msg = _JsonUtils.getValueByKey(resp_data.toString(), "msg")
+                            when (code) {
+                                0 -> callback?.excute(0, msg)
+                                else-> callback?.excute(-1, msg)
+                            }
+                        }else{
+                            callback?.excute(-2, errmsg)
                         }
                     } catch (e: Exception) {
                         callback?.excute(-2, e.message)
@@ -120,6 +128,46 @@ object _CloudUtils {
         }.start()
     }
 
+    @JvmStatic
+    fun editBuddha(context: Context, buddha:BuddhaRecord, callback: CloudCallback?) {
+        Thread{
+            try {
+                val accessToken = getToken(context)
+                // 通过accessToken，env，云函数名，args 在微信小程序云端获取数据
+                val url = "https://api.weixin.qq.com/tcb/invokecloudfunction?access_token=$accessToken&env=$env&name=editBuddha"
+                val args: MutableList<PostArgument> = ArrayList()
+                args.add(PostArgument("phone", "18509513143"))
+                args.add(PostArgument("startTime", buddha.startTime.timeInMillis))
+                args.add(PostArgument("duration", buddha.duration))
+                args.add(PostArgument("count", buddha.count))
+                args.add(PostArgument("summary", buddha.summary))
+                args.add(PostArgument("type", buddha.type))
+                postRequestByJson(url, args, HttpCallback { html ->
+                    try {
+                        e(html)
+                        val errcode = _JsonUtils.getValueByKey(html, "errcode")
+                        val errmsg = _JsonUtils.getValueByKey(html, "errmsg")
+                        if(errcode=="0"){
+                            val resp_data: Any = _JsonUtils.getValueByKey(html, "resp_data")
+                            val code = _JsonUtils.getValueByKey(resp_data.toString(), "code").toInt()
+                            val msg = _JsonUtils.getValueByKey(resp_data.toString(), "msg")
+                            when (code) {
+                                0 -> callback?.excute(0, msg)
+                                else-> callback?.excute(-1, msg)
+                            }
+                        }else{
+                            callback?.excute(-2, errmsg)
+                        }
+                    } catch (e: Exception) {
+                        callback?.excute(-2, e.message)
+                    }
+                })
+            } catch (e: Exception) {
+                callback?.excute(-1, e.message)
+            }
+
+        }.start()
+    }
 
     fun delBuddha(context: Context, buddha:BuddhaRecord, callback: CloudCallback?) {
         Thread{
@@ -133,16 +181,19 @@ object _CloudUtils {
                 postRequestByJson(url, args, HttpCallback { html ->
                     try {
                         e(html)
-                        val resp_data: Any = _JsonUtils.getValueByKey(html, "resp_data")
-                        val code = _JsonUtils.getValueByKey(resp_data.toString(), "code").toInt()
-                        val msg = _JsonUtils.getValueByKey(resp_data.toString(), "msg").toString()
-                        when (code) {
-                            0 -> {
-                                callback?.excute(0, msg)
+
+                        val errcode = _JsonUtils.getValueByKey(html, "errcode")
+                        val errmsg = _JsonUtils.getValueByKey(html, "errmsg")
+                        if(errcode=="0"){
+                            val resp_data: Any = _JsonUtils.getValueByKey(html, "resp_data")
+                            val code = _JsonUtils.getValueByKey(resp_data.toString(), "code").toInt()
+                            val msg = _JsonUtils.getValueByKey(resp_data.toString(), "msg")
+                            when (code) {
+                                0 -> callback?.excute(0, msg)
+                                else-> callback?.excute(-1, msg)
                             }
-                            else->{
-                                callback?.excute(-2, msg)
-                            }
+                        }else{
+                            callback?.excute(-2, errmsg)
                         }
                     } catch (e: Exception) {
                         callback?.excute(-1, e.message)

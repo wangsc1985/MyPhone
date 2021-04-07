@@ -7,7 +7,6 @@ import com.wang17.myphone.model.BankBill
 import com.wang17.myphone.model.DateTime
 import com.wang17.myphone.structure.CardType
 import com.wang17.myphone.structure.RepayType
-import com.wang17.myphone.structure.SmsType
 import java.util.*
 import java.util.regex.Pattern
 
@@ -240,7 +239,7 @@ object ParseCreditCard {
                 return bankBill
             }
         } catch (e: Exception) {
-            DataContext(context).addLog("解析错误","解析错误",e.message)
+            DataContext(context).addRunLog("解析错误","解析错误",e.message)
             return null
         }
         return null
@@ -287,7 +286,7 @@ object ParseCreditCard {
                 return bankBill
             }
         } catch (e: Exception) {
-            DataContext(context).addLog("解析错误","解析错误",e.message)
+            DataContext(context).addRunLog("解析错误","解析错误",e.message)
             return null
         }
         return null

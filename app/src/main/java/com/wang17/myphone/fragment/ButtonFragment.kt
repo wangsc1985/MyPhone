@@ -3,7 +3,6 @@ package com.wang17.myphone.fragment
 import android.annotation.SuppressLint
 import android.annotation.TargetApi
 import android.app.KeyguardManager
-import android.content.Context.INPUT_METHOD_SERVICE
 import android.content.DialogInterface
 import android.content.Intent
 import android.hardware.fingerprint.FingerprintManager
@@ -22,7 +21,6 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.view.inputmethod.EditorInfo
-import android.view.inputmethod.InputMethodManager
 import android.widget.EditText
 import android.widget.TextView
 import android.widget.Toast
@@ -32,21 +30,16 @@ import com.wang17.myphone.activity.*
 import com.wang17.myphone.callback.CloudCallback
 import com.wang17.myphone.database.BuddhaRecord
 import com.wang17.myphone.database.DataContext
-import com.wang17.myphone.database.PhoneMessage
 import com.wang17.myphone.database.Setting
 import com.wang17.myphone.e
-import com.wang17.myphone.model.DateTime
 import com.wang17.myphone.model.Lottery
 import com.wang17.myphone.service.BuddhaService
 import com.wang17.myphone.service.MuyuService
 import com.wang17.myphone.service.StockService
-import com.wang17.myphone.structure.SmsStatus
-import com.wang17.myphone.structure.SmsType
 import com.wang17.myphone.util.*
 import com.wang17.myphone.view._Button
 import kotlinx.android.synthetic.main.fragment_button.*
 import kotlinx.android.synthetic.main.inflate_list_card_record_child.*
-import org.w3c.dom.Text
 import java.security.KeyStore
 import java.text.DecimalFormat
 import java.util.*

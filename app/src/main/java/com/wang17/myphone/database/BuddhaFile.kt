@@ -3,7 +3,8 @@ package com.wang17.myphone.database
 import java.util.*
 
 class BuddhaFile(
-        var id:UUID= UUID.randomUUID(),
+
+        var id:UUID,
         /**
          * 文件名
          */
@@ -28,7 +29,6 @@ class BuddhaFile(
          * 计数类型
          */
         var type: Int,
-
         /**
          * 每圈时间（秒）
          */

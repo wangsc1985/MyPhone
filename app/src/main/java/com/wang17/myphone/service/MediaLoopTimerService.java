@@ -150,7 +150,7 @@ public class MediaLoopTimerService extends Service {
                         Log.e("wangsc", "wakeLock:" + wakeLock);
                         if (++loopCount > 10) {
                             long span = (System.currentTimeMillis() - preTime) / 1000;
-                            mDataContext.addLog("timer","span",span+"秒");
+                            mDataContext.addRunLog("timer","span",span+"秒");
 //                            Log.e("wangsc", "span:" + span);
 
                             /**

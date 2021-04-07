@@ -264,7 +264,7 @@ class BuddhaTimerService : Service() {
              *
              * 添加 tally_intervalInMillis    剩余时间长度
              */
-            mDataContext.addLog("NianfoMusicService","pauseNianfoTally","")
+            mDataContext.addRunLog("NianfoMusicService","pauseNianfoTally","")
             // 向数据库中保存“已经完成的时间”
             val now = System.currentTimeMillis()
             val sectionStartInMillis = mDataContext.getSetting(Setting.KEYS.tally_sectionStartMillis).string.toLong()
@@ -288,7 +288,7 @@ class BuddhaTimerService : Service() {
 
     private fun saveSection(partStartMillis: Long, partSpanMillis: Long) {
         try {
-            mDataContext.addLog("NianfoMusicService","saveSection","")
+            mDataContext.addRunLog("NianfoMusicService","saveSection","")
             val tallyRecord = TallyRecord(DateTime(partStartMillis), partSpanMillis.toInt(), mDataContext.getSetting(Setting.KEYS.tally_record_item_text, "").string)
             if (mDataContext.getRecord(partStartMillis) == null) {
                 mDataContext.addRecord(tallyRecord)

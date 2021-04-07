@@ -8,17 +8,16 @@ import android.util.Log
 import android.view.View
 import android.view.ViewGroup
 import android.widget.BaseExpandableListAdapter
-import android.widget.ExpandableListView
 import android.widget.ExpandableListView.OnGroupExpandListener
 import android.widget.ImageView
 import android.widget.TextView
 import com.wang17.myphone.R
+import com.wang17.myphone.database.DataContext
 import com.wang17.myphone.fragment.ActionBarFragment.OnActionFragmentBackListener
 import com.wang17.myphone.fragment.AddTallyFragment
 import com.wang17.myphone.model.DateTime
 import com.wang17.myphone.model.DateTime.Companion.toSpanString2
 import com.wang17.myphone.model.DateTime.Companion.today
-import com.wang17.myphone.database.DataContext
 import com.wang17.myphone.util._String
 import com.wang17.myphone.util._Utils.printException
 import kotlinx.android.synthetic.main.activity_buddha.*
@@ -121,8 +120,8 @@ class BuddhaActivity : AppCompatActivity(), OnActionFragmentBackListener {
             var month = -1
             var day = -1
             val isToday = true
-            var groupNode=GroupInfo()
-            var childNode=ChildInfo()
+            var groupNode = GroupInfo()
+            var childNode = ChildInfo()
             var childList: MutableList<ChildInfo> = ArrayList()
             val first = dataContext.firstBuddha
             val latest = dataContext.latestBuddha
@@ -144,18 +143,23 @@ class BuddhaActivity : AppCompatActivity(), OnActionFragmentBackListener {
 //                    date = date.addDays(-1);
 //                    continue;
 //                }
-                Log.e("wangsc", "date day of year :" + date[Calendar.DAY_OF_YEAR] + " end day of year : " + end[Calendar.DAY_OF_YEAR])
+//                Log.e("wangsc", "date day of year :" + date[Calendar.DAY_OF_YEAR] + " end day of year : " + end[Calendar.DAY_OF_YEAR])
                 //                isToday=false;
                 if (date.month == month) {
                     day = date.day
                     childNode = ChildInfo()
                     childNode.day = day
                     childNode.start = date.timeInMillis
+                    var no=0
                     for (record in records) {
                         groupNode.duration += record.duration
                         groupNode.count += record.count
                         childNode.duration += record.duration
                         childNode.count += record.count
+                        if (record.summary.isNotEmpty()) {
+                            no++
+                            childNode.item += "${if(no>1) "\n" else ""}${record.summary}"
+                        }
                         duration += record.duration
                         count += record.count
                     }
@@ -171,13 +175,18 @@ class BuddhaActivity : AppCompatActivity(), OnActionFragmentBackListener {
                     childNode = ChildInfo()
                     childNode.day = day
                     childNode.start = date.timeInMillis
+                    var no=0
                     for (record in records) {
                         groupNode.duration += record.duration
                         groupNode.count += record.count
                         childNode.duration += record.duration
                         childNode.count += record.count
+                        if (record.summary.isNotEmpty()) {
+                            no++
+                            childNode.item += "${if(no>1) "\n" else ""}${record.summary}"
+                        }
                         duration += record.duration
-                        count +=  record.count
+                        count += record.count
                     }
                     childList.add(childNode)
                     groupList.add(groupNode)
@@ -232,7 +241,7 @@ class BuddhaActivity : AppCompatActivity(), OnActionFragmentBackListener {
                 val textView_count = convertView.findViewById<TextView>(R.id.textView_monthCount)
                 val info = groupList[groupPosition]
                 textView_date.text = _String.format(info.month) + "月"
-                textView_duration.text = (info.duration / 60000 / 60).toString()+"小时"
+                textView_duration.text = (info.duration / 60000 / 60).toString() + "小时"
 //                textView_tap.text = (DecimalFormat("0").format(info.count.toFloat()/1080)) + "圈"
                 textView_count.text = DecimalFormat("0.00").format(info.count.toDouble() / 10000) + " 万"
                 if (info.duration == 0L) {
@@ -254,17 +263,20 @@ class BuddhaActivity : AppCompatActivity(), OnActionFragmentBackListener {
             var convertView = convertView
             try {
                 convertView = View.inflate(this@BuddhaActivity, R.layout.inflate_list_item_buddha_child, null)
-                val textView_date = convertView.findViewById<View>(R.id.tv_att_date) as TextView
-                val textView_duration = convertView.findViewById<View>(R.id.textView_monthDuration) as TextView
-                val textView_tap = convertView.findViewById<View>(R.id.textView_monthTap) as TextView
-                val textView_count = convertView.findViewById<View>(R.id.textView_monthCount) as TextView
+                val textView_date = convertView.findViewById<TextView>(R.id.tv_att_date)
+                val textView_duration = convertView.findViewById<TextView>(R.id.textView_monthDuration)
+                val textView_tap = convertView.findViewById<TextView>(R.id.textView_monthTap)
+                val textView_count = convertView.findViewById<TextView>(R.id.textView_monthCount)
+                val tvItem = convertView.findViewById<TextView>(R.id.tv_item)
                 val childInfo = childListList[groupPosition][childPosition]
+                if (childInfo.item.isNotEmpty())
+                    tvItem.text = childInfo.item
+                else
+                    tvItem.visibility = View.GONE
                 textView_date.text = _String.format(childInfo.day)
 //                textView_tap.text =  (DecimalFormat("0").format(childInfo.count.toFloat()/1080))+ "圈"
                 textView_duration.text = toSpanString2(childInfo.duration)
                 textView_count.text = DecimalFormat("0.0").format(childInfo.count.toDouble() / 1000) + " 千"
-                val textViewItem = convertView.findViewById<TextView>(R.id.textView_item)
-                textViewItem.visibility = View.GONE
                 if (childInfo.duration == 0L) {
                     textView_duration.text = "--"
                 }
@@ -296,6 +308,7 @@ class BuddhaActivity : AppCompatActivity(), OnActionFragmentBackListener {
         var start: Long = 0
         var duration: Long = 0
         var count = 0
+        var item = ""
     }
 
     override fun onBackButtonClickListener() {

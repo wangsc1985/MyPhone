@@ -240,7 +240,7 @@ object _Utils {
     @JvmStatic
     fun saveException(context: Context?, e: Exception): String {
         val msg = getExceptionStr(e)
-        DataContext(context).addLog("err", "运行错误", msg)
+        DataContext(context).addRunLog("err", "运行错误", msg)
         return msg
     }
 

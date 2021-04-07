@@ -71,7 +71,7 @@ class BuddhaPlayerFragment : Fragment() {
         }
 
 
-        val buddha = dc.getLatestBuddha()
+        val buddha = dc.latestBuddha
         var time = DateTime(1970, 1, 1)
         if (buddha != null) {
             time = buddha.startTime
@@ -261,33 +261,36 @@ class BuddhaPlayerFragment : Fragment() {
             true
         }
         tv_buddha_name.setOnClickListener {
-            _Session.BUDDHA_MUSIC_NAME_ARR = getFilesWithSuffix(_Session.ROOT_DIR.path, ".mp3")
-            if (_Session.BUDDHA_MUSIC_NAME_ARR.size == 0) {
-                _Session.BUDDHA_MUSIC_NAME_ARR = arrayOf()
-            }
-            Arrays.sort(_Session.BUDDHA_MUSIC_NAME_ARR)
-
-            AlertDialog.Builder(context).setItems(_Session.BUDDHA_MUSIC_NAME_ARR) { dialog, which ->
-                dc.editSetting(Setting.KEYS.buddha_music_name, _Session.BUDDHA_MUSIC_NAME_ARR[which])
-                tv_buddha_name.text = _Session.BUDDHA_MUSIC_NAME_ARR[which]
-
-                val file = _Session.getFile(_Session.BUDDHA_MUSIC_NAME_ARR[which])
-                val bf = dc.getBuddhaFile(_Session.BUDDHA_MUSIC_NAME_ARR[which], file.length())
-
-                if (bf == null) {
-                    dc.addBuddhaFile(BuddhaFile(_Session.BUDDHA_MUSIC_NAME_ARR[which], file.length(), "md5", 1.0f, 1.0f, 11, 600))
-                    updateConfig()
-                } else {
-                    circleSecond = getCurrentCircleSecond()
-
-                    if (_Utils.isServiceRunning(context!!, BuddhaService::class.qualifiedName!!) && dc.getSetting(Setting.KEYS.buddha_startime) != null) {
-                        isChangeConfig = true
-                        context?.stopService(buddhaIntent)
-                        context?.startService(buddhaIntent)
-                    }
+            try {
+                _Session.BUDDHA_MUSIC_NAME_ARR = getFilesWithSuffix(_Session.ROOT_DIR.path, ".mp3")
+                if (_Session.BUDDHA_MUSIC_NAME_ARR.size == 0) {
+                    _Session.BUDDHA_MUSIC_NAME_ARR = arrayOf()
                 }
+                Arrays.sort(_Session.BUDDHA_MUSIC_NAME_ARR)
 
-            }.show()
+                AlertDialog.Builder(context).setItems(_Session.BUDDHA_MUSIC_NAME_ARR) { dialog, which ->
+                    dc.editSetting(Setting.KEYS.buddha_music_name, _Session.BUDDHA_MUSIC_NAME_ARR[which])
+                    tv_buddha_name.text = _Session.BUDDHA_MUSIC_NAME_ARR[which]
+
+                    val file = _Session.getFile(_Session.BUDDHA_MUSIC_NAME_ARR[which])
+                    val bf = dc.getBuddhaFile(_Session.BUDDHA_MUSIC_NAME_ARR[which], file.length())
+
+                    if (bf == null) {
+                        dc.addBuddhaFile(BuddhaFile(_Session.BUDDHA_MUSIC_NAME_ARR[which], file.length(), "md5", 1.0f, 1.0f, 11, 600))
+                        updateConfig()
+                    } else {
+                        circleSecond = getCurrentCircleSecond()
+                        if (_Utils.isServiceRunning(context!!, BuddhaService::class.qualifiedName!!) && dc.getSetting(Setting.KEYS.buddha_startime) != null) {
+                            isChangeConfig = true
+                            context?.stopService(buddhaIntent)
+                            context?.startService(buddhaIntent)
+                        }
+                    }
+
+                }.show()
+            } catch (e: Exception) {
+                dc.addRunLog("err","切换music",e.message)
+            }
         }
 
         layout_dayTotal.setOnClickListener {
@@ -672,6 +675,7 @@ class BuddhaPlayerFragment : Fragment() {
 
                     var list = ArrayList<BuddhaFile>()
                     var bfs = dc.buddhaFiles
+                    e("buddha files size : ${bfs.size}  remove list size : ${list.size}")
                     bfs.forEach {
                         if (!_Session.BUDDHA_MUSIC_NAME_ARR.contains(it.name)) {
                             e(it.name)
@@ -725,13 +729,13 @@ class BuddhaPlayerFragment : Fragment() {
 //        }
         when (buddhaType) {
             11 -> {
-                buddha = BuddhaRecord(startTime, duration, count, 11, "计数念佛")
+                buddha = BuddhaRecord(startTime, duration, count, 11, "")
             }
             1 -> {
-                buddha = BuddhaRecord(startTime, duration, 0, 1, "计时念佛")
+                buddha = BuddhaRecord(startTime, duration, 0, 1, "")
             }
             0 -> {
-                buddha = BuddhaRecord(startTime, duration, 0, 0, "耳听念佛")
+                buddha = BuddhaRecord(startTime, duration, 0, 0, "")
             }
         }
 
@@ -917,7 +921,7 @@ class BuddhaPlayerFragment : Fragment() {
                 if ( buddhaType!= 11) {
                     duration = (duration / 60000) * 60000
                 }
-                if (duration > 0) {
+                if (duration > 60000) {
                     val dialog = AlertDialog.Builder(context).setMessage("缓存中存在念佛记录\n[ ${msg} ]\n是否存档？")
                     dialog.setNegativeButton("存档") { dialog, which ->
                         buildBuddhaAndSave(tap.toInt() * 1080, duration, stoptimeInMillis, buddhaType) { code, result ->

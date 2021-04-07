@@ -2986,7 +2986,7 @@ public class DataContext {
         return result;
     }
 
-    public void addLog(String tag, String item, String message) {
+    public void addRunLog(String tag, String item, String message) {
         RunLog runLog = new RunLog(UUID.randomUUID());
         runLog.setTag(tag);
         runLog.setItem(item);

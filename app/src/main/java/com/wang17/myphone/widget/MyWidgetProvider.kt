@@ -385,7 +385,6 @@ class MyWidgetProvider : AppWidgetProvider() {
                         val number = message.originatingAddress
                         val content = message.messageBody
                         val dateTime = DateTime(message.timestampMillis)
-                        dc.addLog("新信息", number, dateTime.timeInMillis.toString() + "")
                         /**
                          * 验证码
                          */

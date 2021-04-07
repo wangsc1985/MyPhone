@@ -10,8 +10,8 @@ import android.widget.*
 import android.widget.AdapterView.OnItemClickListener
 import android.widget.AdapterView.OnItemLongClickListener
 import com.wang17.myphone.R
-import com.wang17.myphone.database.RunLog
 import com.wang17.myphone.database.DataContext
+import com.wang17.myphone.database.RunLog
 import com.wang17.myphone.util._Utils
 import com.wang17.myphone.util._Utils.e
 import kotlinx.android.synthetic.main.activity_runlog.*
@@ -66,7 +66,7 @@ class RunLogActivity : FragmentActivity() {
             listAdapter = RunlogListAdapter()
             listView_runlog.setAdapter(listAdapter)
         } catch (e: Exception) {
-            mDataContext.addLog("err","运行错误",e.message)
+            mDataContext.addRunLog("err","运行错误",e.message)
             e(e.message!!)
         }
     }

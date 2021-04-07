@@ -634,7 +634,7 @@ class StockPositionHistoryActivity() : AppCompatActivity() {
                             return
                         }
                     } else {
-                        dataContext.addLog("StockPositionHistoryActivity", "获取数据失败...", "")
+                        dataContext.addRunLog("StockPositionHistoryActivity", "获取数据失败...", "")
                     }
                 } catch (e: Exception) {
                 }

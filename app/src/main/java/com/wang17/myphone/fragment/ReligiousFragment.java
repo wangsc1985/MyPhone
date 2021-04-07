@@ -469,7 +469,7 @@ public class ReligiousFragment extends Fragment {
         }
         catch (Exception e){
             DataContext dc = new DataContext(getContext());
-            dc.addLog("err","运行错误",e.getMessage());
+            dc.addRunLog("err","运行错误",e.getMessage());
         }
     }
 

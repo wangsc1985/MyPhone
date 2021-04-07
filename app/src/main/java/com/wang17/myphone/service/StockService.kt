@@ -321,12 +321,12 @@ class StockService : Service() {
 //                                e("${position.name} cost fund : $costFund , profit : $profit")
                             } catch (e: Exception) {
                                 Log.e("wangsc", "数据错误...")
-                                mDataContext.addLog("StockMediaTimerServic", "数据错误...", "")
+                                mDataContext.addRunLog("StockMediaTimerServic", "数据错误...", "")
                                 return@Runnable
                             }
                         } else {
                             Log.e("wangsc", "数据错误...")
-                            mDataContext.addLog("StockMediaTimerServic", "数据错误...", "")
+                            mDataContext.addRunLog("StockMediaTimerServic", "数据错误...", "")
                         }
                     } else {
                         /**
@@ -348,11 +348,11 @@ class StockService : Service() {
                                 val commodity = findCommodity(position.code)
                                 totalProfitF += profit * position.amount.toBigDecimal() * commodity!!.unit.toBigDecimal()
                             } catch (e: Exception) {
-                                mDataContext.addLog("StockMediaTimerServic", "数据错误...", "")
+                                mDataContext.addRunLog("StockMediaTimerServic", "数据错误...", "")
                                 return@Runnable
                             }
                         } else {
-                            mDataContext.addLog("StockMediaTimerServic", "获取数据失败...", "")
+                            mDataContext.addRunLog("StockMediaTimerServic", "获取数据失败...", "")
                         }
                     }
                 }
@@ -373,11 +373,11 @@ class StockService : Service() {
                         szIncrease = (szPrice - open) / open
                         mTimeS = result[31]
                     } catch (e: Exception) {
-                        mDataContext.addLog("StockMediaTimerServic", "数据错误...", "")
+                        mDataContext.addRunLog("StockMediaTimerServic", "数据错误...", "")
                         return@Runnable
                     }
                 } else {
-                    mDataContext.addLog("StockMediaTimerServic", "数据错误...", "")
+                    mDataContext.addRunLog("StockMediaTimerServic", "数据错误...", "")
                     return@Runnable
                 }
                 //endregion

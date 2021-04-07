@@ -18,6 +18,7 @@ import com.wang17.myphone.activity.AlarmWindowActivity
 import com.wang17.myphone.activity.FundMonitorActivity
 import com.wang17.myphone.activity.FuturePositionActivity
 import com.wang17.myphone.activity.StockPositionActivity
+import com.wang17.myphone.database.DataContext
 import com.wang17.myphone.event.NianfoOverEvent
 import com.wang17.myphone.model.DateTime
 import com.wang17.myphone.database.Setting
@@ -25,7 +26,6 @@ import com.wang17.myphone.database.TallyRecord
 import com.wang17.myphone.service.NianfoMusicService
 import com.wang17.myphone.service.SpeakerService
 import com.wang17.myphone.util.BackupTask
-import com.wang17.myphone.database.DataContext
 import com.wang17.myphone.util._LogUtils.log2file
 import com.wang17.myphone.util._Session
 import com.wang17.myphone.util._Session.ALERT_VOLUMN

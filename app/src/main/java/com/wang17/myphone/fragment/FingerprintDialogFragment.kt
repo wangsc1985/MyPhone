@@ -44,11 +44,6 @@ class FingerprintDialogFragment : DialogFragment() {
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
         val v = inflater.inflate(com.wang17.myphone.R.layout.fragment_finger, container, false)
         errorMsg = v.findViewById(com.wang17.myphone.R.id.error_msg)
-        val cancel = v.findViewById<TextView>(com.wang17.myphone.R.id.cancel)
-        cancel.setOnClickListener {
-            dismiss()
-            stopListening()
-        }
         return v
     }
 
