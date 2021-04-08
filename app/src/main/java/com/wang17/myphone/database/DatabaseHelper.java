@@ -265,7 +265,6 @@ public class DatabaseHelper extends SQLiteOpenHelper {
                             + "type INT,"
                             + "duration INT)");
                     db.execSQL("insert into buddhaConfig select * from buddhaFile");
-                case 48:
                     db.execSQL("drop table buddhaFile");
 
             }
