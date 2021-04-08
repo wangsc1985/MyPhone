@@ -120,18 +120,18 @@ class BuddhaFragment : Fragment() {
 
         initializeView()
         if (dataContext.getSetting(Setting.KEYS.is_stocks_listener, false).boolean == true) {
-            _AnimationUtils.setRorateAnimation(context, abtn_stock, 3000)
+            _AnimationUtils.setRorateAnimation(context, fab_stock, 3000)
         }
-        abtn_stock.setOnClickListener {
+        fab_stock.setOnClickListener {
             //region 在StockReportService里面执行
             if (dataContext.getSetting(Setting.KEYS.is_stocks_listener, false).boolean == false) {
                 context!!.startService(Intent(context, StockService::class.java))
                 dataContext.editSetting(Setting.KEYS.is_stocks_listener, true)
-                animatorSuofang(abtn_stock)
+                animatorSuofang(fab_stock)
             }
             //endregion
         }
-        abtn_stock.setOnLongClickListener { //region 在StockReportService里面执行
+        fab_stock.setOnLongClickListener { //region 在StockReportService里面执行
             if (dataContext.getSetting(Setting.KEYS.is_stocks_listener, false).boolean == true) {
                 context!!.stopService(Intent(context, StockService::class.java))
                 dataContext.editSetting(Setting.KEYS.is_stocks_listener, false)
@@ -139,7 +139,7 @@ class BuddhaFragment : Fragment() {
             } else {
                 context!!.startService(Intent(context, StockService::class.java))
                 dataContext.editSetting(Setting.KEYS.is_stocks_listener, true)
-                animatorSuofang(abtn_stock)
+                animatorSuofang(fab_stock)
                 //
                 _Utils.clickHomeButton(context!!)
             }

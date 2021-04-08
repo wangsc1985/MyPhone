@@ -25,16 +25,16 @@ import android.widget.ImageView
 import android.widget.TextView
 import com.wang17.myphone.R
 import com.wang17.myphone.e
-import com.wang17.myphone.eventbus.EventBusMessage
-import com.wang17.myphone.eventbus.FromBuddhaServiceDestroy
-import com.wang17.myphone.eventbus.FromBuddhaServiceTimer
 import com.wang17.myphone.database.BuddhaFile
 import com.wang17.myphone.database.DataContext
 import com.wang17.myphone.database.Setting
+import com.wang17.myphone.eventbus.*
 import com.wang17.myphone.util._NotificationUtils
 import com.wang17.myphone.util._Session
 import com.wang17.myphone.util._Utils
 import org.greenrobot.eventbus.EventBus
+import org.greenrobot.eventbus.Subscribe
+import org.greenrobot.eventbus.ThreadMode
 import java.io.File
 import java.util.*
 
@@ -80,7 +80,6 @@ class BuddhaService : Service() {
         super.onCreate()
         e("buddha service onCreate")
         try {
-
             guSound = SoundPool(100, AudioManager.STREAM_MUSIC, 0)
             guSound.load(this, R.raw.yq, 1)
             dc = DataContext(applicationContext)
@@ -100,19 +99,9 @@ class BuddhaService : Service() {
             if (musicName == null)
                 return
 
+            loadBuddhaFile()
 
-
-            val file = _Session.getFile(musicName.string)
-            var bf = dc.getBuddhaFile(musicName.string, file.length())
-            if (bf == null) {
-                bf = BuddhaFile(musicName.string, file.length(), "md5", 1.0f, 1.0f, 11, 600)
-            }
-
-            buddhaType = bf.type
-            speed = bf.speed
-            pitch = bf.pitch
-            circleSecond = bf.circleSecond
-                startMediaPlayer(musicName.string)
+            startMediaPlayer(musicName.string)
                 startTimer()
             showFloatingWindow()
             //
@@ -122,8 +111,26 @@ class BuddhaService : Service() {
             filter.addAction(BluetoothHeadset.ACTION_CONNECTION_STATE_CHANGED)
             filter.addAction(AudioManager.ACTION_AUDIO_BECOMING_NOISY)
             registerReceiver(buddhaReceiver, filter)
+
+            EventBus.getDefault().register(this)
         } catch (e: Exception) {
             e("buddha service onCreate" + e.message)
+        }
+    }
+
+    private fun loadBuddhaFile() {
+        val musicName = dc.getSetting(Setting.KEYS.buddha_music_name)
+        musicName?.let {
+            val file = _Session.getFile(musicName.string)
+            var bf = dc.getBuddhaFile(musicName.string, file.length())
+            if (bf == null) {
+                bf = BuddhaFile(musicName.string, file.length(), "md5", 1.0f, 1.0f, 11, 600)
+            }
+
+            buddhaType = bf.type
+            speed = bf.speed
+            pitch = bf.pitch
+            circleSecond = (bf.circleSecond / bf.speed).toInt()
         }
     }
 
@@ -143,6 +150,7 @@ class BuddhaService : Service() {
         EventBus.getDefault().post(EventBusMessage.getInstance(FromBuddhaServiceDestroy(), "buddha service destroyed"))
         //region 悬浮窗
         windowManager.removeView(floatingWindowView)
+        EventBus.getDefault().unregister(this)
     }
 
     var prvCount = 0
@@ -442,6 +450,23 @@ class BuddhaService : Service() {
             }
         } catch (e: Exception) {
             e("xxxxxxxxxxxxxxxxxxxxxxx ${e.message!!}")
+        }
+    }
+
+    @Subscribe(threadMode = ThreadMode.BACKGROUND)
+    fun onGetMessage(msg :EventBusMessage){
+        when(msg.sender){
+            is FromBuddhaFileConfigUpdate->{
+                loadBuddhaFile()
+
+                var param = mPlayer?.playbackParams
+                param?.let {
+                    e("pitch : ${msg.msg}")
+                    param.pitch = pitch
+                    param.speed = speed
+                    mPlayer?.playbackParams = param
+                }
+            }
         }
     }
 
