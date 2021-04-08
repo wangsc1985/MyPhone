@@ -130,7 +130,10 @@ class BuddhaService : Service() {
             buddhaType = bf.type
             speed = bf.speed
             pitch = bf.pitch
-            circleSecond = (bf.circleSecond / bf.speed).toInt()
+            if(bf.type==11)
+                circleSecond = (bf.circleSecond / bf.speed).toInt()
+            else
+                circleSecond = bf.circleSecond
         }
     }
 

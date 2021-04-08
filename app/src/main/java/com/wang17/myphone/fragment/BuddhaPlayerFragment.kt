@@ -459,7 +459,11 @@ class BuddhaPlayerFragment : Fragment() {
         if (bf == null) {
             bf = BuddhaFile(musicName.string, file.length(), "md5", 1.0f, 1.0f, 11, 600)
         }
-        circleSecond = (bf.circleSecond / bf.speed).toInt()
+        if(bf.type==11){
+            circleSecond = (bf.circleSecond / bf.speed).toInt()
+        }else{
+            circleSecond = bf.circleSecond
+        }
 
         tv_buddha_name.text = "${musicName.string}  调${bf.pitch}  速${bf.speed}  ${circleSecond}秒"
     }
@@ -674,7 +678,11 @@ class BuddhaPlayerFragment : Fragment() {
             val file = _Session.getFile(setName.string)
             val bf = dc.getBuddhaFile(setName.string, file.length())
             bf?.let {
-                circleSecond = (bf.circleSecond/bf.speed).toInt()
+                if(bf.type==11){
+                    circleSecond = (bf.circleSecond/bf.speed).toInt()
+                }else{
+                    circleSecond = bf.circleSecond
+                }
             }
         }
         return circleSecond
