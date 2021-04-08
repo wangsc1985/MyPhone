@@ -13,7 +13,7 @@ import com.wang17.myphone.structure.RepayType;
  */
 public class DatabaseHelper extends SQLiteOpenHelper {
 
-    private static final int VERSION = 48;
+    private static final int VERSION = 49;
     private static final String DATABASE_NAME = "mp.db";
 
     public DatabaseHelper(Context context) {
