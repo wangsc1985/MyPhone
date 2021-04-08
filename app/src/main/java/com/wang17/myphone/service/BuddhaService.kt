@@ -25,7 +25,7 @@ import android.widget.ImageView
 import android.widget.TextView
 import com.wang17.myphone.R
 import com.wang17.myphone.e
-import com.wang17.myphone.database.BuddhaFile
+import com.wang17.myphone.database.BuddhaConfig
 import com.wang17.myphone.database.DataContext
 import com.wang17.myphone.database.Setting
 import com.wang17.myphone.eventbus.*
@@ -99,7 +99,7 @@ class BuddhaService : Service() {
             if (musicName == null)
                 return
 
-            loadBuddhaFile()
+            loadBuddhaConfig()
 
             startMediaPlayer(musicName.string)
                 startTimer()
@@ -118,13 +118,13 @@ class BuddhaService : Service() {
         }
     }
 
-    private fun loadBuddhaFile() {
+    private fun loadBuddhaConfig() {
         val musicName = dc.getSetting(Setting.KEYS.buddha_music_name)
         musicName?.let {
             val file = _Session.getFile(musicName.string)
-            var bf = dc.getBuddhaFile(musicName.string, file.length())
+            var bf = dc.getBuddhaConfig(musicName.string, file.length())
             if (bf == null) {
-                bf = BuddhaFile(musicName.string, file.length(), "md5", 1.0f, 1.0f, 11, 600)
+                bf = BuddhaConfig(musicName.string, file.length(), "md5", 1.0f, 1.0f, 11, 600)
             }
 
             buddhaType = bf.type
@@ -459,8 +459,8 @@ class BuddhaService : Service() {
     @Subscribe(threadMode = ThreadMode.BACKGROUND)
     fun onGetMessage(msg :EventBusMessage){
         when(msg.sender){
-            is FromBuddhaFileConfigUpdate->{
-                loadBuddhaFile()
+            is FromBuddhaConfigUpdate->{
+                loadBuddhaConfig()
 
                 var param = mPlayer?.playbackParams
                 param?.let {

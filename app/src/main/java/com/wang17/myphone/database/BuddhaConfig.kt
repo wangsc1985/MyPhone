@@ -2,7 +2,7 @@ package com.wang17.myphone.database
 
 import java.util.*
 
-class BuddhaFile(
+class BuddhaConfig(
 
         var id:UUID,
         /**

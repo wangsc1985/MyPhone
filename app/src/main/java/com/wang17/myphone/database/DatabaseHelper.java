@@ -13,7 +13,7 @@ import com.wang17.myphone.structure.RepayType;
  */
 public class DatabaseHelper extends SQLiteOpenHelper {
 
-    private static final int VERSION = 47;
+    private static final int VERSION = 48;
     private static final String DATABASE_NAME = "mp.db";
 
     public DatabaseHelper(Context context) {
@@ -34,22 +34,6 @@ public class DatabaseHelper extends SQLiteOpenHelper {
                     + "interval INTEGER,"
                     + "item TEXT,"
                     + "summary TEXT)");
-            db.execSQL("create table if not exists buddha("
-                    + "id TEXT PRIMARY KEY,"
-                    + "start LONG,"
-                    + "duration LONG,"
-                    + "count INT,"
-                    + "type INT,"
-                    + "summary TEXT)");
-            db.execSQL("create table if not exists buddhaFile("
-                    + "id TEXT PRIMARY KEY,"
-                    + "name TEXT,"
-                    + "size LONG,"
-                    + "md5 TEXT,"
-                    + "pitch REAL,"
-                    + "speed REAL,"
-                    + "type INT,"
-                    + "duration INT)");
             db.execSQL("create table if not exists markDay("
                     + "id TEXT PRIMARY KEY,"
                     + "dateTime LONG,"
@@ -186,6 +170,22 @@ public class DatabaseHelper extends SQLiteOpenHelper {
                     + "id TEXT PRIMARY KEY,"
                     + "content TEXT,"
                     + "rowNo TEXT)");
+            db.execSQL("create table if not exists buddha("
+                    + "id TEXT PRIMARY KEY,"
+                    + "startTime LONG,"
+                    + "duration LONG,"
+                    + "count INT,"
+                    + "type INT,"
+                    + "summary TEXT)");
+            db.execSQL("create table if not exists buddhaConfig("
+                    + "id TEXT PRIMARY KEY,"
+                    + "name TEXT,"
+                    + "size LONG,"
+                    + "md5 TEXT,"
+                    + "pitch REAL,"
+                    + "speed REAL,"
+                    + "type INT,"
+                    + "duration INT)");
         } catch (SQLException e) {
             Log.e("wangsc", e.getMessage());
         }
@@ -242,7 +242,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
                 case 44:
                     db.execSQL("update buddha set summary='计时念佛'");
                 case 45:
-                    db.execSQL("create table if not exists buddhaFile("
+                    db.execSQL("create table if not exists buddhaConfig("
                             + "id TEXT PRIMARY KEY,"
                             + "name TEXT,"
                             + "size LONG,"
@@ -253,6 +253,20 @@ public class DatabaseHelper extends SQLiteOpenHelper {
                             + "duration INT)");
                 case 46:
                     db.execSQL("update buddha set summary='' where summary='计时念佛' or  summary='计数念佛' or summary='耳听念佛' or summary='计时计数念佛'");
+
+                case 47:
+                    db.execSQL("create table if not exists buddhaConfig("
+                            + "id TEXT PRIMARY KEY,"
+                            + "name TEXT,"
+                            + "size LONG,"
+                            + "md5 TEXT,"
+                            + "pitch REAL,"
+                            + "speed REAL,"
+                            + "type INT,"
+                            + "duration INT)");
+                    db.execSQL("insert into buddhaConfig select * from buddhaFile");
+                case 48:
+                    db.execSQL("drop table buddhaFile");
 
             }
         } catch (SQLException e) {

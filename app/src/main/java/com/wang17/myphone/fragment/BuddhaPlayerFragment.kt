@@ -21,7 +21,7 @@ import com.wang17.myphone.callback.CloudCallback
 import com.wang17.myphone.callback.DialogChoosenCallback
 import com.wang17.myphone.e
 import com.wang17.myphone.model.DateTime
-import com.wang17.myphone.database.BuddhaFile
+import com.wang17.myphone.database.BuddhaConfig
 import com.wang17.myphone.database.BuddhaRecord
 import com.wang17.myphone.database.DataContext
 import com.wang17.myphone.database.Setting
@@ -243,10 +243,10 @@ class BuddhaPlayerFragment : Fragment() {
                     loadBuddhaName()
 
                     val file = _Session.getFile(_Session.BUDDHA_MUSIC_NAME_ARR[which])
-                    val bf = dc.getBuddhaFile(_Session.BUDDHA_MUSIC_NAME_ARR[which], file.length())
+                    val bf = dc.getBuddhaConfig(_Session.BUDDHA_MUSIC_NAME_ARR[which], file.length())
 
                     if (bf == null) {
-                        dc.addBuddhaFile(BuddhaFile(_Session.BUDDHA_MUSIC_NAME_ARR[which], file.length(), "md5", 1.0f, 1.0f, 11, 600))
+                        dc.addBuddhaConfig(BuddhaConfig(_Session.BUDDHA_MUSIC_NAME_ARR[which], file.length(), "md5", 1.0f, 1.0f, 11, 600))
                         updateConfig()
                     } else {
                         circleSecond = getCurrentCircleSecond()
@@ -455,9 +455,9 @@ class BuddhaPlayerFragment : Fragment() {
         val musicName = dc.getSetting(Setting.KEYS.buddha_music_name, "阿弥陀佛.mp3")
 
         val file = _Session.getFile(musicName.string)
-        var bf = dc.getBuddhaFile(musicName.string, file.length())
+        var bf = dc.getBuddhaConfig(musicName.string, file.length())
         if (bf == null) {
-            bf = BuddhaFile(musicName.string, file.length(), "md5", 1.0f, 1.0f, 11, 600)
+            bf = BuddhaConfig(musicName.string, file.length(), "md5", 1.0f, 1.0f, 11, 600)
         }
         if(bf.type==11){
             circleSecond = (bf.circleSecond / bf.speed).toInt()
@@ -560,7 +560,7 @@ class BuddhaPlayerFragment : Fragment() {
         set?.let {
             val file = _Session.getFile(set.string)
             if (file.exists()) {
-                val bf = dc.getBuddhaFile(set.string, file.length())
+                val bf = dc.getBuddhaConfig(set.string, file.length())
                 val view = View.inflate(context, R.layout.inflate_dialog_buddha_file, null)
                 val etPitch = view.findViewById<EditText>(R.id.et_pitch)
                 val etSpeed = view.findViewById<EditText>(R.id.et_speed)
@@ -588,34 +588,34 @@ class BuddhaPlayerFragment : Fragment() {
                 ivPitchAdd.setOnClickListener {
                     etPitch.setText(format.format(etPitch.text.toString().toFloat() + 0.01))
                     bf.pitch = etPitch.text.toString().toFloat()
-                    dc.editBuddhaFile(bf)
+                    dc.editBuddhaConfig(bf)
 
                     loadBuddhaName()
-                    EventBus.getDefault().post(EventBusMessage.getInstance(FromBuddhaFileConfigUpdate(),""))
+                    EventBus.getDefault().post(EventBusMessage.getInstance(FromBuddhaConfigUpdate(),""))
                 }
                 ivPitchMinus.setOnClickListener {
                     etPitch.setText(format.format(etPitch.text.toString().toFloat() - 0.01))
                     bf.pitch = etPitch.text.toString().toFloat()
-                    dc.editBuddhaFile(bf)
+                    dc.editBuddhaConfig(bf)
 
                     loadBuddhaName()
-                    EventBus.getDefault().post(EventBusMessage.getInstance(FromBuddhaFileConfigUpdate(),""))
+                    EventBus.getDefault().post(EventBusMessage.getInstance(FromBuddhaConfigUpdate(),""))
                 }
                 ivSpeedAdd.setOnClickListener {
                     etSpeed.setText(format.format(etSpeed.text.toString().toFloat() + 0.01))
                     bf.speed = etSpeed.text.toString().toFloat()
-                    dc.editBuddhaFile(bf)
+                    dc.editBuddhaConfig(bf)
 
                     loadBuddhaName()
-                    EventBus.getDefault().post(EventBusMessage.getInstance(FromBuddhaFileConfigUpdate(),""))
+                    EventBus.getDefault().post(EventBusMessage.getInstance(FromBuddhaConfigUpdate(),""))
                 }
                 ivSpeedMinus.setOnClickListener {
                     etSpeed.setText(format.format(etSpeed.text.toString().toFloat() - 0.01))
                     bf.speed = etSpeed.text.toString().toFloat()
-                    dc.editBuddhaFile(bf)
+                    dc.editBuddhaConfig(bf)
 
                     loadBuddhaName()
-                    EventBus.getDefault().post(EventBusMessage.getInstance(FromBuddhaFileConfigUpdate(),""))
+                    EventBus.getDefault().post(EventBusMessage.getInstance(FromBuddhaConfigUpdate(),""))
                 }
                 etDuration.setText(bf.circleSecond.toString())
 //                etPitch.setOnEditorActionListener { v, actionId, event ->
@@ -645,9 +645,9 @@ class BuddhaPlayerFragment : Fragment() {
                     bf.type = spType.selectedItem.toString().toInt()
                     bf.speed = etSpeed.text.toString().toFloat()
                     bf.pitch = etPitch.text.toString().toFloat()
-                    dc.editBuddhaFile(bf)
+                    dc.editBuddhaConfig(bf)
                     isChangeConfig = true
-                    circleSecond = getCurrentCircleSecond()  // 必须在dc.editBuddhaFile(bf)之后
+                    circleSecond = getCurrentCircleSecond()  // 必须在dc.editBuddhaConfig(bf)之后
                     if (_Utils.isServiceRunning(context!!, BuddhaService::class.qualifiedName!!) && dc.getSetting(Setting.KEYS.buddha_startime) != null) {
                         context?.stopService(buddhaIntent)
                         context?.startService(buddhaIntent)
@@ -655,8 +655,8 @@ class BuddhaPlayerFragment : Fragment() {
                         dialog.dismiss()
                     }
 
-                    var list = ArrayList<BuddhaFile>()
-                    var bfs = dc.buddhaFiles
+                    var list = ArrayList<BuddhaConfig>()
+                    var bfs = dc.buddhaConfigList
                     e("buddha files size : ${bfs.size}  remove list size : ${list.size}")
                     bfs.forEach {
                         if (!_Session.BUDDHA_MUSIC_NAME_ARR.contains(it.name)) {
@@ -665,7 +665,7 @@ class BuddhaPlayerFragment : Fragment() {
                         }
                     }
 
-                    dc.deleteBuddhaFileList(list)
+                    dc.deleteBuddhaConfigList(list)
                 }
             }
         }
@@ -676,7 +676,7 @@ class BuddhaPlayerFragment : Fragment() {
         var circleSecond = 600
         setName?.let {
             val file = _Session.getFile(setName.string)
-            val bf = dc.getBuddhaFile(setName.string, file.length())
+            val bf = dc.getBuddhaConfig(setName.string, file.length())
             bf?.let {
                 if(bf.type==11){
                     circleSecond = (bf.circleSecond/bf.speed).toInt()
@@ -696,7 +696,7 @@ class BuddhaPlayerFragment : Fragment() {
             set?.let {
                 val file = _Session.getFile(set.string)
                 if (file.exists()) {
-                    val bf = dc.getBuddhaFile(set.string, file.length())
+                    val bf = dc.getBuddhaConfig(set.string, file.length())
                     buddhaType = bf.type
                 }
             }

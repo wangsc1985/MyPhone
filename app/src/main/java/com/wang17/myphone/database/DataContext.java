@@ -11,9 +11,7 @@ import com.wang17.myphone.structure.CardType;
 import com.wang17.myphone.structure.RepayType;
 import com.wang17.myphone.structure.SmsStatus;
 import com.wang17.myphone.structure.SmsType;
-import com.wang17.myphone.util._Session;
 import com.wang17.myphone.util._Utils;
-import com.wangsc.commons.codec.language.bm.Rule;
 
 import org.jetbrains.annotations.NotNull;
 
@@ -36,14 +34,14 @@ public class DataContext {
         dbHelper = new DatabaseHelper(context);
     }
 
-    //region BuddhaFile
+    //region BuddhaConfig
 
     /**
      * 增加一条记录
      *
      * @param model 记录对象
      */
-    public void addBuddhaFile(BuddhaFile model) {
+    public void addBuddhaConfig(BuddhaConfig model) {
         try {
             //获取数据库对象
             SQLiteDatabase db = dbHelper.getWritableDatabase();
@@ -59,7 +57,7 @@ public class DataContext {
             values.put("duration", model.getCircleSecond());
 
             //调用方法插入数据
-            db.insert("buddhaFile", "id", values);
+            db.insert("buddhaConfig", "id", values);
             //关闭SQLiteDatabase对象
             db.close();
         } catch (Exception e) {
@@ -67,16 +65,16 @@ public class DataContext {
         }
     }
 
-    public List<BuddhaFile> getBuddhaFiles() {
-        List<BuddhaFile> result = new ArrayList<>();
+    public List<BuddhaConfig> getBuddhaConfigList() {
+        List<BuddhaConfig> result = new ArrayList<>();
         try {
             //获取数据库对象
             SQLiteDatabase db = dbHelper.getReadableDatabase();
             //查询获得游标
-            Cursor cursor = db.query("buddhaFile", null, null, null, null, null, null);
+            Cursor cursor = db.query("buddhaConfig", null, null, null, null, null, null);
             //判断游标是否为空
             if (cursor.moveToNext()) {
-                BuddhaFile model = new BuddhaFile(UUID.randomUUID(),
+                BuddhaConfig model = new BuddhaConfig(UUID.randomUUID(),
                         cursor.getString(1),
                         cursor.getLong(2),
                         cursor.getString(3),
@@ -96,16 +94,16 @@ public class DataContext {
     }
 
 
-    public BuddhaFile getBuddhaFile(String name, long size) {
+    public BuddhaConfig getBuddhaConfig(String name, long size) {
 
         try {
             //获取数据库对象
             SQLiteDatabase db = dbHelper.getReadableDatabase();
             //查询获得游标
-            Cursor cursor = db.query("buddhaFile", null, "name = ? and size = ?", new String[]{name, size + ""}, null, null, null);
+            Cursor cursor = db.query("buddhaConfig", null, "name = ? and size = ?", new String[]{name, size + ""}, null, null, null);
             //判断游标是否为空
             if (cursor.moveToNext()) {
-                BuddhaFile model = new BuddhaFile(UUID.fromString(cursor.getString(0)),
+                BuddhaConfig model = new BuddhaConfig(UUID.fromString(cursor.getString(0)),
                         cursor.getString(1),
                         cursor.getLong(2),
                         cursor.getString(3),
@@ -123,7 +121,7 @@ public class DataContext {
         return null;
     }
 
-    public void editBuddhaFile(BuddhaFile model) {
+    public void editBuddhaConfig(BuddhaConfig model) {
 
         try {
             //获取数据库对象
@@ -139,19 +137,19 @@ public class DataContext {
             values.put("type", model.getType());
             values.put("duration", model.getCircleSecond());
             //调用方法插入数据
-            db.update("buddhaFile", values, "id=?", new String[]{model.getId().toString()});
+            db.update("buddhaConfig", values, "id=?", new String[]{model.getId().toString()});
             db.close();
         } catch (Exception e) {
             _Utils.printException(context, e);
         }
     }
 
-    public void deleteBuddhaFileList(List<BuddhaFile> list) {
+    public void deleteBuddhaConfigList(List<BuddhaConfig> list) {
         try {
             //获取数据库对象
             SQLiteDatabase db = dbHelper.getWritableDatabase();
             for (int i = 0; i < list.size(); i++) {
-                db.delete("buddhaFile", "id=?", new String[]{list.get(i).getId().toString()});
+                db.delete("buddhaConfig", "id=?", new String[]{list.get(i).getId().toString()});
             }
             //关闭SQLiteDatabase对象
             db.close();
