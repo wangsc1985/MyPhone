@@ -561,7 +561,7 @@ class BuddhaPlayerFragment : Fragment() {
             val file = _Session.getFile(set.string)
             if (file.exists()) {
                 val bf = dc.getBuddhaConfig(set.string, file.length())
-                val view = View.inflate(context, R.layout.inflate_dialog_buddha_file, null)
+                val view = View.inflate(context, R.layout.inflate_dialog_buddha_config, null)
                 val etPitch = view.findViewById<EditText>(R.id.et_pitch)
                 val etSpeed = view.findViewById<EditText>(R.id.et_speed)
                 val ivPitchMinus = view.findViewById<ImageView>(R.id.iv_pitch_minus)

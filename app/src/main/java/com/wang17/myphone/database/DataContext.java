@@ -34,6 +34,69 @@ public class DataContext {
         dbHelper = new DatabaseHelper(context);
     }
 
+
+    //region Loan
+    public void addLoan(Loan model) {
+        try {
+            //获取数据库对象
+            SQLiteDatabase db = dbHelper.getWritableDatabase();
+            //使用insert方法向表中插入数据
+            ContentValues values = new ContentValues();
+            values.put("id", model.getId().toString());
+            values.put("name", model.getName());
+            values.put("date", model.getDate().getTimeInMillis());
+            values.put("sum", model.getSum().toString());
+            values.put("rate", model.getRate().toString());
+
+            //调用方法插入数据
+            db.insert("loan", "id", values);
+            //关闭SQLiteDatabase对象
+            db.close();
+        } catch (Exception e) {
+            _Utils.printException(context, e);
+        }
+    }
+
+
+    public List<Loan> getLoanList() {
+        List<Loan> result = new ArrayList<Loan>();
+        try {
+            //获取数据库对象
+            SQLiteDatabase db = dbHelper.getReadableDatabase();
+            //查询获得游标
+            Cursor cursor = db.query("loan", null, null,null, null, null, "date asc");
+            //判断游标是否为空
+            while (cursor.moveToNext()) {
+                Loan model = new Loan(UUID.fromString(cursor.getString(0)),
+                        cursor.getString(1),
+                        new DateTime(cursor.getLong(2)),
+                        new BigDecimal(cursor.getString(3)),
+                        new BigDecimal(cursor.getString(4)));
+                result.add(model);
+            }
+            cursor.close();
+            db.close();
+        } catch (Exception e) {
+            _Utils.printException(context, e);
+        }
+        return result;
+    }
+
+
+    public void deleteLoan(UUID id) {
+        try {
+            //获取数据库对象
+            SQLiteDatabase db = dbHelper.getWritableDatabase();
+            db.delete("loan", "id=?", new String[]{id.toString()});
+            //关闭SQLiteDatabase对象
+            db.close();
+        } catch (Exception e) {
+            _Utils.printException(context, e);
+        }
+    }
+    //endregion
+
+
     //region BuddhaConfig
 
     /**
@@ -74,7 +137,7 @@ public class DataContext {
             Cursor cursor = db.query("buddhaConfig", null, null, null, null, null, null);
             //判断游标是否为空
             if (cursor.moveToNext()) {
-                BuddhaConfig model = new BuddhaConfig(UUID.randomUUID(),
+                BuddhaConfig model = new BuddhaConfig(UUID.fromString(cursor.getString(0)),
                         cursor.getString(1),
                         cursor.getLong(2),
                         cursor.getString(3),

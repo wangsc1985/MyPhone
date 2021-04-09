@@ -54,15 +54,20 @@ class MyClass {
         @JvmStatic
         fun main(args: Array<String>) {
 
-            val body="【交通银行信用卡】送你1次抽奖机会！9月20日登录交通银行信用卡周周刷活动主页即可获得！百发百中送您积分、刷卡金或者金砖哦，戳 cc."
-            var matcher = Pattern.compile("(?<=【).{1,10}(?=】)").matcher(body)
-            if (matcher.find())
-                println(matcher.group().trim())
+            val date1 = DateTime(2020,1,23,7,2,5)
+            val date2 = DateTime(2020,1,24,15,2,5)
+            println(date1.date.timeInMillis)
+            println((date2.date.timeInMillis-date1.date.timeInMillis)/(1000*60*60*24))
 
-
-            val a:String?=null
-            val b:String?="asdfasdfasdf"
-            println(b?:"ccc")
+//            val body="【交通银行信用卡】送你1次抽奖机会！9月20日登录交通银行信用卡周周刷活动主页即可获得！百发百中送您积分、刷卡金或者金砖哦，戳 cc."
+//            var matcher = Pattern.compile("(?<=【).{1,10}(?=】)").matcher(body)
+//            if (matcher.find())
+//                println(matcher.group().trim())
+//
+//
+//            val a:String?=null
+//            val b:String?="asdfasdfasdf"
+//            println(b?:"ccc")
 
 //
 //            var match = Pattern.compile("[0-9]{6}").matcher("【去哪儿网】验证码: 7782，十分钟后失效，请勿向任何人提供验证码")

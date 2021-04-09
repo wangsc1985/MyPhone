@@ -156,11 +156,15 @@ class MyWidgetRemoteViewsService : RemoteViewsService() {
                     var balance =balanceStr.toDouble()
                     if (balance > 3000) {
                         mToDoList.add(ToDo("          ", "ABC","          ",  WARNING3_COLOR, true, R.raw.yq))
+                    }else if(balance<100){
+                        mToDoList.add(ToDo("          ", "ABC","          ",  WARNING2_COLOR, true, R.raw.yq))
                     }
                     balanceStr = dc.getSetting(Setting.KEYS.bank2_balance, 0).string.replace(",","")
                     balance =balanceStr.toDouble()
                     if (balance > 2000) {
                         mToDoList.add(ToDo("          ", "ICBC","          ",  WARNING3_COLOR, true, R.raw.yq))
+                    }else if(balance<50){
+                        mToDoList.add(ToDo("          ", "ICBC","          ",  WARNING2_COLOR, true, R.raw.yq))
                     }
                 }
                 val newMsg = dc.getSetting(Setting.KEYS.wx_new_msg)

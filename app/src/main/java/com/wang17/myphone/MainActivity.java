@@ -93,7 +93,6 @@ public class MainActivity extends AppCompatActivity implements BackupTask.OnFini
 //        e("main activity on resume");
     }
 
-
     private TextureMapView textureMapView;
 
     private Animation rorateAnimation;

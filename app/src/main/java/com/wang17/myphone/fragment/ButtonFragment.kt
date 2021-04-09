@@ -310,16 +310,9 @@ class ButtonFragment : Fragment() {
 
             var xiaoKnockSound = SoundPool(100, AudioManager.STREAM_MUSIC, 0)
             xiaoKnockSound.load(context, R.raw.yq, 1)
-            btn = _Button(context!!, "木鱼")
+            btn = _Button(context!!, "loan")
             btn.setOnClickListener {
-                if(_Utils.isServiceRunning(context!!, MuyuService::class.qualifiedName!!)){
-                    context?.stopService(Intent(context!!, MuyuService::class.java))
-                }else{
-                    context?.startService(Intent(context!!, MuyuService::class.java))
-                }
-//                xiaoKnockSound.play(1,1.0f,1.0f,0,0,1.0f)
-//                Thread.sleep(dataContext.getSetting(Setting.KEYS.muyu_period,500).long)
-//                xiaoKnockSound.play(1,1.0f,1.0f,0,0,1.0f)
+                context!!.startActivity(Intent(context!!,LoanActivity::class.java))
             }
             layout_flexbox.addView(btn)
         }

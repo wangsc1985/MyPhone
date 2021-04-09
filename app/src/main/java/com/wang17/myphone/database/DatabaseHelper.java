@@ -13,7 +13,7 @@ import com.wang17.myphone.structure.RepayType;
  */
 public class DatabaseHelper extends SQLiteOpenHelper {
 
-    private static final int VERSION = 49;
+    private static final int VERSION = 51;
     private static final String DATABASE_NAME = "mp.db";
 
     public DatabaseHelper(Context context) {
@@ -186,6 +186,12 @@ public class DatabaseHelper extends SQLiteOpenHelper {
                     + "speed REAL,"
                     + "type INT,"
                     + "duration INT)");
+            db.execSQL("create table if not exists loan("
+                    + "id TEXT PRIMARY KEY,"
+                    + "name TEXT,"
+                    + "date LONG,"
+                    + "sum TEXT,"
+                    + "rate TEXT)");
         } catch (SQLException e) {
             Log.e("wangsc", e.getMessage());
         }
@@ -267,6 +273,13 @@ public class DatabaseHelper extends SQLiteOpenHelper {
                     db.execSQL("insert into buddhaConfig select * from buddhaFile");
                     db.execSQL("drop table buddhaFile");
 
+                case 50:
+                    db.execSQL("create table if not exists loan("
+                            + "id TEXT PRIMARY KEY,"
+                            + "name TEXT,"
+                            + "date LONG,"
+                            + "sum TEXT,"
+                            + "rate TEXT)");
             }
         } catch (SQLException e) {
             Log.e("wangsc", e.getMessage());
