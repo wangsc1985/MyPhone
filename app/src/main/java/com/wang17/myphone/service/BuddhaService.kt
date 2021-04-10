@@ -302,7 +302,7 @@ class BuddhaService : Service() {
             AudioManager.AUDIOFOCUS_LOSS_TRANSIENT_CAN_DUCK -> {
                 e("暂时失去焦点并降音")
                 mPlayer?.setVolume(0.3f, 0.3f)
-                pauseTimer()
+//                pauseTimer()
                 pauseOrStopData()
             }
         }
