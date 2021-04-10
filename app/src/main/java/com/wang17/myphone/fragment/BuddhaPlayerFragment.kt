@@ -49,6 +49,8 @@ class BuddhaPlayerFragment : Fragment() {
     lateinit var dc: DataContext
     var isChangeConfig = false
 
+    val format = DecimalFormat("0.00")
+
     override fun onResume() {
         super.onResume()
         if (_Utils.isServiceRunning(context!!, StockService::class.qualifiedName!!)) {
@@ -171,7 +173,7 @@ class BuddhaPlayerFragment : Fragment() {
 
         iv_speed_add.setOnClickListener {
             val bf = getBuddhaConfig()
-            bf.speed = DecimalFormat("0.00").format (bf.speed+0.01).toFloat()
+            bf.speed = format.format (bf.speed+0.01).toFloat()
 //            bf.speed = ( bf.speed.toBigDecimal().setScale(2,BigDecimal.ROUND_HALF_UP) + 0.01.toBigDecimal()).toFloat()
             dc.editBuddhaConfig(bf)
 
@@ -180,7 +182,7 @@ class BuddhaPlayerFragment : Fragment() {
         }
         iv_speed_minus.setOnClickListener {
             val bf = getBuddhaConfig()
-            bf.speed = DecimalFormat("0.00").format (bf.speed-0.01).toFloat()
+            bf.speed = format.format (bf.speed-0.01).toFloat()
 //            bf.speed = ( bf.speed.toBigDecimal().setScale(2,BigDecimal.ROUND_HALF_UP) - 0.01.toBigDecimal()).toFloat()
             dc.editBuddhaConfig(bf)
 
@@ -189,7 +191,7 @@ class BuddhaPlayerFragment : Fragment() {
         }
         iv_pitch_add.setOnClickListener {
             val bf = getBuddhaConfig()
-            bf.pitch = DecimalFormat("0.00").format (bf.pitch+0.01).toFloat()
+            bf.pitch = format.format (bf.pitch+0.01).toFloat()
             dc.editBuddhaConfig(bf)
 
             loadBuddhaName()
@@ -197,7 +199,7 @@ class BuddhaPlayerFragment : Fragment() {
         }
         iv_pitch_minus.setOnClickListener {
             val bf = getBuddhaConfig()
-            bf.pitch = DecimalFormat("0.00").format (bf.pitch-0.01).toFloat()
+            bf.pitch = format.format (bf.pitch-0.01).toFloat()
             dc.editBuddhaConfig(bf)
 
             loadBuddhaName()
@@ -492,7 +494,9 @@ class BuddhaPlayerFragment : Fragment() {
             circleSecond = bf.circleSecond
         }
 
-        tv_buddha_name.text = "${musicName.string}  调${bf.pitch}  速${bf.speed}  ${circleSecond}秒"
+        tv_buddha_name.text = "${musicName.string}  ${circleSecond}秒"
+        tv_speed.text = "速${format.format(bf.speed)}"
+        tv_pitch.text = "调${format.format(bf.pitch)}"
     }
 
     fun getBuddhaConfig():BuddhaConfig{
