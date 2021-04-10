@@ -36,6 +36,7 @@ import kotlinx.android.synthetic.main.fragment_player.*
 import org.greenrobot.eventbus.EventBus
 import org.greenrobot.eventbus.Subscribe
 import org.greenrobot.eventbus.ThreadMode
+import java.math.BigDecimal
 import java.text.DecimalFormat
 import java.util.*
 
@@ -168,6 +169,41 @@ class BuddhaPlayerFragment : Fragment() {
             tv_time.text = "$hour:${if (minite < 10) "0" + minite else minite}:${if (second < 10) "0" + second else second} \t $tap \t "
         }
 
+        iv_speed_add.setOnClickListener {
+            val bf = getBuddhaConfig()
+            bf.speed = DecimalFormat("0.00").format (bf.speed+0.01).toFloat()
+//            bf.speed = ( bf.speed.toBigDecimal().setScale(2,BigDecimal.ROUND_HALF_UP) + 0.01.toBigDecimal()).toFloat()
+            dc.editBuddhaConfig(bf)
+
+            loadBuddhaName()
+            EventBus.getDefault().post(EventBusMessage.getInstance(FromBuddhaConfigUpdate(),""))
+        }
+        iv_speed_minus.setOnClickListener {
+            val bf = getBuddhaConfig()
+            bf.speed = DecimalFormat("0.00").format (bf.speed-0.01).toFloat()
+//            bf.speed = ( bf.speed.toBigDecimal().setScale(2,BigDecimal.ROUND_HALF_UP) - 0.01.toBigDecimal()).toFloat()
+            dc.editBuddhaConfig(bf)
+
+            loadBuddhaName()
+            EventBus.getDefault().post(EventBusMessage.getInstance(FromBuddhaConfigUpdate(),""))
+        }
+        iv_pitch_add.setOnClickListener {
+            val bf = getBuddhaConfig()
+            bf.pitch = DecimalFormat("0.00").format (bf.pitch+0.01).toFloat()
+            dc.editBuddhaConfig(bf)
+
+            loadBuddhaName()
+            EventBus.getDefault().post(EventBusMessage.getInstance(FromBuddhaConfigUpdate(),""))
+        }
+        iv_pitch_minus.setOnClickListener {
+            val bf = getBuddhaConfig()
+            bf.pitch = DecimalFormat("0.00").format (bf.pitch-0.01).toFloat()
+            dc.editBuddhaConfig(bf)
+
+            loadBuddhaName()
+            EventBus.getDefault().post(EventBusMessage.getInstance(FromBuddhaConfigUpdate(),""))
+        }
+
 //        val buddhaSpeed = dc.getSetting(Setting.KEYS.buddha_speed, 2).int
 //        when (buddhaSpeed) {
 //            1 -> {
@@ -222,10 +258,6 @@ class BuddhaPlayerFragment : Fragment() {
         }
 
         var wakeLock: PowerManager.WakeLock? = null
-        layout_root.setOnLongClickListener {
-            updateConfig()
-            true
-        }
         tv_buddha_name.setOnLongClickListener {
             updateConfig()
             true
@@ -453,12 +485,7 @@ class BuddhaPlayerFragment : Fragment() {
 
     private fun loadBuddhaName() {
         val musicName = dc.getSetting(Setting.KEYS.buddha_music_name, "阿弥陀佛.mp3")
-
-        val file = _Session.getFile(musicName.string)
-        var bf = dc.getBuddhaConfig(musicName.string, file.length())
-        if (bf == null) {
-            bf = BuddhaConfig(musicName.string, file.length(), "md5", 1.0f, 1.0f, 11, 600)
-        }
+        val bf = getBuddhaConfig()
         if(bf.type==11){
             circleSecond = (bf.circleSecond / bf.speed).toInt()
         }else{
@@ -466,6 +493,17 @@ class BuddhaPlayerFragment : Fragment() {
         }
 
         tv_buddha_name.text = "${musicName.string}  调${bf.pitch}  速${bf.speed}  ${circleSecond}秒"
+    }
+
+    fun getBuddhaConfig():BuddhaConfig{
+        val musicName = dc.getSetting(Setting.KEYS.buddha_music_name, "阿弥陀佛.mp3")
+
+        val file = _Session.getFile(musicName.string)
+        var bf = dc.getBuddhaConfig(musicName.string, file.length())
+        if (bf == null) {
+            bf = BuddhaConfig(musicName.string, file.length(), "md5", 1.0f, 1.0f, 11, 600)
+        }
+        return bf
     }
 
     var autoSave = false

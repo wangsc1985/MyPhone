@@ -21,14 +21,16 @@ class FingerprintDialogFragment : DialogFragment() {
     private var fingerprintManager: FingerprintManager? = null
     private var mCancellationSignal: CancellationSignal? = null
     private var mCipher: Cipher? = null
+    private var mIntent :Intent?=null
     private var errorMsg: TextView? = null
 
     /**
      * 标识是否是用户主动取消的认证。
      */
     private var isSelfCancelled = false
-    fun setCipher(cipher: Cipher?) {
+    fun setCipher(cipher: Cipher?,intent:Intent?) {
         mCipher = cipher
+        mIntent = intent
     }
 
     override fun onAttach(context: Context) {
@@ -77,8 +79,8 @@ class FingerprintDialogFragment : DialogFragment() {
             }
 
             override fun onAuthenticationSucceeded(result: FingerprintManager.AuthenticationResult) {
-                val intent = Intent(context, SmsActivity::class.java)
-                startActivity(intent)
+//                val intent = Intent(context, SmsActivity::class.java)
+                startActivity(mIntent)
 
                 dismiss()
                 stopListening()
@@ -96,5 +98,9 @@ class FingerprintDialogFragment : DialogFragment() {
             mCancellationSignal = null
             isSelfCancelled = true
         }
+    }
+
+    companion object{
+
     }
 }

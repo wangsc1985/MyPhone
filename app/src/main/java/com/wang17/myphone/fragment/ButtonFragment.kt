@@ -300,7 +300,7 @@ class ButtonFragment : Fragment() {
             btn.setOnClickListener {
                 if (supportFingerprint()) {
                     initKey();
-                    initCipher();
+                    initCipher(Intent(context!!,SmsActivity::class.java));
                 }
             }
             layout_flexbox.addView(btn)
@@ -312,7 +312,10 @@ class ButtonFragment : Fragment() {
             xiaoKnockSound.load(context, R.raw.yq, 1)
             btn = _Button(context!!, "loan")
             btn.setOnClickListener {
-                context!!.startActivity(Intent(context!!,LoanActivity::class.java))
+                if (supportFingerprint()) {
+                    initKey();
+                    initCipher(Intent(context!!,LoanActivity::class.java));
+                }
             }
             layout_flexbox.addView(btn)
         }
@@ -871,22 +874,22 @@ class ButtonFragment : Fragment() {
     }
 
     @TargetApi(23)
-    private fun initCipher() {
+    private fun initCipher(intent:Intent) {
         try {
             val key = keyStore!!.getKey(DEFAULT_KEY_NAME, null) as SecretKey
             val cipher = Cipher.getInstance(KeyProperties.KEY_ALGORITHM_AES + "/"
                     + KeyProperties.BLOCK_MODE_CBC + "/"
                     + KeyProperties.ENCRYPTION_PADDING_PKCS7)
             cipher.init(Cipher.ENCRYPT_MODE, key)
-            showFingerPrintDialog(cipher)
+            showFingerPrintDialog(cipher,intent)
         } catch (e: Exception) {
             throw RuntimeException(e)
         }
     }
 
-    private fun showFingerPrintDialog(cipher: Cipher) {
+    private fun showFingerPrintDialog(cipher: Cipher,intent: Intent) {
         val fragment = FingerprintDialogFragment()
-        fragment.setCipher(cipher)
+        fragment.setCipher(cipher, intent)
         fragment.show(activity?.supportFragmentManager, "fingerprint")
     }
 

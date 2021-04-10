@@ -123,6 +123,23 @@
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent" />
 
+    <ImageView
+        android:id="@+id/iv_pitch_minus"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        app:layout_constraintStart_toStartOf="@+id/tv_buddha_name"
+        app:layout_constraintTop_toBottomOf="@+id/tv_buddha_name"
+        app:srcCompat="@android:drawable/ic_media_previous" />
+
+    <ImageView
+        android:id="@+id/iv_speed_minus"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginEnd="16dp"
+        app:layout_constraintEnd_toStartOf="@+id/iv_speed_add"
+        app:layout_constraintTop_toBottomOf="@+id/tv_buddha_name"
+        app:srcCompat="@android:drawable/ic_media_previous" />
+
     <TextView
         android:id="@+id/tv_buddha_name"
         android:layout_width="wrap_content"
@@ -131,11 +148,29 @@
         android:background="@drawable/bg_map_btn_normal"
         android:paddingLeft="10dp"
         android:paddingRight="10dp"
-        android:text="阿弥陀佛"
+        android:text="               阿弥陀佛               "
         android:textColor="@color/calendar_yl_color"
+        app:layout_constraintBottom_toTopOf="@+id/guideline3"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/iv_buddha" />
+
+    <ImageView
+        android:id="@+id/iv_speed_add"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        app:layout_constraintEnd_toEndOf="@+id/tv_buddha_name"
+        app:layout_constraintTop_toBottomOf="@+id/tv_buddha_name"
+        app:srcCompat="@android:drawable/ic_media_next" />
+
+    <ImageView
+        android:id="@+id/iv_pitch_add"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="16dp"
+        app:layout_constraintStart_toEndOf="@+id/iv_pitch_minus"
+        app:layout_constraintTop_toBottomOf="@+id/tv_buddha_name"
+        app:srcCompat="@android:drawable/ic_media_next" />
 
     <LinearLayout
         android:id="@+id/constraintLayout"
