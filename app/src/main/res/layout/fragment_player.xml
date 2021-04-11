@@ -7,18 +7,83 @@
     android:layout_height="match_parent"
     android:orientation="vertical">
 
-    <ImageView
-        android:id="@+id/iv_buddha"
+    <android.support.constraint.ConstraintLayout
+        android:id="@+id/frameLayout7"
         android:layout_width="0dp"
-        android:layout_height="400dp"
-        app:layout_constraintBottom_toTopOf="@+id/constraintLayout"
+        android:layout_height="0dp"
+        app:layout_constraintBottom_toTopOf="@+id/guideline1"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent"
-        app:srcCompat="@drawable/nf"
-        tools:srcCompat="@drawable/nf" />
+        app:layout_constraintTop_toTopOf="@+id/guideline2">
 
-<!--    <TextView-->
+        <ImageView
+            android:id="@+id/iv_pitch_add"
+            android:layout_width="0dp"
+            android:layout_height="0dp"
+            app:layout_constraintBottom_toTopOf="@+id/guideline3"
+            app:layout_constraintEnd_toStartOf="@+id/iv_buddha"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            app:srcCompat="@drawable/my_abc_btn_default_mtrl_shape" />
+
+        <ImageView
+            android:id="@+id/iv_pitch_minus"
+            android:layout_width="0dp"
+            android:layout_height="0dp"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toStartOf="@+id/iv_buddha"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/iv_pitch_add"
+            app:srcCompat="@drawable/my_abc_btn_default_mtrl_shape" />
+
+        <android.support.constraint.Guideline
+            android:id="@+id/guideline3"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            app:layout_constraintGuide_percent="0.5"
+            tools:layout_conversion_absoluteHeight="0dp"
+            tools:layout_conversion_absoluteWidth="0dp"
+            tools:layout_editor_absoluteX="71dp"
+            tools:layout_editor_absoluteY="133dp" />
+
+        <ImageView
+            android:id="@+id/iv_buddha"
+            android:layout_width="290dp"
+            android:layout_height="0dp"
+            android:rotation="0"
+            android:scaleType="centerInside"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            app:srcCompat="@drawable/nf"
+            tools:layout_conversion_absoluteHeight="400dp"
+            tools:layout_conversion_absoluteWidth="270dp"
+            tools:srcCompat="@drawable/nf" />
+
+        <ImageView
+            android:id="@+id/iv_speed_add"
+            android:layout_width="0dp"
+            android:layout_height="0dp"
+            app:layout_constraintBottom_toTopOf="@+id/guideline3"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toEndOf="@+id/iv_buddha"
+            app:layout_constraintTop_toTopOf="parent"
+            app:srcCompat="@drawable/my_abc_btn_default_mtrl_shape" />
+
+        <ImageView
+            android:id="@+id/iv_speed_minus"
+            android:layout_width="0dp"
+            android:layout_height="0dp"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toEndOf="@+id/iv_buddha"
+            app:layout_constraintTop_toTopOf="@+id/guideline3"
+            app:srcCompat="@drawable/my_abc_btn_default_mtrl_shape" />
+    </android.support.constraint.ConstraintLayout>
+
+    <!--    <TextView-->
 <!--        android:id="@+id/textView26"-->
 <!--        android:layout_width="wrap_content"-->
 <!--        android:layout_height="wrap_content"-->
@@ -101,145 +166,114 @@
     </LinearLayout>
 
     <android.support.constraint.Guideline
-        android:id="@+id/guideline3"
+        android:id="@+id/guideline2"
         android:layout_width="0dp"
         android:layout_height="0dp"
         android:orientation="horizontal"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintGuide_begin="532dp"
+        app:layout_constraintGuide_percent="0.14"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
 
+    <android.support.constraint.Guideline
+        android:id="@+id/guideline1"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:orientation="horizontal"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintGuide_percent="0.73"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+    <!--        app:layout_constraintGuide_begin="532dp"-->
+
+<!--    <android.support.constraint.Guideline-->
+<!--        android:id="@+id/guideline2"-->
+<!--        android:layout_width="wrap_content"-->
+<!--        android:layout_height="wrap_content"-->
+<!--        android:orientation="horizontal"-->
+<!--        app:layout_constraintBottom_toBottomOf="@id/iv_buddha"-->
+<!--        app:layout_constraintEnd_toEndOf="parent"-->
+<!--        app:layout_constraintGuide_percent="0.5"-->
+<!--        app:layout_constraintStart_toStartOf="parent"-->
+<!--        app:layout_constraintTop_toTopOf="@id/iv_buddha" />-->
 
     <TextView
         android:id="@+id/tv_time"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginBottom="8dp"
         android:textSize="24sp"
         android:textStyle="bold"
-        app:layout_constraintBottom_toTopOf="@+id/iv_buddha"
+        app:layout_constraintBottom_toTopOf="@+id/frameLayout7"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent" />
-
-    <ImageView
-        android:id="@+id/iv_pitch_minus"
-        android:layout_width="40dp"
-        android:layout_height="40dp"
-        app:layout_constraintEnd_toStartOf="@+id/tv_pitch"
-        app:layout_constraintTop_toBottomOf="@+id/tv_buddha_name"
-        app:srcCompat="@drawable/minus_box" />
 
     <TextView
         android:id="@+id/tv_pitch"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="调1.00"
-        app:layout_constraintBottom_toBottomOf="@+id/iv_pitch_add"
-        app:layout_constraintStart_toStartOf="@+id/constraintLayout"
-        app:layout_constraintTop_toTopOf="@+id/guideline3" />
-
-    <ImageView
-        android:id="@+id/iv_pitch_add"
-        android:layout_width="40dp"
-        android:layout_height="40dp"
-        app:layout_constraintStart_toEndOf="@+id/tv_pitch"
-        app:layout_constraintTop_toBottomOf="@+id/tv_buddha_name"
-        app:srcCompat="@drawable/add_box" />
+        android:text="音1.00调  速1.00度"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/tv_buddha_name" />
 
     <TextView
         android:id="@+id/tv_buddha_name"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginTop="8dp"
         android:background="@drawable/bg_map_btn_normal"
         android:paddingLeft="10dp"
         android:paddingRight="10dp"
         android:text="               阿弥陀佛               "
         android:textColor="@color/calendar_yl_color"
-        app:layout_constraintBottom_toTopOf="@+id/guideline3"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/iv_buddha" />
+        app:layout_constraintTop_toBottomOf="@+id/frameLayout7" />
 
-    <ImageView
-        android:id="@+id/iv_speed_minus"
-        android:layout_width="40dp"
-        android:layout_height="40dp"
-        app:layout_constraintEnd_toStartOf="@+id/tv_speed"
-        app:layout_constraintTop_toBottomOf="@+id/tv_buddha_name"
-        app:srcCompat="@drawable/minus_box" />
-
-    <TextView
-        android:id="@+id/tv_speed"
+    <android.support.design.widget.FloatingActionButton
+        android:id="@+id/fab_muyu"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="速1.00"
-        app:layout_constraintBottom_toBottomOf="@+id/iv_speed_add"
-        app:layout_constraintEnd_toEndOf="@+id/constraintLayout"
-        app:layout_constraintTop_toTopOf="@+id/guideline3" />
+        android:layout_margin="10dp"
+        android:layout_marginEnd="24dp"
+        android:layout_weight="1"
+        android:clickable="true"
+        app:elevation="3dp"
+        app:fabSize="normal"
+        app:layout_constraintBottom_toBottomOf="@+id/fab_buddha"
+        app:layout_constraintEnd_toStartOf="@+id/fab_buddha"
+        app:layout_constraintTop_toTopOf="@+id/fab_buddha"
+        app:srcCompat="@drawable/muyu" />
 
-    <ImageView
-        android:id="@+id/iv_speed_add"
-        android:layout_width="40dp"
-        android:layout_height="40dp"
-        app:layout_constraintStart_toEndOf="@+id/tv_speed"
-        app:layout_constraintTop_toBottomOf="@+id/tv_buddha_name"
-        app:srcCompat="@drawable/add_box" />
-
-    <LinearLayout
-        android:id="@+id/constraintLayout"
-        android:layout_width="wrap_content"
+    <android.support.design.widget.FloatingActionButton
+        android:id="@+id/fab_buddha"
+        android:layout_width="55dp"
         android:layout_height="wrap_content"
+        android:layout_margin="10dp"
+        android:clickable="true"
+        android:src="@drawable/ic_nf"
+        app:backgroundTint="@color/colorAccent"
+        app:elevation="3dp"
+        app:fabSize="normal"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="@+id/guideline3">
+        app:layout_constraintTop_toTopOf="@+id/guideline1" />
 
-        <android.support.design.widget.FloatingActionButton
-            android:id="@+id/fab_muyu"
-            android:layout_width="55dp"
-            android:layout_height="wrap_content"
-            android:layout_weight="1"
-            android:clickable="true"
-            android:layout_margin="10dp"
-            app:elevation="3dp"
-            app:fabSize="normal"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="parent"
-            app:srcCompat="@drawable/muyu" />
-
-        <android.support.design.widget.FloatingActionButton
-            android:id="@+id/fab_buddha"
-            android:layout_width="55dp"
-            android:layout_height="wrap_content"
-            android:layout_margin="10dp"
-            android:clickable="true"
-            app:backgroundTint="@color/colorAccent"
-            app:elevation="3dp"
-            app:fabSize="normal"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="parent"
-            android:src="@drawable/ic_nf" />
-
-        <android.support.design.widget.FloatingActionButton
-            android:id="@+id/fab_stock"
-            android:layout_width="55dp"
-            android:layout_height="wrap_content"
-            android:layout_margin="10dp"
-            android:clickable="true"
-            app:backgroundTint="@android:color/holo_orange_light"
-            app:elevation="3dp"
-            app:fabSize="normal"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="parent"
-            app:srcCompat="@drawable/stock" />
-
-    </LinearLayout>
+    <android.support.design.widget.FloatingActionButton
+        android:id="@+id/fab_stock"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_margin="10dp"
+        android:clickable="true"
+        app:backgroundTint="@android:color/holo_orange_light"
+        app:elevation="3dp"
+        app:fabSize="normal"
+        app:layout_constraintBottom_toBottomOf="@+id/fab_buddha"
+        app:layout_constraintStart_toEndOf="@+id/fab_buddha"
+        app:layout_constraintTop_toTopOf="@+id/fab_buddha"
+        app:srcCompat="@drawable/stock" />
 
 
 </android.support.constraint.ConstraintLayout>
