@@ -34,20 +34,16 @@ import com.wang17.myphone.database.Setting
 import com.wang17.myphone.e
 import com.wang17.myphone.model.Lottery
 import com.wang17.myphone.service.BuddhaService
-import com.wang17.myphone.service.MuyuService
 import com.wang17.myphone.service.StockService
 import com.wang17.myphone.util.*
 import com.wang17.myphone.view._Button
 import kotlinx.android.synthetic.main.fragment_button.*
-import kotlinx.android.synthetic.main.inflate_list_card_record_child.*
 import java.security.KeyStore
 import java.text.DecimalFormat
-import java.util.*
 import java.util.concurrent.CountDownLatch
 import javax.crypto.Cipher
 import javax.crypto.KeyGenerator
 import javax.crypto.SecretKey
-import kotlin.collections.ArrayList
 
 
 /**
@@ -298,10 +294,7 @@ class ButtonFragment : Fragment() {
         kotlin.run {
             btn = _Button(context!!, "sms")
             btn.setOnClickListener {
-                if (supportFingerprint()) {
-                    initKey();
-                    initCipher(Intent(context!!,SmsActivity::class.java));
-                }
+                _FingerUtils.showFingerPrintDialog(activity!!, Intent(context!!, SmsActivity::class.java))
             }
             layout_flexbox.addView(btn)
         }
@@ -312,10 +305,7 @@ class ButtonFragment : Fragment() {
             xiaoKnockSound.load(context, R.raw.yq, 1)
             btn = _Button(context!!, "loan")
             btn.setOnClickListener {
-                if (supportFingerprint()) {
-                    initKey();
-                    initCipher(Intent(context!!,LoanActivity::class.java));
-                }
+                _FingerUtils.showFingerPrintDialog(activity!!, Intent(context!!, LoanActivity::class.java))
             }
             layout_flexbox.addView(btn)
         }
@@ -407,11 +397,11 @@ class ButtonFragment : Fragment() {
         })
     }
 
-    fun redeemLottery(type: Int){
+    fun redeemLottery(type: Int) {
         val view = View.inflate(context!!, R.layout.dialog_lottery, null)
         var etP = view.findViewById<EditText>(R.id.et_period)
         var etM = view.findViewById<EditText>(R.id.et_multiple)
-        etM.isEnabled=false
+        etM.isEnabled = false
         var et1 = view.findViewById<EditText>(R.id.et_1)
         var et2 = view.findViewById<EditText>(R.id.et_2)
         var et3 = view.findViewById<EditText>(R.id.et_3)
@@ -421,7 +411,7 @@ class ButtonFragment : Fragment() {
         var et7 = view.findViewById<EditText>(R.id.et_7)
         var tvInfo = view.findViewById<TextView>(R.id.tvInfo)
         etP.setOnFocusChangeListener { v, hasFocus ->
-            if(hasFocus){
+            if (hasFocus) {
                 etP.selectAll()
             }
         }
@@ -568,9 +558,9 @@ class ButtonFragment : Fragment() {
         })
 
         val lots = LotteryUtil.fromJSONArray(dataContext.getSetting(Setting.KEYS.lotterys, "[]").string)
-        val period = if(lots.size>0) lots[0].period else 0
+        val period = if (lots.size > 0) lots[0].period else 0
         etP.setText("${period}")
-        etP.isEnabled=false
+        etP.isEnabled = false
         et7.addTextChangedListener(object : TextWatcher {
             override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {
             }
@@ -610,7 +600,7 @@ class ButtonFragment : Fragment() {
         var et7 = view.findViewById<EditText>(R.id.et_7)
         var tvInfo = view.findViewById<TextView>(R.id.tvInfo)
         etP.setOnFocusChangeListener { v, hasFocus ->
-            if(hasFocus){
+            if (hasFocus) {
                 etP.selectAll()
             }
         }
@@ -831,71 +821,4 @@ class ButtonFragment : Fragment() {
         return inflater.inflate(R.layout.fragment_button, container, false)
     }
 
-    //region 指纹验证
-    var keyStore: KeyStore? = null
-    fun supportFingerprint(): Boolean {
-        if (Build.VERSION.SDK_INT < 23) {
-            Toast.makeText(context, "您的系统版本过低，不支持指纹功能", Toast.LENGTH_SHORT).show()
-            return false
-        } else {
-            val keyguardManager = context?.getSystemService(KeyguardManager::class.java)
-            val fingerprintManager = context?.getSystemService(FingerprintManager::class.java)
-            if (!fingerprintManager?.isHardwareDetected!!) {
-                Toast.makeText(context, "您的手机不支持指纹功能", Toast.LENGTH_SHORT).show()
-                return false
-            } else if (!keyguardManager?.isKeyguardSecure!!) {
-                Toast.makeText(context, "您还未设置锁屏，请先设置锁屏并添加一个指纹", Toast.LENGTH_SHORT).show()
-                return false
-            } else if (!fingerprintManager?.hasEnrolledFingerprints()) {
-                Toast.makeText(context, "您至少需要在系统设置中添加一个指纹", Toast.LENGTH_SHORT).show()
-                return false
-            }
-        }
-        return true
-    }
-
-    @TargetApi(23)
-    private fun initKey() {
-        try {
-            keyStore = KeyStore.getInstance("AndroidKeyStore")
-            keyStore?.load(null)
-            val keyGenerator = KeyGenerator.getInstance(KeyProperties.KEY_ALGORITHM_AES, "AndroidKeyStore")
-            val builder = KeyGenParameterSpec.Builder(DEFAULT_KEY_NAME,
-                    KeyProperties.PURPOSE_ENCRYPT or
-                            KeyProperties.PURPOSE_DECRYPT)
-                    .setBlockModes(KeyProperties.BLOCK_MODE_CBC)
-                    .setUserAuthenticationRequired(true)
-                    .setEncryptionPaddings(KeyProperties.ENCRYPTION_PADDING_PKCS7)
-            keyGenerator.init(builder.build())
-            keyGenerator.generateKey()
-        } catch (e: Exception) {
-            throw RuntimeException(e)
-        }
-    }
-
-    @TargetApi(23)
-    private fun initCipher(intent:Intent) {
-        try {
-            val key = keyStore!!.getKey(DEFAULT_KEY_NAME, null) as SecretKey
-            val cipher = Cipher.getInstance(KeyProperties.KEY_ALGORITHM_AES + "/"
-                    + KeyProperties.BLOCK_MODE_CBC + "/"
-                    + KeyProperties.ENCRYPTION_PADDING_PKCS7)
-            cipher.init(Cipher.ENCRYPT_MODE, key)
-            showFingerPrintDialog(cipher,intent)
-        } catch (e: Exception) {
-            throw RuntimeException(e)
-        }
-    }
-
-    private fun showFingerPrintDialog(cipher: Cipher,intent: Intent) {
-        val fragment = FingerprintDialogFragment()
-        fragment.setCipher(cipher, intent)
-        fragment.show(activity?.supportFragmentManager, "fingerprint")
-    }
-
-
-    companion object {
-        private const val DEFAULT_KEY_NAME = "default_key"
-    }
-    //endregion
 }

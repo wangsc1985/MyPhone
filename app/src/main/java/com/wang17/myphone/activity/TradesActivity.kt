@@ -2,6 +2,7 @@ package com.wang17.myphone.activity
 
 import android.app.AlertDialog
 import android.content.DialogInterface
+import android.content.Intent
 import android.graphics.Color
 import android.os.Bundle
 import android.support.design.widget.Snackbar
@@ -18,6 +19,7 @@ import com.wang17.myphone.database.Trade
 import com.wang17.myphone.util.TradeUtils.commission
 import com.wang17.myphone.util.TradeUtils.tax
 import com.wang17.myphone.util.TradeUtils.transferFee
+import com.wang17.myphone.util._FingerUtils
 import com.wang17.myphone.util._Utils
 import kotlinx.android.synthetic.main.activity_trades.*
 import java.text.DecimalFormat

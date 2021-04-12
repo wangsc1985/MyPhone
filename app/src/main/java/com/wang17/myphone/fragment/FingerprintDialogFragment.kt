@@ -2,6 +2,7 @@ package com.wang17.myphone.fragment
 
 import android.R
 import android.annotation.TargetApi
+import android.app.FragmentManager
 import android.content.Context
 import android.content.Intent
 import android.hardware.fingerprint.FingerprintManager
@@ -98,9 +99,5 @@ class FingerprintDialogFragment : DialogFragment() {
             mCancellationSignal = null
             isSelfCancelled = true
         }
-    }
-
-    companion object{
-
     }
 }

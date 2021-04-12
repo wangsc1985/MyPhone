@@ -1,6 +1,7 @@
 package com.wang17.myphone.activity
 
 import android.app.AlertDialog
+import android.content.Intent
 import android.os.Bundle
 import android.support.v4.app.FragmentActivity
 import android.util.Log
@@ -12,6 +13,7 @@ import android.widget.AdapterView.OnItemLongClickListener
 import com.wang17.myphone.R
 import com.wang17.myphone.database.DataContext
 import com.wang17.myphone.database.RunLog
+import com.wang17.myphone.util._FingerUtils
 import com.wang17.myphone.util._Utils
 import com.wang17.myphone.util._Utils.e
 import kotlinx.android.synthetic.main.activity_runlog.*

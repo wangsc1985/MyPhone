@@ -186,9 +186,12 @@ class MyWidgetRemoteViewsService : RemoteViewsService() {
                                 0->{
                                     dc.deleteSetting(Setting.KEYS.wx_new_msg)
                                 }
-                                else -> {
+                                1 -> {
                                     dc.editSetting(Setting.KEYS.wx_new_msg, msg.toString())
 //                                    mToDoList.add(ToDo("          ", "          ", msg.toString(), WARNING3_COLOR, true, R.raw.bi))
+                                }
+                                else->{
+
                                 }
 //                                -1 -> {
 //                                    mToDoList.add(ToDo("          ", "          ", msg.toString(), WARNING3_COLOR, false, R.raw.bi))
