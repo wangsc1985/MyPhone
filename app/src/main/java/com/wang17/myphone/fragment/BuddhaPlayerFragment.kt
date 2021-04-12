@@ -36,7 +36,6 @@ import kotlinx.android.synthetic.main.fragment_player.*
 import org.greenrobot.eventbus.EventBus
 import org.greenrobot.eventbus.Subscribe
 import org.greenrobot.eventbus.ThreadMode
-import java.math.BigDecimal
 import java.text.DecimalFormat
 import java.util.*
 
@@ -179,6 +178,7 @@ class BuddhaPlayerFragment : Fragment() {
 
             loadBuddhaName()
             EventBus.getDefault().post(EventBusMessage.getInstance(FromBuddhaConfigUpdate(),""))
+            _Utils.zhendong100(context!!)
         }
         iv_speed_minus.setOnClickListener {
             val bf = getBuddhaConfig()
@@ -188,6 +188,7 @@ class BuddhaPlayerFragment : Fragment() {
 
             loadBuddhaName()
             EventBus.getDefault().post(EventBusMessage.getInstance(FromBuddhaConfigUpdate(),""))
+            _Utils.zhendong100(context!!)
         }
         iv_pitch_add.setOnClickListener {
             val bf = getBuddhaConfig()
@@ -196,6 +197,7 @@ class BuddhaPlayerFragment : Fragment() {
 
             loadBuddhaName()
             EventBus.getDefault().post(EventBusMessage.getInstance(FromBuddhaConfigUpdate(),""))
+            _Utils.zhendong100(context!!)
         }
         iv_pitch_minus.setOnClickListener {
             val bf = getBuddhaConfig()
@@ -204,6 +206,7 @@ class BuddhaPlayerFragment : Fragment() {
 
             loadBuddhaName()
             EventBus.getDefault().post(EventBusMessage.getInstance(FromBuddhaConfigUpdate(),""))
+            _Utils.zhendong100(context!!)
         }
 
 //        val buddhaSpeed = dc.getSetting(Setting.KEYS.buddha_speed, 2).int

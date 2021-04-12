@@ -535,13 +535,13 @@ object _Utils {
         mDevicePolicyManager.lockNow()
     }
 
-    fun zhendong1(context: Context) {
+    fun zhendong100(context: Context) {
         val vibrator = context.getSystemService(Context.VIBRATOR_SERVICE) as Vibrator
-        vibrator.vibrate(1000)
+        vibrator.vibrate(100)
     }
 
     @JvmStatic
-    fun zhendong2(context: Context) {
+    fun zhendong500(context: Context) {
         val vibrator = context.getSystemService(Context.VIBRATOR_SERVICE) as Vibrator
         vibrator.vibrate(500)
     }

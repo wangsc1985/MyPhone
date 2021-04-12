@@ -83,7 +83,7 @@ public class ScreenBroadcaseReceiver extends BroadcastReceiver {
                             }
 
                             if(dataContext.getSetting(Setting.KEYS.bank_balance,-1).getDouble()>3000){
-                                _Utils.zhendong2(context);
+                                _Utils.zhendong500(context);
                                 _SoundUtils.play(context, R.raw.maopao);
                             }
                             /**
