@@ -193,14 +193,6 @@ class MyWidgetRemoteViewsService : RemoteViewsService() {
                                 else->{
 
                                 }
-//                                -1 -> {
-//                                    mToDoList.add(ToDo("          ", "          ", msg.toString(), WARNING3_COLOR, false, R.raw.bi))
-//                                    e("$msg")
-//                                }
-//                                -2 -> {
-//                                    mToDoList.add(ToDo("          ", "          ", msg.toString(), WARNING3_COLOR, false, R.raw.bi))
-//                                    e("$msg")
-//                                }
                             }
 //                            latch.countDown()
                         }
@@ -305,14 +297,14 @@ class MyWidgetRemoteViewsService : RemoteViewsService() {
              * 账单日
              */
             val today = DateTime.today
-            when (today.day) {
-                9 ->                     // 交行 放款日
-                    mToDoList.add(ToDo("放款", "COMM",
-                            "7086", WARNING3_COLOR, dc.getSetting(Setting.KEYS.is_make_loan_alert, false).boolean))
-                18 ->                     // 工行 放款日
-                    mToDoList.add(ToDo("放款", "ICB",
-                            "0174", WARNING3_COLOR, dc.getSetting(Setting.KEYS.is_make_loan_alert, false).boolean))
-            }
+//            when (today.day) {
+//                9 ->                     // 交行 放款日
+//                    mToDoList.add(ToDo("放款", "COMM",
+//                            "7086", WARNING3_COLOR, dc.getSetting(Setting.KEYS.is_make_loan_alert, false).boolean))
+//                18 ->                     // 工行 放款日
+//                    mToDoList.add(ToDo("放款", "ICB",
+//                            "0174", WARNING3_COLOR, dc.getSetting(Setting.KEYS.is_make_loan_alert, false).boolean))
+//            }
 
             /**
              * 农历
@@ -320,11 +312,11 @@ class MyWidgetRemoteViewsService : RemoteViewsService() {
             val lunar0 = Lunar(today)
             val lunar1 = Lunar(today.addDays(1))
             val lunar2 = Lunar(today.addDays(2))
-            if (lunar0.day == 1) {
-                mToDoList.add(ToDo("今天", "初一", "戒", RELIGIOUS_WARNING_COLOR, false))
-            } else if (lunar0.day == 15) {
-                mToDoList.add(ToDo("今天", "十五", "戒", RELIGIOUS_WARNING_COLOR, false))
-            }
+//            if (lunar0.day == 1) {
+//                mToDoList.add(ToDo("今天", "初一", "戒", RELIGIOUS_WARNING_COLOR, false))
+//            } else if (lunar0.day == 15) {
+//                mToDoList.add(ToDo("今天", "十五", "戒", RELIGIOUS_WARNING_COLOR, false))
+//            }
 
             /**
              * 忌日

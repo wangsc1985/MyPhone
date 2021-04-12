@@ -456,6 +456,7 @@ class BuddhaService : Service() {
         }
     }
 
+    //region EventBus处理
     @Subscribe(threadMode = ThreadMode.BACKGROUND)
     fun onGetMessage(msg :EventBusMessage){
         when(msg.sender){
@@ -472,6 +473,7 @@ class BuddhaService : Service() {
             }
         }
     }
+    //endregion
 
     var changeX = 0
     var changeY = 0
