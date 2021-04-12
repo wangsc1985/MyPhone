@@ -178,7 +178,7 @@ class BuddhaPlayerFragment : Fragment() {
 
             loadBuddhaName()
             EventBus.getDefault().post(EventBusMessage.getInstance(FromBuddhaConfigUpdate(),""))
-            _Utils.zhendong100(context!!)
+            _Utils.zhendong50(context!!)
         }
         iv_speed_minus.setOnClickListener {
             val bf = getBuddhaConfig()
@@ -188,7 +188,7 @@ class BuddhaPlayerFragment : Fragment() {
 
             loadBuddhaName()
             EventBus.getDefault().post(EventBusMessage.getInstance(FromBuddhaConfigUpdate(),""))
-            _Utils.zhendong100(context!!)
+            _Utils.zhendong50(context!!)
         }
         iv_pitch_add.setOnClickListener {
             val bf = getBuddhaConfig()
@@ -197,7 +197,7 @@ class BuddhaPlayerFragment : Fragment() {
 
             loadBuddhaName()
             EventBus.getDefault().post(EventBusMessage.getInstance(FromBuddhaConfigUpdate(),""))
-            _Utils.zhendong100(context!!)
+            _Utils.zhendong50(context!!)
         }
         iv_pitch_minus.setOnClickListener {
             val bf = getBuddhaConfig()
@@ -206,7 +206,7 @@ class BuddhaPlayerFragment : Fragment() {
 
             loadBuddhaName()
             EventBus.getDefault().post(EventBusMessage.getInstance(FromBuddhaConfigUpdate(),""))
-            _Utils.zhendong100(context!!)
+            _Utils.zhendong50(context!!)
         }
 
 //        val buddhaSpeed = dc.getSetting(Setting.KEYS.buddha_speed, 2).int
