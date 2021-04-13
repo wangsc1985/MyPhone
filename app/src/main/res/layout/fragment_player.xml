@@ -81,6 +81,27 @@
             app:layout_constraintStart_toEndOf="@+id/iv_buddha"
             app:layout_constraintTop_toTopOf="@+id/guideline3"
             app:srcCompat="@drawable/my_abc_btn_default_mtrl_shape" />
+
+        <TextView
+            android:id="@+id/tv_speed"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="速1.00度"
+            app:layout_constraintBottom_toBottomOf="@id/iv_buddha"
+            app:layout_constraintEnd_toEndOf="@id/iv_speed_minus"
+            app:layout_constraintStart_toEndOf="@+id/iv_buddha"
+            app:layout_constraintTop_toTopOf="@+id/iv_speed_add" />
+
+        <TextView
+            android:id="@+id/tv_pitch"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="音1.00调 "
+            app:layout_constraintBottom_toBottomOf="@id/iv_buddha"
+            app:layout_constraintEnd_toEndOf="@+id/iv_pitch_minus"
+            app:layout_constraintStart_toStartOf="@+id/iv_pitch_minus"
+            app:layout_constraintTop_toTopOf="@+id/iv_pitch_add" />
+
     </android.support.constraint.ConstraintLayout>
 
     <!--    <TextView-->
@@ -208,15 +229,6 @@
         app:layout_constraintBottom_toTopOf="@+id/frameLayout7"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent" />
-
-    <TextView
-        android:id="@+id/tv_pitch"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="音1.00调  速1.00度"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/tv_buddha_name" />
 
     <TextView
         android:id="@+id/tv_buddha_name"

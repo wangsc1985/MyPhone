@@ -498,8 +498,8 @@ class BuddhaPlayerFragment : Fragment() {
         }
 
         tv_buddha_name.text = "${musicName.string.replace(".mp3","")}  ${circleSecond}秒"
-//        tv_speed.text = ""
-        tv_pitch.text = "音${format.format(bf.pitch)}调  速${format.format(bf.speed)}度"
+        tv_speed.text = "速${format.format(bf.speed)}度"
+        tv_pitch.text = "音${format.format(bf.pitch)}调"
     }
 
     fun getBuddhaConfig():BuddhaConfig{
