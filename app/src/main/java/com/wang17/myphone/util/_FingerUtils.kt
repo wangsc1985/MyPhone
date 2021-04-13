@@ -11,6 +11,7 @@ import android.security.keystore.KeyGenParameterSpec
 import android.security.keystore.KeyProperties
 import android.support.v4.app.FragmentActivity
 import android.widget.Toast
+import com.wang17.myphone.callback.MyCallback
 import com.wang17.myphone.fragment.FingerprintDialogFragment
 import java.security.KeyStore
 import javax.crypto.Cipher
@@ -41,7 +42,7 @@ class _FingerUtils {
             return true
         }
         @TargetApi(23)
-        fun showFingerPrintDialog(activity: FragmentActivity, intent: Intent) {
+        fun showFingerPrintDialog(activity: FragmentActivity, callback:MyCallback?) {
             if(isSupportFingerprint(activity.applicationContext)){
                 // 获取key
                 val keyStore = KeyStore.getInstance("AndroidKeyStore")
@@ -59,7 +60,7 @@ class _FingerUtils {
                 cipher?.init(Cipher.ENCRYPT_MODE, key)
                 //
                 val fragment = FingerprintDialogFragment()
-                fragment.setCipher(cipher, intent)
+                fragment.setCipher(cipher, callback)
                 fragment.show(activity.supportFragmentManager, "fingerprint")
             }
         }

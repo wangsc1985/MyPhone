@@ -15,6 +15,7 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.Toast
 import com.wang17.myphone.activity.SmsActivity
+import com.wang17.myphone.callback.MyCallback
 import javax.crypto.Cipher
 
 @TargetApi(23)
@@ -23,15 +24,17 @@ class FingerprintDialogFragment : DialogFragment() {
     private var mCancellationSignal: CancellationSignal? = null
     private var mCipher: Cipher? = null
     private var mIntent :Intent?=null
+    private var mCallback:MyCallback?=null
     private var errorMsg: TextView? = null
 
     /**
      * 标识是否是用户主动取消的认证。
      */
     private var isSelfCancelled = false
-    fun setCipher(cipher: Cipher?,intent:Intent?) {
+    fun setCipher(cipher: Cipher?,callback: MyCallback?) {
         mCipher = cipher
-        mIntent = intent
+//        mIntent = intent
+        mCallback = callback
     }
 
     override fun onAttach(context: Context) {
@@ -81,7 +84,9 @@ class FingerprintDialogFragment : DialogFragment() {
 
             override fun onAuthenticationSucceeded(result: FingerprintManager.AuthenticationResult) {
 //                val intent = Intent(context, SmsActivity::class.java)
-                startActivity(mIntent)
+//                startActivity(mIntent)
+
+                mCallback?.execute()
 
                 dismiss()
                 stopListening()

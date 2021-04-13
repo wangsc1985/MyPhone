@@ -28,6 +28,7 @@ import com.alibaba.fastjson.JSONArray
 import com.wang17.myphone.R
 import com.wang17.myphone.activity.*
 import com.wang17.myphone.callback.CloudCallback
+import com.wang17.myphone.callback.MyCallback
 import com.wang17.myphone.database.BuddhaRecord
 import com.wang17.myphone.database.DataContext
 import com.wang17.myphone.database.Setting
@@ -81,18 +82,19 @@ class ButtonFragment : Fragment() {
             true
         }
         layout_flexbox.addView(btn)
-       /*
-        kotlin.run {
-            btn = _Button(context!!, "念佛")
-            btn.setOnClickListener {
-                startActivity(Intent(context!!, BuddhaActivity::class.java))
-            }
-            btn.setOnLongClickListener {
-                AlertDialog.Builder(context!!).setItems(arrayOf("整合", "is run"), DialogInterface.OnClickListener { dialog, which ->
-                    when (which) {
-                        *//**
-                         * 整合念佛记录
-                         *//*
+        /*
+         kotlin.run {
+             btn = _Button(context!!, "念佛")
+             btn.setOnClickListener {
+                 startActivity(Intent(context!!, BuddhaActivity::class.java))
+             }
+             btn.setOnLongClickListener {
+                 AlertDialog.Builder(context!!).setItems(arrayOf("整合", "is run"), DialogInterface.OnClickListener { dialog, which ->
+                     when (which) {
+                         */
+        /**
+         * 整合念佛记录
+         *//*
                         0 -> {
                             val dc = DataContext(context)
                             val buddhaList = dc.allBuddhas
@@ -120,16 +122,18 @@ class ButtonFragment : Fragment() {
                             dc.deleteBuddhaList(removeList)
                             AlertDialog.Builder(context!!).setMessage("整合完毕！共整合${count}条记录").show()
                         }
-                        *//**
-                         * 判断念佛服务是否在运行
-                         *//*
+                        */
+        /**
+         * 判断念佛服务是否在运行
+         *//*
                         1 -> {
                             AlertDialog.Builder(context!!).setMessage("BuddhaService运行：${_Utils.isServiceRunning(context!!, BuddhaService::class.qualifiedName!!)}").show()
 
                         }
-                        *//**
-                         * 向云端上传念佛记录
-                         *//*
+                        */
+        /**
+         * 向云端上传念佛记录
+         *//*
                         100 -> {
                             Thread {
                                 val buddhaList = dataContext.allBuddhas
@@ -231,27 +235,27 @@ class ButtonFragment : Fragment() {
         kotlin.run {
             btn = _Button(context!!, "trade")
             btn.setOnClickListener {
-                AlertDialog.Builder(context!!).setItems(arrayOf("stock", "futrue", "history", "fund", "is run"), DialogInterface.OnClickListener { dialog, which ->
-                    when (which) {
-                        0 -> {
-                           _FingerUtils.showFingerPrintDialog( activity!!,Intent(context, StockPositionActivity::class.java))
+                _FingerUtils.showFingerPrintDialog(activity!!) {
+                    AlertDialog.Builder(context!!).setItems(arrayOf("股票持仓", "期货持仓", "股票历史", "股票资金", "后台检查"), DialogInterface.OnClickListener { dialog, which ->
+                        when (which) {
+                            0 -> {
+                                startActivity(Intent(context, StockPositionActivity::class.java))
+                            }
+                            1 -> {
+                                startActivity(Intent(context, FuturePositionActivity::class.java))
+                            }
+                            2 -> {
+                                startActivity(Intent(context, StockPositionHistoryActivity::class.java))
+                            }
+                            3 -> {
+                                startActivity(Intent(context, FundMonitorActivity::class.java))
+                            }
+                            4 -> {
+                                AlertDialog.Builder(context!!).setMessage("StockService运行状态：${_Utils.isServiceRunning(context!!, StockService::class.qualifiedName!!)}").show()
+                            }
                         }
-                        1 -> {
-                            _FingerUtils.showFingerPrintDialog( activity!!,Intent(context, FuturePositionActivity::class.java))
-                        }
-                        2 -> {
-                            _FingerUtils.showFingerPrintDialog( activity!!,Intent(context, StockPositionHistoryActivity::class.java))
-                        }
-                        3 -> {
-                            _FingerUtils.showFingerPrintDialog( activity!!,Intent(context, FundMonitorActivity::class.java))
-                        }
-                        4 -> {
-                            AlertDialog.Builder(context!!).setMessage("StockService运行状态：${_Utils.isServiceRunning(context!!, StockService::class.qualifiedName!!)}").show()
-                        }
-                    }
-                }).show()
-
-
+                    }).show()
+                }
             }
             layout_flexbox.addView(btn)
         }
@@ -279,7 +283,10 @@ class ButtonFragment : Fragment() {
         kotlin.run {
             btn = _Button(context!!, "sms")
             btn.setOnClickListener {
-                _FingerUtils.showFingerPrintDialog(activity!!, Intent(context!!, SmsActivity::class.java))
+                _FingerUtils.showFingerPrintDialog(activity!!) {
+                    startActivity(Intent(context, SmsActivity::class.java))
+                }
+//                _FingerUtils.showFingerPrintDialog(activity!!, Intent(context!!, SmsActivity::class.java))
             }
             layout_flexbox.addView(btn)
         }
@@ -290,7 +297,10 @@ class ButtonFragment : Fragment() {
             xiaoKnockSound.load(context, R.raw.yq, 1)
             btn = _Button(context!!, "loan")
             btn.setOnClickListener {
-                _FingerUtils.showFingerPrintDialog(activity!!, Intent(context!!, LoanActivity::class.java))
+                _FingerUtils.showFingerPrintDialog(activity!!) {
+                    startActivity(Intent(context, LoanActivity::class.java))
+                }
+//                _FingerUtils.showFingerPrintDialog(activity!!, Intent(context!!, LoanActivity::class.java))
             }
             layout_flexbox.addView(btn)
         }
