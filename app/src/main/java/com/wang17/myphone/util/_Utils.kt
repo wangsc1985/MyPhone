@@ -539,9 +539,10 @@ object _Utils {
         val vibrator = context.getSystemService(Context.VIBRATOR_SERVICE) as Vibrator
         vibrator.vibrate(70)
     }
-    fun zhendong100(context: Context) {
+
+    fun zhendong(context: Context,milliseconds:Long) {
         val vibrator = context.getSystemService(Context.VIBRATOR_SERVICE) as Vibrator
-        vibrator.vibrate(100)
+        vibrator.vibrate(milliseconds)
     }
 
     @JvmStatic

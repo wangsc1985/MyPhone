@@ -151,37 +151,37 @@ class MyWidgetRemoteViewsService : RemoteViewsService() {
                     setToDos()
                 }
 
+                //region 余额警戒
                 if (dc.getSetting(Setting.KEYS.is_broadcast_big_figure, true).boolean) {
                     var balanceStr = dc.getSetting(Setting.KEYS.bank1_balance, 0).string.replace(",","")
                     var balance =balanceStr.toDouble()
                     if (balance > 3000) {
-                        mToDoList.add(ToDo("          ", "ABC","          ",  WARNING3_COLOR, true, R.raw.yq))
+                        mToDoList.add(ToDo("          ", "ABC","          ",  WARNING3_COLOR, true, 0))
                     }else if(balance<100){
-                        mToDoList.add(ToDo("          ", "ABC","          ",  WARNING2_COLOR, true, R.raw.yq))
+                        mToDoList.add(ToDo("          ", "ABC","          ",  WARNING2_COLOR, true, 0))
                     }
                     balanceStr = dc.getSetting(Setting.KEYS.bank2_balance, 0).string.replace(",","")
                     balance =balanceStr.toDouble()
                     if (balance > 2000) {
-                        mToDoList.add(ToDo("          ", "ICBC","          ",  WARNING3_COLOR, true, R.raw.yq))
+                        mToDoList.add(ToDo("          ", "ICBC","          ",  WARNING3_COLOR, true, 0))
                     }else if(balance<50){
-                        mToDoList.add(ToDo("          ", "ICBC","          ",  WARNING2_COLOR, true, R.raw.yq))
+                        mToDoList.add(ToDo("          ", "ICBC","          ",  WARNING2_COLOR, true, 0))
                     }
                 }
+                //endregion
+
+                //region 新信息
                 val newMsg = dc.getSetting(Setting.KEYS.wx_new_msg)
                 newMsg?.let {
-                    mToDoList.add(ToDo("          ", "          ", it.string, WARNING3_COLOR, true, R.raw.bi))
+                    mToDoList.add(ToDo("          ", "          ", it.string, WARNING3_COLOR, true, 0))
                 }
 
-
-
                 Thread {
-//                    val latch = CountDownLatch(1)
                     /**
                      * 新消息提醒
                      */
                     _CloudUtils.getNewMsg(applicationContext, object : CloudCallback {
                         override fun excute(code: Int, msg: Any?) {
-//                            e("get new msg code : $code")
                             when (code) {
                                 0->{
                                     dc.deleteSetting(Setting.KEYS.wx_new_msg)
@@ -194,26 +194,11 @@ class MyWidgetRemoteViewsService : RemoteViewsService() {
 
                                 }
                             }
-//                            latch.countDown()
                         }
                     })
-//                    latch.await()
-
-
-                    //region 恢复小部件余额颜色
-//                    uiHandler.post {
-//                        e("云端处理完毕，更新小部件。。。")
-//                        val remoteViews = RemoteViews(mContext.packageName, R.layout.widget_timer)
-//                        val myComponentName = ComponentName(mContext, MyWidgetProvider::class.java)
-//                        val appWidgetManager = AppWidgetManager.getInstance(mContext)
-//                        remoteViews.setTextColor(R.id.textView_balance1, mContext.resources.getColor(R.color.calendar_yl_color))
-//                        remoteViews.setTextColor(R.id.textView_balance2, mContext.resources.getColor(R.color.calendar_yl_color))
-//                        remoteViews.setTextColor(R.id.textView_markDay, MyWidgetProvider.markday_color)
-//                        appWidgetManager.updateAppWidget(myComponentName, remoteViews)
-//                    }
-                    //endregion
                 }.start()
 
+                //endregion
             } catch (e: JSONException) {
                 _Utils.printException(mContext, e)
                 e(e.message!!)
@@ -225,7 +210,6 @@ class MyWidgetRemoteViewsService : RemoteViewsService() {
 
         @Throws(Exception::class)
         private fun setToDos() {
-
 
             e("set to do s")
             mToDoList.clear()
@@ -318,6 +302,7 @@ class MyWidgetRemoteViewsService : RemoteViewsService() {
 //                mToDoList.add(ToDo("今天", "十五", "戒", RELIGIOUS_WARNING_COLOR, false))
 //            }
 
+            //region 上坟提醒
             /**
              * 忌日
              */
@@ -384,7 +369,9 @@ class MyWidgetRemoteViewsService : RemoteViewsService() {
             } else if (lunar0.month == 10 && lunar0.day == 1) {
                 mToDoList.add(ToDo("今天", "十月初一", "上坟", WARNING3_COLOR, false))
             }
+            //endregion
 
+            //region 戒期
             /**
              * 戒期
              */
@@ -452,6 +439,7 @@ class MyWidgetRemoteViewsService : RemoteViewsService() {
                     mToDoList.add(ToDo("", str, "", color, false))
                 }
             }
+            //endregion
         }
 
         override fun onDestroy() {}
@@ -491,9 +479,14 @@ class MyWidgetRemoteViewsService : RemoteViewsService() {
                     remoteViews.setViewVisibility(R.id.textView_money, View.VISIBLE)
                 }
                 val now = DateTime()
-                if (toDo.isAlert && now.hour >= 7 && now.hour != dc.getSetting(Setting.KEYS.pre_alert_hour, 0).int) {
-                    _SoundUtils.mediaPlay(applicationContext, toDo.rawId)
-                    //                    playSound(toDo.rawId);
+
+                if (toDo.isAlert ) {
+                    if(toDo.rawId==0){
+                        _Utils.zhendong(applicationContext,200)
+                    }else{
+                        if(now.hour != dc.getSetting(Setting.KEYS.pre_alert_hour, 0).int&& now.hour >= 7)
+                        _SoundUtils.mediaPlay(applicationContext, toDo.rawId)
+                    }
                 }
             } catch (e: Exception) {
                 _Utils.printException(mContext, e)

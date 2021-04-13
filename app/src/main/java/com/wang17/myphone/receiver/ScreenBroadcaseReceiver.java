@@ -38,11 +38,12 @@ public class ScreenBroadcaseReceiver extends BroadcastReceiver {
             case Intent.ACTION_USER_PRESENT:
                 try {
                     long now = System.currentTimeMillis();
-                    if (now - preDateTime >= 10000) {
+                    if (now - preDateTime >= 60000) {
                         try {
                             /**
                              * 记录location
                              */
+                            //region 记录location
                             final DataContext dataContext = new DataContext(context);
                             final Location oldLocation = dataContext.getLatestLocatio(_Session.UUID_NULL);
                             if (oldLocation != null) {
@@ -81,53 +82,50 @@ public class ScreenBroadcaseReceiver extends BroadcastReceiver {
                                     }
                                 });
                             }
+                            //endregion
 
-                            if(dataContext.getSetting(Setting.KEYS.bank_balance,-1).getDouble()>3000){
-                                _Utils.zhendong500(context);
-                                _SoundUtils.play(context, R.raw.maopao);
-                            }
                             /**
                              * 刷新小部件期股信息
                              */
-                            DateTime time = new DateTime();
-                            // 9:00 - 11:30     13:30 - 15:00
-                            DateTime time1 = new DateTime(9, 0);
-                            DateTime time2 = new DateTime(11, 30);
-                            DateTime time3 = new DateTime(13, 30);
-                            DateTime time4 = new DateTime(15, 0);
-                            DateTime time5 = new DateTime(21, 0);
-                            DateTime time6 = new DateTime(23, 0);
+//                            DateTime time = new DateTime();
+//                            // 9:00 - 11:30     13:30 - 15:00
+//                            DateTime time1 = new DateTime(9, 0);
+//                            DateTime time2 = new DateTime(11, 30);
+//                            DateTime time3 = new DateTime(13, 30);
+//                            DateTime time4 = new DateTime(15, 0);
+//                            DateTime time5 = new DateTime(21, 0);
+//                            DateTime time6 = new DateTime(23, 0);
+//
+//                            boolean is_widget_list_stock=dataContext.getSetting(Setting.KEYS.is_widget_list_stock,false).getBoolean();
+//                            if(is_widget_list_stock==true){
+//                                time1 = new DateTime(9, 30);
+//                                time3 = new DateTime(13, 0);
+//                            }
+//
+//                            int day = time.get(Calendar.DAY_OF_WEEK);
+//
+//                            if (dataContext.getSetting(Setting.KEYS.is_flush_widget_when_screen_on, false).getBoolean() == false)
+//                                return;
+//                            if (day == 1 || day == 7) return;
+//
+//                            /**
+//                             * 或者小于time1，或者大于time6，或者大于time4小于time5，或者大于time2小于time3。直接返回。
+//                             */
+//                            if(is_widget_list_stock){
+//                                if (time.getTimeInMillis() < time1.getTimeInMillis()
+//                                        || (time.getTimeInMillis() > time4.getTimeInMillis())
+//                                        || (time.getTimeInMillis() > time2.getTimeInMillis()&& time.getTimeInMillis() < time3.getTimeInMillis()))
+//                                    return;
+//                            }else{
+//                                if (time.getTimeInMillis() < time1.getTimeInMillis()
+//                                        || time.getTimeInMillis()>time6.getTimeInMillis()
+//                                        || (time.getTimeInMillis() > time4.getTimeInMillis()&&time.getTimeInMillis()<time5.getTimeInMillis())
+//                                        || (time.getTimeInMillis() > time2.getTimeInMillis()
+//                                        && time.getTimeInMillis() < time3.getTimeInMillis()))
+//                                    return;
+//                            }
 
-                            boolean is_widget_list_stock=dataContext.getSetting(Setting.KEYS.is_widget_list_stock,false).getBoolean();
-                            if(is_widget_list_stock==true){
-                                time1 = new DateTime(9, 30);
-                                time3 = new DateTime(13, 0);
-                            }
-
-                            int day = time.get(Calendar.DAY_OF_WEEK);
-
-                            if (dataContext.getSetting(Setting.KEYS.is_flush_widget_when_screen_on, false).getBoolean() == false)
-                                return;
-                            if (day == 1 || day == 7) return;
-
-                            /**
-                             * 或者小于time1，或者大于time6，或者大于time4小于time5，或者大于time2小于time3。直接返回。
-                             */
-                            if(is_widget_list_stock){
-                                if (time.getTimeInMillis() < time1.getTimeInMillis()
-                                        || (time.getTimeInMillis() > time4.getTimeInMillis())
-                                        || (time.getTimeInMillis() > time2.getTimeInMillis()&& time.getTimeInMillis() < time3.getTimeInMillis()))
-                                    return;
-                            }else{
-                                if (time.getTimeInMillis() < time1.getTimeInMillis()
-                                        || time.getTimeInMillis()>time6.getTimeInMillis()
-                                        || (time.getTimeInMillis() > time4.getTimeInMillis()&&time.getTimeInMillis()<time5.getTimeInMillis())
-                                        || (time.getTimeInMillis() > time2.getTimeInMillis()
-                                        && time.getTimeInMillis() < time3.getTimeInMillis()))
-                                    return;
-                            }
-
-                            context.sendBroadcast(new Intent(MyWidgetProvider.ACTION_CLICK_LAYOUT_LEFT));
+                            context.sendBroadcast(new Intent(MyWidgetProvider.ACTION_CLICK_TEXT));
 
 
 

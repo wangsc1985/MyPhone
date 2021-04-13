@@ -262,11 +262,7 @@ class MyWidgetProvider : AppWidgetProvider() {
                     val is_list_stock = dc.getSetting(Setting.KEYS.is_widget_list_stock, true).boolean
                     if (isAllowWidgetListStock) {
                         val positions = dc.getPositions(if (is_list_stock) 0 else 1)
-                        if (positions.size > 0) {
-                            isStockList = true
-                        } else {
-                            isStockList = false
-                        }
+                        isStockList = positions.size > 0
                         _SinaStockUtils.getStockInfoList(positions, object : OnLoadStockInfoListListener {
                             override fun onLoadFinished(infoList: List<StockInfo>, totalProfit: BigDecimal, averageProfit: BigDecimal, time: String) {
                                 try {
@@ -351,7 +347,6 @@ class MyWidgetProvider : AppWidgetProvider() {
                     Log.e("wangsc", e.message!!)
                 }
                 ACTION_UPDATE_LISTVIEW -> try {
-
                     setWidgetAlertColor(remoteViews)
                     appWidgetManager.notifyAppWidgetViewDataChanged(appWidgetManager.getAppWidgetIds(myComponentName), R.id.listview_todo)
                 } catch (e: Exception) {
@@ -376,12 +371,6 @@ class MyWidgetProvider : AppWidgetProvider() {
                     for (count in 0 until objects.size) {
                         val bytes = objects[count] as ByteArray
                         val message = SmsMessage.createFromPdu(bytes)
-//                        e("\ndisplayMessageBody : ${message.displayMessageBody}\ndisplayOriginatingAddress : ${message.displayOriginatingAddress}\nemailBody : ${message.emailBody}" +
-//                                "\nemailFrom : ${message.emailFrom}\nindexOnIcc : ${message.indexOnIcc}\nisCphsMwiMessage : ${message.isCphsMwiMessage}\nisEmail : ${message.isEmail}" +
-//                                "\ndisplayMessageBody : ${message.isMWIClearMessage}\ndisplayMessageBody : ${message.isMWISetMessage}\ndisplayMessageBody : ${message.isMwiDontStore}" +
-//                                "\nisReplace : ${message.isReplace}\nisReplyPathPresent : ${message.isReplyPathPresent}\nisStatusReportMessage : ${message.isStatusReportMessage}\nmessageBody : ${message.messageBody}" +
-//                                "\noriginatingAddress : ${message.originatingAddress}\nprotocolIdentifier : ${message.protocolIdentifier}\npseudoSubject : ${message.pseudoSubject}" +
-//                                "\nserviceCenterAddress : ${message.serviceCenterAddress}\nstatus : ${message.status}\nstatusOnIcc : ${message.statusOnIcc}\ntimestampMillis : ${message.timestampMillis}")
                         val number = message.originatingAddress
                         val content = message.messageBody
                         val dateTime = DateTime(message.timestampMillis)
@@ -460,27 +449,6 @@ class MyWidgetProvider : AppWidgetProvider() {
                                 sms.createTime = dateTime
                             }
 
-//                            val lastSms = dc.getLastPhoneMessages(number)
-//
-//                            e("${lastSms!=null} ${lastSms?.createTime?.timeInMillis?:0L%100000} ${dateTime.timeInMillis%100000} ${dateTime.timeInMillis - (lastSms?.createTime?.timeInMillis?:0L) }")
-//                            if (lastSms != null && dateTime.timeInMillis - lastSms.createTime.timeInMillis < 2000) {
-//                                lastSms.body += content
-//                                lastSms.createTime = dateTime
-//                                dc.editPhoneMessage(lastSms)
-//
-//                                e("edit  ${content}")
-//                            } else {
-//                                val pm = PhoneMessage()
-//
-//                                pm.address = number?:""
-//                                pm.body = content
-//                                pm.createTime = dateTime
-//                                pm.type = SmsType.接收到
-//                                pm.status = SmsStatus.接收
-//                                dc.addPhoneMessage(pm)
-//
-//                                e("add  ${content}")
-//                            }
                         } catch (e: Exception) {
                             dc.addRunLog("拦截短信", e.message ?: "")
                         }
