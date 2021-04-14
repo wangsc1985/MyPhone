@@ -1,7 +1,9 @@
 package com.wang17.myphone.activity
 
 import android.content.Intent
+import android.graphics.Color
 import android.os.Bundle
+import android.support.constraint.ConstraintLayout
 import android.support.design.widget.Snackbar
 import android.support.v7.app.AppCompatActivity
 import android.util.Log
@@ -235,23 +237,23 @@ class BuddhaActivity : AppCompatActivity(), OnActionFragmentBackListener {
             var convertView = convertView
             try {
                 convertView = View.inflate(this@BuddhaActivity, R.layout.inflate_list_item_buddha_group, null)
-                val textView_date = convertView.findViewById<TextView>(R.id.tv_att_date)
-                val textView_duration = convertView.findViewById<TextView>(R.id.textView_monthDuration)
-                val textView_tap = convertView.findViewById<TextView>(R.id.textView_monthTap)
-                val textView_count = convertView.findViewById<TextView>(R.id.textView_monthCount)
-                val info = groupList[groupPosition]
-                textView_date.text = _String.format(info.month) + "月"
-                textView_duration.text = (info.duration / 60000 / 60).toString() + "小时"
+                val tvDate = convertView.findViewById<TextView>(R.id.tv_att_date)
+                val tvDuration = convertView.findViewById<TextView>(R.id.textView_monthDuration)
+                val tvTap = convertView.findViewById<TextView>(R.id.textView_monthTap)
+                val tvCount = convertView.findViewById<TextView>(R.id.textView_monthCount)
+                val groupInfo = groupList[groupPosition]
+                tvDate.text = _String.format(groupInfo.month) + "月"
+                tvDuration.text = (groupInfo.duration / 60000 / 60).toString() + "小时"
 //                textView_tap.text = (DecimalFormat("0").format(info.count.toFloat()/1080)) + "圈"
-                textView_count.text = DecimalFormat("0.00").format(info.count.toDouble() / 10000) + " 万"
-                if (info.duration == 0L) {
-                    textView_duration.text = "--"
+                tvCount.text = DecimalFormat("0.00").format(groupInfo.count.toDouble() / 10000) + " 万"
+                if (groupInfo.duration == 0L) {
+                    tvDuration.text = "--"
                 }
-                if (info.count == 0) {
-                    textView_count.text = ""
+                if (groupInfo.count == 0) {
+                    tvCount.text = ""
                 }
-                if (info.count == 0) {
-                    textView_tap.text = ""
+                if (groupInfo.count == 0) {
+                    tvTap.text = ""
                 }
             } catch (e: Exception) {
                 printException(this@BuddhaActivity, e)
@@ -263,28 +265,38 @@ class BuddhaActivity : AppCompatActivity(), OnActionFragmentBackListener {
             var convertView = convertView
             try {
                 convertView = View.inflate(this@BuddhaActivity, R.layout.inflate_list_item_buddha_child, null)
-                val textView_date = convertView.findViewById<TextView>(R.id.tv_att_date)
-                val textView_duration = convertView.findViewById<TextView>(R.id.textView_monthDuration)
-                val textView_tap = convertView.findViewById<TextView>(R.id.textView_monthTap)
-                val textView_count = convertView.findViewById<TextView>(R.id.textView_monthCount)
+                val tvDate = convertView.findViewById<TextView>(R.id.tv_att_date)
+                val tvDuration = convertView.findViewById<TextView>(R.id.textView_monthDuration)
+                val tvTap = convertView.findViewById<TextView>(R.id.textView_monthTap)
+                val tvCount = convertView.findViewById<TextView>(R.id.textView_monthCount)
                 val tvItem = convertView.findViewById<TextView>(R.id.tv_item)
+//                val root = convertView.findViewById<ConstraintLayout>(R.id.layout_root)
                 val childInfo = childListList[groupPosition][childPosition]
                 if (childInfo.item.isNotEmpty())
                     tvItem.text = childInfo.item
                 else
                     tvItem.visibility = View.GONE
-                textView_date.text = _String.format(childInfo.day)
+                tvDate.text = _String.format(childInfo.day)
 //                textView_tap.text =  (DecimalFormat("0").format(childInfo.count.toFloat()/1080))+ "圈"
-                textView_duration.text = toSpanString2(childInfo.duration)
-                textView_count.text = DecimalFormat("0.0").format(childInfo.count.toDouble() / 1000) + " 千"
+                tvDuration.text = toSpanString2(childInfo.duration)
+                tvCount.text = DecimalFormat("0.0").format(childInfo.count.toDouble() / 1000) + " 千"
                 if (childInfo.duration == 0L) {
-                    textView_duration.text = "--"
+                    tvDuration.text = "--"
                 }
                 if (childInfo.count == 0) {
-                    textView_count.text = ""
+                    tvCount.text = ""
                 }
                 if (childInfo.count == 0) {
-                    textView_tap.text = ""
+                    tvTap.text = ""
+                }
+                if(childInfo.count>=15000){
+                    tvCount.setTextColor(Color.RED)
+                    tvDuration.setTextColor(Color.RED)
+//                    root.setBackgroundColor(Color.RED)
+                }else if(childInfo.count<10800){
+                    tvCount.setTextColor(Color.BLUE)
+                    tvDuration.setTextColor(Color.BLUE)
+//                    root.setBackgroundColor(Color.BLUE)
                 }
             } catch (e: Exception) {
                 printException(this@BuddhaActivity, e)

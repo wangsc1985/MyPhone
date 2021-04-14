@@ -301,13 +301,17 @@ class BuddhaPlayerFragment : Fragment() {
         }
 
         layout_dayTotal.setOnClickListener {
-            val intent = Intent(context, BuddhaDetailActivity::class.java)
-            intent.putExtra("start", System.currentTimeMillis())
-            startActivity(intent)
+            _FingerUtils.showFingerPrintDialog(activity!!){
+                val intent = Intent(context, BuddhaDetailActivity::class.java)
+                intent.putExtra("start", System.currentTimeMillis())
+                startActivity(intent)
+            }
         }
 
         layout_monthTotal.setOnClickListener {
-            startActivity(Intent(context, BuddhaActivity::class.java))
+            _FingerUtils.showFingerPrintDialog(activity!!){
+                startActivity(Intent(context, BuddhaActivity::class.java))
+            }
         }
 
         iv_buddha.setOnLongClickListener {
