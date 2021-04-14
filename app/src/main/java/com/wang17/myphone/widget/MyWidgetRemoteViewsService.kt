@@ -154,17 +154,18 @@ class MyWidgetRemoteViewsService : RemoteViewsService() {
                 //region 余额警戒
                 if (dc.getSetting(Setting.KEYS.is_broadcast_big_figure, true).boolean) {
                     var balanceStr = dc.getSetting(Setting.KEYS.bank1_balance, 0).string.replace(",","")
+                    var isBalanceLevelLowAlert = dc.getSetting(Setting.KEYS.is_balance_level_alert, true).boolean
                     var balance =balanceStr.toDouble()
                     if (balance > 3000) {
                         mToDoList.add(ToDo("          ", "ABC","          ",  WARNING3_COLOR, true, 0))
-                    }else if(balance<100){
+                    }else if(balance<100 &&isBalanceLevelLowAlert){
                         mToDoList.add(ToDo("          ", "ABC","          ",  WARNING2_COLOR, true, 0))
                     }
                     balanceStr = dc.getSetting(Setting.KEYS.bank2_balance, 0).string.replace(",","")
                     balance =balanceStr.toDouble()
                     if (balance > 2000) {
                         mToDoList.add(ToDo("          ", "ICBC","          ",  WARNING3_COLOR, true, 0))
-                    }else if(balance<50){
+                    }else if(balance<50 && isBalanceLevelLowAlert){
                         mToDoList.add(ToDo("          ", "ICBC","          ",  WARNING2_COLOR, true, 0))
                     }
                 }

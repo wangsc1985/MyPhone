@@ -65,6 +65,7 @@ class BuddhaService : Service() {
     var yq_period=1000L
 
     lateinit var guSound: SoundPool
+    lateinit var souSound:SoundPool
 
     override fun onBind(intent: Intent): IBinder? {
         return null
@@ -82,6 +83,8 @@ class BuddhaService : Service() {
         try {
             guSound = SoundPool(100, AudioManager.STREAM_MUSIC, 0)
             guSound.load(this, R.raw.yq, 1)
+            souSound = SoundPool(100, AudioManager.STREAM_MUSIC, 0)
+            souSound.load(this,R.raw.piu,1)
             dc = DataContext(applicationContext)
             val setting = dc.getSetting(Setting.KEYS.buddha_duration)
             setting?.let {
@@ -182,6 +185,9 @@ class BuddhaService : Service() {
                         if (notificationCount % 2 == 0) {
                             Thread.sleep(yq_period)
                             guSound.play(1, 1.0f, 1.0f, 0, 0, 1.0f)
+                        }
+                        if( duration - circleSecond*notificationCount*1000>10000&& dc.getSetting(Setting.KEYS.is_buddha_gu_timeout_alert, true).boolean){
+                            souSound.play(1,1.0f,1.0f,0,0,1.0f)
                         }
                     }
                 }
