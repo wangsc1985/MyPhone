@@ -154,7 +154,7 @@ class MyWidgetRemoteViewsService : RemoteViewsService() {
                 //region 余额警戒
                 if (dc.getSetting(Setting.KEYS.is_broadcast_big_figure, true).boolean) {
                     var balanceStr = dc.getSetting(Setting.KEYS.bank1_balance, 0).string.replace(",","")
-                    var isBalanceLevelLowAlert = dc.getSetting(Setting.KEYS.is_balance_level_alert, true).boolean
+                    var isBalanceLevelLowAlert = dc.getSetting(Setting.KEYS.is_balance_level_low_alert, true).boolean
                     var balance =balanceStr.toDouble()
                     if (balance > 3000) {
                         mToDoList.add(ToDo("          ", "ABC","          ",  WARNING3_COLOR, true, 0))
