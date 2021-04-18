@@ -28,6 +28,7 @@ import com.wang17.myphone.e
 import com.wang17.myphone.database.BuddhaConfig
 import com.wang17.myphone.database.DataContext
 import com.wang17.myphone.database.Setting
+import com.wang17.myphone.event.ResetTimeEvent
 import com.wang17.myphone.eventbus.*
 import com.wang17.myphone.util._NotificationUtils
 import com.wang17.myphone.util._Session
@@ -476,6 +477,12 @@ class BuddhaService : Service() {
                     param.speed = speed
                     mPlayer?.playbackParams = param
                 }
+            }
+            is ResetTimeEvent->{
+                val duration = savedDuration + System.currentTimeMillis() - startTimeInMillis
+                val count = (duration / 1000 / circleSecond).toInt()
+                startTimeInMillis = System.currentTimeMillis()-(circleSecond*1000*count-savedDuration)
+                dc.editSetting(Setting.KEYS.buddha_startime, startTimeInMillis)
             }
         }
     }

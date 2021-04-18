@@ -16,6 +16,7 @@ android {
         versionName '1.68'
         multiDexEnabled true
     }
+
     /**
      * start 调试时使用自动签名，手动添加。
      */

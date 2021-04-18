@@ -551,15 +551,20 @@ object _Utils {
         vibrator.vibrate(500)
     }
 
-    fun zhendong3(context: Context) {
+    fun zhendong2(context: Context,milliseconds:Long) {
         val vibrator = context.getSystemService(Context.VIBRATOR_SERVICE) as Vibrator
-        val patter = longArrayOf(100, 100, 100, 100, 100, 100) // 数组的a[0]表示静止的时间，a[1]代表的是震动的时间，然后数组的a[2]表示静止的时间，a[3]代表的是震动的时间……依次类推下去
+        val patter = longArrayOf(milliseconds, milliseconds, milliseconds, milliseconds) // 数组的a[0]表示静止的时间，a[1]代表的是震动的时间，然后数组的a[2]表示静止的时间，a[3]代表的是震动的时间……依次类推下去
+        vibrator.vibrate(patter, -1) // 第二个参数是循环的位置，-1是不循环。
+    }
+    fun zhendong3(context: Context,milliseconds:Long) {
+        val vibrator = context.getSystemService(Context.VIBRATOR_SERVICE) as Vibrator
+        val patter = longArrayOf(milliseconds, milliseconds, milliseconds, milliseconds, milliseconds, milliseconds) // 数组的a[0]表示静止的时间，a[1]代表的是震动的时间，然后数组的a[2]表示静止的时间，a[3]代表的是震动的时间……依次类推下去
         vibrator.vibrate(patter, -1) // 第二个参数是循环的位置，-1是不循环。
     }
 
-    fun zhendong6(context: Context) {
+    fun zhendong5(context: Context,milliseconds:Long) {
         val vibrator = context.getSystemService(Context.VIBRATOR_SERVICE) as Vibrator
-        val patter = longArrayOf(100, 100, 100, 100, 100, 100, 1000, 100, 100, 100, 100, 100, 100) // 数组的a[0]表示静止的时间，a[1]代表的是震动的时间，然后数组的a[2]表示静止的时间，a[3]代表的是震动的时间……依次类推下去
+        val patter = longArrayOf(milliseconds, milliseconds, milliseconds, milliseconds, milliseconds, milliseconds, milliseconds, milliseconds, milliseconds, milliseconds, milliseconds) // 数组的a[0]表示静止的时间，a[1]代表的是震动的时间，然后数组的a[2]表示静止的时间，a[3]代表的是震动的时间……依次类推下去
         vibrator.vibrate(patter, -1) // 第二个参数是循环的位置，-1是不循环。
     }
 }

@@ -25,6 +25,7 @@ import com.wang17.myphone.database.BuddhaConfig
 import com.wang17.myphone.database.BuddhaRecord
 import com.wang17.myphone.database.DataContext
 import com.wang17.myphone.database.Setting
+import com.wang17.myphone.event.ResetTimeEvent
 import com.wang17.myphone.eventbus.*
 import com.wang17.myphone.service.BuddhaService
 import com.wang17.myphone.service.MuyuService
@@ -222,43 +223,49 @@ class BuddhaPlayerFragment : Fragment() {
         loadBuddhaName()
 
         tv_time.setOnLongClickListener {
-            val setting = dc.getSetting(Setting.KEYS.buddha_duration)
-            setting?.let {
-                var duration = setting.long
-                val tap = duration / 1000 / circleSecond
 
-                if (buddhaType() != 11) {
-                    duration = (duration / 60000) * 60000
-                }
-                if (duration > 0) {
-                    AlertDialog.Builder(context).setMessage("缓存中存在念佛记录，是否存档？").setPositiveButton("存档") { dialog, which ->
-                        buildBuddhaAndSave(tap.toInt(), duration, dc.getSetting(Setting.KEYS.buddha_stoptime, System.currentTimeMillis()).long, buddhaType()) { code, result ->
-                            if (code == 0) {
-                                dc.deleteSetting(Setting.KEYS.buddha_duration)
-                                dc.deleteSetting(Setting.KEYS.buddha_stoptime)
-                                refreshTotalView()
-                                uiHandler.post {
-                                    tv_time.text = ""
-                                    AlertDialog.Builder(context).setMessage(result.toString()).show()
+            if (_Utils.isServiceRunning(context!!, BuddhaService::class.qualifiedName!!)) {
+                AlertDialog.Builder(context).setMessage("现在对齐时间线？").setPositiveButton("确定"){ dialogInterface: DialogInterface, i: Int ->
+                    EventBus.getDefault().post(EventBusMessage.getInstance(ResetTimeEvent(),""))
+                }.show()
+            }else{
+                val setting = dc.getSetting(Setting.KEYS.buddha_duration)
+                setting?.let {
+                    var duration = setting.long
+                    val tap = duration / 1000 / circleSecond
+
+                    if (buddhaType() != 11) {
+                        duration = (duration / 60000) * 60000
+                    }
+                    if (duration > 0) {
+                        AlertDialog.Builder(context).setMessage("缓存中存在念佛记录，是否存档？").setPositiveButton("存档") { dialog, which ->
+                            buildBuddhaAndSave(tap.toInt(), duration, dc.getSetting(Setting.KEYS.buddha_stoptime, System.currentTimeMillis()).long, buddhaType()) { code, result ->
+                                if (code == 0) {
+                                    dc.deleteSetting(Setting.KEYS.buddha_duration)
+                                    dc.deleteSetting(Setting.KEYS.buddha_stoptime)
+                                    refreshTotalView()
+                                    uiHandler.post {
+                                        tv_time.text = ""
+                                        AlertDialog.Builder(context).setMessage(result.toString()).show()
+                                    }
                                 }
                             }
-                        }
-                    }.setNegativeButton("清空", DialogInterface.OnClickListener { dialog, which ->
+                        }.setNegativeButton("清空", DialogInterface.OnClickListener { dialog, which ->
+                            dc.deleteSetting(Setting.KEYS.buddha_duration)
+                            dc.deleteSetting(Setting.KEYS.buddha_stoptime)
+                            tv_time.text = ""
+                        }).show()
+                    } else {
                         dc.deleteSetting(Setting.KEYS.buddha_duration)
                         dc.deleteSetting(Setting.KEYS.buddha_stoptime)
-                        tv_time.text = ""
-                    }).show()
-                } else {
-                    dc.deleteSetting(Setting.KEYS.buddha_duration)
-                    dc.deleteSetting(Setting.KEYS.buddha_stoptime)
-                    refreshTotalView()
-                    uiHandler.post {
-                        tv_time.text = ""
+                        refreshTotalView()
+                        uiHandler.post {
+                            tv_time.text = ""
+                        }
                     }
                 }
-
-
             }
+
             true
         }
 

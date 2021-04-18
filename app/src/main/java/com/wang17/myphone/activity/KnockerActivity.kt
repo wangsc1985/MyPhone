@@ -62,7 +62,7 @@ class KnockerActivity : AppCompatActivity() {
 
         daKnockSound = SoundPool(100, AudioManager.STREAM_MUSIC,0)
         xiaoKnockSound = SoundPool(100,AudioManager.STREAM_MUSIC,0)
-        daKnockSound.load(this,R.raw.yinqing,1)
+        daKnockSound.load(this,R.raw.yq,1)
         xiaoKnockSound.load(this,R.raw.muyu,1)
 
         fullscreenContent = findViewById(R.id.fullscreen_content)
