@@ -179,9 +179,6 @@ public class LocationService extends Service {
                                 if (lastLatLng != null && location.getAccuracy() <= 10 && distance > 20) {
                                     count = 0;
                                 }
-                                if (dataContext.getSetting(Setting.KEYS.is_have_didi_order_running, false).getBoolean() == false) {
-                                    count++;
-                                }
                                 if (count > 20) {
                                     changeGear(0, AUTO);
                                 } else if (count == 1) {

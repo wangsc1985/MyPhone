@@ -82,7 +82,7 @@ public class ToDoFragment extends Fragment {
                 DateTime now = new DateTime();
                 int dayOffset = DateTime.dayOffset(now, bankToDo.getDateTime());
                 TextView textViewDays = convertView.findViewById(R.id.textView_days);
-                TextView textViewName = convertView.findViewById(R.id.textView_name);
+                TextView textViewName = convertView.findViewById(R.id.tv_name);
                 TextView textViewMoney = convertView.findViewById(R.id.textView_money);
 
                 final ConstraintLayout layoutRoot = convertView.findViewById(R.id.layout_root);

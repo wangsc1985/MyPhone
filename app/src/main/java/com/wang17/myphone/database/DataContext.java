@@ -953,6 +953,7 @@ public class DataContext {
             values.put("amount", model.getAmount());
             values.put("type", model.getType());
             values.put("tag", model.getTag());
+            values.put("hold", model.getHold());
             //调用方法插入数据
             db.insert("trade", "id", values);
             //关闭SQLiteDatabase对象
@@ -980,6 +981,7 @@ public class DataContext {
                 model.setAmount(cursor.getInt(5));
                 model.setType(cursor.getInt(6));
                 model.setTag(cursor.getInt(7));
+                model.setHold(cursor.getInt(8));
                 cursor.close();
                 db.close();
                 return model;
@@ -1008,6 +1010,7 @@ public class DataContext {
                 model.setAmount(cursor.getInt(5));
                 model.setType(cursor.getInt(6));
                 model.setTag(cursor.getInt(7));
+                model.setHold(cursor.getInt(8));
                 result.add(model);
             }
             cursor.close();
@@ -1038,6 +1041,7 @@ public class DataContext {
                 model.setAmount(cursor.getInt(5));
                 model.setType(cursor.getInt(6));
                 model.setTag(cursor.getInt(7));
+                model.setHold(cursor.getInt(8));
                 result.add(model);
             }
             cursor.close();
@@ -1077,6 +1081,8 @@ public class DataContext {
                 model.setPrice(new BigDecimal(cursor.getString(4)));
                 model.setAmount(cursor.getInt(5));
                 model.setType(t);
+                model.setTag(cursor.getInt(7));
+                model.setHold(cursor.getInt(8));
                 result.add(model);
             }
             cursor.close();
@@ -1105,6 +1111,7 @@ public class DataContext {
                 model.setAmount(cursor.getInt(5));
                 model.setType(cursor.getInt(6));
                 model.setTag(cursor.getInt(7));
+                model.setHold(cursor.getInt(8));
                 result.add(model);
             }
             cursor.close();
@@ -1128,6 +1135,7 @@ public class DataContext {
             values.put("amount", model.getAmount());
             values.put("type", model.getType());
             values.put("tag", model.getTag());
+            values.put("hold", model.getHold());
             //调用方法插入数据
             db.update("trade", values, "id=?", new String[]{model.getId().toString()});
             //关闭SQLiteDatabase对象
@@ -3128,7 +3136,7 @@ public class DataContext {
         }
     }
 
-    public void clearRunLogByTag(String tag) {
+    public void deleteRunLogByTag(String tag) {
         try {
             //获取数据库对象
             SQLiteDatabase db = dbHelper.getWritableDatabase();

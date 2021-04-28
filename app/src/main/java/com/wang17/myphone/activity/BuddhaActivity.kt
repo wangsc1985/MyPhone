@@ -16,7 +16,6 @@ import android.widget.TextView
 import com.wang17.myphone.R
 import com.wang17.myphone.database.DataContext
 import com.wang17.myphone.fragment.ActionBarFragment.OnActionFragmentBackListener
-import com.wang17.myphone.fragment.AddTallyFragment
 import com.wang17.myphone.model.DateTime
 import com.wang17.myphone.model.DateTime.Companion.toSpanString2
 import com.wang17.myphone.model.DateTime.Companion.today
@@ -86,16 +85,6 @@ class BuddhaActivity : AppCompatActivity(), OnActionFragmentBackListener {
                 startActivityForResult(intent, TO_TALLAY_RECORD_DETAIL_ACTIVITY)
                 true
             }
-            floating_add.setOnClickListener {
-                val addTallyFragment = AddTallyFragment()
-                addTallyFragment.setAfterAddRecordListener { //                    tallyRecords = dataContext.getRecords(DateTime.getToday().getYear());
-                    reflushData(year)
-                    recordListdAdapter.notifyDataSetChanged()
-                    recordListdAdapter.notifyDataSetChanged()
-                    isChanged = true
-                }
-                addTallyFragment.show(supportFragmentManager, "添加念佛记录")
-            }
         } catch (e: Exception) {
             printException(this, e)
         }
@@ -141,11 +130,6 @@ class BuddhaActivity : AppCompatActivity(), OnActionFragmentBackListener {
             Log.e("wangsc", "start : " + end.toLongDateTimeString() + " end : " + date.toLongDateTimeString())
             while (date.year == end.year && date[Calendar.DAY_OF_YEAR] >= end[Calendar.DAY_OF_YEAR]) {
                 val records = dataContext.getBuddhas(date)
-                //                if(isToday&&records.size()==0){
-//                    date = date.addDays(-1);
-//                    continue;
-//                }
-//                Log.e("wangsc", "date day of year :" + date[Calendar.DAY_OF_YEAR] + " end day of year : " + end[Calendar.DAY_OF_YEAR])
                 //                isToday=false;
                 if (date.month == month) {
                     day = date.day
@@ -325,14 +309,6 @@ class BuddhaActivity : AppCompatActivity(), OnActionFragmentBackListener {
 
     override fun onBackButtonClickListener() {
         finish()
-    }
-
-    private fun snackbar(message: String) {
-        try {
-            Snackbar.make(floating_add, message, Snackbar.LENGTH_LONG).show()
-        } catch (e: Exception) {
-            printException(this@BuddhaActivity, e)
-        }
     }
 
     companion object {

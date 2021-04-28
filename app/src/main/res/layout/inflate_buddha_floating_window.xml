@@ -11,7 +11,9 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_gravity="center"
-        android:background="@drawable/my_progressbar3"
+        android:layout_marginLeft="5dp"
+        android:layout_marginRight="5dp"
+        android:background="@color/progressbar_background"
         android:gravity="center"
         android:text="0:00"
         android:textSize="14sp" />
@@ -21,7 +23,7 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:layout_weight="1"
-        android:background="@drawable/button_sub_action_dark"
+        android:background="@drawable/button_action_dark"
         android:padding="20dp"
         android:src="@drawable/pause" />
 </LinearLayout>

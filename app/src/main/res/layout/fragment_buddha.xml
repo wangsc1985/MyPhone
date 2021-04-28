@@ -7,245 +7,305 @@
     android:layout_height="match_parent"
     android:orientation="vertical">
 
-    <android.support.design.widget.FloatingActionButton
-        android:id="@+id/fab_stock"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:clickable="true"
-        app:backgroundTint="@android:color/holo_orange_light"
-        app:elevation="3dp"
-        app:fabSize="normal"
-        app:layout_constraintBottom_toBottomOf="@+id/listView_tallyPlan"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/switch_music"
-        app:srcCompat="@drawable/stock" />
-
-    <com.wang17.myphone.plugin.PercentCircleView
-        android:id="@+id/circle_percent"
-        android:layout_width="200dp"
-        android:layout_height="200dp"
-        android:layout_margin="20dp"
-        app:layout_constraintBottom_toBottomOf="@+id/textView_count"
-        app:layout_constraintEnd_toEndOf="@+id/textView_count"
-        app:layout_constraintStart_toStartOf="@+id/textView_count"
-        app:layout_constraintTop_toTopOf="@id/textView_count" />
-<!--    <com.wang17.myphone.model.CircleBarView-->
-<!--        android:id="@+id/progressBar_count"-->
-<!--        android:layout_width="150dp"-->
-<!--        android:layout_height="150dp"-->
-<!--        app:bar_width="5dp"-->
-<!--        app:bg_color="@color/gray_light"-->
-<!--        app:layout_constraintBottom_toTopOf="@id/layout_finishTime"-->
-<!--        app:layout_constraintEnd_toEndOf="parent"-->
-<!--        app:layout_constraintStart_toStartOf="parent"-->
-<!--        app:layout_constraintTop_toTopOf="parent"-->
-<!--        app:progress_color="@color/red"-->
-<!--        app:start_angle="150"-->
-<!--        app:sweep_angle="300" />-->
-
-    <TextView
-        android:id="@+id/textView_count"
+    <android.support.constraint.ConstraintLayout
+        android:id="@+id/frameLayout7"
         android:layout_width="0dp"
         android:layout_height="0dp"
-        android:layout_marginStart="8dp"
-        android:layout_marginTop="8dp"
-        android:layout_marginEnd="8dp"
-        android:layout_marginBottom="8dp"
-        android:gravity="center"
-        android:text="0"
-        android:textColor="#E62323"
-        android:textSize="100dp"
-        app:layout_constraintBottom_toTopOf="@id/layout_finishTime"
+        app:layout_constraintBottom_toTopOf="@+id/guideline1"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
+        app:layout_constraintTop_toTopOf="@+id/guideline2">
 
-    <FrameLayout
-        android:id="@+id/frameLayout2"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginBottom="8dp"
-        android:layout_marginLeft="8dp"
-        android:layout_marginRight="8dp"
-        android:layout_marginTop="8dp"
-        android:orientation="horizontal"
-        android:visibility="gone"
-        app:layout_constraintBottom_toTopOf="@+id/layout_dayTotal"
-        app:layout_constraintLeft_toLeftOf="parent"
-        app:layout_constraintRight_toRightOf="parent"
-        app:layout_constraintTop_toTopOf="parent">
+        <ImageView
+            android:id="@+id/iv_pitch_add"
+            android:layout_width="0dp"
+            android:layout_height="0dp"
+            app:layout_constraintBottom_toTopOf="@+id/guideline3"
+            app:layout_constraintEnd_toStartOf="@+id/iv_buddha"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            app:srcCompat="@drawable/my_abc_btn_default_mtrl_shape" />
 
-        <ProgressBar
-            android:id="@+id/progressBar_have"
-            style="@style/Widget.AppCompat.ProgressBar.Horizontal"
-            android:layout_width="150dp"
-            android:layout_height="2dp"
-            android:layout_gravity="bottom"
-            android:layout_weight="1"
-            android:background="@color/cardview_shadow_start_color"
-            android:max="24"
-            android:progress="20"
-            android:progressDrawable="@drawable/my_progressbar_drawable" />
+        <ImageView
+            android:id="@+id/iv_pitch_minus"
+            android:layout_width="0dp"
+            android:layout_height="0dp"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toStartOf="@+id/iv_buddha"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/iv_pitch_add"
+            app:srcCompat="@drawable/my_abc_btn_default_mtrl_shape" />
+
+        <android.support.constraint.Guideline
+            android:id="@+id/guideline3"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            app:layout_constraintGuide_percent="0.5"
+            tools:layout_conversion_absoluteHeight="0dp"
+            tools:layout_conversion_absoluteWidth="0dp"
+            tools:layout_editor_absoluteX="71dp"
+            tools:layout_editor_absoluteY="133dp" />
+
+        <ImageView
+            android:id="@+id/iv_buddha"
+            android:layout_width="290dp"
+            android:layout_height="0dp"
+            android:background="@color/progressbar_background"
+            android:rotation="0"
+            android:scaleType="centerInside"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            app:srcCompat="@drawable/nf"
+            tools:layout_conversion_absoluteHeight="400dp"
+            tools:layout_conversion_absoluteWidth="270dp" />
+
+        <ImageView
+            android:id="@+id/iv_speed_add"
+            android:layout_width="0dp"
+            android:layout_height="0dp"
+            app:layout_constraintBottom_toTopOf="@+id/guideline3"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toEndOf="@+id/iv_buddha"
+            app:layout_constraintTop_toTopOf="parent"
+            app:srcCompat="@drawable/my_abc_btn_default_mtrl_shape" />
+
+        <ImageView
+            android:id="@+id/iv_speed_minus"
+            android:layout_width="0dp"
+            android:layout_height="0dp"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toEndOf="@+id/iv_buddha"
+            app:layout_constraintTop_toTopOf="@+id/guideline3"
+            app:srcCompat="@drawable/my_abc_btn_default_mtrl_shape" />
 
         <TextView
-            android:id="@+id/textViewHaveM"
+            android:id="@+id/tv_speed"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_gravity="bottom|right"
-            android:layout_marginBottom="2dp"
-            android:layout_weight="1"
-            android:text="2/24"
-            android:textAppearance="?android:attr/textAppearanceLarge"
-            android:textColor="@color/colorAccent"
-            android:textSize="10dp" />
+            android:text="速1.00度"
+            app:layout_constraintBottom_toBottomOf="@id/iv_buddha"
+            app:layout_constraintEnd_toEndOf="@id/iv_speed_minus"
+            app:layout_constraintStart_toEndOf="@+id/iv_buddha"
+            app:layout_constraintTop_toTopOf="@+id/iv_speed_add" />
 
-        <LinearLayout
-            android:id="@+id/linearLayout8"
+        <TextView
+            android:id="@+id/tv_pitch"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_gravity="center">
+            android:text="音1.00调 "
+            app:layout_constraintBottom_toBottomOf="@id/iv_buddha"
+            app:layout_constraintEnd_toEndOf="@+id/iv_pitch_minus"
+            app:layout_constraintStart_toStartOf="@+id/iv_pitch_minus"
+            app:layout_constraintTop_toTopOf="@+id/iv_pitch_add" />
 
-            <TextView
-                android:id="@+id/textViewHaveH"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_gravity="center_horizontal"
-                android:layout_weight="1"
-                android:text="6"
-                android:textAppearance="?android:attr/textAppearanceLarge"
-                android:textColor="@color/colorAccent"
-                android:textSize="70dp" />
+    </android.support.constraint.ConstraintLayout>
 
-        </LinearLayout>
-    </FrameLayout>
+    <!--    <TextView-->
+<!--        android:id="@+id/textView26"-->
+<!--        android:layout_width="wrap_content"-->
+<!--        android:layout_height="wrap_content"-->
+<!--        android:layout_marginEnd="16dp"-->
+<!--        android:ems="1"-->
+<!--        android:text="圆悟藏性一尘不染三惑尽"-->
+<!--        android:textColor="@color/a"-->
+<!--        android:textSize="18sp"-->
+<!--        android:visibility="gone"-->
+<!--        app:layout_constraintBottom_toBottomOf="@+id/imageView3"-->
+<!--        app:layout_constraintEnd_toEndOf="parent"-->
+<!--        app:layout_constraintTop_toTopOf="parent" />-->
 
-    <TextView
-        android:id="@+id/textView_timer"
+<!--    <TextView-->
+<!--        android:id="@+id/textView25"-->
+<!--        android:layout_width="wrap_content"-->
+<!--        android:layout_height="wrap_content"-->
+<!--        android:layout_marginStart="16dp"-->
+<!--        android:ems="1"-->
+<!--        android:text="彻证自心万德全彰五蕴空"-->
+<!--        android:textColor="@color/a"-->
+<!--        android:textSize="18sp"-->
+<!--        android:visibility="gone"-->
+<!--        app:layout_constraintBottom_toBottomOf="@+id/imageView3"-->
+<!--        app:layout_constraintStart_toStartOf="parent"-->
+<!--        app:layout_constraintTop_toTopOf="parent" />-->
+
+    <LinearLayout
+        android:id="@+id/layout_monthTotal"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_gravity="center_horizontal"
-        android:layout_marginBottom="8dp"
-        android:layout_marginEnd="8dp"
-        android:layout_marginLeft="8dp"
-        android:layout_marginRight="8dp"
-        android:layout_marginStart="8dp"
-        android:layout_marginTop="8dp"
-        android:text="00 : 00 : 00"
-        android:textAppearance="?android:attr/textAppearanceLarge"
-        android:textColor="@android:color/black"
-        android:textSize="60dp"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintLeft_toLeftOf="parent"
+        android:orientation="horizontal"
+        android:padding="15dp"
         app:layout_constraintRight_toRightOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
+        app:layout_constraintTop_toTopOf="parent"
+        tools:layout_constraintLeft_creator="1"
+        tools:layout_constraintRight_creator="1"
+        tools:layout_constraintTop_creator="1">
 
-    <Switch
-        android:id="@+id/switch_music"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="8dp"
-        android:layout_weight="1"
-        app:layout_constraintHorizontal_bias="0.501"
-        app:layout_constraintLeft_toLeftOf="parent"
-        app:layout_constraintRight_toRightOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/layout_dayTotal" />
+        <!--        <TextView-->
+        <!--            android:id="@+id/textView10"-->
+        <!--            android:layout_width="wrap_content"-->
+        <!--            android:layout_height="wrap_content"-->
+        <!--            android:text="" />-->
+
+        <TextView
+            android:id="@+id/tv_monthTotal"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:fontFamily="sans-serif"
+            android:text="0" />
+
+    </LinearLayout>
 
     <LinearLayout
         android:id="@+id/layout_dayTotal"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginTop="8dp"
         android:orientation="horizontal"
-        android:padding="10dp"
+        android:padding="15dp"
         app:layout_constraintLeft_toLeftOf="parent"
-        app:layout_constraintRight_toRightOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/textView_timer"
+        app:layout_constraintTop_toTopOf="parent"
         tools:layout_constraintLeft_creator="1"
         tools:layout_constraintRight_creator="1"
         tools:layout_constraintTop_creator="1">
 
-        <TextView
-            android:id="@+id/textView10"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="今日念佛：" />
+        <!--        <TextView-->
+        <!--            android:id="@+id/textView1"-->
+        <!--            android:layout_width="wrap_content"-->
+        <!--            android:layout_height="wrap_content"-->
+        <!--            android:text="" />-->
 
         <TextView
-            android:id="@+id/textView_monthDuration"
+            android:id="@+id/tv_dayTotal"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:fontFamily="sans-serif"
-            android:text="0分钟" />
+            android:text="0" />
 
     </LinearLayout>
 
-    <FrameLayout
-        android:id="@+id/layout_finishTime"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginBottom="8dp"
-        android:layout_marginLeft="8dp"
-        android:layout_marginRight="8dp"
-        android:padding="10dp"
-        app:layout_constraintBottom_toTopOf="@+id/textView_timer"
-        app:layout_constraintLeft_toLeftOf="parent"
-        app:layout_constraintRight_toRightOf="parent">
-
-        <TextView
-            android:id="@+id/textView_finishTime"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_gravity="center"
-            android:text="           "
-            app:layout_constraintBottom_toTopOf="@+id/textView_markDay"
-            app:layout_constraintHorizontal_bias="0.501"
-            app:layout_constraintLeft_toLeftOf="parent"
-            app:layout_constraintRight_toRightOf="parent"
-            tools:layout_constraintBottom_creator="1"
-            tools:layout_constraintLeft_creator="1"
-            tools:layout_constraintRight_creator="1" />
-
-    </FrameLayout>
-
-    <ListView
-        android:id="@+id/listView_tallyPlan"
+    <android.support.constraint.Guideline
+        android:id="@+id/guideline2"
         android:layout_width="0dp"
         android:layout_height="0dp"
-        android:layout_marginStart="8dp"
-        android:layout_marginTop="8dp"
-        android:layout_marginEnd="8dp"
-        android:layout_marginBottom="8dp"
-        android:background="@color/cardview_light_background"
-        android:divider="@null"
-        android:visibility="invisible"
+        android:orientation="horizontal"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintGuide_percent="0.14"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
 
-    <!--<LinearLayout-->
-    <!--android:layout_width="wrap_content"-->
-    <!--android:layout_height="wrap_content"-->
-    <!--android:layout_alignParentBottom="true"-->
-    <!--android:id="@+id/main"-->
-    <!--android:orientation="vertical"-->
-    <!--android:layout_centerHorizontal="true"-->
-    <!--android:layout_above="@+id/layout_total"-->
-    <!--android:layout_marginBottom="30dp"-->
-    <!--android:layout_below="@+id/time"-->
-    <!--android:layout_marginTop="30dp">-->
+    <android.support.constraint.Guideline
+        android:id="@+id/guideline1"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:orientation="horizontal"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintGuide_percent="0.73"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+    <!--        app:layout_constraintGuide_begin="532dp"-->
 
-    <!--<ImageButton-->
-    <!--android:layout_height="50dp"-->
-    <!--android:id="@+id/ibutton_start"-->
-    <!--android:background="@drawable/btn_start_shape"-->
-    <!--android:layout_gravity="center_horizontal"-->
-    <!--android:elevation="0dp"-->
-    <!--android:scaleType="fitCenter"-->
-    <!--app:srcCompat="@android:drawable/ic_media_play"-->
-    <!--android:layout_width="80dp" />-->
+<!--    <android.support.constraint.Guideline-->
+<!--        android:id="@+id/guideline2"-->
+<!--        android:layout_width="wrap_content"-->
+<!--        android:layout_height="wrap_content"-->
+<!--        android:orientation="horizontal"-->
+<!--        app:layout_constraintBottom_toBottomOf="@id/iv_buddha"-->
+<!--        app:layout_constraintEnd_toEndOf="parent"-->
+<!--        app:layout_constraintGuide_percent="0.5"-->
+<!--        app:layout_constraintStart_toStartOf="parent"-->
+<!--        app:layout_constraintTop_toTopOf="@id/iv_buddha" />-->
 
-    <!--</LinearLayout>-->
+    <TextView
+        android:id="@+id/tv_time"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textSize="24sp"
+        android:textStyle="bold"
+        app:layout_constraintBottom_toTopOf="@+id/frameLayout7"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent" />
+
+    <TextView
+        android:id="@+id/tv_buddha_name"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:background="@drawable/bg_map_btn_normal"
+        android:paddingLeft="10dp"
+        android:paddingRight="10dp"
+        android:text="               阿弥陀佛               "
+        android:textColor="@color/calendar_yl_color"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/frameLayout7" />
+
+    <android.support.design.widget.FloatingActionButton
+        android:id="@+id/fab_muyu"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_margin="10dp"
+        android:layout_marginEnd="24dp"
+        android:layout_weight="1"
+        android:clickable="true"
+        app:elevation="3dp"
+        app:fabSize="normal"
+        app:layout_constraintBottom_toBottomOf="@+id/fab_buddha"
+        app:layout_constraintEnd_toStartOf="@+id/fab_buddha"
+        app:layout_constraintTop_toTopOf="@+id/fab_buddha"
+        app:srcCompat="@drawable/muyu" />
+
+    <android.support.design.widget.FloatingActionButton
+        android:id="@+id/fab_buddha"
+        android:layout_width="55dp"
+        android:layout_height="wrap_content"
+        android:layout_margin="10dp"
+        android:clickable="true"
+        android:src="@drawable/ic_nf"
+        app:backgroundTint="@color/colorAccent"
+        app:elevation="3dp"
+        app:fabSize="normal"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="@+id/guideline1" />
+
+    <android.support.design.widget.FloatingActionButton
+        android:id="@+id/fab_stock"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_margin="10dp"
+        android:clickable="true"
+        app:backgroundTint="@android:color/holo_orange_light"
+        app:elevation="3dp"
+        app:fabSize="normal"
+        app:layout_constraintBottom_toBottomOf="@+id/fab_buddha"
+        app:layout_constraintStart_toEndOf="@+id/fab_buddha"
+        app:layout_constraintTop_toTopOf="@+id/fab_buddha"
+        app:srcCompat="@drawable/stock" />
+
+    <ImageView
+        android:id="@+id/iv_volume_minus"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toEndOf="@+id/fab_stock"
+        app:layout_constraintTop_toTopOf="@+id/guideline1"
+        app:srcCompat="@drawable/my_abc_btn_default_mtrl_shape" />
+
+    <ImageView
+        android:id="@+id/iv_volume_add"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toStartOf="@+id/fab_muyu"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="@+id/guideline1"
+        app:srcCompat="@drawable/my_abc_btn_default_mtrl_shape" />
+
 
 </android.support.constraint.ConstraintLayout>

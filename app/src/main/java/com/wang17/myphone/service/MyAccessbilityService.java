@@ -2,9 +2,6 @@ package com.wang17.myphone.service;
 
 import android.accessibilityservice.AccessibilityService;
 import android.accessibilityservice.AccessibilityServiceInfo;
-import android.app.AlarmManager;
-import android.app.PendingIntent;
-import android.content.Intent;
 import android.content.IntentFilter;
 import android.graphics.Rect;
 import android.os.Bundle;
@@ -14,10 +11,7 @@ import android.view.accessibility.AccessibilityNodeInfo;
 
 import com.wang17.myphone.database.DataContext;
 import com.wang17.myphone.util._Utils;
-import com.wang17.myphone.util._Session;
-import com.wang17.myphone.model.DateTime;
 import com.wang17.myphone.database.Setting;
-import com.wang17.myphone.database.TallyRecord;
 import com.wang17.myphone.receiver.HeadsetPlugReceiver;
 
 import java.util.ArrayList;
@@ -25,8 +19,6 @@ import java.util.List;
 
 import static android.view.accessibility.AccessibilityEvent.TYPE_WINDOW_CONTENT_CHANGED;
 import static android.view.accessibility.AccessibilityEvent.TYPE_WINDOW_STATE_CHANGED;
-import static com.wang17.myphone.receiver.AlarmReceiver.ALARM_NIANFO_BEFORE_OVER;
-import static com.wang17.myphone.receiver.AlarmReceiver.ALARM_NIANFO_OVER;
 
 public class MyAccessbilityService extends AccessibilityService {
 
@@ -96,55 +88,6 @@ public class MyAccessbilityService extends AccessibilityService {
         registerReceiver(headsetPlugReceiver, filter);
     }
 
-    public void pauseNianfoTally() {
-        try {
-            // 向数据库中保存“已经完成的时间”
-            long now = System.currentTimeMillis();
-            long sectionStartInMillis = Long.parseLong(dataContext.getSetting(Setting.KEYS.tally_sectionStartMillis).getString());
-            long endTimeInMillis = Long.parseLong(dataContext.getSetting(Setting.KEYS.tally_endInMillis).getString());
-            dataContext.deleteSetting(Setting.KEYS.tally_sectionStartMillis);
-            long sectionIntervalInMillis = now - sectionStartInMillis;
-            if (sectionIntervalInMillis >= 60000) {
-                this.saveSection(sectionStartInMillis, sectionIntervalInMillis);
-            }
-
-            // 向数据库中保存“剩余时间”
-            dataContext.deleteSetting(Setting.KEYS.tally_endInMillis);
-            long remainIntervalInMillis = endTimeInMillis - now;
-            if (sectionIntervalInMillis < 60000) {
-                remainIntervalInMillis = endTimeInMillis - sectionStartInMillis;
-            }
-            dataContext.addSetting(Setting.KEYS.tally_intervalInMillis, remainIntervalInMillis);
-
-        } catch (Exception e) {
-            _Utils.printException(getApplicationContext(), e);
-        }
-
-    }
-
-    private void saveSection(long partStartMillis, long partSpanMillis) {
-        try {
-            TallyRecord tallyRecord = new TallyRecord(new DateTime(partStartMillis), (int) partSpanMillis,dataContext.getSetting(Setting.KEYS.tally_record_item_text,"").getString());
-            if (dataContext.getRecord(partStartMillis) == null)
-                dataContext.addRecord(tallyRecord);
-        } catch (Exception e) {
-            _Utils.printException(getApplicationContext(), e);
-        }
-    }
-
-    public void stopAlarm() {
-        try {
-            Intent intent = new Intent(_Session.NIAN_FO_TIMER);
-            PendingIntent pi = PendingIntent.getBroadcast(getApplicationContext(), ALARM_NIANFO_OVER, intent, PendingIntent.FLAG_UPDATE_CURRENT);
-            AlarmManager am = (AlarmManager) getApplicationContext().getSystemService(ALARM_SERVICE);
-            am.cancel(pi);
-            pi = PendingIntent.getBroadcast(getApplicationContext(), ALARM_NIANFO_BEFORE_OVER, intent, PendingIntent.FLAG_UPDATE_CURRENT);
-            am.cancel(pi);
-
-        } catch (Exception e) {
-            _Utils.printException(getApplicationContext(), e);
-        }
-    }
 
     private void switchClickTag() {
         switch (clickTag) {

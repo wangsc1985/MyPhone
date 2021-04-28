@@ -153,7 +153,7 @@ class CardRecordActivity : AppCompatActivity(), OnActionFragmentBackListener {
             var convertView: View? = null
             return if (cardType == CardType.储蓄卡) {
                 convertView = View.inflate(this, R.layout.inflate_card_deposit_header, null)
-                val textView_name = convertView.findViewById<View>(R.id.textView_name) as TextView // 账户名
+                val textView_name = convertView.findViewById<View>(R.id.tv_name) as TextView // 账户名
                 val textView_number = convertView.findViewById<View>(R.id.tv_number) as TextView // 卡号
                 val textView_cardType = convertView.findViewById<View>(R.id.textView_cardType) as TextView // 卡类型
                 val textView_bankName = convertView.findViewById<View>(R.id.textView_bankName) as TextView // 银行
@@ -170,7 +170,7 @@ class CardRecordActivity : AppCompatActivity(), OnActionFragmentBackListener {
                 convertView
             } else if (card.cardType == CardType.微粒贷) {
                 convertView = View.inflate(this, R.layout.inflate_header_wld_card, null)
-                val textView_name = convertView.findViewById<View>(R.id.textView_name) as TextView // 账户名
+                val textView_name = convertView.findViewById<View>(R.id.tv_name) as TextView // 账户名
                 val textView_number = convertView.findViewById<View>(R.id.tv_number) as TextView // 卡号
                 val textView_cardType = convertView.findViewById<View>(R.id.textView_cardType) as TextView // 卡类型
                 val textView_bankName = convertView.findViewById<View>(R.id.textView_bankName) as TextView // 银行
@@ -189,7 +189,7 @@ class CardRecordActivity : AppCompatActivity(), OnActionFragmentBackListener {
                 convertView
             } else {
                 convertView = View.inflate(this, R.layout.inflate_card_credit_header, null)
-                val textView_name = convertView.findViewById<View>(R.id.textView_name) as TextView // 账户名
+                val textView_name = convertView.findViewById<View>(R.id.tv_name) as TextView // 账户名
                 val textView_number = convertView.findViewById<View>(R.id.tv_number) as TextView // 卡号
                 val textView_cardType = convertView.findViewById<View>(R.id.textView_cardType) as TextView // 卡类型
                 val textView_bankName = convertView.findViewById<View>(R.id.textView_bankName) as TextView // 银行

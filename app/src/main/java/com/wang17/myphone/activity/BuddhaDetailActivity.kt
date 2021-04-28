@@ -42,10 +42,27 @@ class BuddhaDetailActivity : AppCompatActivity(), OnActionFragmentBackListener {
             try {
                 val view = View.inflate(this, R.layout.inflate_dialog_editbox, null)
                 val buddha = buddhaList.get(position)
+                val spType = view.findViewById<Spinner>(R.id.sp_type)
                 val edit = view.findViewById<EditText>(R.id.et_content)
                 edit.setText(buddha.summary)
+                when (buddha.type) {
+                    0 -> {
+                        spType.setSelection(0)
+                    }
+                    1 -> {
+                        spType.setSelection(1)
+                    }
+                    10->{
+                        spType.setSelection(2)
+                    }
+                    11 -> {
+                        spType.setSelection(3)
+                    }
+                }
                 AlertDialog.Builder(this).setView(view).setPositiveButton("修改") { dialog, which ->
-                    if(edit.text.toString()!=buddha.summary){
+                    val type = spType.selectedItem.toString().toInt()
+                    if(edit.text.toString()!=buddha.summary||type!=buddha.type){
+                        buddha.type = type
                         buddha.summary = edit.text.toString()
                         _CloudUtils.editBuddha(this, buddha) { code, result ->
                             when (code) {
@@ -132,7 +149,7 @@ class BuddhaDetailActivity : AppCompatActivity(), OnActionFragmentBackListener {
                 val tv_date = convertView.findViewById<TextView>(R.id.tv_att_date)
                 val tv_item = convertView.findViewById<TextView>(R.id.tv_item)
                 val tv_duration = convertView.findViewById<TextView>(R.id.textView_monthDuration)
-                val tv_tap = convertView.findViewById<TextView>(R.id.textView_monthTap)
+                val tv_type = convertView.findViewById<TextView>(R.id.tv_type)
                 val tv_number = convertView.findViewById<TextView>(R.id.textView_monthCount)
                 tv_date.text = "" + buddha.startTime.hourStr + "点" + buddha.startTime.miniteStr + "分"
 //                when(buddha.type){
@@ -148,6 +165,8 @@ class BuddhaDetailActivity : AppCompatActivity(), OnActionFragmentBackListener {
 //                else
 //                    tv_item.visibility = View.GONE
                 tv_duration.text = "" + toSpanString(buddha.duration, 3, 2)
+                tv_type.visibility=View.VISIBLE
+                tv_type.text = buddha.type.toString()
 //                val tap = buddha.count/1080
                 tv_number.text = if (buddha.count > 0) DecimalFormat("#,##0").format(buddha.count) else ""
             } catch (e: Exception) {

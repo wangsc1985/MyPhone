@@ -1,18 +1,12 @@
 package com.wang17.myphone.fragment
 
 import android.annotation.SuppressLint
-import android.annotation.TargetApi
-import android.app.KeyguardManager
 import android.content.DialogInterface
 import android.content.Intent
-import android.hardware.fingerprint.FingerprintManager
 import android.media.AudioManager
 import android.media.SoundPool
-import android.os.Build
 import android.os.Bundle
 import android.os.Handler
-import android.security.keystore.KeyGenParameterSpec
-import android.security.keystore.KeyProperties
 import android.support.v4.app.Fragment
 import android.support.v7.app.AlertDialog
 import android.text.Editable
@@ -23,34 +17,20 @@ import android.view.ViewGroup
 import android.view.inputmethod.EditorInfo
 import android.widget.EditText
 import android.widget.TextView
-import android.widget.Toast
 import com.alibaba.fastjson.JSONArray
 import com.wang17.myphone.R
 import com.wang17.myphone.activity.*
 import com.wang17.myphone.callback.CloudCallback
-import com.wang17.myphone.callback.MyCallback
-import com.wang17.myphone.database.BuddhaRecord
 import com.wang17.myphone.database.DataContext
 import com.wang17.myphone.database.Setting
-import com.wang17.myphone.e
 import com.wang17.myphone.model.Lottery
-import com.wang17.myphone.service.BuddhaService
 import com.wang17.myphone.service.StockService
 import com.wang17.myphone.util.*
 import com.wang17.myphone.view._Button
 import kotlinx.android.synthetic.main.fragment_button.*
-import java.security.KeyStore
 import java.text.DecimalFormat
-import java.util.concurrent.CountDownLatch
-import javax.crypto.Cipher
-import javax.crypto.KeyGenerator
-import javax.crypto.SecretKey
 
-
-/**
- * A simple [Fragment] subclass.
- */
-class ButtonFragment : Fragment() {
+class OperationFragment : Fragment() {
     private lateinit var dataContext: DataContext
     var uiHandler = Handler()
 
@@ -62,23 +42,27 @@ class ButtonFragment : Fragment() {
 
         var btn = _Button(context!!, "设置")
         btn.setOnClickListener {
-            startActivity(Intent(context!!, SettingActivity::class.java))
+            _FingerUtils.showFingerPrintDialog(activity!!){
+                startActivity(Intent(context!!, SettingActivity::class.java))
+            }
         }
         btn.setOnLongClickListener {
-            AlertDialog.Builder(context!!).setItems(arrayOf("本地", "云端"), DialogInterface.OnClickListener { dialog, which ->
-                when (which) {
-                    0 -> {
-                        startActivity(Intent(context!!, SettingActivity::class.java))
+            _FingerUtils.showFingerPrintDialog(activity!!){
+                AlertDialog.Builder(context!!).setItems(arrayOf("本地", "云端")) { dialog, which ->
+                    when (which) {
+                        0 -> {
+                            startActivity(Intent(context!!, SettingActivity::class.java))
+                        }
+                        1 -> {
+                            _CloudUtils.getSettingList(context!!, dataContext.getSetting(Setting.KEYS.wx_request_code, "0088").string, CloudCallback { code, result ->
+                                uiHandler.post {
+                                    AlertDialog.Builder(context!!).setMessage(result.toString()).show()
+                                }
+                            })
+                        }
                     }
-                    1 -> {
-                        _CloudUtils.getSettingList(context!!, dataContext.getSetting(Setting.KEYS.wx_request_code, "0088").string, CloudCallback { code, result ->
-                            uiHandler.post {
-                                AlertDialog.Builder(context!!).setMessage(result.toString()).show()
-                            }
-                        })
-                    }
-                }
-            }).show()
+                }.show()
+            }
             true
         }
         layout_flexbox.addView(btn)
@@ -552,7 +536,7 @@ class ButtonFragment : Fragment() {
             }
         })
 
-        val lots = LotteryUtil.fromJSONArray(dataContext.getSetting(Setting.KEYS.lotterys, "[]").string)
+        val lots = LotteryUtil.fromJSONArray(dataContext.getSetting(Setting.KEYS.彩票, "[]").string)
         val period = if (lots.size > 0) lots[0].period else 0
         etP.setText("${period}")
         etP.isEnabled = false
@@ -783,7 +767,7 @@ class ButtonFragment : Fragment() {
         }
 
         AlertDialog.Builder(context!!).setView(view).setCancelable(false).setPositiveButton("确定", DialogInterface.OnClickListener { dialog, which ->
-            dataContext.editSetting(Setting.KEYS.lotterys, JSONArray.toJSON(lots).toString())
+            dataContext.editSetting(Setting.KEYS.彩票, JSONArray.toJSON(lots).toString())
         }).show()
     }
 

@@ -1,6 +1,5 @@
 package com.wang17.myphone.fragment;
 
-
 import android.Manifest;
 import android.content.BroadcastReceiver;
 import android.content.Context;
@@ -42,7 +41,6 @@ import com.wang17.myphone.event.LocationIsAutomaticEvent;
 import com.wang17.myphone.model.DateTime;
 import com.wang17.myphone.database.Location;
 import com.wang17.myphone.database.Setting;
-import com.wang17.myphone.service.NianfoMusicService;
 import com.wang17.myphone.database.DataContext;
 import com.wang17.myphone.util._Session;
 import com.wang17.myphone.util._Utils;
@@ -160,10 +158,6 @@ public class SettingFragment extends Fragment {
                         String name = spinnerMusicNames.getItemAtPosition(position).toString();
                         if (!name.equals(mDataContext.getSetting(Setting.KEYS.buddha_music_name, _Session.BUDDHA_MUSIC_NAME_ARR[0]).getString())) {
                             mDataContext.editSetting(Setting.KEYS.buddha_music_name, name);
-                            if (mDataContext.getSetting(Setting.KEYS.tally_music_is_playing, false).getBoolean()) {
-                                getContext().stopService(new Intent(getContext(), NianfoMusicService.class));
-                                getContext().startService(new Intent(getContext(), NianfoMusicService.class));
-                            }
                             settings = mDataContext.getSettings();
                             setAdapter.notifyDataSetChanged();
                             Log.e("wangsc", "setOnItemSelectedListener()事件启动。");
@@ -255,27 +249,6 @@ public class SettingFragment extends Fragment {
             }
         });
         listViewSetting.setAdapter(setAdapter);
-
-        seekBarHeadset = (SeekBar) view.findViewById(R.id.seekBar_headset);
-        int headset = mDataContext.getSetting(Setting.KEYS.headset_volume, 12).getInt();
-        seekBarHeadset.setMax(15);
-        seekBarHeadset.setProgress(headset);
-        seekBarHeadset.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
-            @Override
-            public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
-                mDataContext.editSetting(Setting.KEYS.headset_volume, progress);
-            }
-
-            @Override
-            public void onStartTrackingTouch(SeekBar seekBar) {
-
-            }
-
-            @Override
-            public void onStopTrackingTouch(SeekBar seekBar) {
-
-            }
-        });
     }
 
     private void editSettingItem(int position) {
@@ -316,162 +289,13 @@ public class SettingFragment extends Fragment {
                 @Override
                 public void onClick(DialogInterface dialog, int which) {
                     if (!input.getText().equals(setting.getString())) {
-
                         mDataContext.editSetting(setting.getName(), input.getText());
                         settings = mDataContext.getSettings();
                         setAdapter.notifyDataSetChanged();
-                        try {
-                            String str = mDataContext.getSetting(Setting.KEYS.media_player, "").getString();
-                            String fileName = mDataContext.getSetting(Setting.KEYS.buddha_music_name, "").getString();
-                            if (!str.isEmpty()) {
-                                JSONArray jsonArray = new JSONArray(str);
-                                JSONObject retJsonObject = null;
-
-                                for (int i = 0; i < jsonArray.length(); i++) {
-                                    JSONObject jsonObject = jsonArray.getJSONObject(i);
-                                    String file = jsonObject.getString("file");
-                                    if (file.equals(fileName)) {
-                                        retJsonObject = jsonObject;
-                                        switch (setting.getName()) {
-                                            case "media_player_speed":
-                                                jsonObject.put("speed", mDataContext.getSetting(Setting.KEYS.media_player_speed, "1.0").getString());
-                                                break;
-                                            case "media_player_pitch":
-                                                jsonObject.put("pitch", mDataContext.getSetting(Setting.KEYS.media_player_pitch, "1.0").getString());
-                                                break;
-
-                                            case "media_player_volumn":
-                                                jsonObject.put("volumn", mDataContext.getSetting(Setting.KEYS.media_player_volumn, "1.0").getString());
-                                                break;
-                                        }
-                                        break;
-                                    }
-                                }
-                                if (retJsonObject == null) {
-                                    retJsonObject = new JSONObject();
-                                    retJsonObject.put("file", fileName);
-                                    retJsonObject.put("speed", mDataContext.getSetting(Setting.KEYS.media_player_speed, "1.0").getString());
-                                    retJsonObject.put("pitch", mDataContext.getSetting(Setting.KEYS.media_player_pitch, "1.0").getString());
-                                    retJsonObject.put("volumn", mDataContext.getSetting(Setting.KEYS.media_player_volumn, "1.0").getString());
-                                    jsonArray.put(retJsonObject);
-                                }
-                                mDataContext.editSetting(Setting.KEYS.media_player, jsonArray.toString());
-                            } else {
-                                JSONArray jsonArray = new JSONArray();
-                                JSONObject retJsonObject = new JSONObject();
-                                retJsonObject.put("file", fileName);
-                                retJsonObject.put("speed", mDataContext.getSetting(Setting.KEYS.media_player_speed, "1.0").getString());
-                                retJsonObject.put("pitch", mDataContext.getSetting(Setting.KEYS.media_player_pitch, "1.0").getString());
-                                retJsonObject.put("volumn", mDataContext.getSetting(Setting.KEYS.media_player_volumn, "1.0").getString());
-                                jsonArray.put(retJsonObject);
-                                mDataContext.editSetting(Setting.KEYS.media_player, jsonArray.toString());
-                            }
-                        } catch (JSONException e) {
-                            e.printStackTrace();
-                        }
-                        if (mDataContext.getSetting(Setting.KEYS.tally_music_is_playing, false).getBoolean() == true) {
-                            getActivity().stopService(new Intent(getContext(), NianfoMusicService.class));
-                            getActivity().startService(new Intent(getContext(), NianfoMusicService.class));
-                        }
                     }
                 }
             }).show();
         }
-    }
-
-
-    private void parseSms() {
-        Cursor cursor = null;
-        // 添加异常捕捉
-        try {
-            cursor = this.getContext().getContentResolver().query(
-                    Uri.parse("content://sms/inbox"),
-                    new String[]{"_id", "address", "read", "body", "date"},
-                    null, null, "date desc"); // datephone想要的短信号码
-            if (cursor != null) { // 当接受到的新短信与想要的短信做相应判断
-                String body = "";
-                while (cursor.moveToNext()) {
-                    body = cursor.getString(cursor.getColumnIndex("body"));// 在这里获取短信信息
-                    long smsdate = Long.parseLong(cursor.getString(cursor.getColumnIndex("date")));
-                    long nowdate = System.currentTimeMillis();
-                    // 如果当前时间和短信时间间隔超过60秒,认为这条短信无效
-
-                    // 规则  交行信用卡-账单  短信
-                    Pattern pattern = Pattern.compile("(截至).+(，您尾号).+(信用卡).+(账单剩余应还款额).+(，在).+(前归还剩余最低还款额).+(不影响信用记录，如缴清勿理会。还款请点击买单吧APP cc.bankcomm.com/kfd02c ！【交通银行】)");
-                    Matcher matcher = pattern.matcher(body);
-                    if (matcher.find()) {
-                        pattern = Pattern.compile("\\d+\\.*\\d*");
-                        matcher = pattern.matcher(body);
-
-                        List<String> group = new ArrayList<>();
-                        while (matcher.find()) {
-                            group.add(matcher.group());
-                        }
-
-                        String cardNumber = group.get(2);
-                        double money = Double.parseDouble(group.get(7));
-                        int month = Integer.parseInt(group.get(8));
-                        int day = Integer.parseInt(group.get(9));
-
-                        DateTime billDate = new DateTime(new DateTime(smsdate).getYear(), month - 1, day);
-                        if (billDate.getTimeInMillis() - smsdate < 0) {
-                            billDate.set(Calendar.YEAR, billDate.getYear() + 1);
-                        }
-
-//                        BankToDo bankToDo = new BankToDo(billDate, "交行" + cardNumber, money);
-
-                        continue;
-                    }
-
-
-                    // 规则  交行信用卡-还款  短信
-
-
-                    // 规则  浦发信用卡-账单  短信
-                    // 规则  浦发信用卡-还款  短信
-
-                    // 规则  工行信用卡-账单  短信
-                    // 规则  工行信用卡-还款  短信
-
-                    // 规则  微粒贷-账单  短信
-                    // 规则  微粒贷-还款  短信
-
-                    // 规则  招联-账单  短信
-                    // 规则  招联-还款  短信
-
-                    // 规则  借呗-账单  短信
-                    // 规则  借呗-还款  短信
-
-                    // 规则  花呗-账单  短信
-                    // 规则  花呗-还款  短信
-
-                }
-            }
-        } catch (Exception e) {
-            e.printStackTrace();
-        } finally {
-            if (cursor != null) {
-                cursor.close();
-            }
-        }
-    }
-
-    /**
-     * 拨打电话
-     *
-     * @return
-     */
-    private void dial(boolean isShowUI) {
-
-        Intent intent = new Intent(Intent.ACTION_CALL, Uri.parse("tel:10086"));
-        if (isShowUI) {
-            intent = new Intent(Intent.ACTION_DIAL, Uri.parse("tel:10086"));
-            intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-        }
-        if (ActivityCompat.checkSelfPermission(getContext(), Manifest.permission.CALL_PHONE) != PackageManager.PERMISSION_GRANTED) {
-            return;
-        }
-        startActivity(intent);
     }
 
     private BroadcastReceiver mTimeReceiver = new BroadcastReceiver() {
@@ -489,7 +313,7 @@ public class SettingFragment extends Fragment {
     };
 
     private List<String> getBlackList() {
-        String blackList = mDataContext.getSetting(Setting.KEYS.black_list, "black_list,").getString();
+        String blackList = mDataContext.getSetting(Setting.KEYS.设置黑名单, "black_list,").getString();
         String[] list = blackList.split(",");
 
         List<String> result = new ArrayList<>();
@@ -501,17 +325,17 @@ public class SettingFragment extends Fragment {
 
     private void add2BlackList(String key) {
         key += ",";
-        String blackList = mDataContext.getSetting(Setting.KEYS.black_list, "black_list,").getString();
+        String blackList = mDataContext.getSetting(Setting.KEYS.设置黑名单, "black_list,").getString();
         if (!blackList.contains(key)) {
-            mDataContext.editSetting(Setting.KEYS.black_list, blackList + key);
+            mDataContext.editSetting(Setting.KEYS.设置黑名单, blackList + key);
         }
     }
 
     private void removeFromBlackList(String key) {
         key += ",";
-        String blackList = mDataContext.getSetting(Setting.KEYS.black_list, "black_list,").getString();
+        String blackList = mDataContext.getSetting(Setting.KEYS.设置黑名单, "black_list,").getString();
         if (blackList.contains(key)) {
-            mDataContext.editSetting(Setting.KEYS.black_list, blackList.replace(key, ""));
+            mDataContext.editSetting(Setting.KEYS.设置黑名单, blackList.replace(key, ""));
         }
     }
 
@@ -563,63 +387,7 @@ public class SettingFragment extends Fragment {
                     textViewValue.setTextColor(ContextCompat.getColor(getContext(), R.color.color_gray));
                 }
                 if (set.getLevel() == 1) {
-                    root.setBackgroundColor(ContextCompat.getColor(getContext(), R.color.range_overlay));
-                }
-
-                if (set.getName().equals(Setting.KEYS.media_player_pitch.toString())) {
-
-                    String str = mDataContext.getSetting(Setting.KEYS.media_player, "").getString();
-                    String fileName = mDataContext.getSetting(Setting.KEYS.buddha_music_name, "").getString();
-
-                    if (!str.isEmpty()) {
-                        JSONArray jsonArray = new JSONArray(str);
-
-                        for (int i = 0; i < jsonArray.length(); i++) {
-                            JSONObject jsonObject = jsonArray.getJSONObject(i);
-                            String file = jsonObject.getString("file");
-                            if (file.equals(fileName)) {
-                                textViewValue.setText(jsonObject.getString("pitch"));
-                                set.setValue(jsonObject.getString("pitch"));
-                                break;
-                            }
-                        }
-                    }
-                } else if (set.getName().equals(Setting.KEYS.media_player_volumn.toString())) {
-
-                    String str = mDataContext.getSetting(Setting.KEYS.media_player, "").getString();
-                    String fileName = mDataContext.getSetting(Setting.KEYS.buddha_music_name, "").getString();
-
-                    if (!str.isEmpty()) {
-                        JSONArray jsonArray = new JSONArray(str);
-
-                        for (int i = 0; i < jsonArray.length(); i++) {
-                            JSONObject jsonObject = jsonArray.getJSONObject(i);
-                            String file = jsonObject.getString("file");
-                            if (file.equals(fileName)) {
-                                textViewValue.setText(jsonObject.getString("volumn"));
-                                set.setValue(jsonObject.getString("volumn"));
-                                break;
-                            }
-                        }
-                    }
-                } else if (set.getName().equals(Setting.KEYS.media_player_speed.toString())) {
-
-                    String str = mDataContext.getSetting(Setting.KEYS.media_player, "").getString();
-                    String fileName = mDataContext.getSetting(Setting.KEYS.buddha_music_name, "").getString();
-
-                    if (!str.isEmpty()) {
-                        JSONArray jsonArray = new JSONArray(str);
-
-                        for (int i = 0; i < jsonArray.length(); i++) {
-                            JSONObject jsonObject = jsonArray.getJSONObject(i);
-                            String file = jsonObject.getString("file");
-                            if (file.equals(fileName)) {
-                                textViewValue.setText(jsonObject.getString("speed"));
-                                set.setValue(jsonObject.getString("speed"));
-                                break;
-                            }
-                        }
-                    }
+                    root.setBackgroundColor(ContextCompat.getColor(getContext(), R.color.gray_light));
                 }
 
             } catch (Exception e) {

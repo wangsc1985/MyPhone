@@ -273,7 +273,7 @@ public class MarkDayFragment extends Fragment {
                 final ListItemData listItemData = listItemDatas.get(position);
                 final ConstraintLayout layoutRoot =  convertView.findViewById(R.id.layout_root);
                 ImageView imageView_mark =  convertView.findViewById(R.id.imageView_mark);
-                TextView textView_name =  convertView.findViewById(R.id.textView_name);
+                TextView textView_name =  convertView.findViewById(R.id.tv_name);
                 TextView textView_interval =  convertView.findViewById(R.id.textView_interval);
                 TextView textView_remaider = convertView.findViewById(R.id.textView_remaider);
                 TextView textView_target =  convertView.findViewById(R.id.textView_target);

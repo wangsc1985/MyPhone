@@ -193,7 +193,7 @@ class StockPositionActivity : AppCompatActivity() {
                 if (cv == null) {
                     cv = View.inflate(this@StockPositionActivity, R.layout.inflate_list_item_stock, null)
                     viewHolder = ViewHolder()
-                    viewHolder.textViewName = cv.findViewById(R.id.textView_name)
+                    viewHolder.textViewName = cv.findViewById(R.id.tv_name)
                     viewHolder.textViewCode = cv.findViewById(R.id.textView_code)
                     viewHolder.textViewIncrease = cv.findViewById(R.id.textView_increase)
                     viewHolder.textViewPrice = cv.findViewById(R.id.tv_att_price)

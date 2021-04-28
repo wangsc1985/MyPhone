@@ -5,7 +5,6 @@ import com.alibaba.fastjson.JSONObject
 import java.io.*
 import java.math.BigDecimal
 import java.util.*
-import java.util.regex.Pattern
 import kotlin.collections.ArrayList
 
 class MyClass {
@@ -51,13 +50,45 @@ class MyClass {
             return result
         }
 
+        fun getStockHistory(code:String){
+            val url = "http://money.finance.sina.com.cn/quotes_service/api/json_v2.php/CN_MarketData.getKLineData?symbol=${if(code.startsWith("6")) "sh" else "sz"}${code}&scale=240&ma=5&datalen=4023"
+            _OkHttpUtil.getRequest(url){html->
+                println(html)
+                val arr = JSONArray.parse(html) as JSONArray
+                var count=0
+                arr.forEach {
+                    val obj = JSONObject.parse(it.toString()) as JSONObject
+                    val dateStr = obj["day"].toString()
+                    val close = obj["close"].toString().toBigDecimal()
+
+                    val aa = dateStr.split(" ")
+                    val dateArr = aa[0].split("-")
+                    var date = DateTime(dateArr[0].toInt(),dateArr[1].toInt()-1,dateArr[2].toInt())
+                    if(aa.size>1){
+                        val timeArr = aa[1].split(":")
+                        date = DateTime(dateArr[0].toInt(),dateArr[1].toInt()-1,dateArr[2].toInt(),timeArr[0].toInt(),timeArr[1].toInt(),timeArr[2].toInt())
+                    }
+
+                    if(aa.size>1){
+                        if(date.hour==15){
+                            count++
+                            println("${count} : ${code}  ${date.toShortDateString()}  ${close}")
+                        }
+                    }else{
+                        count++
+                        println("${count} : ${code}  ${date.toShortDateString()}  ${close}")
+                    }
+                }
+            }
+        }
         @JvmStatic
         fun main(args: Array<String>) {
 
-            val date1 = DateTime(2020,1,23,7,2,5)
-            val date2 = DateTime(2020,1,24,15,2,5)
-            println(date1.date.timeInMillis)
-            println((date2.date.timeInMillis-date1.date.timeInMillis)/(1000*60*60*24))
+            getStockHistory("002673")
+//            val date1 = DateTime(2020,1,23,7,2,5)
+//            val date2 = DateTime(2020,1,24,15,2,5)
+//            println(date1.date.timeInMillis)
+//            println((date2.date.timeInMillis-date1.date.timeInMillis)/(1000*60*60*24))
 
 //            val body="【交通银行信用卡】送你1次抽奖机会！9月20日登录交通银行信用卡周周刷活动主页即可获得！百发百中送您积分、刷卡金或者金砖哦，戳 cc."
 //            var matcher = Pattern.compile("(?<=【).{1,10}(?=】)").matcher(body)

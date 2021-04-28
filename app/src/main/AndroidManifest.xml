@@ -78,7 +78,6 @@
             </intent-filter>
         </service>
         <service android:name=".service.StockService" />
-        <service android:name=".service.MediaLoopTimerService" />
 
         <meta-data
             android:name="com.amap.api.v2.apikey"
@@ -192,13 +191,6 @@
                 <action android:name="ACTION_ALARM_STOCK_SCREEN" />
             </intent-filter>
         </receiver>
-        <receiver
-            android:name=".receiver.NianfoMusicReceiver"
-            android:process=":newinst">
-            <intent-filter>
-                <action android:name="NIAN_FO_VOICE" />
-            </intent-filter>
-        </receiver>
         <receiver android:name=".receiver.SystemBroadcaseReceiver">
             <intent-filter android:priority="999">
                 <action android:name="android.net.conn.CONNECTIVITY_CHANGE" />
@@ -219,9 +211,8 @@
                 android:name="android.accessibilityservice"
                 android:resource="@xml/accessibility" />
         </service>
-        <service android:name=".service.NianfoService" /> <!-- 定位需要的服务 使用2.0的定位需要加上这个 -->
+        <!-- 定位需要的服务 使用2.0的定位需要加上这个 -->
         <service android:name="com.amap.api.location.APSService" />
-        <service android:name=".service.MusicPlayerService" />
         <service android:name=".service.NianfoMusicService" />
         <service android:name=".service.LocationService" /> <!-- 是用于更新widget中的图片的服务。 -->
         <service

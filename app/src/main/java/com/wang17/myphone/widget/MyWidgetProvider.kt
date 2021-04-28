@@ -43,10 +43,6 @@ class MyWidgetProvider : AppWidgetProvider() {
     override fun onUpdate(context: Context, appWidgetManager: AppWidgetManager, appWidgetIds: IntArray) {
         super.onUpdate(context, appWidgetManager, appWidgetIds)
         val dataContext = DataContext(context)
-        dataContext.editSetting(Setting.KEYS.latest_widget_update_time, DateTime().toTimeString())
-//        if (dataContext.getSetting(Setting.KEYS.is_widget_update_noice, true).getBoolean()) {
-//            _SoundUtils.play(context, R.raw.hcz)
-//        }
         mContext = context
         isStockList = false
         try {
@@ -145,31 +141,31 @@ class MyWidgetProvider : AppWidgetProvider() {
     private fun setBankBalance(context: Context, remoteViews: RemoteViews) {
         try {
             var dataContext = DataContext(context)
-            var date = DateTime(dataContext.getSetting(Setting.KEYS.bank1_date_millis, 0).long)
-            var offset = DateTime.dayOffset(date, DateTime())
-            var dateTimeStr = if (offset == 0) {
-                date.toShortTimeString()
-            } else if (offset == 1) {
-                "昨天"
-            } else if (offset == 2) {
-                "前天"
-            } else {
-                date.toShortDateString1()
-            }
-            remoteViews.setTextViewText(R.id.textView_balance1, dataContext.getSetting(Setting.KEYS.bank1_balance, -1).string)
+//            var date = DateTime(dataContext.getSetting(Setting.KEYS.bank1_date_millis, 0).long)
+//            var offset = DateTime.dayOffset(date, DateTime())
+//            var dateTimeStr = if (offset == 0) {
+//                date.toShortTimeString()
+//            } else if (offset == 1) {
+//                "昨天"
+//            } else if (offset == 2) {
+//                "前天"
+//            } else {
+//                date.toShortDateString1()
+//            }
+            remoteViews.setTextViewText(R.id.tv_balanceABC, dataContext.getSetting(Setting.KEYS.balanceABC, -1).string)
 
-            date = DateTime(dataContext.getSetting(Setting.KEYS.bank2_date_millis, 0).long)
-            offset = DateTime.dayOffset(date, DateTime())
-            dateTimeStr = if (offset == 0) {
-                date.toShortTimeString()
-            } else if (offset == 1) {
-                "昨天"
-            } else if (offset == 2) {
-                "前天"
-            } else {
-                date.toShortDateString1()
-            }
-            remoteViews.setTextViewText(R.id.textView_balance2, dataContext.getSetting(Setting.KEYS.bank2_balance, -1).string)
+//            date = DateTime(dataContext.getSetting(Setting.KEYS.bank2_date_millis, 0).long)
+//            offset = DateTime.dayOffset(date, DateTime())
+//            dateTimeStr = if (offset == 0) {
+//                date.toShortTimeString()
+//            } else if (offset == 1) {
+//                "昨天"
+//            } else if (offset == 2) {
+//                "前天"
+//            } else {
+//                date.toShortDateString1()
+//            }
+            remoteViews.setTextViewText(R.id.tv_balanceICBC, dataContext.getSetting(Setting.KEYS.balanceICBC, -1).string)
         } catch (e: Exception) {
             _Utils.printException(context, e)
             Log.e("wangsc", e.message!!)
@@ -239,7 +235,7 @@ class MyWidgetProvider : AppWidgetProvider() {
                     setting?.let {
                         val audio = context.getSystemService(Service.AUDIO_SERVICE) as AudioManager
                         val volume = audio.getStreamVolume(AudioManager.STREAM_MUSIC)
-                        dc.editSetting(Setting.KEYS.buddha_volume, volume)
+                        dc.editSetting(Setting.KEYS.念佛最佳音量, volume)
                     }
                 }
                 ACTION_CLICK_LAYOUT_LEFT -> {
@@ -249,15 +245,15 @@ class MyWidgetProvider : AppWidgetProvider() {
 
                     // 更新listview
 //                    remoteViews.setTextViewText(R.id.textView_date, "——")
-                    remoteViews.setTextViewText(R.id.textView_balance1, "——")
-                    remoteViews.setTextViewText(R.id.textView_balance2, "——")
+                    remoteViews.setTextViewText(R.id.tv_balanceABC, "——")
+                    remoteViews.setTextViewText(R.id.tv_balanceICBC, "——")
                     appWidgetManager.updateAppWidget(myComponentName, remoteViews)
 
                     // 更新上证指数
                     setSZindex(context, remoteViews, myComponentName, appWidgetManager)
 
 
-                    val isAllowWidgetListStock = dc.getSetting(Setting.KEYS.is_allow_widget_list_stock, true).boolean
+                    val isAllowWidgetListStock = dc.getSetting(Setting.KEYS.is小部件罗列股票, true).boolean
 
                     val is_list_stock = dc.getSetting(Setting.KEYS.is_widget_list_stock, true).boolean
                     if (isAllowWidgetListStock) {
@@ -329,8 +325,8 @@ class MyWidgetProvider : AppWidgetProvider() {
                 ACTION_CLICK_TEXT -> try {
                     // 如果显示markday数据
 //                    remoteViews.setTextViewText(R.id.textView_date, "——")
-                    remoteViews.setTextViewText(R.id.textView_balance1, "——")
-                    remoteViews.setTextViewText(R.id.textView_balance2, "——")
+                    remoteViews.setTextViewText(R.id.tv_balanceABC, "——")
+                    remoteViews.setTextViewText(R.id.tv_balanceICBC, "——")
                     appWidgetManager.updateAppWidget(myComponentName, remoteViews)
                     // SZindex
 //                        setSZindex(context, remoteViews, myComponentName, appWidgetManager);
@@ -410,9 +406,9 @@ class MyWidgetProvider : AppWidgetProvider() {
                                 }
                                 if (balanceStr != null) {
                                     _SoundUtils.play(context, R.raw.maopao)
-                                    remoteViews.setTextViewText(R.id.textView_balance1, balanceStr)
+                                    remoteViews.setTextViewText(R.id.tv_balanceABC, balanceStr)
                                     appWidgetManager.updateAppWidget(myComponentName, remoteViews)
-                                    dc.editSetting(Setting.KEYS.bank1_balance, balanceStr)
+                                    dc.editSetting(Setting.KEYS.balanceABC, balanceStr)
                                 }
                             }
                             "95588" -> {
@@ -429,9 +425,9 @@ class MyWidgetProvider : AppWidgetProvider() {
                                 }
                                 if (balanceStr != null) {
                                     _SoundUtils.play(context, R.raw.maopao)
-                                    remoteViews.setTextViewText(R.id.textView_balance2, balanceStr)
+                                    remoteViews.setTextViewText(R.id.tv_balanceICBC, balanceStr)
                                     appWidgetManager.updateAppWidget(myComponentName, remoteViews)
-                                    dc.editSetting(Setting.KEYS.bank2_balance, balanceStr)
+                                    dc.editSetting(Setting.KEYS.balanceICBC, balanceStr)
                                 }
                             }
                         }
@@ -481,8 +477,8 @@ class MyWidgetProvider : AppWidgetProvider() {
             override fun onLoadFinished() {
 
                 try {
-                    remoteViews.setTextViewText(R.id.textView_balance2, DecimalFormat("0.00").format(info.price))
-                    remoteViews.setTextViewText(R.id.textView_balance1, DecimalFormat("0.00%").format(info.increase))
+                    remoteViews.setTextViewText(R.id.tv_balanceICBC, DecimalFormat("0.00").format(info.price))
+                    remoteViews.setTextViewText(R.id.tv_balanceABC, DecimalFormat("0.00%").format(info.increase))
                     appWidgetManager.updateAppWidget(myComponentName, remoteViews)
                 } catch (e: Exception) {
                     _Utils.printException(context, e)

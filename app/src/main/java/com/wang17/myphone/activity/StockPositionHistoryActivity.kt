@@ -37,7 +37,7 @@ import java.util.*
 import kotlin.collections.ArrayList
 
 class StockPositionHistoryActivity() : AppCompatActivity() {
-    private lateinit var dataContext: DataContext
+    private lateinit var dc: DataContext
     private lateinit var positions: List<Position>
     private lateinit var wakeLock: PowerManager.WakeLock
 
@@ -58,7 +58,7 @@ class StockPositionHistoryActivity() : AppCompatActivity() {
                 e("从交易详单页面返回")
                 if (resultCode == Activity.RESULT_OK) {
                     e("交易详单页面有内容修改")
-                    positions = dataContext.allPositions
+                    positions = dc.allPositions
                     adapter.notifyDataSetChanged()
                 }
             }
@@ -68,90 +68,92 @@ class StockPositionHistoryActivity() : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_history_position)
-        dataContext = DataContext(this)
-        positions = dataContext.allPositions
+        dc = DataContext(this)
+        positions = dc.allPositions
         for (sp: Position in positions) {
             totalProfit += sp.profit
         }
         val format = DecimalFormat("#,##0")
         textView_profit.setText(format.format(totalProfit))
-        floatingActionButtonAdd.setOnClickListener(View.OnClickListener { addStockDialog() })
-        floatingActionButtonRefresh.setOnClickListener(object : View.OnClickListener {
-            override fun onClick(v: View) {
-                AlertDialog.Builder(this@StockPositionHistoryActivity).setMessage("是否重新计算所有股票的收益？").setPositiveButton("是", DialogInterface.OnClickListener { dialog, which ->
-                    totalProfit = 0.toBigDecimal()
-                    for (pos: Position in positions) {
-                        val tradeList = dataContext.getTrades(pos.code)
-                        var cost = 0.toBigDecimal()
-                        var amount = 0
-                        var profit = 0.toBigDecimal()
-                        for (td in tradeList.reversed()) {
-                            if (td.name == "中国人保")
-                            e(td.dateTime.toLongDateTimeString())
-                            // 成本总资金
-                            val costFund = cost * (amount * 100).toBigDecimal()
-                            // 成交总资金
-                            val tradeFund = td.price * (td.amount * 100).toBigDecimal()
-                            // 佣金
-                            val commission = commission(td)
-                            // 过户费
-                            val transferFee = transferFee(td)
-                            // 印花税
-                            val tax = tax(td)
-                            if (td.type == -2 || td.type == 2) { // 股息 息稅
+        fab_add.setOnClickListener {
+            addStockDialog()
+        }
+        fab_refresh.setOnLongClickListener {
+            AlertDialog.Builder(this@StockPositionHistoryActivity).setMessage("是否重新计算所有股票的收益？").setPositiveButton("是", DialogInterface.OnClickListener { dialog, which ->
+                totalProfit = 0.toBigDecimal()
+                for (pos in positions) {
+                    val tradeList = dc.getTrades(pos.code)
+                    var cost = 0.toBigDecimal()
+                    var amount = 0
+                    var profit = 0.toBigDecimal()
+                    for (td in tradeList.reversed()) {
+                        // 成本总资金
+                        val costFund = cost * (amount * 100).toBigDecimal()
+                        // 成交总资金
+                        val tradeFund = td.price * (td.amount * 100).toBigDecimal()
+                        // 佣金
+                        val commission = commission(td)
+                        // 过户费
+                        val transferFee = transferFee(td)
+                        // 印花税
+                        val tax = tax(td)
+                        if (td.type == -2 || td.type == 2) { // 股息 息稅
 
-                                // 计算成本
-                                if (amount == 0) {
-                                    cost = 0.toBigDecimal()
-                                    // 计算盈利
-                                    profit += td.price
-                                } else {
-                                    cost = (cost * (amount * 100).toMyDecimal() - td.price) / (amount * 100).toBigDecimal()
-                                }
+                            // 计算成本
+                            if (amount == 0) {
+                                cost = 0.toBigDecimal()
+                                // 计算盈利
+                                profit += td.price
                             } else {
-                                /**
-                                 * 计算盈利
-                                 */
-                                if (td.type == -1) {
-                                    profit += (td.price - cost) * (td.amount * 100).toBigDecimal() - commission - transferFee - tax
-                                }
-                                /**
-                                 * 计算成本
-                                 */
-                                // 清仓
-                                if (amount + td.type * td.amount == 0) {
-                                    td.tag = -1
-                                    dataContext.editTrade(td)
-                                    cost = 0.toBigDecimal()
-                                } else {
-                                    cost = (costFund + td.type.toMyDecimal() * tradeFund + commission + transferFee + tax) / (amount * 100 + td.type * td.amount * 100).toBigDecimal()
-                                }
-                                amount = amount + td.type * td.amount
+                                cost = (cost * (amount * 100).toMyDecimal() - td.price) / (amount * 100).toBigDecimal()
                             }
-
-                            if (td.name == "中国人保")
-                                e("${pos.name}  cost : ${cost}   amount : ${amount}")
+                            td.hold = amount
+                        } else {
+                            /**
+                             * 如果是平仓：计算盈利。
+                             */
+                            if (td.type == -1) {
+                                profit += (td.price - cost) * (td.amount * 100).toBigDecimal() - commission - transferFee - tax
+                            }
+                            /**
+                             * 计算成本
+                             */
+                            // 清仓
+                            if (amount + td.type * td.amount == 0) {
+                                dc.editTrade(td)
+                                cost = 0.toBigDecimal()
+                            } else {
+                                cost = (costFund + td.type.toMyDecimal() * tradeFund + commission + transferFee + tax) / (amount * 100 + td.type * td.amount * 100).toBigDecimal()
+                            }
+                            amount = amount + td.type * td.amount
+                            td.hold = amount
                         }
-                        totalProfit += profit
-                        pos.profit = profit
-                        pos.amount = amount
-                        pos.cost = cost
-                        dataContext.editPosition(pos)
+                        dc.editTrade(td)
                     }
-                    val format = DecimalFormat("#,##0")
-                    textView_profit.setText(format.format(totalProfit))
-                    Toast.makeText(this@StockPositionHistoryActivity, "计算完毕", Toast.LENGTH_LONG).show()
-                    positions = dataContext.allPositions
-                    adapter.notifyDataSetChanged()
+                    totalProfit += profit
+                    pos.profit = profit
+                    pos.amount = amount
+                    pos.cost = cost
+                    dc.editPosition(pos)
+                }
+                val format = DecimalFormat("#,##0")
+                textView_profit.setText(format.format(totalProfit))
+                Toast.makeText(this@StockPositionHistoryActivity, "计算完毕", Toast.LENGTH_LONG).show()
+                positions = dc.allPositions
+                adapter.notifyDataSetChanged()
 
-                }).show()
-            }
-        })
-        floatingActionButtonUpload.setOnClickListener(object : View.OnClickListener {
-            override fun onClick(v: View) {
+            }).show()
+            true
+        }
+        fab_upload.setOnLongClickListener {
+            AlertDialog.Builder(this@StockPositionHistoryActivity).setMessage("是否上传云端？").setPositiveButton("是"){ dialog: DialogInterface, i: Int ->
                 updatePositions()
-            }
-        })
+            }.show()
+            true
+        }
+        fab_chart.setOnClickListener {
+
+        }
         adapter = PositionListdAdapter()
         timer.schedule(object : TimerTask() {
             override fun run() {
@@ -176,8 +178,8 @@ class StockPositionHistoryActivity() : AppCompatActivity() {
                             4 ->                                 // 删除
                                 AlertDialog.Builder(this@StockPositionHistoryActivity).setMessage("是否删除？").setPositiveButton("是", object : DialogInterface.OnClickListener {
                                     override fun onClick(dialog: DialogInterface, which: Int) {
-                                        dataContext.deletePosition(positions.get(index).id)
-                                        positions = dataContext.allPositions
+                                        dc.deletePosition(positions.get(index).id)
+                                        positions = dc.allPositions
                                         adapter.notifyDataSetChanged()
                                     }
                                 }).setNegativeButton("否", null).show()
@@ -203,7 +205,7 @@ class StockPositionHistoryActivity() : AppCompatActivity() {
 
     private fun updatePositions() {
         val json = JSON.toJSONString(positions)
-        _CloudUtils.updatePositions(this, dataContext.getSetting(Setting.KEYS.wx_request_code).string, json, object : CloudCallback {
+        _CloudUtils.updatePositions(this, dc.getSetting(Setting.KEYS.wx_request_code).string, json, object : CloudCallback {
             override fun excute(code: Int, result: Any) {
                 runOnUiThread(object : Runnable {
                     override fun run() {
@@ -229,7 +231,7 @@ class StockPositionHistoryActivity() : AppCompatActivity() {
         dialog.setView(view)
         dialog.setCancelable(false)
         val calendarViewDate = view.findViewById<CalendarView>(R.id.calendarView_date)
-        val historyTrades = dataContext.getTrades(position.code)
+        val historyTrades = dc.getTrades(position.code)
         if (historyTrades.size != 0) calendarViewDate.date = historyTrades.get(0).dateTime.timeInMillis
         calendarViewDate.setOnDateChangeListener(object : OnDateChangeListener {
             override fun onSelectedDayChange(view: CalendarView, year: Int, month: Int, dayOfMonth: Int) {
@@ -257,7 +259,7 @@ class StockPositionHistoryActivity() : AppCompatActivity() {
                     trade.price = money
                     trade.dateTime = trdt
                     trade.amount = position.amount
-                    dataContext.addTrade(trade)
+                    dc.addTrade(trade)
 
                     // 成本总资金
                     val costFund = position.cost * (position.amount * 100).toBigDecimal()
@@ -265,8 +267,8 @@ class StockPositionHistoryActivity() : AppCompatActivity() {
                     if (amount > 0) {
                         val cost = (costFund - money).setMyScale() / (amount * 100).toBigDecimal()
                         position.cost = cost
-                        dataContext.editPosition(position)
-                        positions = dataContext.allPositions
+                        dc.editPosition(position)
+                        positions = dc.allPositions
                         adapter.notifyDataSetChanged()
                     }
                     dialog.dismiss()
@@ -296,7 +298,7 @@ class StockPositionHistoryActivity() : AppCompatActivity() {
         dialog.setView(view)
         dialog.setCancelable(false)
         val calendarViewDate = view.findViewById<CalendarView>(R.id.calendarView_date)
-        val historyTrades = dataContext.getTrades(position.code)
+        val historyTrades = dc.getTrades(position.code)
         if (historyTrades.size != 0) calendarViewDate.date = historyTrades.get(0).dateTime.timeInMillis
         calendarViewDate.setOnDateChangeListener(object : OnDateChangeListener {
             override fun onSelectedDayChange(view: CalendarView, year: Int, month: Int, dayOfMonth: Int) {
@@ -324,15 +326,15 @@ class StockPositionHistoryActivity() : AppCompatActivity() {
                     trade.price = money
                     trade.dateTime = trdt
                     trade.amount = position.amount
-                    dataContext.addTrade(trade)
+                    dc.addTrade(trade)
 
                     // 成本总资金
                     val costFund = position.cost * (position.amount * 100).toBigDecimal()
                     val amount = position.amount
                     val cost = (costFund - money).setMyScale() / (amount * 100).toBigDecimal()
                     position.cost = cost
-                    dataContext.editPosition(position)
-                    positions = dataContext.allPositions
+                    dc.editPosition(position)
+                    positions = dc.allPositions
                     adapter.notifyDataSetChanged()
                     dialog.dismiss()
                 } catch (e: NumberFormatException) {
@@ -391,7 +393,7 @@ class StockPositionHistoryActivity() : AppCompatActivity() {
                     trade.price = tradePrice
                     trade.dateTime = trdt
                     trade.amount = tradeAmount
-                    dataContext.addTrade(trade)
+                    dc.addTrade(trade)
 
                     // 成本总资金
                     val costFund = position.cost * (position.amount * 100).toBigDecimal()
@@ -405,8 +407,8 @@ class StockPositionHistoryActivity() : AppCompatActivity() {
                     val cost = (costFund + tradeFund + commission + transferFee).setMyScale() / (amount * 100).toBigDecimal()
                     position.cost = cost
                     position.amount = amount
-                    dataContext.editPosition(position)
-                    positions = dataContext.allPositions
+                    dc.editPosition(position)
+                    positions = dc.allPositions
                     adapter.notifyDataSetChanged()
                     dialog.dismiss()
                 } catch (e: NumberFormatException) {
@@ -468,7 +470,7 @@ class StockPositionHistoryActivity() : AppCompatActivity() {
                     if (position.amount == tradeAmount) {
                         trade.tag = -1
                     }
-                    dataContext.addTrade(trade)
+                    dc.addTrade(trade)
 
                     // 成本总资金
                     val costFund = position.cost * (position.amount * 100).toBigDecimal()
@@ -491,8 +493,8 @@ class StockPositionHistoryActivity() : AppCompatActivity() {
                     position.cost = cost
                     position.profit = position.profit + profit
                     position.amount = amount
-                    dataContext.editPosition(position)
-                    positions = dataContext.allPositions
+                    dc.editPosition(position)
+                    positions = dc.allPositions
                     adapter.notifyDataSetChanged()
                     dialog.dismiss()
                 } catch (e: NumberFormatException) {
@@ -526,8 +528,8 @@ class StockPositionHistoryActivity() : AppCompatActivity() {
                 try {
                     val cost = editTextCost.text.toString().toBigDecimal()
                     position.cost = cost
-                    dataContext.editPosition(position)
-                    positions = dataContext.allPositions
+                    dc.editPosition(position)
+                    positions = dc.allPositions
                     adapter.notifyDataSetChanged()
                     dialog.dismiss()
                 } catch (e: NumberFormatException) {
@@ -563,7 +565,7 @@ class StockPositionHistoryActivity() : AppCompatActivity() {
                 try {
                     val info = StockInfo()
                     info.code = editTextCode.text.toString()
-                    if (dataContext.getPosition(info.code) != null) return
+                    if (dc.getPosition(info.code) != null) return
                     info.exchange = if (info.code[0] == '6') "sh" else "sz"
                     fillStockInfo(info, object : StockPositionActivity.OnLoadFinishedListener {
                         override fun onLoadFinished() {
@@ -578,8 +580,8 @@ class StockPositionHistoryActivity() : AppCompatActivity() {
                             position.type = 0
                             position.amount = 0
                             position.exchange = info.exchange
-                            dataContext.addPosition(position)
-                            positions = dataContext.allPositions
+                            dc.addPosition(position)
+                            positions = dc.allPositions
                             adapter.notifyDataSetChanged()
                             dialog.dismiss()
                         }
@@ -634,7 +636,7 @@ class StockPositionHistoryActivity() : AppCompatActivity() {
                             return
                         }
                     } else {
-                        dataContext.addRunLog("StockPositionHistoryActivity", "获取数据失败...", "")
+                        dc.addRunLog("StockPositionHistoryActivity", "获取数据失败...", "")
                     }
                 } catch (e: Exception) {
                 }
@@ -668,16 +670,16 @@ class StockPositionHistoryActivity() : AppCompatActivity() {
                     mHashMap.put(position, cView)
                     val stock = positions[position]
                     val textViewCode = cView.findViewById<TextView>(R.id.textView_code)
-                    val textViewName = cView.findViewById<TextView>(R.id.textView_name)
+                    val textViewName = cView.findViewById<TextView>(R.id.tv_name)
                     val textViewCost = cView.findViewById<TextView>(R.id.textView_cost)
-                    val textViewAmount = cView.findViewById<TextView>(R.id.textView_amount)
+                    val textViewAmount = cView.findViewById<TextView>(R.id.tv_amount)
                     val textViewProfit = cView.findViewById<TextView>(R.id.textView_profit)
                     val layout_trade = cView.findViewById<LinearLayout>(R.id.layout_trade)
 
                     var format = DecimalFormat("#,##0.00")
                     if (stock.amount > 0) {
                         layout_trade.visibility = View.VISIBLE
-                        val trades = dataContext.getKeepTrades(stock.code)
+                        val trades = dc.getKeepTrades(stock.code)
                         e("trades size : " + trades.size)
 
                         trades.forEach {

@@ -42,6 +42,7 @@ import com.wang17.myphone.util.TradeUtils.tax
 import com.wang17.myphone.util.TradeUtils.transferFee
 import com.wang17.myphone.util._Utils.e
 import okhttp3.Request
+import okhttp3.internal.format
 import java.io.IOException
 import java.text.DecimalFormat
 import java.util.concurrent.CountDownLatch
@@ -74,6 +75,9 @@ class StockService : Service() {
     var mTimeS: String = ""
     var mTimeF: String = ""
 
+    var format2 = DecimalFormat("0.00")
+
+
 
     override fun onBind(intent: Intent): IBinder? {
         throw UnsupportedOperationException("Not yet implemented")
@@ -82,6 +86,7 @@ class StockService : Service() {
     @RequiresApi(Build.VERSION_CODES.M)
     override fun onStartCommand(intent: Intent, flags: Int, startId: Int): Int {
         try {
+
             mDataContext = DataContext(this)
             // TODO: 2019/4/26 test
             //region test
@@ -192,9 +197,11 @@ class StockService : Service() {
             floatingWindowView = View.inflate(this, R.layout.inflate_floating_window, null)
             val zjIndex = floatingWindowView.findViewById<TextView>(R.id.tv_zj)
             val szIndex = floatingWindowView.findViewById<TextView>(R.id.tv_sz)
+            val diffIndex = floatingWindowView.findViewById<TextView>(R.id.tv_diff)
 
             zjIndex.text = "0.0"
             szIndex.text = "0.0"
+            diffIndex.text = "0.0"
 
             floatingWindowView.setOnTouchListener(FloatingOnTouchListener())
 
@@ -292,6 +299,7 @@ class StockService : Service() {
                 var totalProfitS = 0.toBigDecimal()
                 var totalCostFundS = 0.toBigDecimal()
                 var totalProfitF = 0.toBigDecimal()
+                var totalDiff = 0.toBigDecimal()
                 sizeS = 0
                 sizeF = sizeS
                 if (positions.size <= 0) return@Runnable
@@ -312,12 +320,15 @@ class StockService : Service() {
 //                                e("数据：$sss")
                                 val result = sss.substring(sss.indexOf("\"")).replace("\"", "").split(",".toRegex()).toTypedArray()
                                 val price = result[3].toBigDecimal()
+                                val yesPrice = result[2].toBigDecimal()
                                 mTimeS = result[31]
                                 val fee = commission(price,position.amount) + transferFee(price,position.amount) + tax(-1,price,position.amount)
                                 val profit = (price - position.cost)*(position.amount*100).toBigDecimal()-fee
+                                var diff = (price-yesPrice)*(position.amount*100).toBigDecimal()
                                 val costFund = position.cost* (position.amount * 100).toBigDecimal()
                                 totalProfitS += profit
                                 totalCostFundS +=costFund
+                                totalDiff += diff
 //                                e("${position.name} cost fund : $costFund , profit : $profit")
                             } catch (e: Exception) {
                                 Log.e("wangsc", "数据错误...")
@@ -384,9 +395,11 @@ class StockService : Service() {
                 var speakMsg = ""
                 //region 股票平均盈利
                 var averageTotalIncreaseS = 0.toBigDecimal()
+                var averageDiffIncreaseS = 0.toBigDecimal()
                 var msgS = ""
                 if (sizeS > 0) {
                     averageTotalIncreaseS = totalProfitS.setMyScale() / totalCostFundS
+                    averageDiffIncreaseS = totalDiff.setMyScale()/totalCostFundS
                     msgS = DecimalFormat("0.00").format(averageTotalIncreaseS * 100.toBigDecimal())
                     if (Math.abs((averageTotalIncreaseS - preAverageTotalIncreaseS).toDouble()) * 100 > 1.0 / sizeS) {
                         preAverageTotalIncreaseS = averageTotalIncreaseS
@@ -416,18 +429,19 @@ class StockService : Service() {
                     }
                     _Utils.speaker(applicationContext, speakMsg, pitch, speech)
                 }
-                sendNotification(DecimalFormat("0.00").format(szPrice),
+                sendNotification(format2.format(szPrice),
                         DecimalFormat("0.00").format(szIncrease * 100),
-                        mTimeS, DecimalFormat("0.00").format(averageTotalIncreaseS * 100.toBigDecimal()),
+                        mTimeS, "${format2.format(averageTotalIncreaseS * 100.toBigDecimal())}",
                         mTimeF, DecimalFormat("#,###").format(averageTotalProfitF))
 
                 //region 悬浮窗
                 uiHandler.post {
                     val zjIndex = floatingWindowView.findViewById<TextView>(R.id.tv_zj)
                     val szIndex = floatingWindowView.findViewById<TextView>(R.id.tv_sz)
+                    val diffIndex = floatingWindowView.findViewById<TextView>(R.id.tv_diff)
 
 //
-                    zjIndex.setText(DecimalFormat("0.00").format(averageTotalIncreaseS * 100.toBigDecimal()))
+                    zjIndex.setText("${format2.format(averageTotalIncreaseS * 100.toBigDecimal())}")
                     if (averageTotalIncreaseS > 0.toBigDecimal()) {
                         zjIndex.setTextColor(resources.getColor(R.color.month_text_color))
                     } else if (averageTotalIncreaseS == 0.0.toBigDecimal()) {
@@ -436,14 +450,22 @@ class StockService : Service() {
                         zjIndex.setTextColor(resources.getColor(R.color.DARK_GREEN))
                     }
 
-                    szIndex.setText("${DecimalFormat("0.00").format(szIncrease * 100)} [${mTimeS.split(":").get(1)}]")
-
+                    szIndex.setText("${format2.format(szIncrease * 100)} [${mTimeS.split(":").get(1)}]")
                     if (szIncrease > 0) {
                         szIndex.setTextColor(resources.getColor(R.color.month_text_color))
                     } else if (szIncrease == 0.0) {
                         szIndex.setTextColor(Color.WHITE)
                     } else {
                         szIndex.setTextColor(resources.getColor(R.color.DARK_GREEN))
+                    }
+
+                    diffIndex.setText(format2.format(averageDiffIncreaseS*100.toBigDecimal()))
+                    if (totalDiff > 0.toBigDecimal()) {
+                        diffIndex.setTextColor(resources.getColor(R.color.month_text_color))
+                    } else if (totalDiff ==0.toBigDecimal()) {
+                        diffIndex.setTextColor(Color.WHITE)
+                    } else {
+                        diffIndex.setTextColor(resources.getColor(R.color.DARK_GREEN))
                     }
                 }
                 //endregion

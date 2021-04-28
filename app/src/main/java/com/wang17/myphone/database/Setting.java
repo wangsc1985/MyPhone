@@ -60,35 +60,33 @@ public class Setting{
     }
 
     public enum KEYS{
-        buddha_float_window_x, buddha_float_window_y,buddha_float_window_width, buddha_float_window_size,location_search_year,lotterys,is_buddha_gu,is_broadcast_big_figure,muyu_period,yq_period,
-        is_buddha_gu_timeout_alert, is_balance_level_low_alert,
-        buddha_duration,buddha_startime,buddha_volume,buddha_stoptime,
-        stock_reflush_time,buddha_load_time,interest,buddha_speed,
-        main_start_page_index,wisdom,map_search_radius,
-        nianfo_intervalInMillis, nianfo_endInMillis, nianfo_palyId, nianfo_isReading,nianfo_screen_light,
+        buddha_float_window_x, buddha_float_window_y,buddha_float_window_width, buddha_float_window_size,
+         彩票, 念佛引罄间隔提醒, 账户超额提醒,
+        账户余额不足提醒, 念佛自动结束时间,
+        muyu_period,yq_period,
+        balanceABC, balanceICBC,balanceLowABC,balanceLowICBC,
+        buddha_duration,buddha_startime,buddha_stoptime, 念佛最佳音量,
+        stock_reflush_time,interest,
+        main_start_page_index,wisdom,
+        地图搜索半径,足迹展示年数,
 
-        tally_dayTargetInMillis, tally_manualOverTimeInMillis, tally_sectionStartMillis, tally_endInMillis, tally_intervalInMillis,
-        tally_music_is_playing,tally_music_switch,tally_isShowDialog, buddha_music_name,
-
-        music_current_list_id,music_isplaying, is_keep_cpu_runing,
-
-        weixin_curr_account_id, is_have_didi_order_running,headset_volume,
+        buddha_music_name,
 
         is_print_state_else, is_print_content_else, is_print_other_all, is_print_ifClassName,
 
         map_httpTimeOut, map_interval, map_isSensorEnable, map_isOnceLocationLatest, map_isOnceLocation, map_isGpsFirst, map_isNeedAddress, map_isLocationCacheEnable, map_animateLong,
-        map_is_default_toilet, map_location_isAutoChangeGear, map_location_gear, map_location_is_opened, map_search_radius_toilet, map_search_radius_gas, map_location_clock_alarm_is_open,
-        map_mylocation_type, web_index, is_auto_record, is_mark_day_show_all, is_trade_alarm_open, is_allow_action_recents, mark_day_focused, tally_record_item_text, bar_title,
-        bank_bill_warning_days, bank_card, is_stock_load_noke, location_search_days, speaker_screen_off,
+        map_location_isAutoChangeGear, map_location_gear, map_location_is_opened, map_search_radius_toilet, map_search_radius_gas, map_location_clock_alarm_is_open,
+        地图位置显示模式,
+        web_index, is_auto_record, is_mark_day_show_all, mark_day_focused, 顶栏标题,
+        is_stock_load_noke, location_search_days, speaker_screen_off,
         is_stocks_listener,
-        list_religious_day, list_religious, alarm_window_msg, is_widget_list_stock, battery, quick, latest_widget_update_time, nianfo_over_speaker_msg, media_player_speed,
-        media_player_position, media_player_pitch,
+        上一次几点保存的小部件戒期信息, 小部件戒期信息, alarm_window_msg, is_widget_list_stock, battery, quick, nianfo_over_speaker_msg, media_player_speed,
 
-        media_player_volumn,media_player, bmob_file_url,SyncTime,wx_sex_date,bank_balance, bank_date_millis,is_widget_update_noice,
-        is_stock_broadcast, // 记录是不是语音报送盈利
-        is_flush_widget_when_screen_on, is_make_loan_alert, black_list, tally_once_minute, ignore_todo, sms_to_number, pre_alert_hour,
-        location_search_month, speaker_pitch, speaker_speech, todo_visible_dayoffset, wx_db_mark_date, wx_new_msg, wx_request_code, is_allow_widget_list_stock,tv_ip,clock_ip,
-        bank1_balance,bank1_date_millis,bank2_balance,bank2_date_millis
+        is_stock_broadcast,
+        设置黑名单,
+        几天内待办显示,
+        wx_new_msg, wx_request_code, wx_sex_date,
+        is小部件罗列股票
     }
     //endregion
 }

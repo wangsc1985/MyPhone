@@ -1,7 +1,6 @@
 package com.wang17.myphone.activity
 
 import android.app.AlertDialog
-import android.content.Intent
 import android.os.Bundle
 import android.support.v4.app.FragmentActivity
 import android.util.Log
@@ -13,7 +12,6 @@ import android.widget.AdapterView.OnItemLongClickListener
 import com.wang17.myphone.R
 import com.wang17.myphone.database.DataContext
 import com.wang17.myphone.database.RunLog
-import com.wang17.myphone.util._FingerUtils
 import com.wang17.myphone.util._Utils
 import com.wang17.myphone.util._Utils.e
 import kotlinx.android.synthetic.main.activity_runlog.*
@@ -45,7 +43,7 @@ class RunLogActivity : FragmentActivity() {
             listView_runlog.setOnItemLongClickListener(OnItemLongClickListener { parent, view, position, id ->
                 AlertDialog.Builder(this@RunLogActivity).setMessage("要删除所有日志吗？").setNegativeButton("确定") { dialog, which ->
                     val tag = spinner_logTag.selectedItem.toString()
-                    mDataContext.clearRunLogByTag(tag)
+                    mDataContext.deleteRunLogByTag(tag)
                     currentRunLogs = mDataContext.getRunLogsByTag(tag)
                     listAdapter.notifyDataSetChanged()
                 }.show()

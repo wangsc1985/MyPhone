@@ -259,7 +259,7 @@ class FuturePositionActivity : AppCompatActivity() {
                 if (convertView == null) {
                     convertView = View.inflate(this@FuturePositionActivity, R.layout.inflate_list_item_stock, null)
                     viewHolder = ViewHolder()
-                    viewHolder.textViewName = convertView.findViewById(R.id.textView_name)
+                    viewHolder.textViewName = convertView.findViewById(R.id.tv_name)
                     viewHolder.textViewCode = convertView.findViewById(R.id.textView_code)
                     viewHolder.textViewIncrease = convertView.findViewById(R.id.textView_increase)
                     viewHolder.textViewProfit = convertView.findViewById(R.id.textView_profit)

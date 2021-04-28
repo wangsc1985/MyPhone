@@ -1,7 +1,5 @@
 package com.wang17.myphone.receiver;
 
-import android.app.AlarmManager;
-import android.app.PendingIntent;
 import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothDevice;
 import android.bluetooth.BluetoothHeadset;
@@ -10,17 +8,8 @@ import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 
-import com.wang17.myphone.model.DateTime;
-import com.wang17.myphone.database.TallyRecord;
 import com.wang17.myphone.database.DataContext;
-import com.wang17.myphone.database.Setting;
 import com.wang17.myphone.util._LogUtils;
-import com.wang17.myphone.util._Session;
-import com.wang17.myphone.util._Utils;
-
-import static android.content.Context.ALARM_SERVICE;
-import static com.wang17.myphone.receiver.AlarmReceiver.ALARM_NIANFO_BEFORE_OVER;
-import static com.wang17.myphone.receiver.AlarmReceiver.ALARM_NIANFO_OVER;
 
 public class HeadsetPlugReceiver extends BroadcastReceiver {
     private DataContext dataContext;
@@ -87,55 +76,4 @@ public class HeadsetPlugReceiver extends BroadcastReceiver {
 //        }
     }
 
-
-    public void pauseNianfoTally(Context context) {
-        try {
-
-            // 向数据库中保存“已经完成的时间”
-            long now = System.currentTimeMillis();
-            long sectionStartInMillis = Long.parseLong(dataContext.getSetting(Setting.KEYS.tally_sectionStartMillis).getString());
-            long endTimeInMillis = Long.parseLong(dataContext.getSetting(Setting.KEYS.tally_endInMillis).getString());
-            dataContext.deleteSetting(Setting.KEYS.tally_sectionStartMillis);
-            long sectionIntervalInMillis = now - sectionStartInMillis;
-            if (sectionIntervalInMillis >= 60000) {
-                this.saveSection(context, sectionStartInMillis, sectionIntervalInMillis);
-            }
-
-            // 向数据库中保存“剩余时间”
-            dataContext.deleteSetting(Setting.KEYS.tally_endInMillis);
-            long remainIntervalInMillis = endTimeInMillis - now;
-            if (sectionIntervalInMillis < 60000) {
-                remainIntervalInMillis = endTimeInMillis - sectionStartInMillis;
-            }
-            dataContext.addSetting(Setting.KEYS.tally_intervalInMillis, remainIntervalInMillis);
-
-        } catch (NumberFormatException e) {
-            _Utils.printException(context, e);
-        }
-
-    }
-
-    private void saveSection(Context context, long partStartMillis, long partSpanMillis) {
-        try {
-            TallyRecord tallyRecord = new TallyRecord(new DateTime(partStartMillis), (int) partSpanMillis, dataContext.getSetting(Setting.KEYS.tally_record_item_text, "").getString());
-            if (dataContext.getRecord(partStartMillis) == null)
-                dataContext.addRecord(tallyRecord);
-        } catch (Exception e) {
-            _Utils.printException(context, e);
-        }
-    }
-
-    public void stopAlarm(Context context) {
-        try {
-            Intent intent = new Intent(_Session.NIAN_FO_TIMER);
-            PendingIntent pi = PendingIntent.getBroadcast(context, ALARM_NIANFO_OVER, intent, PendingIntent.FLAG_UPDATE_CURRENT);
-            AlarmManager am = (AlarmManager) context.getSystemService(ALARM_SERVICE);
-            am.cancel(pi);
-            pi = PendingIntent.getBroadcast(context, ALARM_NIANFO_BEFORE_OVER, intent, PendingIntent.FLAG_UPDATE_CURRENT);
-            am.cancel(pi);
-
-        } catch (Exception e) {
-            _Utils.printException(context, e);
-        }
-    }
 }

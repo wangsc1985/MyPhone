@@ -288,7 +288,7 @@ public class LocationListActivity extends AppCompatActivity {
         addLocationMarkers(center);
 
 
-        if (dataContext.getSetting(Setting.KEYS.map_mylocation_type, 0).getInt() == 0) {
+        if (dataContext.getSetting(Setting.KEYS.地图位置显示模式, 0).getInt() == 0) {
             /**
              * 定位模式
              */
@@ -311,7 +311,7 @@ public class LocationListActivity extends AppCompatActivity {
                     if (searchCircle == null) {
                         searchCircle = aMap.addCircle(new CircleOptions()
                                 .center(latLng)
-                                .radius(dataContext.getSetting(Setting.KEYS.map_search_radius,200).getDouble())
+                                .radius(dataContext.getSetting(Setting.KEYS.地图搜索半径,200).getDouble())
                                 .fillColor(getResources().getColor(R.color.location_accuracy))
                                 .strokeWidth(0));
                     } else {
@@ -376,7 +376,7 @@ public class LocationListActivity extends AppCompatActivity {
     private void initData() {
         dataContext = new DataContext(this);
 
-        locationList = dataContext.getLocatiosByYear(_Session.UUID_NULL,dataContext.getSetting(Setting.KEYS.location_search_year,2019).getInt(), true);
+        locationList = dataContext.getLocatiosByYear(_Session.UUID_NULL,dataContext.getSetting(Setting.KEYS.足迹展示年数,2019).getInt(), true);
 
         initListData(locationList);
 

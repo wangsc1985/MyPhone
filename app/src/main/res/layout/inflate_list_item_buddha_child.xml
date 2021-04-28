@@ -21,10 +21,12 @@
 
     <TextView
         android:id="@+id/tv_item"
-        android:layout_width="wrap_content"
+        android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:layout_marginTop="5dp"
+        android:layout_marginEnd="16dp"
         android:textSize="10dp"
+        app:layout_constraintEnd_toStartOf="@+id/tv_type"
         app:layout_constraintLeft_toLeftOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/tv_att_date" />
 
@@ -66,5 +68,13 @@
         android:textSize="12sp"
         app:layout_constraintEnd_toStartOf="@+id/textView_monthDuration"
         app:layout_constraintTop_toTopOf="parent" />
+
+    <TextView
+        android:id="@+id/tv_type"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:visibility="visible"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent" />
 
 </android.support.constraint.ConstraintLayout>

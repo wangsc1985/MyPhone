@@ -19,7 +19,6 @@ import android.widget.TextView;
 
 import com.wang17.myphone.R;
 import com.wang17.myphone.database.Setting;
-import com.wang17.myphone.service.NianfoMusicService;
 import com.wang17.myphone.database.DataContext;
 import com.wang17.myphone.util._Session;
 import com.wang17.myphone.util._Utils;
@@ -30,8 +29,6 @@ public class AlarmWindowActivity extends AppCompatActivity {
 
 
     private MediaPlayer mp = new MediaPlayer();
-    private Vibrator vibrator;
-    private PowerManager.WakeLock mWakelock;
     private DataContext mDataContext;
 
     @Override
@@ -46,50 +43,11 @@ public class AlarmWindowActivity extends AppCompatActivity {
                 | WindowManager.LayoutParams.FLAG_ALLOW_LOCK_WHILE_SCREEN_ON | WindowManager.LayoutParams.FLAG_TURN_SCREEN_ON);
 
         mDataContext= new DataContext(AlarmWindowActivity.this);
-//        startMedia();
-//        startVibrator();
 
         createDialog();
 
-//        _Utils.speaker(this,"阿 弥 陀 佛");
         _Utils.speaker(this,mDataContext.getSetting(Setting.KEYS.alarm_window_msg,"阿 弥 陀 佛").getString());
-//        Intent i = new Intent(this, SpeakerService.class);
-//        i.putExtra("msg","愿以此功德，庄严佛净土，上报四重恩，下济三途苦，若有见闻者，西发菩提心，尽此一报身，同生 极 乐 国。");
-//        startService(i);
 
-
-        new Thread(new Runnable() {
-            @Override
-            public void run() {
-//                SoundPool soundPool = new SoundPool(10, AudioManager.STREAM_SYSTEM, 5);
-//                soundPool.load(AlarmWindowActivity.this, R.raw.ling3, 1);
-//                soundPool.setOnLoadCompleteListener(new SoundPool.OnLoadCompleteListener() {
-//                    @Override
-//                    public void onLoadComplete(SoundPool soundPool, int sampleId, int status) {
-//                        int streamId = soundPool.play(1, ALERT_VOLUMN, ALERT_VOLUMN, 0, 0, 1);
-//                        try {
-//                            float add = (1 - ALERT_VOLUMN) / 2;
-//                            float vol = ALERT_VOLUMN;
-//                            for (int i = 0; i < 2; i++) {
-//                                Thread.sleep(1000);
-//                                vol += add;
-//                                soundPool.setVolume(streamId, vol, vol);
-//                            }
-//                        } catch (InterruptedException e) {
-//                            e.printStackTrace();
-//                        }
-//                    }
-//                });
-
-
-                /**
-                 * 停止念佛音乐服务
-                 */
-                if(mDataContext.getSetting(Setting.KEYS.tally_music_is_playing,false).getBoolean()){
-                    stopService(new Intent(AlarmWindowActivity.this, NianfoMusicService.class));
-                }
-            }
-        }).start();
     }
 
     /**

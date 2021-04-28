@@ -15,13 +15,13 @@
         android:layout_marginBottom="8dp"
         android:layout_marginTop="8dp"
         app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toStartOf="@+id/textView_name"
+        app:layout_constraintEnd_toStartOf="@+id/tv_name"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
         app:srcCompat="@drawable/btn_start_shape" />
 
     <TextView
-        android:id="@+id/textView_name"
+        android:id="@+id/tv_name"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginLeft="20dp"
@@ -54,9 +54,9 @@
         android:text="（100天）"
         android:textSize="12dp"
         android:visibility="visible"
-        app:layout_constraintBottom_toBottomOf="@+id/textView_name"
-        app:layout_constraintLeft_toRightOf="@+id/textView_name"
-        app:layout_constraintTop_toTopOf="@+id/textView_name" />
+        app:layout_constraintBottom_toBottomOf="@+id/tv_name"
+        app:layout_constraintLeft_toRightOf="@+id/tv_name"
+        app:layout_constraintTop_toTopOf="@+id/tv_name" />
 
     <TextView
         android:id="@+id/textView_remaider"

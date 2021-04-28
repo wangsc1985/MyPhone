@@ -14,7 +14,7 @@ class Trade {
     var type:Int // 1是买，-1是卖，2 股息 ，-2 息税
     var tag:Int // 0：普通   1：关注    -1：清仓
     var cost:BigDecimal
-
+    var hold:Int
 
     init {
         id = UUID.randomUUID()
@@ -26,5 +26,6 @@ class Trade {
         type=1
         tag = 0
         cost = 0.toBigDecimal()
+        hold = 0
     }
 }

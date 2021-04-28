@@ -4,8 +4,6 @@ import android.content.Context
 import android.content.Intent
 import android.content.res.Resources.NotFoundException
 import android.graphics.Color
-import android.media.AudioManager
-import android.media.SoundPool
 import android.util.Log
 import android.util.TypedValue.COMPLEX_UNIT_DIP
 import android.view.View
@@ -152,20 +150,21 @@ class MyWidgetRemoteViewsService : RemoteViewsService() {
                 }
 
                 //region 余额警戒
-                if (dc.getSetting(Setting.KEYS.is_broadcast_big_figure, true).boolean) {
-                    var balanceStr = dc.getSetting(Setting.KEYS.bank1_balance, 0).string.replace(",","")
-                    var isBalanceLevelLowAlert = dc.getSetting(Setting.KEYS.is_balance_level_low_alert, true).boolean
+                if (dc.getSetting(Setting.KEYS.账户超额提醒, true).boolean) {
+                    var balanceStr = dc.getSetting(Setting.KEYS.balanceABC, 0).string.replace(",","")
+                    var balanceLowABC = dc.getSetting(Setting.KEYS.balanceLowABC,100).int
+                    var balanceLowICBC = dc.getSetting(Setting.KEYS.balanceLowICBC,50).int
                     var balance =balanceStr.toDouble()
                     if (balance > 3000) {
                         mToDoList.add(ToDo("          ", "ABC","          ",  WARNING3_COLOR, true, 0))
-                    }else if(balance<100 &&isBalanceLevelLowAlert){
+                    }else if(balance<balanceLowABC){
                         mToDoList.add(ToDo("          ", "ABC","          ",  WARNING2_COLOR, true, 0))
                     }
-                    balanceStr = dc.getSetting(Setting.KEYS.bank2_balance, 0).string.replace(",","")
+                    balanceStr = dc.getSetting(Setting.KEYS.balanceICBC, 0).string.replace(",","")
                     balance =balanceStr.toDouble()
                     if (balance > 2000) {
                         mToDoList.add(ToDo("          ", "ICBC","          ",  WARNING3_COLOR, true, 0))
-                    }else if(balance<50 && isBalanceLevelLowAlert){
+                    }else if(balance<balanceLowICBC){
                         mToDoList.add(ToDo("          ", "ICBC","          ",  WARNING2_COLOR, true, 0))
                     }
                 }
@@ -211,8 +210,6 @@ class MyWidgetRemoteViewsService : RemoteViewsService() {
 
         @Throws(Exception::class)
         private fun setToDos() {
-
-            e("set to do s")
             mToDoList.clear()
 
             val now = DateTime()
@@ -231,7 +228,7 @@ class MyWidgetRemoteViewsService : RemoteViewsService() {
                 val toDo = ToDo()
                 val now = DateTime()
                 val dayOffset = DateTime.dayOffset(now, bankToDo.dateTime)
-                if (dayOffset > dc.getSetting(Setting.KEYS.todo_visible_dayoffset, 3).int && bankToDo.money != 0.0) continue
+                if (dayOffset > dc.getSetting(Setting.KEYS.几天内待办显示, 3).int && bankToDo.money != 0.0) continue
                 if (dayOffset < 0) {
                     toDo.header = "+" + -dayOffset
                     toDo.color1 = Color.RED
@@ -376,7 +373,7 @@ class MyWidgetRemoteViewsService : RemoteViewsService() {
             /**
              * 戒期
              */
-            val latestDay = dc.getSetting(Setting.KEYS.list_religious_day, 0).int
+            val latestDay = dc.getSetting(Setting.KEYS.上一次几点保存的小部件戒期信息, 0).int
             if (today.day != latestDay) {
 
                 /**
@@ -426,10 +423,10 @@ class MyWidgetRemoteViewsService : RemoteViewsService() {
                 }
 
                 //
-                dc.editSetting(Setting.KEYS.list_religious_day, today.day)
-                dc.editSetting(Setting.KEYS.list_religious, list_religious)
+                dc.editSetting(Setting.KEYS.上一次几点保存的小部件戒期信息, today.day)
+                dc.editSetting(Setting.KEYS.小部件戒期信息, list_religious)
             } else {
-                val religious = dc.getSetting(Setting.KEYS.list_religious, "").string.split("\n").toTypedArray()
+                val religious = dc.getSetting(Setting.KEYS.小部件戒期信息, "").string.split("\n").toTypedArray()
                 for (str in religious) {
                     var color: Int
                     color = if (findReligiousKeyWord(str) == 1) {
@@ -454,13 +451,13 @@ class MyWidgetRemoteViewsService : RemoteViewsService() {
                 val toDo = mToDoList[position]
                 e("${toDo.title}   ${toDo.summary}")
                 remoteViews.setTextViewText(R.id.textView_days, toDo.header)
-                remoteViews.setTextViewText(R.id.textView_name, toDo.title)
+                remoteViews.setTextViewText(R.id.tv_name, toDo.title)
                 remoteViews.setTextViewText(R.id.textView_money, toDo.summary)
                 remoteViews.setTextColor(R.id.textView_days, toDo.color1)
-                remoteViews.setTextColor(R.id.textView_name, toDo.color2)
+                remoteViews.setTextColor(R.id.tv_name, toDo.color2)
                 remoteViews.setTextColor(R.id.textView_money, toDo.color3)
                 if (position == 0)
-                    remoteViews.setTextViewTextSize(R.id.textView_name, COMPLEX_UNIT_DIP, 10f)
+                    remoteViews.setTextViewTextSize(R.id.tv_name, COMPLEX_UNIT_DIP, 10f)
                 val fillInIntent = Intent()
                 fillInIntent.putExtra("position", position)
                 remoteViews.setOnClickFillInIntent(R.id.linear_root, fillInIntent)
@@ -470,9 +467,9 @@ class MyWidgetRemoteViewsService : RemoteViewsService() {
                     remoteViews.setViewVisibility(R.id.textView_days, View.VISIBLE)
                 }
                 if (toDo.title.isEmpty()) {
-                    remoteViews.setViewVisibility(R.id.textView_name, View.GONE)
+                    remoteViews.setViewVisibility(R.id.tv_name, View.GONE)
                 } else {
-                    remoteViews.setViewVisibility(R.id.textView_name, View.VISIBLE)
+                    remoteViews.setViewVisibility(R.id.tv_name, View.VISIBLE)
                 }
                 if (toDo.summary.isEmpty()) {
                     remoteViews.setViewVisibility(R.id.textView_money, View.GONE)
@@ -495,15 +492,6 @@ class MyWidgetRemoteViewsService : RemoteViewsService() {
                 Log.e("wangsc", e.message!!)
             }
             return remoteViews
-        }
-
-        private fun playSound(rawId: Int) {
-            val soundPool = SoundPool(10, AudioManager.STREAM_SYSTEM, 5)
-            soundPool.load(mContext, rawId, 1)
-            soundPool.setOnLoadCompleteListener { soundPool, sampleId, status ->
-                soundPool.play(1, 1f, 1f, 0, 0, 1f)
-                dc.editSetting(Setting.KEYS.pre_alert_hour, DateTime().hour)
-            }
         }
 
         override fun getLoadingView(): RemoteViews? {

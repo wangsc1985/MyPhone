@@ -26,7 +26,7 @@ class BuddhaConfig(
          */
         var speed: Float,
         /**
-         * 计数类型
+         * 计数类型 0听佛，1计时，10听佛计数，11念佛计数
          */
         var type: Int,
         /**

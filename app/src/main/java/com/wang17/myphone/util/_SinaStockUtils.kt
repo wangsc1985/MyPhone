@@ -214,4 +214,10 @@ object _SinaStockUtils {
     interface OnLoadStockInfoListListener1 {
         fun onLoadFinished(map: Map<String, Double>)
     }
+
+    fun getStockHistory(code:String){
+        val url = "http://money.finance.sina.com.cn/quotes_service/api/json_v2.php/CN_MarketData.getKLineData?symbol=${if(code.startsWith("6")) "sh" else "sz"}${code}&scale=60&ma=5&datalen=1023"
+        // （参数：股票编号、分钟间隔（5、15、30、60）、均值（5、10、15、20、25）、查询个数点（最大值242））
+
+    }
 }

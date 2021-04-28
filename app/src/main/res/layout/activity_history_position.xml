@@ -21,30 +21,30 @@
         app:layout_constraintStart_toStartOf="parent" />
 
     <android.support.design.widget.FloatingActionButton
-        android:id="@+id/floatingActionButtonUpload"
+        android:id="@+id/fab_upload"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginEnd="8dp"
         android:clickable="true"
         app:layout_constraintBottom_toBottomOf="@+id/textView_profit"
-        app:layout_constraintEnd_toStartOf="@+id/floatingActionButtonRefresh"
+        app:layout_constraintEnd_toStartOf="@+id/fab_refresh"
         app:layout_constraintTop_toTopOf="@+id/textView_profit"
         app:layout_constraintVertical_bias="0.571"
         app:srcCompat="@drawable/upload" />
 
     <android.support.design.widget.FloatingActionButton
-        android:id="@+id/floatingActionButtonRefresh"
+        android:id="@+id/fab_refresh"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginEnd="8dp"
         android:clickable="true"
         app:layout_constraintBottom_toBottomOf="@+id/textView_profit"
-        app:layout_constraintEnd_toStartOf="@+id/floatingActionButtonAdd"
+        app:layout_constraintEnd_toStartOf="@+id/fab_add"
         app:layout_constraintTop_toTopOf="@+id/textView_profit"
         app:srcCompat="@drawable/renew" />
 
     <android.support.design.widget.FloatingActionButton
-        android:id="@+id/floatingActionButtonAdd"
+        android:id="@+id/fab_add"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginEnd="16dp"
@@ -53,6 +53,17 @@
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintTop_toTopOf="@+id/textView_profit"
         app:srcCompat="@drawable/add" />
+
+    <android.support.design.widget.FloatingActionButton
+        android:id="@+id/fab_chart"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginEnd="16dp"
+        android:clickable="true"
+        app:layout_constraintBottom_toBottomOf="@+id/textView_profit"
+        app:layout_constraintEnd_toStartOf="@+id/fab_upload"
+        app:layout_constraintTop_toTopOf="@+id/textView_profit"
+        app:srcCompat="@drawable/stock" />
 
     <ListView
         android:id="@+id/listView_position"

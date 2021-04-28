@@ -17,7 +17,7 @@
         android:layout_marginBottom="5dp"
         android:layout_weight="1"
         android:padding="5dp"
-        android:text="2020.08.05"
+        android:text="08/05"
         android:textSize="11dp"
         android:textStyle="bold"
         app:layout_constraintBottom_toBottomOf="parent"
@@ -26,7 +26,7 @@
         app:layout_constraintVertical_bias="0.6" />
 
     <TextView
-        android:id="@+id/textView_name"
+        android:id="@+id/tv_name"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:paddingLeft="5dp"
@@ -42,7 +42,7 @@
         tools:layout_editor_absoluteY="5dp" />
 
     <TextView
-        android:id="@+id/tv_att_type"
+        android:id="@+id/tv_type"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginTop="5dp"
@@ -54,10 +54,10 @@
         android:padding="5dp"
         android:text="买入"
         android:textSize="10dp"
-        app:layout_constraintStart_toEndOf="@+id/textView_name" />
+        app:layout_constraintStart_toEndOf="@+id/tv_name" />
 
     <TextView
-        android:id="@+id/tv_att_price"
+        android:id="@+id/tv_price"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginTop="5dp"
@@ -73,7 +73,7 @@
         tools:layout_editor_absoluteY="5dp" />
 
     <TextView
-        android:id="@+id/textView_amount"
+        android:id="@+id/tv_amount"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginTop="5dp"
@@ -86,5 +86,21 @@
         android:text="3900"
         android:textSize="10dp"
         app:layout_constraintStart_toEndOf="@+id/tv_att_price"
+        tools:layout_editor_absoluteY="5dp" />
+
+    <TextView
+        android:id="@+id/tv_hold"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="10dp"
+        android:layout_marginTop="5dp"
+        android:layout_marginBottom="5dp"
+        android:layout_weight="1"
+        android:padding="5dp"
+        android:text="3900"
+        android:textSize="10dp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintStart_toEndOf="@+id/tv_att_price"
+        app:layout_constraintTop_toTopOf="parent"
         tools:layout_editor_absoluteY="5dp" />
 </LinearLayout>

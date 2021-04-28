@@ -74,7 +74,7 @@ public class ActionBarFragment extends Fragment {
         super.onViewCreated(view, savedInstanceState);
         try {
             textViewTitle = view.findViewById(R.id.textView_title);
-            textViewTitle.setText(dataContext.getSetting(Setting.KEYS.bar_title,"南无阿弥陀佛").getString());
+            textViewTitle.setText(dataContext.getSetting(Setting.KEYS.顶栏标题,"南无阿弥陀佛").getString());
 
             ConstraintLayout root = view.findViewById(R.id.layout_root);
             root.setOnClickListener(new View.OnClickListener() {

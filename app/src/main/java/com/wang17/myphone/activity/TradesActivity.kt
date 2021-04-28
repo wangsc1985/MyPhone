@@ -2,7 +2,6 @@ package com.wang17.myphone.activity
 
 import android.app.AlertDialog
 import android.content.DialogInterface
-import android.content.Intent
 import android.graphics.Color
 import android.os.Bundle
 import android.support.design.widget.Snackbar
@@ -19,7 +18,6 @@ import com.wang17.myphone.database.Trade
 import com.wang17.myphone.util.TradeUtils.commission
 import com.wang17.myphone.util.TradeUtils.tax
 import com.wang17.myphone.util.TradeUtils.transferFee
-import com.wang17.myphone.util._FingerUtils
 import com.wang17.myphone.util._Utils
 import kotlinx.android.synthetic.main.activity_trades.*
 import java.text.DecimalFormat
@@ -169,15 +167,15 @@ class TradesActivity : AppCompatActivity() {
 
         override fun getView(position: Int, convertView: View?, parent: ViewGroup): View? {
             var convertView = convertView
-            val index = position
             try {
                 convertView = View.inflate(this@TradesActivity, R.layout.inflate_trade, null)
                 val trade = trades!![position]
                 val textViewDate = convertView.findViewById<TextView>(R.id.tv_dateTime)
-                val textViewName = convertView.findViewById<TextView>(R.id.textView_name)
-                val textViewPrice = convertView.findViewById<TextView>(R.id.tv_att_price)
-                val textViewAmount = convertView.findViewById<TextView>(R.id.textView_amount)
-                val textViewType = convertView.findViewById<TextView>(R.id.tv_att_type)
+                val textViewName = convertView.findViewById<TextView>(R.id.tv_name)
+                val textViewPrice = convertView.findViewById<TextView>(R.id.tv_price)
+                val textViewAmount = convertView.findViewById<TextView>(R.id.tv_amount)
+                val textViewType = convertView.findViewById<TextView>(R.id.tv_type)
+                val tvHold = convertView.findViewById<TextView>(R.id.tv_hold)
                 textViewDate.text = trade.dateTime.toShortDateString()
                 textViewName.text = trade.name
                 var priceFormat = DecimalFormat("#0.00")
@@ -185,7 +183,7 @@ class TradesActivity : AppCompatActivity() {
                 textViewPrice.text = "${priceFormat.format(trade.price)}(${costFormat.format(trade.cost)})"
                 priceFormat = DecimalFormat("#0")
                 var type = "买入"
-                var amount: String? = "-"
+                var amount = ""
                 when (trade.type) {
                     1 -> {
                         type = "买入"
@@ -200,9 +198,11 @@ class TradesActivity : AppCompatActivity() {
                 }
                 textViewType.text = type
                 textViewAmount.text = amount
+                tvHold.text =  (trade.hold*100).toString()
                 if (trade.tag == 1) {
                     textViewName.setTextColor(Color.RED)
-                } else if (trade.tag == -1) {
+                }
+                if (trade.hold == 0) {
                     textViewName.setTextColor(Color.BLUE)
                 }
             } catch (e: Exception) {

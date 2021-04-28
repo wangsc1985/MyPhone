@@ -280,7 +280,7 @@ public class AmapFragment extends Fragment implements AMap.OnMarkerClickListener
                 if (isLocationNotCenter) {
                     isLocationNotCenter = false;
 
-                    if (dataContext.getSetting(Setting.KEYS.map_mylocation_type, 0).getInt() == 1) {
+                    if (dataContext.getSetting(Setting.KEYS.地图位置显示模式, 0).getInt() == 1) {
                         /**
                          * 行车模式
                          */
@@ -299,7 +299,7 @@ public class AmapFragment extends Fragment implements AMap.OnMarkerClickListener
                 }
                 // 地图处于跟踪位置
                 else {
-                    if (dataContext.getSetting(Setting.KEYS.map_mylocation_type, 0).getInt() == 0) {
+                    if (dataContext.getSetting(Setting.KEYS.地图位置显示模式, 0).getInt() == 0) {
                         /**
                          * 改行车模式
                          */
@@ -309,7 +309,7 @@ public class AmapFragment extends Fragment implements AMap.OnMarkerClickListener
                         imageLocation.setImageResource(R.drawable.src_navi);
                         locationMarker.setIcon(BitmapDescriptorFactory.fromBitmap(BitmapFactory.decodeResource(getResources(), R.drawable.location_navi_marker)));
                         cameriaCenter(lastLocation);
-                        dataContext.editSetting(Setting.KEYS.map_mylocation_type, 1);
+                        dataContext.editSetting(Setting.KEYS.地图位置显示模式, 1);
                         aMap.setPointToCenter(carPoint.x, carPoint.y);
                         hideOptionButton();
 
@@ -325,7 +325,7 @@ public class AmapFragment extends Fragment implements AMap.OnMarkerClickListener
 //                        aMap.animateCamera(CameraUpdateFactory.newCameraPosition(new CameraPosition(lastLocation, zoom, 0, 0)), animateLong, null);
                         imageLocation.setImageResource(R.drawable.src_my_location);
                         locationMarker.setIcon(BitmapDescriptorFactory.fromBitmap(BitmapFactory.decodeResource(getResources(), R.drawable.location_marker)));
-                        dataContext.editSetting(Setting.KEYS.map_mylocation_type, 0);
+                        dataContext.editSetting(Setting.KEYS.地图位置显示模式, 0);
                         aMap.setPointToCenter(centerPoint.x, centerPoint.y);
                         showOptionButton();
                     }
@@ -418,7 +418,7 @@ public class AmapFragment extends Fragment implements AMap.OnMarkerClickListener
 
         addLocationMarkers(center);
 
-        if (dataContext.getSetting(Setting.KEYS.map_mylocation_type, 0).getInt() == 0) {
+        if (dataContext.getSetting(Setting.KEYS.地图位置显示模式, 0).getInt() == 0) {
             /**
              * 定位模式
              */
@@ -491,7 +491,7 @@ public class AmapFragment extends Fragment implements AMap.OnMarkerClickListener
                     case MotionEvent.ACTION_UP:
 
                         // 离开屏幕
-                        if (dataContext.getSetting(Setting.KEYS.map_mylocation_type, 0).getInt() == 1) {
+                        if (dataContext.getSetting(Setting.KEYS.地图位置显示模式, 0).getInt() == 1) {
                             startTimerSomeTimeLater();
                         }
                         break;
@@ -525,7 +525,7 @@ public class AmapFragment extends Fragment implements AMap.OnMarkerClickListener
     private void addLocationMarkers(LatLng center) {
 //        northMarker = aMap.addMarker(new MarkerOptions().anchor(0.5f, 0.5f).icon(BitmapDescriptorFactory.fromBitmap(BitmapFactory.decodeResource(getResources(), R.drawable.north))).position(center));
 
-        if (dataContext.getSetting(Setting.KEYS.map_mylocation_type, 0).getInt() == 0) {
+        if (dataContext.getSetting(Setting.KEYS.地图位置显示模式, 0).getInt() == 0) {
             locationMarker = aMap.addMarker(new MarkerOptions().anchor(0.5f, 0.5f)
                     .icon(BitmapDescriptorFactory.fromBitmap(BitmapFactory.decodeResource(getResources(), R.drawable.location_marker))).position(center));
         } else {

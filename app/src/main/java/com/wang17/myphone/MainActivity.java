@@ -25,9 +25,9 @@ import android.widget.Toast;
 
 import com.amap.api.maps.TextureMapView;
 import com.wang17.myphone.fragment.ActionBarFragment;
-import com.wang17.myphone.fragment.ButtonFragment;
+import com.wang17.myphone.fragment.OperationFragment;
 import com.wang17.myphone.fragment.MarkDayFragment;
-import com.wang17.myphone.fragment.BuddhaPlayerFragment;
+import com.wang17.myphone.fragment.BuddhaFragment;
 import com.wang17.myphone.fragment.ReligiousFragment;
 import com.wang17.myphone.receiver.NetWorkStateReceiver;
 import com.wang17.myphone.util.BackupTask;
@@ -144,9 +144,9 @@ public class MainActivity extends AppCompatActivity implements BackupTask.OnFini
             tabLayout_menu.addTab(tabLayout_menu.newTab().setText("宝鉴"));
             fragmentList.add(new MarkDayFragment());
             tabLayout_menu.addTab(tabLayout_menu.newTab().setText("MARK"));
-            fragmentList.add(new BuddhaPlayerFragment());
+            fragmentList.add(new BuddhaFragment());
             tabLayout_menu.addTab(tabLayout_menu.newTab().setText("念佛"));
-            fragmentList.add(new ButtonFragment());
+            fragmentList.add(new OperationFragment());
             tabLayout_menu.addTab(tabLayout_menu.newTab().setText("操作"));
 
 

@@ -37,7 +37,7 @@ class ToDoActivity : FragmentActivity() {
         mDataContext = DataContext(this)
         getBankTodos()
         listView_todo.setAdapter(listAdapter)
-        val actionButton: FloatingActionButton = findViewById(R.id.floatingActionButtonAdd)
+        val actionButton: FloatingActionButton = findViewById(R.id.fab_add)
         actionButton.setOnClickListener { //  3/1 001 新建待办事项
             _DialogUtils.addTodoDialog(this@ToDoActivity) {
                 getBankTodos()
@@ -98,7 +98,7 @@ class ToDoActivity : FragmentActivity() {
                 val dayOffset = dayOffset(now, bankToDo.dateTime)
                 val textViewDate = convertView.findViewById<TextView>(R.id.tv_att_date)
                 val textViewDays = convertView.findViewById<TextView>(R.id.textView_days)
-                val textViewName = convertView.findViewById<TextView>(R.id.textView_name)
+                val textViewName = convertView.findViewById<TextView>(R.id.tv_name)
                 val textViewMoney = convertView.findViewById<TextView>(R.id.textView_money)
                 if (bankToDo.money == 0.0 || bankToDo.money == -1.0) {
                     textViewName.setTextColor(Color.GRAY)
