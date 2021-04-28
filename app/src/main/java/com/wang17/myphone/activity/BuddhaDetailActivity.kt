@@ -166,7 +166,13 @@ class BuddhaDetailActivity : AppCompatActivity(), OnActionFragmentBackListener {
 //                    tv_item.visibility = View.GONE
                 tv_duration.text = "" + toSpanString(buddha.duration, 3, 2)
                 tv_type.visibility=View.VISIBLE
-                tv_type.text = buddha.type.toString()
+                when(buddha.type){
+                    0->tv_type.text="听佛"
+                    1->tv_type.text="计时念佛"
+                    10->tv_type.text="听佛计数"
+                    11->tv_type.text="念佛计数"
+
+                }
 //                val tap = buddha.count/1080
                 tv_number.text = if (buddha.count > 0) DecimalFormat("#,##0").format(buddha.count) else ""
             } catch (e: Exception) {
