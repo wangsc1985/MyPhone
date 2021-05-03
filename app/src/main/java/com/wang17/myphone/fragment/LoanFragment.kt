@@ -1,6 +1,8 @@
 package com.wang17.myphone.fragment
 
 import android.app.AlertDialog
+import android.content.DialogInterface
+import android.graphics.Color
 import android.os.Bundle
 import android.support.v4.app.Fragment
 import android.view.LayoutInflater
@@ -13,6 +15,7 @@ import android.widget.TextView
 import com.wang17.myphone.R
 import com.wang17.myphone.database.DataContext
 import com.wang17.myphone.database.Loan
+import com.wang17.myphone.database.LoanRecord
 import com.wang17.myphone.e
 import com.wang17.myphone.model.DateTime
 import kotlinx.android.synthetic.main.fragment_loan.*
@@ -39,10 +42,59 @@ class LoanFragment : Fragment() {
         }
 
         lv_loan.adapter = adapter
+        lv_loan.setOnItemClickListener { parent, view, position, id ->
+            val loan = loanList.get(position)
+            val loanRecordList = dc.getLoanRecordList(loan.id)
+            var values = arrayOfNulls<String>(loanRecordList.size)
+            for (i in loanRecordList.indices){
+                values[i]="${loanRecordList[i].date.toShortDateString()}  ${format.format(loanRecordList[i].sum)}  ${format.format(loanRecordList[i].interest)}"
+            }
+            AlertDialog.Builder(context!!).setItems(values){ dialogInterface: DialogInterface, i: Int ->
+                AlertDialog.Builder(context!!).setMessage("删除当前还款记录？").setPositiveButton("确定"){ dialogInterface: DialogInterface, ii: Int ->
+                    val loanRecord = loanRecordList[i]
+                    loan.sum-=loanRecord.sum
+                    loan.interest -=loanRecord.interest
+                    dc.editLoan(loan)
+                    dc.deleteLoanRecord(loanRecord.id)
+
+                    loadLoanData()
+                    adapter.notifyDataSetChanged()
+                }.show()
+            }.show()
+        }
         lv_loan.setOnItemLongClickListener { parent, view, position, id ->
-            dc.deleteLoan(loanList.get(position).id)
-            loadLoanData()
-            adapter.notifyDataSetChanged()
+            AlertDialog.Builder(context!!).setItems(arrayOf("还款","删除")){ dialogInterface: DialogInterface, i: Int ->
+                when(i){
+                    0->{
+                        val loan = loanList.get(position)
+                        val view = View.inflate(context, R.layout.inflate_dialog_add_loan_record, null)
+                        val cvDate = view.findViewById<CalendarView>(R.id.cv_date)
+                        cvDate.date = loan.date.timeInMillis
+                        val etSum = view.findViewById<EditText>(R.id.et_sum)
+                        cvDate.setOnDateChangeListener { view, year, month, dayOfMonth -> view.date = DateTime(year, month, dayOfMonth).timeInMillis }
+                        AlertDialog.Builder(context).setView(view).setPositiveButton("还款") { dialog, which ->
+                            val date = DateTime(cvDate.date)
+
+                            val loanRecord = LoanRecord(UUID.randomUUID(),date,etSum.text.toString().toBigDecimal()*-1.toBigDecimal(),0.toBigDecimal(),loan.id)
+                            val days = (loanRecord.date.timeInMillis - loan.date.timeInMillis) / (1000 * 60 * 60 * 24)
+                            loanRecord.interest = loanRecord.sum.setScale(10) / -10000.toBigDecimal() * loan.rate * days.toBigDecimal()
+                            loan.sum+=loanRecord.sum
+                            loan.interest += loanRecord.interest
+                            dc.addLoanRecord(loanRecord)
+                            dc.editLoan(loan)
+
+                            loadLoanData()
+                            adapter.notifyDataSetChanged()
+                        }.show()
+                    }
+                    1->{
+                        dc.deleteLoanRecords(loanList.get(position).id)
+                        dc.deleteLoan(loanList.get(position).id)
+                    }
+                }
+                loadLoanData()
+                adapter.notifyDataSetChanged()
+            }.show()
             true
         }
         fab_add.setOnClickListener {
@@ -56,19 +108,29 @@ class LoanFragment : Fragment() {
                 val date = DateTime(cvDate.date)
                 e(date.toShortDateString())
 
-                val loan = Loan(UUID.randomUUID(),etName.text.toString(),date,etSum.text.toString().toBigDecimal(),etRate.text.toString().toBigDecimal())
+                val loan = Loan(UUID.randomUUID(),etName.text.toString(),date,etSum.text.toString().toBigDecimal(),etRate.text.toString().toBigDecimal(),0.toBigDecimal())
+                val loanRecord = LoanRecord(UUID.randomUUID(),date,etSum.text.toString().toBigDecimal(),0.toBigDecimal(),loan.id)
+
                 dc.addLoan(loan)
+                dc.addLoanRecord(loanRecord)
 
                 loadLoanData()
                 adapter.notifyDataSetChanged()
             }.show()
-
-
         }
     }
 
     private fun loadLoanData() {
         loanList = dc.loanList
+        var money1 = 0.toBigDecimal()
+        var money2=0.toBigDecimal()
+        loanList.forEach {loan->
+            money1 += loan.interest
+            val days = (DateTime.today.timeInMillis - loan.date.timeInMillis) / (1000 * 60 * 60 * 24)
+            money2 += loan.sum.setScale(10) / 10000.toBigDecimal() * loan.rate * days.toBigDecimal()
+        }
+
+        tv_money.text="[${format.format(money1)}] + ${format.format(money2)} = ${format.format(money1+money2)}"
     }
 
     inner class LoanListAdapter : BaseAdapter() {
@@ -101,8 +163,21 @@ class LoanFragment : Fragment() {
                     tvDate.text = loan.date.toShortDateString1()
                     val days = (DateTime.today.timeInMillis - loan.date.timeInMillis) / (1000 * 60 * 60 * 24)
                     tvDays.text = "${days/30}月${days%30}天"
-                    tvInterest.text = DecimalFormat("#,##0.00").format(loan.sum.setScale(10) / 10000.toBigDecimal() * loan.rate * days.toBigDecimal())
+                    tvInterest.text = "[${format.format(loan.interest)}] + ${format.format(loan.sum.setScale(10) / 10000.toBigDecimal() * loan.rate * days.toBigDecimal())} "
                     e("${loan.name}  ${loan.rate}  ${loan.sum}  ${loan.date.toShortDateString()} ${loan.sum.setScale(10) / 10000.toBigDecimal()* loan.rate* days.toBigDecimal()}")
+                    if(loan.sum>0.toBigDecimal()){
+                        tvName.setTextColor(Color.RED)
+                        tvSum.setTextColor(Color.RED)
+                        tvDate.setTextColor(Color.RED)
+                        tvDays.setTextColor(Color.RED)
+                        tvInterest.setTextColor(Color.RED)
+                    }else{
+                        tvName.setTextColor(Color.BLACK)
+                        tvSum.setTextColor(Color.BLACK)
+                        tvDate.setTextColor(Color.BLACK)
+                        tvDays.setTextColor(Color.BLACK)
+                        tvInterest.setTextColor(Color.BLACK)
+                    }
                 }
             } catch (e: Exception) {
                 e(e.message!!)
@@ -112,6 +187,8 @@ class LoanFragment : Fragment() {
 
     }
 
+    val format2 = DecimalFormat("#,##0.00")
+    val format = DecimalFormat("#,##0")
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
         return inflater.inflate(R.layout.fragment_loan, container, false)
     }

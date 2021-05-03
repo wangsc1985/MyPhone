@@ -47,6 +47,7 @@ public class DataContext {
             values.put("date", model.getDate().getTimeInMillis());
             values.put("sum", model.getSum().toString());
             values.put("rate", model.getRate().toString());
+            values.put("interest", model.getInterest().toString());
 
             //调用方法插入数据
             db.insert("loan", "id", values);
@@ -57,6 +58,29 @@ public class DataContext {
         }
     }
 
+    public Loan getLoan(UUID id) {
+        try {
+            //获取数据库对象
+            SQLiteDatabase db = dbHelper.getReadableDatabase();
+            //查询获得游标
+            Cursor cursor = db.query("loan", null, "id=?",new String[]{id.toString()}, null, null, "date desc");
+            //判断游标是否为空
+            while (cursor.moveToNext()) {
+                Loan model = new Loan(UUID.fromString(cursor.getString(0)),
+                        cursor.getString(1),
+                        new DateTime(cursor.getLong(2)),
+                        new BigDecimal(cursor.getString(3)),
+                        new BigDecimal(cursor.getString(4)),
+                        new BigDecimal(cursor.getString(5)==null?"0":cursor.getString(5)));
+                return model;
+            }
+            cursor.close();
+            db.close();
+        } catch (Exception e) {
+            _Utils.printException(context, e);
+        }
+        return null;
+    }
 
     public List<Loan> getLoanList() {
         List<Loan> result = new ArrayList<Loan>();
@@ -64,14 +88,15 @@ public class DataContext {
             //获取数据库对象
             SQLiteDatabase db = dbHelper.getReadableDatabase();
             //查询获得游标
-            Cursor cursor = db.query("loan", null, null,null, null, null, "date asc");
+            Cursor cursor = db.query("loan", null, null,null, null, null, "date desc");
             //判断游标是否为空
             while (cursor.moveToNext()) {
                 Loan model = new Loan(UUID.fromString(cursor.getString(0)),
                         cursor.getString(1),
                         new DateTime(cursor.getLong(2)),
                         new BigDecimal(cursor.getString(3)),
-                        new BigDecimal(cursor.getString(4)));
+                        new BigDecimal(cursor.getString(4)),
+                        new BigDecimal(cursor.getString(5)==null?"0":cursor.getString(5)));
                 result.add(model);
             }
             cursor.close();
@@ -82,6 +107,27 @@ public class DataContext {
         return result;
     }
 
+
+    public void editLoan(Loan model) {
+
+        try {
+            //获取数据库对象
+            SQLiteDatabase db = dbHelper.getWritableDatabase();
+
+            //使用update方法更新表中的数据
+            ContentValues values = new ContentValues();
+            values.put("name", model.getName());
+            values.put("date", model.getDate().getTimeInMillis());
+            values.put("sum", model.getSum().toString());
+            values.put("rate", model.getRate().toString());
+            values.put("interest", model.getInterest().toString());
+            //调用方法插入数据
+            db.update("loan", values, "id=?", new String[]{model.getId().toString()});
+            db.close();
+        } catch (Exception e) {
+            _Utils.printException(context, e);
+        }
+    }
 
     public void deleteLoan(UUID id) {
         try {
@@ -96,6 +142,77 @@ public class DataContext {
     }
     //endregion
 
+    //region LoanRecord
+    public void addLoanRecord(LoanRecord model) {
+        try {
+            //获取数据库对象
+            SQLiteDatabase db = dbHelper.getWritableDatabase();
+            //使用insert方法向表中插入数据
+            ContentValues values = new ContentValues();
+            values.put("id", model.getId().toString());
+            values.put("date", model.getDate().getTimeInMillis());
+            values.put("sum", model.getSum().toString());
+            values.put("interest", model.getInterest().toString());
+            values.put("loanId", model.getLoanId().toString());
+
+            //调用方法插入数据
+            db.insert("loanRecord", "id", values);
+            //关闭SQLiteDatabase对象
+            db.close();
+        } catch (Exception e) {
+            _Utils.printException(context, e);
+        }
+    }
+
+
+    public List<LoanRecord> getLoanRecordList(UUID loanId) {
+        List<LoanRecord> result = new ArrayList<LoanRecord>();
+        try {
+            //获取数据库对象
+            SQLiteDatabase db = dbHelper.getReadableDatabase();
+            //查询获得游标
+            Cursor cursor = db.query("loanRecord", null, "loanId=?",new String[]{loanId.toString()}, null, null, "date desc");
+            //判断游标是否为空
+            while (cursor.moveToNext()) {
+                LoanRecord model = new LoanRecord(UUID.fromString(cursor.getString(0)),
+                        new DateTime(cursor.getLong(1)),
+                        new BigDecimal(cursor.getString(2)),
+                        new BigDecimal(cursor.getString(3)),
+                        UUID.fromString(cursor.getString(4)));
+                result.add(model);
+            }
+            cursor.close();
+            db.close();
+        } catch (Exception e) {
+            _Utils.printException(context, e);
+        }
+        return result;
+    }
+
+
+    public void deleteLoanRecord(UUID id) {
+        try {
+            //获取数据库对象
+            SQLiteDatabase db = dbHelper.getWritableDatabase();
+            db.delete("loanRecord", "id=?", new String[]{id.toString()});
+            //关闭SQLiteDatabase对象
+            db.close();
+        } catch (Exception e) {
+            _Utils.printException(context, e);
+        }
+    }
+    public void deleteLoanRecords(UUID loanId) {
+        try {
+            //获取数据库对象
+            SQLiteDatabase db = dbHelper.getWritableDatabase();
+            db.delete("loanRecord", "loanId=?", new String[]{loanId.toString()});
+            //关闭SQLiteDatabase对象
+            db.close();
+        } catch (Exception e) {
+            _Utils.printException(context, e);
+        }
+    }
+    //endregion
 
     //region BuddhaConfig
 

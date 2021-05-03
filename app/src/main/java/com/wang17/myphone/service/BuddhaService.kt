@@ -139,7 +139,7 @@ class BuddhaService : Service() {
             buddhaType = bf.type
             speed = bf.speed
             pitch = bf.pitch
-            if(bf.type==11)
+            if(bf.type==11||bf.type==10)
                 circleSecond = (bf.circleSecond / bf.speed).toInt()
             else
                 circleSecond = bf.circleSecond
@@ -169,7 +169,7 @@ class BuddhaService : Service() {
     var isTimerRuning = true
     var timer: Timer? = null
 
-    var a = 0L
+    var preTime = 0L
     fun startTimer() {
         timer?.cancel()
         timer = null
@@ -201,10 +201,10 @@ class BuddhaService : Service() {
                         stopSelf()
                     }
                 }
-                if(a>0&&System.currentTimeMillis()-a>2000){
-                    dc.addRunLog("BuddhaService","计时器超时","${(System.currentTimeMillis()-a)/1000}秒")
+                if(preTime>0&&System.currentTimeMillis()-preTime>10000){
+                    dc.addRunLog("BuddhaService","计时器超时","${(System.currentTimeMillis()-preTime)/1000}秒")
                 }
-                a=System.currentTimeMillis()
+                preTime=System.currentTimeMillis()
                 sendNotification(notificationCount, notificationTime)
             }
         }, 0, 1000)

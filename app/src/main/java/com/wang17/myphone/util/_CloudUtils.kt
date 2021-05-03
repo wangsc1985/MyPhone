@@ -530,7 +530,7 @@ object _CloudUtils {
     }
 
     @JvmStatic
-    fun addLocation(context: Context, pwd: String?, latitude: Double, longitude: Double, address: String?, callback: CloudCallback?) {
+    fun addLocation(context: Context, pwd: String,speed:Float, latitude: Double, longitude: Double, address: String?, callback: CloudCallback?) {
         Thread {
             // 获取accessToken
             try {
@@ -542,6 +542,7 @@ object _CloudUtils {
                 args.add(PostArgument("date", System.currentTimeMillis()))
                 args.add(PostArgument("latitude", latitude))
                 args.add(PostArgument("longitude", longitude))
+                args.add(PostArgument("speed", speed))
                 args.add(PostArgument("address", address))
                 postRequestByJson(url, args, HttpCallback { html ->
                     try {

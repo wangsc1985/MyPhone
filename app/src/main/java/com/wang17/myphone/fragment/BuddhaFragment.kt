@@ -244,16 +244,6 @@ class BuddhaFragment : Fragment() {
             }
         }
 
-//        val buddhaSpeed = dc.getSetting(Setting.KEYS.buddha_speed, 2).int
-//        when (buddhaSpeed) {
-//            1 -> {
-//                btn_speed.text = "慢"
-//            }
-//            2 -> {
-//                btn_speed.text = "快"
-//            }
-//        }
-
         loadBuddhaName()
 
         tv_time.setOnLongClickListener {
@@ -773,7 +763,7 @@ class BuddhaFragment : Fragment() {
             val file = _Session.getFile(setName.string)
             val bf = dc.getBuddhaConfig(setName.string, file.length())
             bf?.let {
-                if (bf.type == 11) {
+                if (bf.type == 11||bf.type==10) {
                     circleSecond = (bf.circleSecond / bf.speed).toInt()
                 } else {
                     circleSecond = bf.circleSecond

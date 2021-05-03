@@ -1,92 +1,59 @@
-package com.wang17.myphone.receiver;
+package com.wang17.myphone.receiver
 
-import android.content.BroadcastReceiver;
-import android.content.Context;
-import android.content.Intent;
-import android.util.Log;
+import android.content.BroadcastReceiver
+import android.content.Context
+import android.content.Intent
+import android.util.Log
+import com.amap.api.maps.AMapUtils
+import com.amap.api.maps.model.LatLng
+import com.wang17.myphone.database.DataContext
+import com.wang17.myphone.database.Setting
+import com.wang17.myphone.model.DateTime
+import com.wang17.myphone.util.AMapUtil
+import com.wang17.myphone.util._CloudUtils.addLocation
+import com.wang17.myphone.util._Session
+import com.wang17.myphone.widget.MyWidgetProvider
 
-import com.amap.api.services.route.DistanceItem;
-import com.amap.api.services.route.DistanceResult;
-import com.wang17.myphone.R;
-import com.wang17.myphone.callback.CloudCallback;
-import com.wang17.myphone.model.DateTime;
-import com.wang17.myphone.database.Location;
-import com.wang17.myphone.database.Setting;
-import com.wang17.myphone.util.AMapUtil;
-import com.wang17.myphone.database.DataContext;
-import com.wang17.myphone.util._Session;
-import com.wang17.myphone.util._CloudUtils;
-import com.wang17.myphone.util._SoundUtils;
-import com.wang17.myphone.util._Utils;
-import com.wang17.myphone.widget.MyWidgetProvider;
-
-import java.util.Calendar;
-import java.util.List;
-
-public class ScreenBroadcaseReceiver extends BroadcastReceiver {
-
-    private static long preDateTime;
-    private static final String _TAG = "wangsc";
-
-    private void e(Object msg){
-        Log.e("wangsc",msg.toString());
+class ScreenBroadcaseReceiver : BroadcastReceiver() {
+    private fun e(msg: Any) {
+        Log.e("wangsc", msg.toString())
     }
-    @Override
-    public void onReceive(final Context context, Intent intent) {
 
-        switch (intent.getAction()) {
-            case Intent.ACTION_USER_PRESENT:
-                try {
-                    long now = System.currentTimeMillis();
-                    if (now - preDateTime >= 60000) {
-                        try {
-                            /**
-                             * 记录location
-                             */
-                            //region 记录location
-                            final DataContext dataContext = new DataContext(context);
-                            final Location oldLocation = dataContext.getLatestLocatio(_Session.UUID_NULL);
-                            if (oldLocation != null) {
-                                long t1 = System.currentTimeMillis();
-                                AMapUtil.getCurrentLocation(context, "屏幕解锁", new AMapUtil.LocationCallBack() {
-                                    @Override
-                                    public void OnLocationedListener(final Location newLocation) {
-                                        long t2 = System.currentTimeMillis();
-                                        AMapUtil.getDistants(context, oldLocation, newLocation, new AMapUtil.DistanceSearchCallback() {
-                                            @Override
-                                            public void OnDistanceSearchListener(DistanceResult distanceResult) {
-                                                long t3 = System.currentTimeMillis();
-                                                List<DistanceItem> distanceItems = distanceResult.getDistanceResults();
-                                                float distance = 0;
-                                                for (DistanceItem item : distanceItems) {
-                                                    distance += item.getDistance();
-                                                }
-                                                DateTime oldDate = new DateTime(oldLocation.Time);
-                                                DateTime newDate = new DateTime(newLocation.Time);
-                                                Log.e("wangsc", "distance: " + distance + " , oldDay: " + oldDate.getDay() + " , newDay: " + newDate.getDay());
+    override fun onReceive(context: Context, intent: Intent) {
+        when (intent.action) {
+            Intent.ACTION_USER_PRESENT -> try {
+                val now = System.currentTimeMillis()
+                if (now - preDateTime >= 60000) {
+                    try {
+                        /**
+                         * 记录location
+                         */
+                        val dc = DataContext(context)
+                        val oldLocation = dc.getLatestLocatio(_Session.UUID_NULL)
+                        if (oldLocation != null) {
+                            val t1 = System.currentTimeMillis()
+                            AMapUtil.getCurrentLocation(context, "屏幕解锁") { newLocation ->
+                                val t2 = System.currentTimeMillis()
+                                val distance = AMapUtils.calculateLineDistance(LatLng(oldLocation.Latitude, oldLocation.Longitude), LatLng(newLocation.Latitude, newLocation.Longitude))
+                                val oldDate = DateTime(oldLocation.Time)
+                                val newDate = DateTime(newLocation.Time)
+                                Log.e("wangsc", "speed: ${newLocation.Speed} , distance: ${distance} , oldDay: ${oldDate.day} , newDay: ${newDate.day}")
+                                if (distance > 50 || oldDate.day != newDate.day) {
+                                    dc.addLocation(newLocation)
 
-    //                                        if (distance > 50 || oldDate.getDay() != newDate.getDay())
-                                                dataContext.addLocation(newLocation);
-
-                                                // 记录到云数据库
-                                                String pwd = dataContext.getSetting(Setting.KEYS.wx_request_code,"0000").getString();
-                                                long t4 = System.currentTimeMillis();
-                                                _CloudUtils.addLocation(context, pwd, newLocation.Latitude, newLocation.Longitude, newLocation.Address, new CloudCallback() {
-                                                    @Override
-                                                    public void excute(int code, Object result) {
-                                                        long t5 = System.currentTimeMillis();
-                                                    }
-                                                });
-                                            }
-                                        });
+                                    // 记录到云数据库
+                                    val pwd = dc.getSetting(Setting.KEYS.wx_request_code, "0088").string
+                                    val t4 = System.currentTimeMillis()
+                                    addLocation(context, pwd,newLocation.Speed, newLocation.Latitude, newLocation.Longitude, newLocation.Address) { code, result ->
+                                        val t5 = System.currentTimeMillis()
                                     }
-                                });
+                                }
                             }
-                            //endregion
-
-                            /**
-                             * 刷新小部件期股信息
-                             */
+                        }
+                        //endregion
+                        /**
+                         * 刷新小部件期股信息
+                         */
 //                            DateTime time = new DateTime();
 //                            // 9:00 - 11:30     13:30 - 15:00
 //                            DateTime time1 = new DateTime(9, 0);
@@ -124,35 +91,23 @@ public class ScreenBroadcaseReceiver extends BroadcastReceiver {
 //                                        && time.getTimeInMillis() < time3.getTimeInMillis()))
 //                                    return;
 //                            }
-
-                            context.sendBroadcast(new Intent(MyWidgetProvider.ACTION_CLICK_TEXT));
-
-
-
-                        }catch (Exception e){
-                            new DataContext(context).addRunLog("err","运行错误",e.getMessage());
-                        }
-                        finally {
-                            preDateTime = now;
-                        }
+                        context.sendBroadcast(Intent(MyWidgetProvider.ACTION_CLICK_TEXT))
+                    } catch (e: Exception) {
+                        DataContext(context).addRunLog("err", "运行错误", e.message)
+                    } finally {
+                        preDateTime = now
                     }
-                } catch (Exception e) {
-                    e.printStackTrace();
                 }
-
-                break;
-            case Intent.ACTION_SCREEN_ON:
-                Log.e(_TAG, "屏幕开启");
-                /**
-                 * 必须是动态注册才管用。
-                 */
-                break;
-            case Intent.ACTION_SCREEN_OFF:
-                Log.e(_TAG, "屏幕关闭");
-                /**
-                 * 必须是动态注册才管用。
-                 */
-                break;
+            } catch (e: Exception) {
+                e.printStackTrace()
+            }
+            Intent.ACTION_SCREEN_ON -> Log.e(_TAG, "屏幕开启")
+            Intent.ACTION_SCREEN_OFF -> Log.e(_TAG, "屏幕关闭")
         }
+    }
+
+    companion object {
+        private var preDateTime: Long = 0
+        private const val _TAG = "wangsc"
     }
 }
