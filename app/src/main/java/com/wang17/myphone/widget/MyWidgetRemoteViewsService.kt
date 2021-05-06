@@ -150,7 +150,7 @@ class MyWidgetRemoteViewsService : RemoteViewsService() {
                 }
 
                 //region 余额警戒
-                if (dc.getSetting(Setting.KEYS.账户超额提醒, true).boolean) {
+                if (dc.getSetting(Setting.KEYS.is账户超额提醒, true).boolean) {
                     var balanceStr = dc.getSetting(Setting.KEYS.balanceABC, 0).string.replace(",","")
                     var balanceLowABC = dc.getSetting(Setting.KEYS.balanceLowABC,100).int
                     var balanceLowICBC = dc.getSetting(Setting.KEYS.balanceLowICBC,50).int

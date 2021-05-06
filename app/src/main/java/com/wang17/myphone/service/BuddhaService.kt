@@ -86,7 +86,7 @@ class BuddhaService : Service() {
         try {
             dc = DataContext(applicationContext)
             dc.deleteRunLogByTag("BuddhaService")
-            targetTimeInMinute = dc.getSetting(Setting.KEYS.念佛自动结束时间,120).int
+            targetTimeInMinute = dc.getSetting(Setting.KEYS.念佛自动结束时间_分钟,120).int
 
             guSound = SoundPool(100, AudioManager.STREAM_MUSIC, 0)
             guSound.load(this, R.raw.yq, 1)
@@ -188,7 +188,7 @@ class BuddhaService : Service() {
                     EventBus.getDefault().post(EventBusMessage.getInstance(FromBuddhaServiceTimer(), duration.toString()))
                     tv_duration?.setText(notificationTime)
 
-                    if (prvCount < notificationCount && dc.getSetting(Setting.KEYS.念佛引罄间隔提醒, true).boolean) {
+                    if (prvCount < notificationCount && dc.getSetting(Setting.KEYS.is念佛引罄间隔提醒, true).boolean) {
                         dc.addRunLog("BuddhaService","引罄","${DateTime().toTimeString()}  ${notificationTime} prv count : ${prvCount} ; notification count : ${notificationCount}")
                         guSound.play(1, 1.0f, 1.0f, 0, 0, 1.0f)
                         prvCount = notificationCount
@@ -409,7 +409,7 @@ class BuddhaService : Service() {
 
     private fun sendNotification(count: Int, time: String) {
         _NotificationUtils.sendNotification(NOTIFICATION_ID, applicationContext, R.layout.notification_nf) { remoteViews ->
-            remoteViews.setTextViewText(R.id.tv_count, if (buddhaType == 11) count.toString() else "")
+            remoteViews.setTextViewText(R.id.tv_count, if (buddhaType >9) count.toString() else "")
             remoteViews.setTextViewText(R.id.tv_time, time)
             if (mPlayer?.isPlaying?:false) {
                 remoteViews.setImageViewResource(R.id.image_control, R.drawable.pause)

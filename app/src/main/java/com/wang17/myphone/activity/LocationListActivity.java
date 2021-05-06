@@ -311,7 +311,7 @@ public class LocationListActivity extends AppCompatActivity {
                     if (searchCircle == null) {
                         searchCircle = aMap.addCircle(new CircleOptions()
                                 .center(latLng)
-                                .radius(dataContext.getSetting(Setting.KEYS.地图搜索半径,200).getDouble())
+                                .radius(dataContext.getSetting(Setting.KEYS.地图搜索半径_米,200).getDouble())
                                 .fillColor(getResources().getColor(R.color.location_accuracy))
                                 .strokeWidth(0));
                     } else {
@@ -376,7 +376,7 @@ public class LocationListActivity extends AppCompatActivity {
     private void initData() {
         dataContext = new DataContext(this);
 
-        locationList = dataContext.getLocatiosByYear(_Session.UUID_NULL,dataContext.getSetting(Setting.KEYS.足迹展示年数,2019).getInt(), true);
+        locationList = dataContext.getLocatiosByYear(_Session.UUID_NULL,dataContext.getSetting(Setting.KEYS.足迹展示年份,2019).getInt(), true);
 
         initListData(locationList);
 

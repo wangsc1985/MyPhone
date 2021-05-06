@@ -61,14 +61,14 @@ public class Setting{
 
     public enum KEYS{
         buddha_float_window_x, buddha_float_window_y,buddha_float_window_width, buddha_float_window_size,
-         彩票, 念佛引罄间隔提醒, 账户超额提醒,
-        账户余额不足提醒, 念佛自动结束时间,
+         彩票, is念佛引罄间隔提醒, is账户超额提醒,
+        念佛自动结束时间_分钟,
         muyu_period,yq_period,
         balanceABC, balanceICBC,balanceLowABC,balanceLowICBC,
         buddha_duration,buddha_startime,buddha_stoptime, 念佛最佳音量,
         stock_reflush_time,interest,
         main_start_page_index,wisdom,
-        地图搜索半径,足迹展示年数,
+        地图搜索半径_米, 足迹展示年份,
 
         buddha_music_name,
 

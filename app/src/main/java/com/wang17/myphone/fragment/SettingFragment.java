@@ -1,21 +1,16 @@
 package com.wang17.myphone.fragment;
 
-import android.Manifest;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
-import android.content.pm.PackageManager;
-import android.database.Cursor;
 import android.graphics.Color;
 import android.media.AudioManager;
 import android.media.SoundPool;
-import android.net.Uri;
 import android.os.Bundle;
 import android.os.Handler;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
-import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.Fragment;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AlertDialog;
@@ -33,12 +28,9 @@ import android.widget.SeekBar;
 import android.widget.Spinner;
 import android.widget.TextView;
 
-import org.json.JSONObject;
-
 import com.wang17.myphone.R;
 import com.wang17.myphone.event.LocationGearEvent;
 import com.wang17.myphone.event.LocationIsAutomaticEvent;
-import com.wang17.myphone.model.DateTime;
 import com.wang17.myphone.database.Location;
 import com.wang17.myphone.database.Setting;
 import com.wang17.myphone.database.DataContext;
@@ -46,16 +38,11 @@ import com.wang17.myphone.util._Session;
 import com.wang17.myphone.util._Utils;
 
 import org.greenrobot.eventbus.EventBus;
-import org.json.JSONArray;
-import org.json.JSONException;
 
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Calendar;
 import java.util.Iterator;
 import java.util.List;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 /**
  * A simple {@link Fragment} subclass.
@@ -283,7 +270,7 @@ public class SettingFragment extends Fragment {
             }).show();
         } else {
             View v = View.inflate(getContext(), R.layout.inflate_editbox, null);
-            final EditText input = v.findViewById(R.id.editText_value);
+            final EditText input = v.findViewById(R.id.et_value);
             input.setText(setting.getString());
             new AlertDialog.Builder(getContext()).setTitle(setting.getName()).setView(v).setPositiveButton("修改", new DialogInterface.OnClickListener() {
                 @Override

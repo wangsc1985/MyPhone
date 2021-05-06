@@ -28,8 +28,8 @@ import com.wang17.myphone.database.DataContext
 import com.wang17.myphone.database.Setting
 import com.wang17.myphone.e
 import com.wang17.myphone.eventbus.EventBusMessage
-import com.wang17.myphone.eventbus.FromBuddhaServiceTimer
 import com.wang17.myphone.eventbus.FromMuyuServiceDestory
+import com.wang17.myphone.eventbus.FromMuyuServiceTimer
 import com.wang17.myphone.util._NotificationUtils
 import com.wang17.myphone.util._Utils
 import org.greenrobot.eventbus.EventBus
@@ -77,11 +77,13 @@ class MuyuService : Service() {
         super.onCreate()
         e("buddha service onCreate")
         try {
+            dc = DataContext(applicationContext)
+            circleSecond = (dc.getSetting(Setting.KEYS.muyu_period,666).int*1.080).toInt()
+
             guSound = SoundPool(100, AudioManager.STREAM_MUSIC, 0)
             guSound.load(this, R.raw.yq, 1)
             muyuSound = SoundPool(100, AudioManager.STREAM_MUSIC, 0)
             muyuSound.load(this, R.raw.muyu, 1)
-            dc = DataContext(applicationContext)
             val setting = dc.getSetting(Setting.KEYS.buddha_duration)
             setting?.let {
                 savedDuration = setting.long
@@ -149,9 +151,9 @@ class MuyuService : Service() {
                     val hour = miniteT / 60
                     notificationCount = (duration / 1000 / circleSecond).toInt()
                     notificationTime = "$hour:${if (minite < 10) "0" + minite else minite}:${if (second < 10) "0" + second else second}"
-                    EventBus.getDefault().post(EventBusMessage.getInstance(FromBuddhaServiceTimer(), duration.toString()))
+                    EventBus.getDefault().post(EventBusMessage.getInstance(FromMuyuServiceTimer(), duration.toString()))
                     tv_duration?.setText(notificationTime)
-                    if (prvCount < notificationCount && dc.getSetting(Setting.KEYS.念佛引罄间隔提醒, true).boolean) {
+                    if (prvCount < notificationCount && dc.getSetting(Setting.KEYS.is念佛引罄间隔提醒, true).boolean) {
                         guSound.play(1, 1.0f, 1.0f, 0, 0, 1.0f)
                         prvCount = notificationCount
                         if (notificationCount % 2 == 0) {
@@ -159,6 +161,11 @@ class MuyuService : Service() {
                             guSound.play(1, 1.0f, 1.0f, 0, 0, 1.0f)
                         }
                     }
+//                    val now = System.currentTimeMillis()
+//                    if(dc.getSetting(Setting.KEYS.is监控木鱼间隔有效性,true).boolean){
+//                        dc.addRunLog("木鱼","${now-prvTimeInMillin}","")
+//                    }
+//                    prvTimeInMillin = now
                 }
                 sendNotification(notificationCount, notificationTime)
             }
@@ -331,7 +338,7 @@ class MuyuService : Service() {
 
     private fun sendNotification(count: Int, time: String) {
         _NotificationUtils.sendNotification(NOTIFICATION_ID, applicationContext, R.layout.notification_nf) { remoteViews ->
-            remoteViews.setTextViewText(R.id.tv_count, if (buddhaType == 11) count.toString() else "")
+            remoteViews.setTextViewText(R.id.tv_count, if (buddhaType > 9 ) count.toString() else "")
             remoteViews.setTextViewText(R.id.tv_time, time)
             if (timerRuning) {
                 remoteViews.setImageViewResource(R.id.image_control, R.drawable.pause)

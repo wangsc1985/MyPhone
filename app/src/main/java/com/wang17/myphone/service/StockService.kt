@@ -103,12 +103,15 @@ class StockService : Service() {
             positions = mDataContext.positions
 //            positions = getPositionsFromCloud()
             preTime = System.currentTimeMillis()
-            if (positions.size > 0)
-                startMediaPlay()
 
             //region 悬浮窗
             showFloatingWindow()
             //endregion
+
+            if (positions.size > 0) {
+                fillStockInfoList()
+                startMediaPlay()
+            }
         } catch (e: Exception) {
             _Utils.printException(applicationContext, e)
         }

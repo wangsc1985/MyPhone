@@ -8,6 +8,7 @@ import android.os.Bundle
 import android.os.Handler
 import android.os.PowerManager
 import android.support.v4.app.Fragment
+import android.text.InputType
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -150,7 +151,8 @@ class BuddhaFragment : Fragment() {
         }
     }
 
-    var circleSecond: Int = 600
+    var circleSecond = 600
+    var muyuCircleSecond = 600
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         buddhaIntent = Intent(context, BuddhaService::class.java)
         abtn_stockAnimator = AnimatorSuofangView(fab_stock)
@@ -159,6 +161,7 @@ class BuddhaFragment : Fragment() {
 
         dc = DataContext(context)
         circleSecond = getCurrentCircleSecond()
+        muyuCircleSecond = (dc.getSetting(Setting.KEYS.muyu_period, 666).int * 1.080).toInt()
 
         val setting = dc.getSetting(Setting.KEYS.buddha_duration)
         setting?.let {
@@ -173,18 +176,18 @@ class BuddhaFragment : Fragment() {
 
         iv_volume_add.setOnClickListener {
             try {
-                EventBus.getDefault().post(EventBusMessage.getInstance(FromBuddhaVolumeAdd(),""))
+                EventBus.getDefault().post(EventBusMessage.getInstance(FromBuddhaVolumeAdd(), ""))
                 _Utils.zhendong70(context!!)
-            }catch (e:Exception){
+            } catch (e: Exception) {
 
             }
         }
 
         iv_volume_minus.setOnClickListener {
             try {
-                EventBus.getDefault().post(EventBusMessage.getInstance(FromBuddhaVolumeMinus(),""))
+                EventBus.getDefault().post(EventBusMessage.getInstance(FromBuddhaVolumeMinus(), ""))
                 _Utils.zhendong70(context!!)
-            }catch (e:Exception){
+            } catch (e: Exception) {
 
             }
         }
@@ -248,7 +251,7 @@ class BuddhaFragment : Fragment() {
 
         tv_time.setOnLongClickListener {
 
-            if (_Utils.isServiceRunning(context!!, BuddhaService::class.qualifiedName!!)) {
+            if (_Utils.isServiceRunning(context!!, BuddhaService::class.qualifiedName!!)||_Utils.isServiceRunning(context!!, MuyuService::class.qualifiedName!!)) {
                 AlertDialog.Builder(context).setMessage("现在对齐时间线？").setPositiveButton("确定") { dialogInterface: DialogInterface, i: Int ->
                     EventBus.getDefault().post(EventBusMessage.getInstance(ResetTimeEvent(), ""))
                 }.show()
@@ -258,12 +261,13 @@ class BuddhaFragment : Fragment() {
                     var duration = setting.long
                     val tap = duration / 1000 / circleSecond
 
-                    if (buddhaType() != 11) {
+                    val buddhaType = buddhaType()
+                    if (buddhaType < 10) {
                         duration = (duration / 60000) * 60000
                     }
                     if (duration > 0) {
                         AlertDialog.Builder(context).setMessage("缓存中存在念佛记录，是否存档？").setPositiveButton("存档") { dialog, which ->
-                            buildBuddhaAndSave(tap.toInt()*1080, duration, dc.getSetting(Setting.KEYS.buddha_stoptime, System.currentTimeMillis()).long, buddhaType()) { code, result ->
+                            buildBuddhaAndSave(tap.toInt() * 1080, duration, dc.getSetting(Setting.KEYS.buddha_stoptime, System.currentTimeMillis()).long, buddhaType) { code, result ->
                                 if (code == 0) {
                                     dc.deleteSetting(Setting.KEYS.buddha_duration)
                                     dc.deleteSetting(Setting.KEYS.buddha_stoptime)
@@ -293,7 +297,6 @@ class BuddhaFragment : Fragment() {
             true
         }
 
-        var wakeLock: PowerManager.WakeLock? = null
         tv_buddha_name.setOnLongClickListener {
             updateConfig()
             true
@@ -466,8 +469,6 @@ class BuddhaFragment : Fragment() {
         }
 
         fab_muyu.setOnClickListener {
-
-
             if (_Utils.isServiceRunning(context!!, MuyuService::class.qualifiedName!!)) {
                 context?.stopService(Intent(context!!, MuyuService::class.java))
                 stopAnimatorSuofang(fab_muyu_animator)
@@ -477,37 +478,49 @@ class BuddhaFragment : Fragment() {
             }
         }
         fab_muyu.setOnLongClickListener {
-            if (!_Utils.isServiceRunning(context!!, BuddhaService::class.qualifiedName!!)) {
-                wakeLock = _Utils.acquireWakeLock(context!!, PowerManager.SCREEN_BRIGHT_WAKE_LOCK)
-                var msg = """
-                愿将这些功德：
-                
-                    回向给我今生今世及累生累世冤亲债主、历代宗亲、六亲眷属、一切护法，及一切有缘众生。
-                    
-                    回向给我父、母、兄、妹，以及他们的冤亲债主。
-                    
-                    回向给法界一切众生，愿所有众生，业障消除，善根增长，脱轮回苦，生极乐国。
-                    
-                    愿我念佛不断，精进不退，早得三昧，速证菩提。
-                    
-                    天罗神，地罗神，人离难，难离身，一切灾殃化为尘。
-                    
-                    愿我身心健康，无病无灾。财富丰足，无忧无虑。家庭和睦，无烦无恼。所有恶习，尽除无余。所有冤孽，勿近我身。
-                    
-                    往昔所造诸恶业，皆由无始贪嗔痴。
-                    从身语意之所生，一切我今皆忏悔。
-                    
-                    愿我临遇命终时，尽除一切诸障碍。
-                    面见彼佛阿弥陀，既得往生安乐刹。
-                    
-                    弟子惟照，现是生死凡夫，罪障深重，轮回六道，苦不可言。
-                    今遇知识，得闻弥陀名号，本愿功德，一心称念，求愿往生。
-                    愿佛慈悲不舍，哀怜摄受。
-            """.trimIndent()
-                AlertDialog.Builder(context).setMessage(msg).setCancelable(false).setPositiveButton("圆满") { dialog, which ->
-                    _Utils.releaseWakeLock(context!!, wakeLock)
-                }.show()
-            }
+            val view = View.inflate(context!!, R.layout.inflate_editbox, null)
+            val et = view.findViewById<EditText>(R.id.et_value)
+            et.inputType = InputType.TYPE_CLASS_NUMBER
+            et.setText(dc.getSetting(Setting.KEYS.muyu_period, 666).string)
+            AlertDialog.Builder(context!!).setView(view).setTitle("设置木鱼间隔时间").setPositiveButton("确定") { dialogInterface: DialogInterface, i: Int ->
+                dc.editSetting(Setting.KEYS.muyu_period, et.text.toString())
+                muyuCircleSecond = (dc.getSetting(Setting.KEYS.muyu_period, 666).int * 1.08).toInt()
+                if (_Utils.isServiceRunning(context!!, MuyuService::class.qualifiedName!!)) {
+                    isFromConfigChanged=true
+                    context!!.stopService(Intent(context!!, MuyuService::class.java))
+                    context!!.startService(Intent(context!!, MuyuService::class.java))
+                }
+            }.show()
+
+//            if (!_Utils.isServiceRunning(context!!, BuddhaService::class.qualifiedName!!)) {
+//                wakeLock = _Utils.acquireWakeLock(context!!, PowerManager.SCREEN_BRIGHT_WAKE_LOCK)
+//                var msg = """
+//                愿将这些功德：
+//
+//                    回向给我今生今世及累生累世冤亲债主、历代宗亲、六亲眷属、一切护法，及一切有缘众生。
+//
+//                    回向给我父、母、子、女、兄、妹，以及他们的冤亲债主。
+//
+//                    回向给法界一切众生，愿所有众生，业障消除，善根增长，脱轮回苦，生极乐国。
+//
+//                    愿我念佛不断，精进不退，早得三昧，速证菩提。
+//
+//                    愿我身心健康，无病无灾。财富丰足，无忧无虑。家庭和睦，无烦无恼。所有恶习，尽除无余。所有冤孽，勿近我身。
+//
+//                    往昔所造诸恶业，皆由无始贪嗔痴。
+//                    从身语意之所生，一切我今皆忏悔。
+//
+//                    愿我临遇命终时，尽除一切诸障碍。
+//                    面见彼佛阿弥陀，既得往生安乐刹。
+//
+//                    弟子惟照，现是生死凡夫，罪障深重，轮回六道，苦不可言。
+//                    今遇知识，得闻弥陀名号，本愿功德，一心称念，求愿往生。
+//                    愿佛慈悲不舍，哀怜摄受。
+//            """.trimIndent()
+//                AlertDialog.Builder(context).setMessage(msg).setCancelable(false).setPositiveButton("圆满") { dialog, which ->
+//                    _Utils.releaseWakeLock(context!!, wakeLock)
+//                }.show()
+//            }
 
             true
         }
@@ -528,7 +541,7 @@ class BuddhaFragment : Fragment() {
     private fun loadBuddhaName() {
         val musicName = dc.getSetting(Setting.KEYS.buddha_music_name, "阿弥陀佛.mp3")
         val bf = getBuddhaConfig()
-        if (bf.type == 11||bf.type==10) {
+        if (bf.type == 11 || bf.type == 10) {
             circleSecond = (bf.circleSecond / bf.speed).toInt()
         } else {
             circleSecond = bf.circleSecond
@@ -662,7 +675,7 @@ class BuddhaFragment : Fragment() {
                     1 -> {
                         spType.setSelection(1)
                     }
-                    10->{
+                    10 -> {
                         spType.setSelection(2)
                     }
                     11 -> {
@@ -703,26 +716,6 @@ class BuddhaFragment : Fragment() {
                     EventBus.getDefault().post(EventBusMessage.getInstance(FromBuddhaConfigUpdate(), ""))
                 }
                 etDuration.setText(bf.circleSecond.toString())
-//                etPitch.setOnEditorActionListener { v, actionId, event ->
-//                    if (actionId == EditorInfo.IME_ACTION_DONE) {
-//                        bf.pitch = etPitch.text.toString().toFloat()
-//                        dc.editBuddhaFile(bf)
-//                        isChangeConfig = true
-//                        context?.stopService(buddhaIntent)
-//                        context?.startService(buddhaIntent)
-//                    }
-//                    true
-//                }
-//                etSpeed.setOnEditorActionListener { v, actionId, event ->
-//                    if (actionId == EditorInfo.IME_ACTION_DONE) {
-//                        bf.speed = etSpeed.text.toString().toFloat()
-//                        dc.editBuddhaFile(bf)
-//                        isChangeConfig = true
-//                        context?.stopService(buddhaIntent)
-//                        context?.startService(buddhaIntent)
-//                    }
-//                    true
-//                }
 
                 val dialog = AlertDialog.Builder(context).setTitle(set.string).setView(view).show()
                 btnUpdate.setOnClickListener {
@@ -763,7 +756,7 @@ class BuddhaFragment : Fragment() {
             val file = _Session.getFile(setName.string)
             val bf = dc.getBuddhaConfig(setName.string, file.length())
             bf?.let {
-                if (bf.type == 11||bf.type==10) {
+                if (bf.type == 11 || bf.type == 10) {
                     circleSecond = (bf.circleSecond / bf.speed).toInt()
                 } else {
                     circleSecond = bf.circleSecond
@@ -793,13 +786,8 @@ class BuddhaFragment : Fragment() {
         val startTime = DateTime(stopTimeInMillis - duration)
 
         var buddha: BuddhaRecord? = null
-//        var buddha_name = dc.getSetting(Setting.KEYS.buddha_music_name).string
-//        var index = buddha_name.indexOf(".")
-//        if(index>0){
-//            buddha_name = buddha_name.substring(0,index)
-//        }
         when (buddhaType) {
-            10->{
+            10 -> {
                 buddha = BuddhaRecord(startTime, duration, count, 10, "")
             }
             11 -> {
@@ -827,118 +815,6 @@ class BuddhaFragment : Fragment() {
             }
         }
     }
-
-/*    private fun buildBuddhaListAndSave(tap: Int, tapCount: Int, stoptimeInMillis: Long, tapDuration: Long, callback: CloudCallback) {
-        e("build buddha list and save")
-
-        val durationSet = dc.getSetting(Setting.KEYS.buddha_duration)
-        var buddhaType = 11
-        if (durationSet != null) {
-            val set = dc.getSetting(Setting.KEYS.buddha_music_name)
-            set?.let {
-                val file = _Session.getFile(set.string)
-                if (file.exists()) {
-                    val bf = dc.getBuddhaFile(set.string, file.length())
-                    buddhaType = bf.type
-                }
-            }
-        }
-        var buddhaList: MutableList<BuddhaRecord> = ArrayList()
-        var startTime: DateTime? = null
-        var buddha: BuddhaRecord? = null
-        for (index in tap downTo 1) {
-            if (startTime == null || buddha == null) {
-                startTime = DateTime(stoptimeInMillis)
-                startTime.add(Calendar.MILLISECOND, (-1 * tapDuration * index).toInt())
-                when (buddhaType) {
-                    11 -> {
-                        buddha = BuddhaRecord(startTime, tapDuration, tapCount, 11, "计时计数念佛")
-                    }
-                    1 -> {
-                        buddha = BuddhaRecord(startTime, tapDuration, 0, 1, "计时念佛")
-                    }
-                    0 -> {
-                        buddha = BuddhaRecord(startTime, tapDuration, 0, 0, "耳听念佛")
-                    }
-                }
-            } else {
-                var startTime = DateTime(stoptimeInMillis)
-                startTime.add(Calendar.MILLISECOND, (-1 * tapDuration * index).toInt())
-                if (startTime.get(Calendar.DAY_OF_YEAR) == startTime.get(Calendar.DAY_OF_YEAR) && startTime.hour == startTime.hour) {
-                    buddha.duration += tapDuration
-                    if (buddhaType == 11) {
-                        buddha.count += tapCount
-                    }
-                } else {
-                    buddhaList.add(buddha)
-                    when (buddhaType) {
-                        11 -> {
-                            buddha = BuddhaRecord(startTime, tapDuration, tapCount, 11, "计时计数念佛")
-                        }
-                        1 -> {
-                            buddha = BuddhaRecord(startTime, tapDuration, 0, 1, "计时念佛")
-                        }
-                        0 -> {
-                            buddha = BuddhaRecord(startTime, tapDuration, 0, 0, "耳听念佛")
-                        }
-                    }
-                    startTime = DateTime(startTime.timeInMillis)
-                }
-            }
-        }
-        buddha?.let {
-            buddhaList.add(it)
-        }
-
-
-        _CloudUtils.addBuddhaList(context!!, buddhaList) { code, result ->
-            when (code) {
-                0 -> {
-                    dc.addBuddhas(buddhaList)
-                }
-                else -> {
-                    e("code : $code , result : $result")
-                }
-            }
-            callback.excute(code, result)
-        }
-    }*/
-
-/*    private fun createBuddhas2upload2save(tap: Int, stoptimeInMillis: Long, avgDuration: Long, callback: CloudCallback) {
-        var newBuddhaList: MutableList<BuddhaRecord> = ArrayList()
-        var lastBuddha: BuddhaRecord? = dc.latestBuddha
-        if (tap == 0) {
-            val startTime = DateTime(stoptimeInMillis)
-            startTime.add(Calendar.MILLISECOND, (-1 * avgDuration).toInt())
-            newBuddhaList.add(BuddhaRecord(startTime, avgDuration, 0, 11, "计时计数念佛"))
-        } else {
-            for (i in tap downTo 1) {
-                val startTime = DateTime(stoptimeInMillis)
-                startTime.add(Calendar.MILLISECOND, (-1 * avgDuration * i).toInt())
-                e("start time : ${startTime.toLongDateTimeString()}")
-                newBuddhaList.add(BuddhaRecord(startTime, avgDuration, 1, 11, "计时计数念佛"))
-            }
-        }
-
-        // 整合
-        BuddhaUtils.integrate(lastBuddha, newBuddhaList)
-
-        _CloudUtils.addIntegrateBuddhas(context!!, lastBuddha, newBuddhaList) { code, result ->
-            when (code) {
-                0 -> {
-                    lastBuddha?.let {
-                        dc.editBuddha(lastBuddha)
-                    }
-                    dc.addBuddhas(newBuddhaList)
-                    callback.excute(code, result)
-                }
-                else -> {
-                    e("code : $code , result : $result")
-                    callback.excute(code, result)
-                }
-            }
-        }
-    }*/
 
     lateinit var buddhaIntent: Intent
     private fun startOrStopBuddha() {
@@ -977,7 +853,7 @@ class BuddhaFragment : Fragment() {
         val setDuration = dc.getSetting(Setting.KEYS.buddha_duration)
         var buddhaType = buddhaType()
         if (source == BuddhaSource.木鱼服务结束) {
-            buddhaType = 1
+            buddhaType = 11
         }
         if (setDuration != null) {
             var duration = setDuration.long
@@ -993,7 +869,7 @@ class BuddhaFragment : Fragment() {
             val msg = "${hourS}:${miniteS}:${secondS} \t ${DateTime(stoptimeInMillis).toLongDateString3()}"
 
             uiHandler.post {
-                if (buddhaType != 11) {
+                if (buddhaType < 10) {
                     duration = (duration / 60000) * 60000
                 }
                 if (duration > 60000) {
@@ -1084,8 +960,22 @@ class BuddhaFragment : Fragment() {
                 var time = "$hour:${if (minite < 10) "0" + minite else minite}:${if (second < 10) "0" + second else second}"
                 tv_time.text = "$time  ${count}"
             }
+            is FromMuyuServiceTimer -> {
+                val duration = bus.msg.toLong()
+                val second = duration % 60000 / 1000
+                val miniteT = duration / 1000 / 60
+                val minite = miniteT % 60
+                val hour = miniteT / 60
+                var count = (duration / 1000 / muyuCircleSecond).toInt()
+                var time = "$hour:${if (minite < 10) "0" + minite else minite}:${if (second < 10) "0" + second else second}"
+                tv_time.text = "$time  ${count}"
+            }
             is FromMuyuServiceDestory -> {
-                checkDuration(BuddhaSource.木鱼服务结束, null)
+                if (isFromConfigChanged) {
+                    isFromConfigChanged = false
+                } else {
+                    checkDuration(BuddhaSource.木鱼服务结束, null)
+                }
             }
         }
     }

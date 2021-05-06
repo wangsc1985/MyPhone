@@ -84,7 +84,9 @@ class MyClass {
         @JvmStatic
         fun main(args: Array<String>) {
 
-            getStockHistory("002673")
+            println((666*1.08).toInt())
+
+
 //            val date1 = DateTime(2020,1,23,7,2,5)
 //            val date2 = DateTime(2020,1,24,15,2,5)
 //            println(date1.date.timeInMillis)
