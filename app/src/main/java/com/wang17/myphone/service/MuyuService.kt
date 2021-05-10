@@ -337,7 +337,7 @@ class MuyuService : Service() {
     }
 
     private fun sendNotification(count: Int, time: String) {
-        _NotificationUtils.sendNotification(NOTIFICATION_ID, applicationContext, R.layout.notification_nf) { remoteViews ->
+        _NotificationUtils.sendNotification(NOTIFICATION_ID, applicationContext, R.layout.notification_nf,_NotificationUtils.CHANNEL_BUDDHA) { remoteViews ->
             remoteViews.setTextViewText(R.id.tv_count, if (buddhaType > 9 ) count.toString() else "")
             remoteViews.setTextViewText(R.id.tv_time, time)
             if (timerRuning) {

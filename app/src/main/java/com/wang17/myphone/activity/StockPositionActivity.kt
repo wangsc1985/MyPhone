@@ -24,16 +24,13 @@ import com.wang17.myphone.util.TradeUtils.commission
 import com.wang17.myphone.util.TradeUtils.tax
 import com.wang17.myphone.util.TradeUtils.transferFee
 import com.wang17.myphone.util._LogUtils.log2file
-import kotlinx.android.synthetic.main.activity_attention_stock.*
+import kotlinx.android.synthetic.main.activity_position_stock.*
 import okhttp3.Request
 import okhttp3.Response
 import java.text.DecimalFormat
 import java.util.*
 
-/**
- * An example full-screen activity that shows and hides the system UI (i.e.
- * status bar and navigation/system bar) with user interaction.
- */
+
 class StockPositionActivity : AppCompatActivity() {
     private lateinit var adapter: StockListdAdapter
     private lateinit var mDataContext: DataContext
@@ -45,15 +42,15 @@ class StockPositionActivity : AppCompatActivity() {
     private lateinit var mSoundPool: SoundPool
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setContentView(R.layout.activity_attention_stock)
+        setContentView(R.layout.activity_position_stock)
         infoList = ArrayList()
         mDataContext = DataContext(this)
         positions = mDataContext.getPositions(0)
         adapter = StockListdAdapter()
-        listView_stocks.setAdapter(adapter)
-        actionButton_home.setOnClickListener(View.OnClickListener { finish() })
-        actionButton_home.setOnLongClickListener(OnLongClickListener {
-            startActivity(Intent(this@StockPositionActivity, StockPositionHistoryActivity::class.java))
+        lv_stocks.setAdapter(adapter)
+        fab_home.setOnClickListener(View.OnClickListener { finish() })
+        fab_home.setOnLongClickListener(OnLongClickListener {
+            startActivity(Intent(this@StockPositionActivity, FundMonitorActivity::class.java))
             true
         })
         /**
@@ -117,7 +114,7 @@ class StockPositionActivity : AppCompatActivity() {
         info.exchange = "sh"
         fillStockInfo(info, object : OnLoadFinishedListener {
             override fun onLoadFinished() {
-                textView_time.text = info.time
+                tv_msg.text = info.time
                 textViewSzzsPrice.text = DecimalFormat("0.00").format(info.price)
                 textViewSzzsIncrease.text = DecimalFormat("0.00%").format(info.increase)
                 if (info.increase >= 0.toBigDecimal()) {
@@ -372,7 +369,7 @@ class StockPositionActivity : AppCompatActivity() {
                         textView_totalProfit.setTextColor(Color.GREEN)
                     }
                     if (mTime != preTime) {
-                        _AnimationUtils.heartBeat(actionButton_home)
+                        _AnimationUtils.heartBeat(fab_home)
                         preTime = mTime
                     }
                 })

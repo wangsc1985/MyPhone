@@ -54,7 +54,7 @@
                 android:text="2016年3月27"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:id="@+id/textView_time"
+                android:id="@+id/tv_msg"
                 android:layout_marginTop="5dp"
                 android:layout_alignParentBottom="true"
                 android:layout_gravity="center_horizontal"

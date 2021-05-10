@@ -41,6 +41,23 @@ import java.util.*
  * Created by 阿弥陀佛 on 2016/10/18.
  */
 object _Utils {
+    var AirplaneModePref1 = "settings put global airplane_mode_on "
+    var AirplaneModePref2 = "am broadcast -a android.intent.action.AIRPLANE_MODE --ez state "
+
+    fun setAirPlane(isAirPlaneModeOpen: Boolean) {
+        val cmdPref1 = AirplaneModePref1 + isAirPlaneModeOpen
+        //打开飞行模式
+        if (isAirPlaneModeOpen) {
+            val cmdPref2 = AirplaneModePref2 + "true"
+            Runtime.getRuntime().exec(cmdPref1)
+            Runtime.getRuntime().exec(cmdPref2)
+        } else {
+            //关闭飞行模式
+            val cmdPref2 = AirplaneModePref2 + "false"
+            Runtime.getRuntime().exec(cmdPref1)
+            Runtime.getRuntime().exec(cmdPref2)
+        }
+    }
 
     /**
      * 隐藏虚拟按键，并且全屏
@@ -540,7 +557,7 @@ object _Utils {
         vibrator.vibrate(70)
     }
 
-    fun zhendong(context: Context,milliseconds:Long) {
+    fun zhendong(context: Context, milliseconds: Long) {
         val vibrator = context.getSystemService(Context.VIBRATOR_SERVICE) as Vibrator
         vibrator.vibrate(milliseconds)
     }
@@ -551,18 +568,18 @@ object _Utils {
         vibrator.vibrate(500)
     }
 
-    fun zhendong2(context: Context,milliseconds:Long) {
+    fun zhendong2(context: Context, milliseconds: Long) {
         val vibrator = context.getSystemService(Context.VIBRATOR_SERVICE) as Vibrator
         val patter = longArrayOf(milliseconds, milliseconds, milliseconds, milliseconds) // 数组的a[0]表示静止的时间，a[1]代表的是震动的时间，然后数组的a[2]表示静止的时间，a[3]代表的是震动的时间……依次类推下去
         vibrator.vibrate(patter, -1) // 第二个参数是循环的位置，-1是不循环。
     }
-    fun zhendong3(context: Context,milliseconds:Long) {
+    fun zhendong3(context: Context, milliseconds: Long) {
         val vibrator = context.getSystemService(Context.VIBRATOR_SERVICE) as Vibrator
         val patter = longArrayOf(milliseconds, milliseconds, milliseconds, milliseconds, milliseconds, milliseconds) // 数组的a[0]表示静止的时间，a[1]代表的是震动的时间，然后数组的a[2]表示静止的时间，a[3]代表的是震动的时间……依次类推下去
         vibrator.vibrate(patter, -1) // 第二个参数是循环的位置，-1是不循环。
     }
 
-    fun zhendong5(context: Context,milliseconds:Long) {
+    fun zhendong5(context: Context, milliseconds: Long) {
         val vibrator = context.getSystemService(Context.VIBRATOR_SERVICE) as Vibrator
         val patter = longArrayOf(milliseconds, milliseconds, milliseconds, milliseconds, milliseconds, milliseconds, milliseconds, milliseconds, milliseconds, milliseconds, milliseconds) // 数组的a[0]表示静止的时间，a[1]代表的是震动的时间，然后数组的a[2]表示静止的时间，a[3]代表的是震动的时间……依次类推下去
         vibrator.vibrate(patter, -1) // 第二个参数是循环的位置，-1是不循环。

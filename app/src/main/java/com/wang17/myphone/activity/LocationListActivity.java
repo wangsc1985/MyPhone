@@ -512,7 +512,7 @@ public class LocationListActivity extends AppCompatActivity {
                 TextView textViewSpeed = convertView.findViewById(R.id.textView_speed);
                 TextView textViewAccuracy = convertView.findViewById(R.id.textView_accuracy);
                 TextView textViewAddress = convertView.findViewById(R.id.textView_address);
-                TextView textViewTime = convertView.findViewById(R.id.textView_time);
+                TextView textViewTime = convertView.findViewById(R.id.tv_msg);
                 TextView textViewSummary = convertView.findViewById(R.id.textView_summary);
                 final Location location = childListList.get(groupPosition).get(childPosition);
 

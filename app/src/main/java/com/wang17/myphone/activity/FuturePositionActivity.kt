@@ -22,7 +22,7 @@ import com.wang17.myphone.database.Position
 import com.wang17.myphone.database.Setting
 import com.wang17.myphone.util.*
 import com.wang17.myphone.util._LogUtils.log2file
-import kotlinx.android.synthetic.main.activity_attention_future.*
+import kotlinx.android.synthetic.main.activity_position_future.*
 import okhttp3.Request
 import okhttp3.Response
 import java.math.BigDecimal
@@ -40,19 +40,19 @@ class FuturePositionActivity : AppCompatActivity() {
     private lateinit var mSoundPool: SoundPool
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setContentView(R.layout.activity_attention_future)
+        setContentView(R.layout.activity_position_future)
         infoList = ArrayList()
         mDataContext = DataContext(this)
         positions = mDataContext!!.getPositions(1)
         Log.e("wangsc", " stock size: " + positions.size)
         adapter = StockListdAdapter()
-        listView_stocks.setAdapter(adapter)
-        listView_stocks.setOnItemLongClickListener(OnItemLongClickListener { parent, view, position, id ->
+        lv_stocks.setAdapter(adapter)
+        lv_stocks.setOnItemLongClickListener(OnItemLongClickListener { parent, view, position, id ->
             eidtStockDialog(positions.get(position))
             true
         })
-        actionButton_home.setOnClickListener(View.OnClickListener { finish() })
-        actionButton_home.setOnLongClickListener(OnLongClickListener {
+        fab_home.setOnClickListener(View.OnClickListener { finish() })
+        fab_home.setOnLongClickListener(OnLongClickListener {
             addStockDialog()
             true
         })
@@ -395,7 +395,7 @@ class FuturePositionActivity : AppCompatActivity() {
                                 } else {
                                     info1.viewHolder!!.textViewProfit!!.setTextColor(Color.GREEN)
                                 }
-                                textView_time!!.text = info1.time!!.substring(0, 2) + ":" + info1.time!!.substring(2, 4) + ":" + info1.time!!.substring(4, 6)
+                                tv_msg!!.text = info1.time!!.substring(0, 2) + ":" + info1.time!!.substring(2, 4) + ":" + info1.time!!.substring(4, 6)
                             }
                         } catch (e: Exception) {
                             return@Runnable
@@ -442,7 +442,7 @@ class FuturePositionActivity : AppCompatActivity() {
                         textView_totalProfit!!.setTextColor(Color.GREEN)
                     }
                     if (null != mTime && mTime != preTime) {
-                        _AnimationUtils.heartBeat(actionButton_home)
+                        _AnimationUtils.heartBeat(fab_home)
                         preTime = mTime
                     }
                 })

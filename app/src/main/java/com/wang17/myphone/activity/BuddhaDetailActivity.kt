@@ -14,6 +14,7 @@ import com.wang17.myphone.model.DateTime
 import com.wang17.myphone.model.DateTime.Companion.toSpanString
 import com.wang17.myphone.database.BuddhaRecord
 import com.wang17.myphone.database.DataContext
+import com.wang17.myphone.format
 import com.wang17.myphone.util._CloudUtils
 import com.wang17.myphone.util._Utils.printException
 import kotlinx.android.synthetic.main.activity_buddha_detail.*
@@ -174,7 +175,7 @@ class BuddhaDetailActivity : AppCompatActivity(), OnActionFragmentBackListener {
 
                 }
 //                val tap = buddha.count/1080
-                tv_number.text = if (buddha.count > 0) DecimalFormat("#,##0").format(buddha.count) else ""
+                tv_number.text = if (buddha.count > 0) (buddha.count.toDouble()/1000).format(2)+" 千" else ""
             } catch (e: Exception) {
                 printException(this@BuddhaDetailActivity, e)
             }

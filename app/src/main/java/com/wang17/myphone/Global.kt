@@ -3,11 +3,63 @@ package com.wang17.myphone
 import android.text.TextUtils
 import android.util.Log
 import java.math.BigDecimal
+import java.text.DecimalFormat
 import java.text.SimpleDateFormat
 import java.util.*
 
 fun e(data: Any) {
     Log.e("wangsc", data.toString())
+}
+fun Double.format(precision:Int):String{
+    e(this)
+    when(precision){
+        0->{
+            val format = DecimalFormat("0")
+            return format.format(this)
+        }
+        1->{
+            val format = DecimalFormat("0.0")
+            return format.format(this)
+        }
+        2->{
+            val format = DecimalFormat("0.00")
+            return format.format(this)
+        }
+        else->{
+            val format = DecimalFormat("0")
+            return format.format(this)
+        }
+    }
+}
+
+fun Double.formatCNY(precision:Int):String{
+    when(precision){
+        0->{
+            val format = DecimalFormat("#,##0")
+            return format.format(this)
+        }
+        1->{
+            val format = DecimalFormat("#,##0.0")
+            return format.format(this)
+        }
+        2->{
+            val format = DecimalFormat("#,##0.00")
+            return format.format(this)
+        }
+        else->{
+            val format = DecimalFormat("#,##0")
+            return format.format(this)
+        }
+    }
+}
+fun Float.formatCNY(precision:Int):String{
+    return this.toDouble().formatCNY(precision)
+}
+fun Float.format(precision:Int):String{
+    return this.toDouble().format(precision)
+}
+fun Int.formatCNY():String{
+    return this.toDouble().formatCNY(0)
 }
 
 val scale = 8

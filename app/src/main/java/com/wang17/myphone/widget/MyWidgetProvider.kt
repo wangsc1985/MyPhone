@@ -375,23 +375,34 @@ class MyWidgetProvider : AppWidgetProvider() {
                          */
                         if (content.contains("验证码") || content.contains("动态密码")) {
                             _SoundUtils.play(context, R.raw.maopao)
-                            var match = Pattern.compile("[0-9]{6}").matcher(content)
-                            if (match.find()) {
-                                val str = match.group()
-                                val clipManager = context.getSystemService(Context.CLIPBOARD_SERVICE) as ClipboardManager
-                                val clip = ClipData.newPlainText("text", str)
-                                clipManager.setPrimaryClip(clip)
-                                _DialogUtils.showDesktopDialog(context, str)
-                            } else {
-                                match = Pattern.compile("[0-9]{4}").matcher(content)
-                                if (match.find()) {
-                                    val str = match.group()
-                                    val clipManager = context.getSystemService(Context.CLIPBOARD_SERVICE) as ClipboardManager
-                                    val clip = ClipData.newPlainText("text", str)
-                                    clipManager.setPrimaryClip(clip)
-                                    _DialogUtils.showDesktopDialog(context, str)
+
+                            var str = ""
+                            while(true){
+                                var matcher = Pattern.compile("(?<=验证码.{0,2})([0-9]{6})(?![0-9])").matcher(content)
+                                if (matcher.find()){
+                                    str = matcher.group()
+                                    break
+                                }
+                                matcher = Pattern.compile("(?<=验证码.{0,2})([0-9]{4})(?![0-9])").matcher(content)
+                                if (matcher.find()) {
+                                    str = matcher.group()
+                                    break
+                                }
+                                matcher = Pattern.compile("(?<![0-9])([0-9]{6})(?![0-9])").matcher(content)
+                                if (matcher.find()) {
+                                    str = matcher.group()
+                                    break
+                                }
+                                matcher = Pattern.compile("(?<![0-9])([0-9]{4})(?![0-9])").matcher(content)
+                                if (matcher.find()) {
+                                    str = matcher.group()
+                                    break
                                 }
                             }
+                            val clipManager = context.getSystemService(Context.CLIPBOARD_SERVICE) as ClipboardManager
+                            val clip = ClipData.newPlainText("text", str)
+                            clipManager.setPrimaryClip(clip)
+                            _NotificationUtils.alertNotificationTop(context,str)
                         }
 
                         when (number) {

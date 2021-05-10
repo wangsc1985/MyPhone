@@ -428,7 +428,7 @@ class CardRecordActivity : AppCompatActivity(), OnActionFragmentBackListener {
                 val textView_summary = convertView.findViewById<View>(R.id.textView_summary) as TextView
                 val textView_use = convertView.findViewById<View>(R.id.textView_use) as TextView
                 val textView_money = convertView.findViewById<View>(R.id.textView_money) as TextView
-                val textView_time = convertView.findViewById<View>(R.id.textView_time) as TextView
+                val textView_time = convertView.findViewById<View>(R.id.tv_msg) as TextView
                 val billRecord = childInfos[groupPosition][childPosition]
                 textView_summary.text = billRecord.summary
                 textView_use.text = billRecord.currency

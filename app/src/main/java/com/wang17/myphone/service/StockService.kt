@@ -483,7 +483,7 @@ class StockService : Service() {
 
     //region 通知
     private fun sendNotification(szPrice: String, szIncrease: String, sTime: String?, sIncrease: String, fTime: String?, fIncrease: String) {
-        _NotificationUtils.sendNotification(NOTIFICATION_ID, applicationContext, R.layout.notification2) { remoteViews ->
+        _NotificationUtils.sendNotification(NOTIFICATION_ID, applicationContext, R.layout.notification_stock,_NotificationUtils.CHANNEL_STOCK) { remoteViews ->
             try {
                 remoteViews.setTextViewText(R.id.textView_price_sz, szPrice)
                 remoteViews.setTextViewText(R.id.textView_increase_sz, szIncrease)

@@ -5,6 +5,7 @@ import com.alibaba.fastjson.JSONObject
 import java.io.*
 import java.math.BigDecimal
 import java.util.*
+import java.util.regex.Pattern
 import kotlin.collections.ArrayList
 
 class MyClass {
@@ -84,18 +85,38 @@ class MyClass {
         @JvmStatic
         fun main(args: Array<String>) {
 
-            println((666*1.08).toInt())
-
 
 //            val date1 = DateTime(2020,1,23,7,2,5)
 //            val date2 = DateTime(2020,1,24,15,2,5)
 //            println(date1.date.timeInMillis)
 //            println((date2.date.timeInMillis-date1.date.timeInMillis)/(1000*60*60*24))
 
-//            val body="【交通银行信用卡】送你1次抽奖机会！9月20日登录交通银行信用卡周周刷活动主页即可获得！百发百中送您积分、刷卡金或者金砖哦，戳 cc."
-//            var matcher = Pattern.compile("(?<=【).{1,10}(?=】)").matcher(body)
-//            if (matcher.find())
-//                println(matcher.group().trim())
+//            val body="您在向王世超汇款，收款人卡号后四位：9486，为防止诈骗千万不要告诉他人验证码951353，金额76,526.72元。如有疑问请停止操作。（短信编号：335028）【工商银行】"
+//val body = "【紫金保险】您的车险889765投保验证码是：324196。投保人：王振荣（证件号码后四位：403698），车牌号码：宁***9K7。请妥善保管。"
+//            val body = "【大众点评】770080（登录验证码）。工作人员不会向您索要，请勿向任何人泄露，以免造成账户或资金损失。"
+            val body = "序号01的验证码94027，您向王世超尾号3919账户转账5794.0元。任何索要验证码的都是骗子，千万别给！[建设银行]"
+            while(true){
+                var matcher = Pattern.compile("(?<=验证码.{0,2})([0-9]{6})(?![0-9])").matcher(body)
+                if (matcher.find()){
+                    println(matcher.group().trim())
+                    break
+                }
+                matcher = Pattern.compile("(?<=验证码.{0,2})([0-9]{4})(?![0-9])").matcher(body)
+                if (matcher.find()) {
+                    println(matcher.group().trim())
+                    break
+                }
+                matcher = Pattern.compile("(?<![0-9])([0-9]{6})(?![0-9])").matcher(body)
+                if (matcher.find()) {
+                    println(matcher.group().trim())
+                    break
+                }
+                matcher = Pattern.compile("(?<![0-9])([0-9]{4})(?![0-9])").matcher(body)
+                if (matcher.find()) {
+                    println(matcher.group().trim())
+                    break
+                }
+            }
 //
 //
 //            val a:String?=null

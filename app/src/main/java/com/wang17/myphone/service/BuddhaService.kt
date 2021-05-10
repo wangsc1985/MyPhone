@@ -50,7 +50,7 @@ class BuddhaService : Service() {
     private var floatingWindowView: View? = null
 
     //endregion
-    private val NOTIFICATION_ID: Int = 12345
+    private val ID: Int = 12345
     private lateinit var dc: DataContext
     val buddhaReceiver = BuddhaReceiver()
 
@@ -152,7 +152,7 @@ class BuddhaService : Service() {
         stopTimer()
 //        stopTimerMy()
 
-        _NotificationUtils.closeNotification(applicationContext, NOTIFICATION_ID)
+        _NotificationUtils.closeNotification(applicationContext, ID)
 
         //
 
@@ -408,7 +408,7 @@ class BuddhaService : Service() {
     }
 
     private fun sendNotification(count: Int, time: String) {
-        _NotificationUtils.sendNotification(NOTIFICATION_ID, applicationContext, R.layout.notification_nf) { remoteViews ->
+        _NotificationUtils.sendNotification(ID, applicationContext, R.layout.notification_nf,_NotificationUtils.CHANNEL_BUDDHA) { remoteViews ->
             remoteViews.setTextViewText(R.id.tv_count, if (buddhaType >9) count.toString() else "")
             remoteViews.setTextViewText(R.id.tv_time, time)
             if (mPlayer?.isPlaying?:false) {

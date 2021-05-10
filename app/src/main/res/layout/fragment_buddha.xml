@@ -291,20 +291,20 @@
         android:id="@+id/iv_volume_minus"
         android:layout_width="0dp"
         android:layout_height="0dp"
-        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintBottom_toTopOf="@+id/frameLayout7"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toEndOf="@+id/fab_stock"
-        app:layout_constraintTop_toTopOf="@+id/guideline1"
+        app:layout_constraintStart_toEndOf="@+id/tv_time"
+        app:layout_constraintTop_toBottomOf="@+id/layout_monthTotal"
         app:srcCompat="@drawable/my_abc_btn_default_mtrl_shape" />
 
     <ImageView
         android:id="@+id/iv_volume_add"
         android:layout_width="0dp"
         android:layout_height="0dp"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toStartOf="@+id/fab_muyu"
+        app:layout_constraintBottom_toTopOf="@+id/frameLayout7"
+        app:layout_constraintEnd_toStartOf="@+id/tv_time"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="@+id/guideline1"
+        app:layout_constraintTop_toBottomOf="@+id/layout_dayTotal"
         app:srcCompat="@drawable/my_abc_btn_default_mtrl_shape" />
 
 

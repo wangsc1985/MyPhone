@@ -15,6 +15,7 @@ import android.widget.ImageView
 import android.widget.TextView
 import com.wang17.myphone.R
 import com.wang17.myphone.database.DataContext
+import com.wang17.myphone.format
 import com.wang17.myphone.fragment.ActionBarFragment.OnActionFragmentBackListener
 import com.wang17.myphone.model.DateTime
 import com.wang17.myphone.model.DateTime.Companion.toSpanString2
@@ -263,7 +264,7 @@ class BuddhaActivity : AppCompatActivity(), OnActionFragmentBackListener {
                 tvDate.text = _String.format(childInfo.day)
 //                textView_tap.text =  (DecimalFormat("0").format(childInfo.count.toFloat()/1080))+ "圈"
                 tvDuration.text = toSpanString2(childInfo.duration)
-                tvCount.text = DecimalFormat("0.0").format(childInfo.count.toDouble() / 1000) + " 千"
+                tvCount.text = (childInfo.count.toDouble() / 1000).format(2) + " 千"
                 if (childInfo.duration == 0L) {
                     tvDuration.text = "--"
                 }
@@ -273,11 +274,12 @@ class BuddhaActivity : AppCompatActivity(), OnActionFragmentBackListener {
                 if (childInfo.count == 0) {
                     tvTap.text = ""
                 }
-                if(childInfo.count>=15000){
-                    tvCount.setTextColor(Color.RED)
-                    tvDuration.setTextColor(Color.RED)
-//                    root.setBackgroundColor(Color.RED)
-                }else if(childInfo.count<10800){
+//                if(childInfo.count>=15000){
+//                    tvCount.setTextColor(Color.RED)
+//                    tvDuration.setTextColor(Color.RED)
+////                    root.setBackgroundColor(Color.RED)
+//                }else
+                    if(childInfo.count<10000){
                     tvCount.setTextColor(Color.BLUE)
                     tvDuration.setTextColor(Color.BLUE)
 //                    root.setBackgroundColor(Color.BLUE)

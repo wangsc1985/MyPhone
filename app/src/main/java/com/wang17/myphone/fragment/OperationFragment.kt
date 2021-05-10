@@ -11,12 +11,9 @@ import android.support.v4.app.Fragment
 import android.support.v7.app.AlertDialog
 import android.text.Editable
 import android.text.TextWatcher
-import android.view.LayoutInflater
-import android.view.View
-import android.view.ViewGroup
+import android.view.*
 import android.view.inputmethod.EditorInfo
-import android.widget.EditText
-import android.widget.TextView
+import android.widget.*
 import com.alibaba.fastjson.JSONArray
 import com.wang17.myphone.R
 import com.wang17.myphone.activity.*
@@ -29,6 +26,7 @@ import com.wang17.myphone.util.*
 import com.wang17.myphone.view._Button
 import kotlinx.android.synthetic.main.fragment_button.*
 import java.text.DecimalFormat
+
 
 class OperationFragment : Fragment() {
     private lateinit var dataContext: DataContext
@@ -173,6 +171,15 @@ class OperationFragment : Fragment() {
             }
             layout_flexbox.addView(btn)
         }
+
+
+//       kotlin.run {
+//           btn = _Button(context!!, "toast")
+//           btn.setOnClickListener {
+//               _NotificationUtils.alertNotificationTop(context!!,"008426")
+//           }
+//           layout_flexbox.addView(btn)
+//        }
         kotlin.run {
             btn = _Button(context!!, "彩票")
             btn.setOnClickListener {
@@ -220,25 +227,25 @@ class OperationFragment : Fragment() {
             btn = _Button(context!!, "trade")
             btn.setOnClickListener {
                 _FingerUtils.showFingerPrintDialog(activity!!) {
-                    AlertDialog.Builder(context!!).setItems(arrayOf("股票持仓", "期货持仓", "股票历史", "股票资金", "后台检查"), DialogInterface.OnClickListener { dialog, which ->
+                    AlertDialog.Builder(context!!).setItems(arrayOf("持仓", "历史")) { dialog, which ->
                         when (which) {
                             0 -> {
                                 startActivity(Intent(context, StockPositionActivity::class.java))
                             }
                             1 -> {
-                                startActivity(Intent(context, FuturePositionActivity::class.java))
-                            }
-                            2 -> {
                                 startActivity(Intent(context, StockPositionHistoryActivity::class.java))
                             }
-                            3 -> {
+                            2 -> {
                                 startActivity(Intent(context, FundMonitorActivity::class.java))
+                            }
+                            3 -> {
+                                startActivity(Intent(context, FuturePositionActivity::class.java))
                             }
                             4 -> {
                                 AlertDialog.Builder(context!!).setMessage("StockService运行状态：${_Utils.isServiceRunning(context!!, StockService::class.qualifiedName!!)}").show()
                             }
                         }
-                    }).show()
+                    }.show()
                 }
             }
             layout_flexbox.addView(btn)

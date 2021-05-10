@@ -28,7 +28,7 @@
         app:layout_constraintStart_toStartOf="parent">
 
         <TextView
-            android:id="@+id/textView_time"
+            android:id="@+id/tv_msg"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_gravity="left|center_vertical"
@@ -52,7 +52,7 @@
     </FrameLayout>
 
     <ListView
-        android:id="@+id/listView_stocks"
+        android:id="@+id/lv_stocks"
         android:layout_width="0dp"
         android:layout_height="0dp"
         android:dividerHeight="1dp"
@@ -64,7 +64,7 @@
     </ListView>
 
     <android.support.design.widget.FloatingActionButton
-        android:id="@+id/actionButton_home"
+        android:id="@+id/fab_home"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginStart="8dp"
