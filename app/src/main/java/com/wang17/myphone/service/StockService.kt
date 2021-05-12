@@ -322,8 +322,11 @@ class StockService : Service() {
                                 val sss = responseS.body!!.string()
 //                                e("数据：$sss")
                                 val result = sss.substring(sss.indexOf("\"")).replace("\"", "").split(",".toRegex()).toTypedArray()
-                                val price = result[3].toBigDecimal()
+                                var price = result[3].toBigDecimal()
                                 val yesPrice = result[2].toBigDecimal()
+                                if(price==0.toBigDecimal()){
+                                    price = yesPrice
+                                }
                                 mTimeS = result[31]
                                 val fee = commission(price,position.amount) + transferFee(price,position.amount) + tax(-1,price,position.amount)
                                 val profit = (price - position.cost)*(position.amount*100).toBigDecimal()-fee

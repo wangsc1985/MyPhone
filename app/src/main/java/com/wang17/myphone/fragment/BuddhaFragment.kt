@@ -852,12 +852,13 @@ class BuddhaFragment : Fragment() {
     fun checkDuration(source: BuddhaSource, callback: DialogChoosenCallback?) {
         val setDuration = dc.getSetting(Setting.KEYS.buddha_duration)
         var buddhaType = buddhaType()
-        if (source == BuddhaSource.木鱼服务结束) {
-            buddhaType = 11
-        }
         if (setDuration != null) {
             var duration = setDuration.long
             var tap = duration / 1000 / circleSecond
+            if (source == BuddhaSource.木鱼服务结束) {
+                buddhaType = 11
+                var tap = duration / 1000 / muyuCircleSecond
+            }
             val second = duration % 60000 / 1000
             val hour = duration / (60000 * 60)
             val minite = duration % (60000 * 60) / 60000
