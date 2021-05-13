@@ -22,7 +22,7 @@ class BuddhaRecord {
     var count:Int
 
     /**
-     * 0：耳听念佛 1：计时念佛 11：计数念佛
+     * 0：耳听念佛 1：计时念佛 10:听佛念佛 11：计数念佛  13：散念  >=10记录count <10不记录count
      */
     var type:Int
 
@@ -39,12 +39,12 @@ class BuddhaRecord {
      * @param type
      * @param summary
      */
-    constructor(id:UUID, startTime: DateTime, duration: Long, count:Int, type: Int, summary: String) {
+    constructor(id:UUID, startTime: DateTime, duration: Long, count:Int, type: BuddhaType, summary: String) {
         this.id = id
         this.startTime = startTime
         this.duration = duration
-        this.count = count
-        this.type = type
+        this.type = type.toInt()
+        this.count = if(this.type>=10) count else 0
         this.summary = summary
     }
 
@@ -55,12 +55,12 @@ class BuddhaRecord {
      * @param type
      * @param summary
      */
-    constructor(startTime: DateTime, duration: Long, count:Int, type: Int, summary: String) {
+    constructor(startTime: DateTime, duration: Long, count:Int, type: BuddhaType, summary: String) {
         this.id = UUID.randomUUID()
         this.startTime = startTime
         this.duration = duration
-        this.count = count
-        this.type = type
+        this.type = type.toInt()
+        this.count = if(this.type>=10) count else 0
         this.summary = summary
     }
 //
@@ -68,4 +68,28 @@ class BuddhaRecord {
 //        val tt = other as BuddhaRecord
 //        return this.startTime==tt.startTime
 //    }
+}
+
+enum class BuddhaType(var value:Int){
+    听佛(0),
+    计时念佛(1),
+    听佛念佛(10),
+    计数念佛(11),
+    散念(13);
+
+    fun toInt():Int{
+        return value
+    }
+
+    companion object{
+        fun fromInt(value :Int):BuddhaType{
+            when(value){
+                0-> return 听佛
+                1-> return 计时念佛
+                10-> return 听佛念佛
+                11-> return 计数念佛
+                else-> return 散念
+            }
+        }
+    }
 }

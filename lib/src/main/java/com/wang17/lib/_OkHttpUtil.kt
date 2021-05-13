@@ -3,7 +3,7 @@ package com.wang17.lib
 import com.alibaba.fastjson.JSONObject
 import okhttp3.*
 import okhttp3.MediaType.Companion.toMediaTypeOrNull
-import sun.rmi.runtime.Log
+//import sun.rmi.runtime.Log
 import java.io.IOException
 
 /**

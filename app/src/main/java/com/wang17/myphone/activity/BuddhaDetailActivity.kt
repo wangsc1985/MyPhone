@@ -13,6 +13,7 @@ import com.wang17.myphone.fragment.ActionBarFragment.OnActionFragmentBackListene
 import com.wang17.myphone.model.DateTime
 import com.wang17.myphone.model.DateTime.Companion.toSpanString
 import com.wang17.myphone.database.BuddhaRecord
+import com.wang17.myphone.database.BuddhaType
 import com.wang17.myphone.database.DataContext
 import com.wang17.myphone.format
 import com.wang17.myphone.util._CloudUtils
@@ -58,6 +59,9 @@ class BuddhaDetailActivity : AppCompatActivity(), OnActionFragmentBackListener {
                     }
                     11 -> {
                         spType.setSelection(3)
+                    }
+                    13->{
+                        spType.setSelection(4)
                     }
                 }
                 AlertDialog.Builder(this).setView(view).setPositiveButton("修改") { dialog, which ->
@@ -167,13 +171,14 @@ class BuddhaDetailActivity : AppCompatActivity(), OnActionFragmentBackListener {
 //                    tv_item.visibility = View.GONE
                 tv_duration.text = "" + toSpanString(buddha.duration, 3, 2)
                 tv_type.visibility=View.VISIBLE
-                when(buddha.type){
-                    0->tv_type.text="听佛"
-                    1->tv_type.text="计时念佛"
-                    10->tv_type.text="听佛计数"
-                    11->tv_type.text="念佛计数"
-
-                }
+                tv_type.text=BuddhaType.fromInt(buddha.type).toString()
+//                when(buddha.type){
+//                    0->tv_type.text="听佛"
+//                    1->tv_type.text="计时念佛"
+//                    10->tv_type.text="听佛计数"
+//                    11->tv_type.text="念佛计数"
+//                    13->tv_type.text="散念"
+//                }
 //                val tap = buddha.count/1080
                 tv_number.text = if (buddha.count > 0) (buddha.count.toDouble()/1000).format(2)+" 千" else ""
             } catch (e: Exception) {

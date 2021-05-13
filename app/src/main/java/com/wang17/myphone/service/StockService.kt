@@ -42,7 +42,6 @@ import com.wang17.myphone.util.TradeUtils.tax
 import com.wang17.myphone.util.TradeUtils.transferFee
 import com.wang17.myphone.util._Utils.e
 import okhttp3.Request
-import okhttp3.internal.format
 import java.io.IOException
 import java.text.DecimalFormat
 import java.util.concurrent.CountDownLatch

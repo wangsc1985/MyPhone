@@ -20,17 +20,15 @@ import com.wang17.myphone.activity.BuddhaActivity
 import com.wang17.myphone.activity.BuddhaDetailActivity
 import com.wang17.myphone.callback.CloudCallback
 import com.wang17.myphone.callback.DialogChoosenCallback
+import com.wang17.myphone.database.*
 import com.wang17.myphone.e
 import com.wang17.myphone.model.DateTime
-import com.wang17.myphone.database.BuddhaConfig
-import com.wang17.myphone.database.BuddhaRecord
-import com.wang17.myphone.database.DataContext
-import com.wang17.myphone.database.Setting
 import com.wang17.myphone.event.ResetTimeEvent
 import com.wang17.myphone.eventbus.*
 import com.wang17.myphone.service.BuddhaService
 import com.wang17.myphone.service.MuyuService
 import com.wang17.myphone.service.StockService
+import com.wang17.myphone.toBuddhaType
 import com.wang17.myphone.toMyDecimal
 import com.wang17.myphone.util.*
 import com.wang17.myphone.util._Utils.getFilesWithSuffix
@@ -90,7 +88,7 @@ class BuddhaFragment : Fragment() {
                         val count = _JsonUtils.getValueByKey(jsonArray[i], "count").toInt()
                         val summary = _JsonUtils.getValueByKey(jsonArray[i], "summary")
                         val type = _JsonUtils.getValueByKey(jsonArray[i], "type").toInt()
-                        buddhaS.add(BuddhaRecord(DateTime(startTime), duration, count, type, summary))
+                        buddhaS.add(BuddhaRecord(DateTime(startTime), duration, count, type.toBuddhaType(), summary))
                     }
 
                     dc.addBuddhas(buddhaS)
@@ -251,7 +249,7 @@ class BuddhaFragment : Fragment() {
 
         tv_time.setOnLongClickListener {
 
-            if (_Utils.isServiceRunning(context!!, BuddhaService::class.qualifiedName!!)||_Utils.isServiceRunning(context!!, MuyuService::class.qualifiedName!!)) {
+            if (_Utils.isServiceRunning(context!!, BuddhaService::class.qualifiedName!!) || _Utils.isServiceRunning(context!!, MuyuService::class.qualifiedName!!)) {
                 AlertDialog.Builder(context).setMessage("现在对齐时间线？").setPositiveButton("确定") { dialogInterface: DialogInterface, i: Int ->
                     EventBus.getDefault().post(EventBusMessage.getInstance(ResetTimeEvent(), ""))
                 }.show()
@@ -267,7 +265,7 @@ class BuddhaFragment : Fragment() {
                     }
                     if (duration > 0) {
                         AlertDialog.Builder(context).setMessage("缓存中存在念佛记录，是否存档？").setPositiveButton("存档") { dialog, which ->
-                            buildBuddhaAndSave(tap.toInt() * 1080, duration, dc.getSetting(Setting.KEYS.buddha_stoptime, System.currentTimeMillis()).long, buddhaType) { code, result ->
+                            buildBuddhaAndSave(tap.toInt() * 1080, duration, dc.getSetting(Setting.KEYS.buddha_stoptime, System.currentTimeMillis()).long, buddhaType.toBuddhaType()) { code, result ->
                                 if (code == 0) {
                                     dc.deleteSetting(Setting.KEYS.buddha_duration)
                                     dc.deleteSetting(Setting.KEYS.buddha_stoptime)
@@ -384,7 +382,9 @@ class BuddhaFragment : Fragment() {
             }
             val btnCount = view.findViewById<Button>(R.id.btn_count)
             val btnTime = view.findViewById<Button>(R.id.btn_time)
+            val btn13 = view.findViewById<Button>(R.id.btn_13)
             val dialog = AlertDialog.Builder(context).setView(view).show()
+
             btnTime.setOnClickListener {
                 dialog.dismiss()
                 val tap = etCount.text.toString().toInt()
@@ -395,7 +395,7 @@ class BuddhaFragment : Fragment() {
                 time.set(Calendar.MINUTE, min)
                 var stoptimeInMillis = time.timeInMillis
 
-                buildBuddhaAndSave(0, tap * 5 * 60000.toLong(), stoptimeInMillis, 1) { code, result ->
+                buildBuddhaAndSave(0, tap * 5 * 60000.toLong(), stoptimeInMillis, BuddhaType.计时念佛) { code, result ->
                     if (code == 0) {
                         uiHandler.post {
                             refreshTotalView()
@@ -406,6 +406,34 @@ class BuddhaFragment : Fragment() {
                     }
                 }
             }
+
+            btn13.setOnClickListener {
+                dialog.dismiss()
+                val tap = etCount.text.toString().toInt()
+                val latestBuddha = dc.latestBuddha
+                val hour = number_hour.value
+                val min = number_min.value
+                var avgDuration = (10 * 60000).toLong()
+                if (latestBuddha != null) {
+                    avgDuration = (latestBuddha.duration / (latestBuddha.count.toFloat() / 1080)).toLong()
+                }
+                var time = DateTime()
+                time.set(Calendar.HOUR_OF_DAY, hour)
+                time.set(Calendar.MINUTE, min)
+                var stoptimeInMillis = time.timeInMillis
+
+                buildBuddhaAndSave(tap * 1080, tap * avgDuration, stoptimeInMillis, BuddhaType.散念) { code, result ->
+                    if (code == 0) {
+                        uiHandler.post {
+                            refreshTotalView()
+                        }
+                    }
+                    uiHandler.post {
+                        AlertDialog.Builder(context!!).setMessage(result.toString()).show()
+                    }
+                }
+            }
+
             btnCount.setOnClickListener {
                 dialog.dismiss()
                 val tap = etCount.text.toString().toInt()
@@ -421,7 +449,7 @@ class BuddhaFragment : Fragment() {
                 time.set(Calendar.MINUTE, min)
                 var stoptimeInMillis = time.timeInMillis
 
-                buildBuddhaAndSave(tap * 1080, tap * avgDuration, stoptimeInMillis, 11) { code, result ->
+                buildBuddhaAndSave(tap * 1080, tap * avgDuration, stoptimeInMillis, BuddhaType.计数念佛) { code, result ->
                     if (code == 0) {
                         uiHandler.post {
                             refreshTotalView()
@@ -433,7 +461,8 @@ class BuddhaFragment : Fragment() {
                 }
             }
 
-            val ivTo = view.findViewById<ImageView>(R.id.iv_to)
+//            val ivTo = view.findViewById<ImageView>(R.id.iv_to)
+            val ivTo = view.findViewById<Button>(R.id.btn_to)
             ivTo.setOnClickListener {
                 dialog.dismiss()
                 addBuddhaRecordDialog()
@@ -486,7 +515,7 @@ class BuddhaFragment : Fragment() {
                 dc.editSetting(Setting.KEYS.muyu_period, et.text.toString())
                 muyuCircleSecond = (dc.getSetting(Setting.KEYS.muyu_period, 666).int * 1.08).toInt()
                 if (_Utils.isServiceRunning(context!!, MuyuService::class.qualifiedName!!)) {
-                    isFromConfigChanged=true
+                    isFromConfigChanged = true
                     context!!.stopService(Intent(context!!, MuyuService::class.java))
                     context!!.startService(Intent(context!!, MuyuService::class.java))
                 }
@@ -628,7 +657,7 @@ class BuddhaFragment : Fragment() {
                     val tapCount = 100
                     val tap = count / tapCount
 
-                    buildBuddhaAndSave(count, tap * tapDuration, stoptimeInMillis, 11) { code, result ->
+                    buildBuddhaAndSave(count, tap * tapDuration, stoptimeInMillis, BuddhaType.计数念佛) { code, result ->
                         if (code == 0) {
                             uiHandler.post {
                                 refreshTotalView()
@@ -782,24 +811,25 @@ class BuddhaFragment : Fragment() {
         return buddhaType
     }
 
-    private fun buildBuddhaAndSave(count: Int, duration: Long, stopTimeInMillis: Long, buddhaType: Int, callback: CloudCallback) {
+    private fun buildBuddhaAndSave(count: Int, duration: Long, stopTimeInMillis: Long, buddhaType: BuddhaType, callback: CloudCallback) {
         val startTime = DateTime(stopTimeInMillis - duration)
 
         var buddha: BuddhaRecord? = null
-        when (buddhaType) {
-            10 -> {
-                buddha = BuddhaRecord(startTime, duration, count, 10, "")
-            }
-            11 -> {
-                buddha = BuddhaRecord(startTime, duration, count, 11, "")
-            }
-            1 -> {
-                buddha = BuddhaRecord(startTime, duration, 0, 1, "")
-            }
-            0 -> {
-                buddha = BuddhaRecord(startTime, duration, 0, 0, "")
-            }
-        }
+
+        buddha = BuddhaRecord(startTime, duration, count, buddhaType, "")
+
+//        when (buddhaType) {
+//            10 -> {
+//            }
+//            11 -> {
+//                buddha = BuddhaRecord(startTime, duration, count, 11, "")
+//            }
+//            1 -> {
+//            }
+//            0 -> {
+//                buddha = BuddhaRecord(startTime, duration, 0, 0, "")
+//            }
+//        }
 
         buddha?.let {
             _CloudUtils.addBuddha(context!!, it) { code, result ->
@@ -875,7 +905,7 @@ class BuddhaFragment : Fragment() {
                 }
                 if (duration > 60000) {
                     if (source == BuddhaSource.念佛服务结束 && autoSave) {
-                        buildBuddhaAndSave(tap.toInt() * 1080, duration, stoptimeInMillis, buddhaType) { code, result ->
+                        buildBuddhaAndSave(tap.toInt() * 1080, duration, stoptimeInMillis, buddhaType.toBuddhaType()) { code, result ->
                             if (code == 0) {
                                 dc.deleteSetting(Setting.KEYS.buddha_duration)
                                 dc.deleteSetting(Setting.KEYS.buddha_stoptime)
@@ -891,7 +921,7 @@ class BuddhaFragment : Fragment() {
                     }
                     val dialog = AlertDialog.Builder(context).setMessage("缓存中存在念佛记录\n[ ${msg} ]\n是否存档？")
                     dialog.setNegativeButton("存档") { dialog, which ->
-                        buildBuddhaAndSave(tap.toInt() * 1080, duration, stoptimeInMillis, buddhaType) { code, result ->
+                        buildBuddhaAndSave(tap.toInt() * 1080, duration, stoptimeInMillis, buddhaType.toBuddhaType()) { code, result ->
                             if (code == 0) {
                                 dc.deleteSetting(Setting.KEYS.buddha_duration)
                                 dc.deleteSetting(Setting.KEYS.buddha_stoptime)

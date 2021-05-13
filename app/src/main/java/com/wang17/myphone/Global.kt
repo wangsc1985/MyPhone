@@ -2,6 +2,7 @@ package com.wang17.myphone
 
 import android.text.TextUtils
 import android.util.Log
+import com.wang17.myphone.database.BuddhaType
 import java.math.BigDecimal
 import java.text.DecimalFormat
 import java.text.SimpleDateFormat
@@ -10,6 +11,12 @@ import java.util.*
 fun e(data: Any) {
     Log.e("wangsc", data.toString())
 }
+
+fun Int.toBuddhaType():BuddhaType{
+    return BuddhaType.fromInt(this)
+}
+
+
 fun Double.format(precision:Int):String{
     e(this)
     when(precision){

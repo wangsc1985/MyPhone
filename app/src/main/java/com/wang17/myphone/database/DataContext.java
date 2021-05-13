@@ -416,7 +416,7 @@ public class DataContext {
                         new DateTime(cursor.getLong(1)),
                         cursor.getLong(2),
                         cursor.getInt(3),
-                        cursor.getInt(4),
+                        BuddhaType.Companion.fromInt(cursor.getInt(4)),
                         cursor.getString(5));
                 cursor.close();
                 db.close();
@@ -455,7 +455,7 @@ public class DataContext {
                         new DateTime(cursor.getLong(1)),
                         cursor.getLong(2),
                         cursor.getInt(3),
-                        cursor.getInt(4),
+                        BuddhaType.Companion.fromInt(cursor.getInt(4)),
                         cursor.getString(5));
                 cursor.close();
                 db.close();
@@ -480,7 +480,7 @@ public class DataContext {
                         new DateTime(cursor.getLong(1)),
                         cursor.getLong(2),
                         cursor.getInt(3),
-                        cursor.getInt(4),
+                        BuddhaType.Companion.fromInt(cursor.getInt(4)),
                         cursor.getString(5));
                 cursor.close();
                 db.close();
@@ -514,7 +514,7 @@ public class DataContext {
                         new DateTime(cursor.getLong(1)),
                         cursor.getLong(2),
                         cursor.getInt(3),
-                        cursor.getInt(4),
+                        BuddhaType.Companion.fromInt(cursor.getInt(4)),
                         cursor.getString(5));
                 result.add(model);
             }
@@ -541,7 +541,7 @@ public class DataContext {
                         new DateTime(cursor.getLong(1)),
                         cursor.getLong(2),
                         cursor.getInt(3),
-                        cursor.getInt(4),
+                        BuddhaType.Companion.fromInt(cursor.getInt(4)),
                         cursor.getString(5));
                 result.add(model);
             }
@@ -572,7 +572,7 @@ public class DataContext {
                         new DateTime(cursor.getLong(1)),
                         cursor.getLong(2),
                         cursor.getInt(3),
-                        cursor.getInt(4),
+                        BuddhaType.Companion.fromInt(cursor.getInt(4)),
                         cursor.getString(5));
                 cursor.close();
                 db.close();
@@ -597,7 +597,7 @@ public class DataContext {
                         new DateTime(cursor.getLong(1)),
                         cursor.getLong(2),
                         cursor.getInt(3),
-                        cursor.getInt(4),
+                        BuddhaType.Companion.fromInt(cursor.getInt(4)),
                         cursor.getString(5));
                 result.add(model);
             }
@@ -629,7 +629,7 @@ public class DataContext {
                         new DateTime(cursor.getLong(1)),
                         cursor.getLong(2),
                         cursor.getInt(3),
-                        cursor.getInt(4),
+                        BuddhaType.Companion.fromInt(cursor.getInt(4)),
                         cursor.getString(5));
                 result.add(model);
             }
@@ -654,7 +654,7 @@ public class DataContext {
                         new DateTime(cursor.getLong(1)),
                         cursor.getLong(2),
                         cursor.getInt(3),
-                        cursor.getInt(4),
+                        BuddhaType.Companion.fromInt(cursor.getInt(4)),
                         cursor.getString(5));
                 result.add(model);
             }
@@ -682,7 +682,7 @@ public class DataContext {
                         new DateTime(cursor.getLong(1)),
                         cursor.getLong(2),
                         cursor.getInt(3),
-                        cursor.getInt(4),
+                        BuddhaType.Companion.fromInt(cursor.getInt(4)),
                         cursor.getString(5));
                 result.add(model);
             }

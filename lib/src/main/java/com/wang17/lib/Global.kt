@@ -1,11 +1,13 @@
 package com.wang17.lib
 
-import sun.rmi.runtime.Log
+//import sun.rmi.runtime.Log
 import java.math.BigDecimal
 import java.util.*
 
 val scale = 8
 val roundMode = BigDecimal.ROUND_DOWN
+
+
 fun Int.toDecimal():BigDecimal{
     return this.toBigDecimal().setScale(scale, roundMode)
 }
