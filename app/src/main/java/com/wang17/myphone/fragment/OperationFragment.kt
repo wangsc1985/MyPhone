@@ -40,12 +40,12 @@ class OperationFragment : Fragment() {
 
         var btn = _Button(context!!, "设置")
         btn.setOnClickListener {
-            _FingerUtils.showFingerPrintDialog(activity!!){
+            _FingerUtils.showFingerPrintDialog(activity!!) {
                 startActivity(Intent(context!!, SettingActivity::class.java))
             }
         }
         btn.setOnLongClickListener {
-            _FingerUtils.showFingerPrintDialog(activity!!){
+            _FingerUtils.showFingerPrintDialog(activity!!) {
                 AlertDialog.Builder(context!!).setItems(arrayOf("本地", "云端")) { dialog, which ->
                     when (which) {
                         0 -> {
@@ -158,7 +158,7 @@ class OperationFragment : Fragment() {
 
             btn = _Button(context!!, "数据")
             btn.setOnClickListener {
-                AlertDialog.Builder(context!!).setItems(arrayOf("备份", "恢复"), DialogInterface.OnClickListener { dialog, which ->
+                var dialog = AlertDialog.Builder(context!!).setItems(arrayOf("备份", "恢复"), DialogInterface.OnClickListener { dialog, which ->
                     when (which) {
                         0 -> {
                             BackupTask(context).execute(BackupTask.COMMAND_BACKUP)
@@ -167,7 +167,9 @@ class OperationFragment : Fragment() {
                             BackupTask(context).execute(BackupTask.COMMAND_RESTORE)
                         }
                     }
-                }).show()
+                }).create()
+                dialog.window?.setGravity(Gravity.BOTTOM)
+                dialog.show()
             }
             layout_flexbox.addView(btn)
         }
@@ -183,7 +185,7 @@ class OperationFragment : Fragment() {
         kotlin.run {
             btn = _Button(context!!, "彩票")
             btn.setOnClickListener {
-                AlertDialog.Builder(context!!).setItems(arrayOf("大乐透", "双色球")) { dialog, which ->
+               var dialog = AlertDialog.Builder(context!!).setItems(arrayOf("大乐透", "双色球")) { dialog, which ->
                     when (which) {
                         0 -> {
                             redeemLottery(1)
@@ -192,10 +194,12 @@ class OperationFragment : Fragment() {
                             redeemLottery(2)
                         }
                     }
-                }.show()
+                }.create()
+                   dialog.window?.setGravity(Gravity.BOTTOM)
+                   dialog.show()
             }
             btn.setOnLongClickListener {
-                AlertDialog.Builder(context!!).setItems(arrayOf("大乐透", "双色球")) { dialog, which ->
+                var dialog = AlertDialog.Builder(context!!).setItems(arrayOf("大乐透", "双色球")) { dialog, which ->
                     when (which) {
                         0 -> {
                             addLottery(1)
@@ -204,7 +208,9 @@ class OperationFragment : Fragment() {
                             addLottery(2)
                         }
                     }
-                }.show()
+                }.create()
+                dialog.window?.setGravity(Gravity.BOTTOM)
+                dialog.show()
                 true
             }
             layout_flexbox.addView(btn)
@@ -227,7 +233,7 @@ class OperationFragment : Fragment() {
             btn = _Button(context!!, "trade")
             btn.setOnClickListener {
                 _FingerUtils.showFingerPrintDialog(activity!!) {
-                    AlertDialog.Builder(context!!).setItems(arrayOf("持仓", "历史")) { dialog, which ->
+                    var dialog = AlertDialog.Builder(context!!).setItems(arrayOf("持仓", "历史")) { dialog, which ->
                         when (which) {
                             0 -> {
                                 startActivity(Intent(context, StockPositionActivity::class.java))
@@ -245,7 +251,9 @@ class OperationFragment : Fragment() {
                                 AlertDialog.Builder(context!!).setMessage("StockService运行状态：${_Utils.isServiceRunning(context!!, StockService::class.qualifiedName!!)}").show()
                             }
                         }
-                    }.show()
+                    }.create()
+                    dialog.window?.setGravity(Gravity.BOTTOM)
+                    dialog.show()
                 }
             }
             layout_flexbox.addView(btn)
@@ -553,9 +561,11 @@ class OperationFragment : Fragment() {
 
             override fun afterTextChanged(s: Editable?) {
                 if (s.toString().length == 2) {
-                    val winLottery = Lottery(period,
-                            arrayListOf(et1.text.toString().toInt(), et2.text.toString().toInt(), et3.text.toString().toInt(), et4.text.toString().toInt(), et5.text.toString().toInt(), et6.text.toString().toInt(), et7.text.toString().toInt()),
-                            0, type)
+                    val winLottery = Lottery(
+                        period,
+                        arrayListOf(et1.text.toString().toInt(), et2.text.toString().toInt(), et3.text.toString().toInt(), et4.text.toString().toInt(), et5.text.toString().toInt(), et6.text.toString().toInt(), et7.text.toString().toInt()),
+                        0, type
+                    )
                     when (type) {
                         1 -> {
                             tvInfo.setText(LotteryUtil.dlt(lots, winLottery))
@@ -739,9 +749,11 @@ class OperationFragment : Fragment() {
 
             override fun afterTextChanged(s: Editable?) {
                 if (s.toString().length == 2) {
-                    val lot = Lottery(etP.text.toString().toInt(),
-                            arrayListOf(et1.text.toString().toInt(), et2.text.toString().toInt(), et3.text.toString().toInt(), et4.text.toString().toInt(), et5.text.toString().toInt(), et6.text.toString().toInt(), et7.text.toString().toInt()),
-                            etM.text.toString().toInt(), type)
+                    val lot = Lottery(
+                        etP.text.toString().toInt(),
+                        arrayListOf(et1.text.toString().toInt(), et2.text.toString().toInt(), et3.text.toString().toInt(), et4.text.toString().toInt(), et5.text.toString().toInt(), et6.text.toString().toInt(), et7.text.toString().toInt()),
+                        etM.text.toString().toInt(), type
+                    )
                     lots.add(lot)
                     et1.setText("")
                     et2.setText("")
@@ -782,11 +794,11 @@ class OperationFragment : Fragment() {
         var result = StringBuffer()
         var totalInterest = 0f
         val rate = floatArrayOf(
-                0.00f, 0.00f, 0.00f, 0.00f, 0.00f, 0.00f, 0.00f, 2.80f,
-                2.81f, 2.81f, 2.82f, 2.82f, 2.83f, 2.83f, 2.84f, 2.84f, 2.85f,
-                2.86f, 2.86f, 2.87f, 2.87f, 2.88f, 2.88f, 2.89f, 2.89f, 2.90f,
-                2.91f, 2.91f, 2.92f, 2.92f, 2.93f, 2.93f, 2.94f, 2.94f, 2.95f,
-                2.96f, 2.96f, 2.97f, 2.97f, 2.98f, 2.98f, 2.99f, 2.99f, 3.00f
+            0.00f, 0.00f, 0.00f, 0.00f, 0.00f, 0.00f, 0.00f, 2.80f,
+            2.81f, 2.81f, 2.82f, 2.82f, 2.83f, 2.83f, 2.84f, 2.84f, 2.85f,
+            2.86f, 2.86f, 2.87f, 2.87f, 2.88f, 2.88f, 2.89f, 2.89f, 2.90f,
+            2.91f, 2.91f, 2.92f, 2.92f, 2.93f, 2.93f, 2.94f, 2.94f, 2.95f,
+            2.96f, 2.96f, 2.97f, 2.97f, 2.98f, 2.98f, 2.99f, 2.99f, 3.00f
         )
         var objArr = data.split(";")
         for (i in objArr.indices) {

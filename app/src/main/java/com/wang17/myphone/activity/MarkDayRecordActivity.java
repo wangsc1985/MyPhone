@@ -149,7 +149,7 @@ public class MarkDayRecordActivity extends AppCompatActivity implements ActionBa
                 }
             }
 
-            ListView listView_sexualDays = (ListView) findViewById(R.id.listView_sexualDays);
+            ListView listView_sexualDays = (ListView) findViewById(R.id.lv_markday);
             listView_sexualDays.setOnItemClickListener(new AdapterView.OnItemClickListener() {
                 @Override
                 public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
