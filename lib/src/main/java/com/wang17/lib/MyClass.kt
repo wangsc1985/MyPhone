@@ -108,7 +108,9 @@ class MyClass {
         @JvmStatic
         fun main(args: Array<String>) {
 
-            println(BuddhaType.计数念佛.toInt())
+            var aaa = "0.00".toBigDecimal()
+            var bbb = "0.0".toBigDecimal()
+            println()
             println(BuddhaType.fromInt(10))
 
 //

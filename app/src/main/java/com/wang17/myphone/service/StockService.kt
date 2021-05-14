@@ -323,7 +323,7 @@ class StockService : Service() {
                                 val result = sss.substring(sss.indexOf("\"")).replace("\"", "").split(",".toRegex()).toTypedArray()
                                 var price = result[3].toBigDecimal()
                                 val yesPrice = result[2].toBigDecimal()
-                                if(price==0.toBigDecimal()){
+                                if(price.compareTo(0.toBigDecimal())==0){
                                     price = yesPrice
                                 }
                                 mTimeS = result[31]
