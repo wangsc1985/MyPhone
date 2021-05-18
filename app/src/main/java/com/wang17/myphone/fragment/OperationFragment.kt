@@ -284,24 +284,15 @@ class OperationFragment : Fragment() {
             btn.setOnClickListener {
                 _FingerUtils.showFingerPrintDialog(activity!!) {
                     var intent = Intent(context, SmsActivity::class.java)
-                    intent.putExtra("isAll",false)
-                    startActivity(intent)
-                }
-//                _FingerUtils.showFingerPrintDialog(activity!!, Intent(context!!, SmsActivity::class.java))
-            }
-            btn.setOnLongClickListener {
-                _FingerUtils.showFingerPrintDialog(activity!!) {
-                    var intent = Intent(context, SmsActivity::class.java)
                     intent.putExtra("isAll",true)
                     startActivity(intent)
                 }
-                true
+//                _FingerUtils.showFingerPrintDialog(activity!!, Intent(context!!, SmsActivity::class.java))
             }
             layout_flexbox.addView(btn)
         }
 
         kotlin.run {
-
             var xiaoKnockSound = SoundPool(100, AudioManager.STREAM_MUSIC, 0)
             xiaoKnockSound.load(context, R.raw.yq, 1)
             btn = _Button(context!!, "loan")

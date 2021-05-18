@@ -6,12 +6,16 @@ import android.content.Intent
 import android.util.Log
 import com.amap.api.maps.AMapUtils
 import com.amap.api.maps.model.LatLng
+import com.wang17.myphone.R
+import com.wang17.myphone.callback.CloudCallback
 import com.wang17.myphone.database.DataContext
 import com.wang17.myphone.database.Setting
 import com.wang17.myphone.model.DateTime
 import com.wang17.myphone.util.AMapUtil
+import com.wang17.myphone.util._CloudUtils
 import com.wang17.myphone.util._CloudUtils.addLocation
 import com.wang17.myphone.util._Session
+import com.wang17.myphone.util._SoundUtils
 import com.wang17.myphone.widget.MyWidgetProvider
 
 class ScreenBroadcaseReceiver : BroadcastReceiver() {
@@ -51,47 +55,29 @@ class ScreenBroadcaseReceiver : BroadcastReceiver() {
                             }
                         }
                         //endregion
-                        /**
-                         * 刷新小部件期股信息
-                         */
-//                            DateTime time = new DateTime();
-//                            // 9:00 - 11:30     13:30 - 15:00
-//                            DateTime time1 = new DateTime(9, 0);
-//                            DateTime time2 = new DateTime(11, 30);
-//                            DateTime time3 = new DateTime(13, 30);
-//                            DateTime time4 = new DateTime(15, 0);
-//                            DateTime time5 = new DateTime(21, 0);
-//                            DateTime time6 = new DateTime(23, 0);
-//
-//                            boolean is_widget_list_stock=dataContext.getSetting(Setting.KEYS.is_widget_list_stock,false).getBoolean();
-//                            if(is_widget_list_stock==true){
-//                                time1 = new DateTime(9, 30);
-//                                time3 = new DateTime(13, 0);
-//                            }
-//
-//                            int day = time.get(Calendar.DAY_OF_WEEK);
-//
-//                            if (dataContext.getSetting(Setting.KEYS.is_flush_widget_when_screen_on, false).getBoolean() == false)
-//                                return;
-//                            if (day == 1 || day == 7) return;
-//
-//                            /**
-//                             * 或者小于time1，或者大于time6，或者大于time4小于time5，或者大于time2小于time3。直接返回。
-//                             */
-//                            if(is_widget_list_stock){
-//                                if (time.getTimeInMillis() < time1.getTimeInMillis()
-//                                        || (time.getTimeInMillis() > time4.getTimeInMillis())
-//                                        || (time.getTimeInMillis() > time2.getTimeInMillis()&& time.getTimeInMillis() < time3.getTimeInMillis()))
-//                                    return;
-//                            }else{
-//                                if (time.getTimeInMillis() < time1.getTimeInMillis()
-//                                        || time.getTimeInMillis()>time6.getTimeInMillis()
-//                                        || (time.getTimeInMillis() > time4.getTimeInMillis()&&time.getTimeInMillis()<time5.getTimeInMillis())
-//                                        || (time.getTimeInMillis() > time2.getTimeInMillis()
-//                                        && time.getTimeInMillis() < time3.getTimeInMillis()))
-//                                    return;
-//                            }
-                        context.sendBroadcast(Intent(MyWidgetProvider.ACTION_CLICK_TEXT))
+
+                        Thread {
+                            /**
+                             * 新消息提醒
+                             */
+                            _CloudUtils.getNewMsg(context, object : CloudCallback {
+                                override fun excute(code: Int, msg: Any?) {
+                                    when (code) {
+                                        0->{
+                                            dc.deleteSetting(Setting.KEYS.wx_new_msg)
+                                        }
+                                        1 -> {
+                                            dc.editSetting(Setting.KEYS.wx_new_msg, msg.toString())
+                                            _SoundUtils.play(context, R.raw.ding)
+                                        }
+                                        else->{
+
+                                        }
+                                    }
+                                    context.sendBroadcast(Intent(MyWidgetProvider.ACTION_CLICK_TEXT))
+                                }
+                            })
+                        }.start()
                     } catch (e: Exception) {
                         DataContext(context).addRunLog("err", "运行错误", e.message)
                     } finally {

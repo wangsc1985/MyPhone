@@ -176,28 +176,6 @@ class MyWidgetRemoteViewsService : RemoteViewsService() {
                     mToDoList.add(ToDo("          ", "          ", it.string, WARNING3_COLOR, true, 0))
                 }
 
-                Thread {
-                    /**
-                     * 新消息提醒
-                     */
-                    _CloudUtils.getNewMsg(applicationContext, object : CloudCallback {
-                        override fun excute(code: Int, msg: Any?) {
-                            when (code) {
-                                0->{
-                                    dc.deleteSetting(Setting.KEYS.wx_new_msg)
-                                }
-                                1 -> {
-                                    dc.editSetting(Setting.KEYS.wx_new_msg, msg.toString())
-                                    _SoundUtils.play(applicationContext,R.raw.ding)
-//                                    mToDoList.add(ToDo("          ", "          ", msg.toString(), WARNING3_COLOR, true, R.raw.bi))
-                                }
-                                else->{
-
-                                }
-                            }
-                        }
-                    })
-                }.start()
 
                 //endregion
             } catch (e: JSONException) {

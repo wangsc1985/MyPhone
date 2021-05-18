@@ -2074,7 +2074,7 @@ public class DataContext {
             //获取数据库对象
             db = dbHelper.getReadableDatabase();
             //查询获得游标
-            cursor = db.query("sms", null, "createTime>?", new String[]{createTime + ""}, null, null, null);
+            cursor = db.query("sms", null, "createTime>?", new String[]{createTime + ""}, null, null, "createTime desc");
             //判断游标是否为空
             while (cursor.moveToNext()) {
                 PhoneMessage model = new PhoneMessage();

@@ -13,7 +13,7 @@
         android:layout_marginEnd="16dp"
         android:layout_marginBottom="16dp"
         android:clickable="true"
-        app:layout_constraintBottom_toBottomOf="@+id/listView_sms"
+        app:layout_constraintBottom_toBottomOf="@+id/elv_sms"
         app:layout_constraintEnd_toStartOf="@+id/fab_clean_history"
         app:srcCompat="@drawable/express" />
 
@@ -40,11 +40,25 @@
         app:srcCompat="@drawable/remove_history" />
 
     <ExpandableListView
-        android:id="@+id/listView_sms"
+        android:id="@+id/elv_sms"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:divider="@null" >
+        android:divider="@null"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent">
 
     </ExpandableListView>
+
+    <ListView
+        android:id="@+id/lv_sms"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:divider="@null"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
 
 </android.support.constraint.ConstraintLayout>

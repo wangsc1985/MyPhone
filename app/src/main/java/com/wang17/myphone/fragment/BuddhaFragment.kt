@@ -18,6 +18,7 @@ import com.alibaba.fastjson.JSON
 import com.wang17.myphone.R
 import com.wang17.myphone.activity.BuddhaActivity
 import com.wang17.myphone.activity.BuddhaDetailActivity
+import com.wang17.myphone.activity.SmsActivity
 import com.wang17.myphone.callback.CloudCallback
 import com.wang17.myphone.callback.DialogChoosenCallback
 import com.wang17.myphone.database.*
@@ -181,6 +182,14 @@ class BuddhaFragment : Fragment() {
             val hour = miniteT / 60
             var tap = (duration / 1000 / circleSecond).toInt()
             tv_time.text = "$hour:${if (minite < 10) "0" + minite else minite}:${if (second < 10) "0" + second else second} \t $tap \t "
+        }
+
+        tv_msg.setOnClickListener {
+            _FingerUtils.showFingerPrintDialog(activity!!) {
+                var intent = Intent(context, SmsActivity::class.java)
+                intent.putExtra("isAll",false)
+                startActivity(intent)
+            }
         }
 
         iv_volume_add.setOnClickListener {
@@ -532,9 +541,13 @@ class BuddhaFragment : Fragment() {
             val et = view.findViewById<EditText>(R.id.et_value)
             et.inputType = InputType.TYPE_CLASS_NUMBER
             et.setText(dc.getSetting(Setting.KEYS.muyu_period, 666).string)
-            AlertDialog.Builder(context!!).setView(view).setTitle("设置木鱼间隔时间").setPositiveButton("确定") { dialogInterface: DialogInterface, i: Int ->
-                dc.editSetting(Setting.KEYS.muyu_period, et.text.toString())
-                muyuCircleSecond = (dc.getSetting(Setting.KEYS.muyu_period, 666).int * 1.08).toInt()
+            AlertDialog.Builder(context!!).setView(view).setTitle("设置木鱼间隔时间(ms/m)").setPositiveButton("确定") { dialogInterface: DialogInterface, i: Int ->
+                var cc = et.text.toString().toDouble()
+                if(cc<300.0){
+                    cc = cc*60000/1080
+                }
+                dc.editSetting(Setting.KEYS.muyu_period, cc.toInt())
+                muyuCircleSecond = cc.toInt()
                 if (_Utils.isServiceRunning(context!!, MuyuService::class.qualifiedName!!)) {
                     isFromConfigChanged = true
                     context!!.stopService(Intent(context!!, MuyuService::class.java))
