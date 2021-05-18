@@ -52,6 +52,17 @@ class BuddhaFragment : Fragment() {
 
     override fun onResume() {
         super.onResume()
+
+        val size = dc.getPhoneMessages(dc.getSetting(Setting.KEYS.sms_last_time,0).long).size
+        if(size>0){
+            tv_msg.visibility=View.VISIBLE
+            _Utils.zhendong2(context!!,100)
+        }else{
+            tv_msg.visibility=View.GONE
+        }
+        tv_msg.setText(size.toString())
+
+
         if (_Utils.isServiceRunning(context!!, StockService::class.qualifiedName!!)) {
             animatorSuofang(abtn_stockAnimator)
         } else {

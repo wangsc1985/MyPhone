@@ -2063,6 +2063,40 @@ public class DataContext {
         }
         return null;
     }
+    public List<PhoneMessage> getPhoneMessages(Long createTime) {
+        //获取数据库对象
+        SQLiteDatabase db = null;
+        //查询获得游标
+        Cursor cursor = null;
+
+        try {
+            List<PhoneMessage> result = new ArrayList<>();
+            //获取数据库对象
+            db = dbHelper.getReadableDatabase();
+            //查询获得游标
+            cursor = db.query("sms", null, "createTime>?", new String[]{createTime + ""}, null, null, null);
+            //判断游标是否为空
+            while (cursor.moveToNext()) {
+                PhoneMessage model = new PhoneMessage();
+                model.setId(UUID.fromString(cursor.getString(0)));
+                model.setAddress(cursor.getString(1));
+                model.setBody(cursor.getString(2));
+                model.setType(SmsType.fromInt(cursor.getInt(3)));
+                model.setStatus(SmsStatus.fromInt(cursor.getInt(4)));
+                model.setCreateTime(new DateTime(cursor.getLong(5)));
+                result.add(model);
+            }
+            return result;
+        } catch (Exception e) {
+            _Utils.printException(context, e);
+        } finally {
+            if (cursor != null)
+                cursor.close();
+            if (db != null)
+                db.close();
+        }
+        return null;
+    }
 
     public List<PhoneMessage> getPhoneMessages() {
         //获取数据库对象

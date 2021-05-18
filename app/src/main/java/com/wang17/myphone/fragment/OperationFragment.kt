@@ -283,9 +283,19 @@ class OperationFragment : Fragment() {
             btn = _Button(context!!, "sms")
             btn.setOnClickListener {
                 _FingerUtils.showFingerPrintDialog(activity!!) {
-                    startActivity(Intent(context, SmsActivity::class.java))
+                    var intent = Intent(context, SmsActivity::class.java)
+                    intent.putExtra("isAll",false)
+                    startActivity(intent)
                 }
 //                _FingerUtils.showFingerPrintDialog(activity!!, Intent(context!!, SmsActivity::class.java))
+            }
+            btn.setOnLongClickListener {
+                _FingerUtils.showFingerPrintDialog(activity!!) {
+                    var intent = Intent(context, SmsActivity::class.java)
+                    intent.putExtra("isAll",true)
+                    startActivity(intent)
+                }
+                true
             }
             layout_flexbox.addView(btn)
         }

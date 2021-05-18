@@ -287,6 +287,21 @@
         app:layout_constraintTop_toTopOf="@+id/fab_buddha"
         app:srcCompat="@drawable/stock" />
 
+    <TextView
+        android:id="@+id/tv_msg"
+        android:layout_width="40dp"
+        android:layout_height="40dp"
+        android:background="@drawable/button_action_dark"
+        android:gravity="center"
+        android:text="0"
+        android:textColor="@color/progressbar_background"
+        android:textStyle="bold"
+        android:visibility="gone"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="@+id/fab_stock"
+        app:layout_constraintStart_toStartOf="@+id/fab_muyu"
+        app:layout_constraintTop_toBottomOf="@+id/fab_buddha" />
+
     <ImageView
         android:id="@+id/iv_volume_minus"
         android:layout_width="0dp"

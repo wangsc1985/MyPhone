@@ -23,6 +23,7 @@ object _CloudUtils {
     private val env = "yipinshangdu-4wk7z"
     private val appid = "wxbdf065bdeba96196"
     private val secret = "d2834f10c0d81728e73a4fe4012c0a5d"
+    private val phone = "18509513143"
 
     @JvmStatic
     fun getToken(context: Context): String {
@@ -95,7 +96,7 @@ object _CloudUtils {
                 // 通过accessToken，env，云函数名，args 在微信小程序云端获取数据
                 val url = "https://api.weixin.qq.com/tcb/invokecloudfunction?access_token=$accessToken&env=$env&name=addBuddha"
                 val args: MutableList<PostArgument> = ArrayList()
-                args.add(PostArgument("phone", "18509513143"))
+                args.add(PostArgument("phone", phone))
                 args.add(PostArgument("startTime", buddha.startTime.timeInMillis))
                 args.add(PostArgument("duration", buddha.duration))
                 args.add(PostArgument("count", buddha.count))
@@ -136,7 +137,7 @@ object _CloudUtils {
                 // 通过accessToken，env，云函数名，args 在微信小程序云端获取数据
                 val url = "https://api.weixin.qq.com/tcb/invokecloudfunction?access_token=$accessToken&env=$env&name=editBuddha"
                 val args: MutableList<PostArgument> = ArrayList()
-                args.add(PostArgument("phone", "18509513143"))
+                args.add(PostArgument("phone", phone))
                 args.add(PostArgument("startTime", buddha.startTime.timeInMillis))
                 args.add(PostArgument("duration", buddha.duration))
                 args.add(PostArgument("count", buddha.count))
@@ -176,7 +177,7 @@ object _CloudUtils {
                 // 通过accessToken，env，云函数名，args 在微信小程序云端获取数据
                 val url = "https://api.weixin.qq.com/tcb/invokecloudfunction?access_token=$accessToken&env=$env&name=delBuddha"
                 val args: MutableList<PostArgument> = ArrayList()
-                args.add(PostArgument("phone", "18509513143"))
+                args.add(PostArgument("phone", phone))
                 args.add(PostArgument("startTime", buddha.startTime.timeInMillis))
                 postRequestByJson(url, args, HttpCallback { html ->
                     try {
@@ -327,7 +328,7 @@ object _CloudUtils {
                 // 通过accessToken，env，云函数名，args 在微信小程序云端获取数据
                 val url = "https://api.weixin.qq.com/tcb/invokecloudfunction?access_token=$accessToken&env=$env&name=loadBuddha"
                 val args: MutableList<PostArgument> = ArrayList()
-                args.add(PostArgument("phone", "18509513143"))
+                args.add(PostArgument("phone", phone))
                 args.add(PostArgument("startTime", startTime.timeInMillis))
                 postRequestByJson(url, args, HttpCallback { html ->
                     try {
@@ -351,7 +352,7 @@ object _CloudUtils {
                 // 通过accessToken，env，云函数名，args 在微信小程序云端获取数据
                 val url = "https://api.weixin.qq.com/tcb/invokecloudfunction?access_token=$accessToken&env=$env&name=saveSetting"
                 val args: MutableList<PostArgument> = ArrayList()
-                args.add(PostArgument("phone", "18509513143"))
+                args.add(PostArgument("phone", phone))
                 args.add(PostArgument("name", name))
                 args.add(PostArgument("value", value.toString()))
                 postRequestByJson(url, args, HttpCallback { html ->
@@ -386,7 +387,7 @@ object _CloudUtils {
                 // 通过accessToken，env，云函数名，args 在微信小程序云端获取数据
                 val url = "https://api.weixin.qq.com/tcb/invokecloudfunction?access_token=$accessToken&env=$env&name=getSetting"
                 val args: MutableList<PostArgument> = ArrayList()
-                args.add(PostArgument("phone", "18509513143"))
+                args.add(PostArgument("phone", phone))
                 args.add(PostArgument("name", name))
                 postRequestByJson(url, args, object : HttpCallback {
                     override fun excute(html: String) {
@@ -423,7 +424,7 @@ object _CloudUtils {
                 // 通过accessToken，env，云函数名，args 在微信小程序云端获取数据
                 val url = "https://api.weixin.qq.com/tcb/invokecloudfunction?access_token=$accessToken&env=$env&name=getSettingList"
                 val args: MutableList<PostArgument> = ArrayList()
-                args.add(PostArgument("phone", "18509513143"))
+                args.add(PostArgument("phone", phone))
                 postRequestByJson(url, args, object : HttpCallback {
                     override fun excute(html: String) {
                         try {
@@ -461,7 +462,7 @@ object _CloudUtils {
                 // 通过accessToken，env，云函数名，args 在微信小程序云端获取数据
                 val url = "https://api.weixin.qq.com/tcb/invokecloudfunction?access_token=$accessToken&env=$env&name=getNewMsg"
                 val args: MutableList<PostArgument> = ArrayList()
-                args.add(PostArgument("phone", "18509513143"))
+                args.add(PostArgument("phone", phone))
                 postRequestByJson(url, args, HttpCallback { html ->
                     try {
                         e(html)
@@ -506,7 +507,7 @@ object _CloudUtils {
                 // 通过accessToken，env，云函数名，args 在微信小程序云端获取数据
                 val url = "https://api.weixin.qq.com/tcb/invokecloudfunction?access_token=$accessToken&env=$env&name=getUser"
                 val args: MutableList<PostArgument> = ArrayList()
-                args.add(PostArgument("phone", "18509513143"))
+                args.add(PostArgument("phone", phone))
                 postRequestByJson(url, args, HttpCallback { html ->
                     try {
                         val resp_data: Any = _JsonUtils.getValueByKey(html, "resp_data")
@@ -538,7 +539,7 @@ object _CloudUtils {
                 // 通过accessToken，env，云函数名，args 在微信小程序云端获取数据
                 val url = "https://api.weixin.qq.com/tcb/invokecloudfunction?access_token=$accessToken&env=$env&name=addLocation"
                 val args: MutableList<PostArgument> = ArrayList()
-                args.add(PostArgument("phone", "18509513143"))
+                args.add(PostArgument("phone", phone))
                 args.add(PostArgument("date", System.currentTimeMillis()))
                 args.add(PostArgument("latitude", latitude))
                 args.add(PostArgument("longitude", longitude))
@@ -598,7 +599,7 @@ object _CloudUtils {
                 // 通过accessToken，env，云函数名，args 在微信小程序云端获取数据
                 val url = "https://api.weixin.qq.com/tcb/invokecloudfunction?access_token=$accessToken&env=$env&name=updatePositions"
                 val args: MutableList<PostArgument> = ArrayList()
-                args.add(PostArgument("phone", "18509513143"))
+                args.add(PostArgument("phone", phone))
                 args.add(PostArgument("positions", positoinsJson))
                 postRequestByJson(url, args, HttpCallback { html ->
                     try {
@@ -622,7 +623,7 @@ object _CloudUtils {
             // 通过accessToken，env，云函数名，args 在微信小程序云端获取数据
             val url = "https://api.weixin.qq.com/tcb/invokecloudfunction?access_token=$accessToken&env=yipinshangdu-4wk7z&name=getPositions"
             val args: MutableList<PostArgument> = ArrayList()
-            args.add(PostArgument("phone", "18509513143"))
+            args.add(PostArgument("phone", phone))
             postRequestByJson(url, args, object : HttpCallback {
                 override fun excute(html: String) {
                     try {

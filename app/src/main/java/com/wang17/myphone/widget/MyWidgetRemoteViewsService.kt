@@ -188,6 +188,7 @@ class MyWidgetRemoteViewsService : RemoteViewsService() {
                                 }
                                 1 -> {
                                     dc.editSetting(Setting.KEYS.wx_new_msg, msg.toString())
+                                    _SoundUtils.play(applicationContext,R.raw.ding)
 //                                    mToDoList.add(ToDo("          ", "          ", msg.toString(), WARNING3_COLOR, true, R.raw.bi))
                                 }
                                 else->{

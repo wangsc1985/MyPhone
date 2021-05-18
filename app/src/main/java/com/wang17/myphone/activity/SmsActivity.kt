@@ -14,6 +14,7 @@ import android.widget.*
 import com.wang17.myphone.R
 import com.wang17.myphone.database.DataContext
 import com.wang17.myphone.database.PhoneMessage
+import com.wang17.myphone.database.Setting
 import com.wang17.myphone.model.DateTime
 import com.wang17.myphone.util._Utils.printException
 import com.wang17.myphone.widget.MyWidgetProvider
@@ -25,6 +26,8 @@ import kotlin.collections.ArrayList
 import kotlin.collections.HashMap
 
 class SmsActivity : AppCompatActivity() {
+
+
     class GroupItem(
             var dateTime: DateTime,
             var number: String,
@@ -44,10 +47,13 @@ class SmsActivity : AppCompatActivity() {
     private var smsList: List<PhoneMessage> = ArrayList()
     private var adapter: SmsExpandableListAdapter = SmsExpandableListAdapter()
     private lateinit var dc: DataContext
+    private var isAll =false
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_sms)
 
+        isAll = intent.getBooleanExtra("isAll",false)
         try {
             dc = DataContext(this)
             loadSmsData()
@@ -122,7 +128,12 @@ class SmsActivity : AppCompatActivity() {
     fun loadSmsData() {
         groupList.clear()
         childListList.clear()
-        smsList = dc.phoneMessages
+        if(isAll){
+            smsList = dc.phoneMessages
+        }else{
+            smsList = dc.getPhoneMessages(dc.getSetting(Setting.KEYS.sms_last_time,0).long)
+        }
+        dc.editSetting(Setting.KEYS.sms_last_time,System.currentTimeMillis())
         smsList.forEach { sms ->
             val group = groupList.firstOrNull { m -> m.number == sms.address }
             var index = groupList.indexOfFirst { m -> m.number == sms.address }
