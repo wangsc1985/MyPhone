@@ -56,6 +56,7 @@ class MuyuService : Service() {
     var pitch = 1.0f
     var speed = 1.0f
     var circleSecond = 600
+    var muyu_count = 20
 
     var muyu_period=1000L
     var yq_period=1000L
@@ -78,7 +79,8 @@ class MuyuService : Service() {
         e("buddha service onCreate")
         try {
             dc = DataContext(applicationContext)
-            circleSecond = (dc.getSetting(Setting.KEYS.muyu_period,666).int*1.080).toInt()
+            circleSecond = (dc.getSetting(Setting.KEYS.muyu_period,666).int*1.080).toInt()*4
+            muyu_count = dc.getSetting(Setting.KEYS.muyu_count,20).int
 
             guSound = SoundPool(100, AudioManager.STREAM_MUSIC, 0)
             guSound.load(this, R.raw.yq, 1)
@@ -134,6 +136,7 @@ class MuyuService : Service() {
     var prvCount = 0
     var timerRuning = true
     var timer: Timer? = null
+    var count = 0
     fun startTimer() {
         timer?.cancel()
         timer = null
@@ -141,8 +144,9 @@ class MuyuService : Service() {
         timer?.schedule(object : TimerTask() {
             override fun run() {
                 if (timerRuning) {
-                    muyuSound.play(1,1.0f,1.0f,0,0,1.0f)
-
+                    if(count++/muyu_count%2==0) {
+                        muyuSound.play(1, 1.0f, 1.0f, 0, 0, 1.0f)
+                    }
 //                    e("缓存duration : ${savedDuration/1000}秒  此段duration : ${(System.currentTimeMillis() - startTimeInMillis)/1000}秒   此段起始时间 : ${DateTime(startTimeInMillis).toTimeString()}")
                     val duration = savedDuration + System.currentTimeMillis() - startTimeInMillis
                     val second = duration % 60000 / 1000
