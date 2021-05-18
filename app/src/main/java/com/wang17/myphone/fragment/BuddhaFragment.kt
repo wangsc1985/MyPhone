@@ -333,7 +333,13 @@ class BuddhaFragment : Fragment() {
         }
 
         layout_dayTotal.setOnClickListener {
-            _FingerUtils.showFingerPrintDialog(activity!!) {
+            if(dc.getSetting(Setting.KEYS.is_authorize_buddha_record,false).boolean){
+                _FingerUtils.showFingerPrintDialog(activity!!) {
+                    val intent = Intent(context, BuddhaDetailActivity::class.java)
+                    intent.putExtra("start", System.currentTimeMillis())
+                    startActivity(intent)
+                }
+            }else{
                 val intent = Intent(context, BuddhaDetailActivity::class.java)
                 intent.putExtra("start", System.currentTimeMillis())
                 startActivity(intent)
@@ -341,7 +347,11 @@ class BuddhaFragment : Fragment() {
         }
 
         layout_monthTotal.setOnClickListener {
-            _FingerUtils.showFingerPrintDialog(activity!!) {
+            if(dc.getSetting(Setting.KEYS.is_authorize_buddha_record,false).boolean){
+                _FingerUtils.showFingerPrintDialog(activity!!) {
+                    startActivity(Intent(context, BuddhaActivity::class.java))
+                }
+            }else{
                 startActivity(Intent(context, BuddhaActivity::class.java))
             }
         }
