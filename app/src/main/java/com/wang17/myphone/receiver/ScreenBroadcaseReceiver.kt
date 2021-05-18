@@ -68,7 +68,6 @@ class ScreenBroadcaseReceiver : BroadcastReceiver() {
                                         }
                                         1 -> {
                                             dc.editSetting(Setting.KEYS.wx_new_msg, msg.toString())
-                                            _SoundUtils.play(context, R.raw.ding)
                                         }
                                         else->{
 
