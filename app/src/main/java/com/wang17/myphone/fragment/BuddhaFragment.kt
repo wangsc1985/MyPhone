@@ -56,7 +56,7 @@ class BuddhaFragment : Fragment() {
         val size = dc.getPhoneMessages(dc.getSetting(Setting.KEYS.sms_last_time,0).long).size
         if(size>0){
             tv_msg.visibility=View.VISIBLE
-            _Utils.zhendong2(context!!,100)
+            _Utils.zhendong(context!!,100)
         }else{
             tv_msg.visibility=View.GONE
         }
