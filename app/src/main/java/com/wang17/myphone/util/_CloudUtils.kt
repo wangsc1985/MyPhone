@@ -635,12 +635,12 @@ object _CloudUtils {
 
                             val jsonObject = jsonArray.getString(i)
 
-                            val position = Position()
-                            position.name = _JsonUtils.getValueByKey(jsonObject, "name")
-                            position.code = _JsonUtils.getValueByKey(jsonObject, "code")
-                            position.amount = _JsonUtils.getValueByKey(jsonObject, "amount").toInt()
-                            position.cost = _JsonUtils.getValueByKey(jsonObject, "cost").toBigDecimal()
-                            position.exchange = _JsonUtils.getValueByKey(jsonObject, "exchange")
+                            val position = Position(_JsonUtils.getValueByKey(jsonObject, "code"),
+                                _JsonUtils.getValueByKey(jsonObject, "name"),
+                                _JsonUtils.getValueByKey(jsonObject, "cost").toBigDecimal(),
+                            0,
+                                _JsonUtils.getValueByKey(jsonObject, "amount").toInt(),
+                                _JsonUtils.getValueByKey(jsonObject, "exchange"),0.toBigDecimal())
                             if (position.amount > 0) result.add(position)
                         }
                         callback.excute(0, result)

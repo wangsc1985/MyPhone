@@ -73,7 +73,7 @@ class BuddhaRecord {
 enum class BuddhaType(var value:Int){
     听佛(0),
     计时念佛(1),
-    听佛念佛(10),
+    听佛计数(10),
     计数念佛(11),
     散念(13);
 
@@ -86,7 +86,7 @@ enum class BuddhaType(var value:Int){
             when(value){
                 0-> return 听佛
                 1-> return 计时念佛
-                10-> return 听佛念佛
+                10-> return 听佛计数
                 11-> return 计数念佛
                 else-> return 散念
             }

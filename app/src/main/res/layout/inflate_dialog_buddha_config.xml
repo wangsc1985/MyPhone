@@ -10,101 +10,12 @@
 
     <LinearLayout
         android:layout_width="wrap_content"
-        android:layout_height="match_parent"
-        android:gravity="right"
-        android:orientation="horizontal"
-        android:padding="20dp">
-
-        <TextView
-            android:id="@+id/textView1"
-            android:layout_width="60dp"
-            android:layout_height="wrap_content"
-            android:layout_gravity="center_vertical"
-            android:layout_weight="1"
-            android:text="音调：" />
-
-        <EditText
-            android:id="@+id/et_pitch"
-            android:layout_width="70dp"
-            android:layout_height="wrap_content"
-            android:layout_gravity="center_vertical"
-            android:layout_weight="1"
-            android:background="@drawable/bg_map_btn_pressed"
-            android:ems="10"
-            android:imeOptions="actionDone"
-            android:inputType="numberDecimal"
-            android:selectAllOnFocus="true" />
-
-        <ImageView
-            android:id="@+id/iv_pitch_minus"
-            android:layout_width="60dp"
-            android:layout_height="40dp"
-            android:layout_gravity="center_vertical"
-            android:layout_marginLeft="30dp"
-            android:layout_weight="1"
-            android:src="@drawable/minus_box" />
-
-        <ImageView
-            android:id="@+id/iv_pitch_add"
-            android:layout_width="60dp"
-            android:layout_height="40dp"
-            android:layout_gravity="center_vertical"
-            android:layout_marginLeft="30dp"
-            android:layout_weight="1"
-            android:src="@drawable/add_box" />
-    </LinearLayout>
-
-    <LinearLayout
-        android:layout_width="wrap_content"
-        android:layout_height="match_parent"
-        android:gravity="right"
-        android:orientation="horizontal"
-        android:padding="20dp">
-
-        <TextView
-            android:id="@+id/textView2"
-            android:layout_width="60dp"
-            android:layout_height="wrap_content"
-            android:layout_gravity="center_vertical"
-            android:layout_weight="1"
-            android:text="音速：" />
-
-        <EditText
-            android:id="@+id/et_speed"
-            android:layout_width="70dp"
-            android:layout_height="wrap_content"
-            android:layout_gravity="center_vertical"
-            android:layout_weight="1"
-            android:background="@drawable/bg_map_btn_pressed"
-            android:ems="10"
-            android:inputType="numberDecimal"
-            android:selectAllOnFocus="true" />
-
-        <ImageView
-            android:id="@+id/iv_speed_minus"
-            android:layout_width="60dp"
-            android:layout_height="40dp"
-            android:layout_gravity="center_vertical"
-            android:layout_marginLeft="30dp"
-            android:src="@drawable/minus_box" />
-
-        <ImageView
-            android:id="@+id/iv_speed_add"
-            android:layout_width="60dp"
-            android:layout_height="40dp"
-            android:layout_gravity="center_vertical"
-            android:layout_marginLeft="30dp"
-            android:src="@drawable/add_box" />
-    </LinearLayout>
-
-    <LinearLayout
-        android:layout_width="wrap_content"
-        android:layout_height="match_parent"
+        android:layout_height="wrap_content"
         android:orientation="horizontal">
 
         <LinearLayout
             android:layout_width="wrap_content"
-            android:layout_height="match_parent"
+            android:layout_height="wrap_content"
             android:gravity="right"
             android:orientation="horizontal"
             android:padding="20dp">
@@ -129,7 +40,7 @@
 
         <LinearLayout
             android:layout_width="wrap_content"
-            android:layout_height="match_parent"
+            android:layout_height="wrap_content"
             android:gravity="right"
             android:orientation="horizontal"
             android:padding="20dp">
@@ -151,13 +62,8 @@
                 android:inputType="numberDecimal"
                 android:selectAllOnFocus="true" />
         </LinearLayout>
+
     </LinearLayout>
 
-    <Button
-        android:id="@+id/btnUpdate"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_weight="1"
-        android:text="更新" />
 
 </LinearLayout>

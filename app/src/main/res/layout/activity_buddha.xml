@@ -6,7 +6,6 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     tools:context="com.wang17.myphone.activity.BuddhaActivity">
-
     <fragment
         android:id="@+id/fragment_action"
         android:name="com.wang17.myphone.fragment.ActionBarFragment"

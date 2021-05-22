@@ -60,6 +60,7 @@
         android:layout_height="wrap_content"
         android:layout_marginEnd="16dp"
         android:clickable="true"
+        android:visibility="gone"
         app:layout_constraintBottom_toBottomOf="@+id/textView_profit"
         app:layout_constraintEnd_toStartOf="@+id/fab_upload"
         app:layout_constraintTop_toTopOf="@+id/textView_profit"

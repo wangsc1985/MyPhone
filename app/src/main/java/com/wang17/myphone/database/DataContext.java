@@ -806,15 +806,14 @@ public class DataContext {
             Cursor cursor = db.query("position", null, "code = ?", new String[]{code}, null, null, null);
             //判断游标是否为空
             while (cursor.moveToNext()) {
-                Position model = new Position();
+                Position model = new Position(cursor.getString(1),
+                        cursor.getString(2),
+                        new BigDecimal(cursor.getString(3)),
+                        cursor.getInt(4),
+                        cursor.getInt(5),
+                        cursor.getString(6),
+                        new BigDecimal(cursor.getString(7)));
                 model.setId(UUID.fromString(cursor.getString(0)));
-                model.setCode(cursor.getString(1));
-                model.setName(cursor.getString(2));
-                model.setCost(new BigDecimal(cursor.getString(3)));
-                model.setType(cursor.getInt(4));
-                model.setAmount(cursor.getInt(5));
-                model.setExchange(cursor.getString(6));
-                model.setProfit(new BigDecimal(cursor.getString(7)));
                 cursor.close();
                 db.close();
                 return model;
@@ -834,15 +833,14 @@ public class DataContext {
             Cursor cursor = db.query("position", null, "type=0", null, null, null, null);
             //判断游标是否为空
             while (cursor.moveToNext()) {
-                Position model = new Position();
+                Position model = new Position(cursor.getString(1),
+                        cursor.getString(2),
+                        new BigDecimal(cursor.getString(3)),
+                        cursor.getInt(4),
+                        cursor.getInt(5),
+                        cursor.getString(6),
+                        new BigDecimal(cursor.getString(7)));
                 model.setId(UUID.fromString(cursor.getString(0)));
-                model.setCode(cursor.getString(1));
-                model.setName(cursor.getString(2));
-                model.setCost(new BigDecimal(cursor.getString(3)));
-                model.setType(cursor.getInt(4));
-                model.setAmount(cursor.getInt(5));
-                model.setExchange(cursor.getString(6));
-                model.setProfit(new BigDecimal(cursor.getString(7)));
                 result.add(model);
             }
             cursor.close();
@@ -862,15 +860,14 @@ public class DataContext {
             Cursor cursor = db.query("position", null, "amount != 0", null, null, null, null);
             //判断游标是否为空
             while (cursor.moveToNext()) {
-                Position model = new Position();
+                Position model = new Position(cursor.getString(1),
+                        cursor.getString(2),
+                        new BigDecimal(cursor.getString(3)),
+                        cursor.getInt(4),
+                        cursor.getInt(5),
+                        cursor.getString(6),
+                        new BigDecimal(cursor.getString(7)));
                 model.setId(UUID.fromString(cursor.getString(0)));
-                model.setCode(cursor.getString(1));
-                model.setName(cursor.getString(2));
-                model.setCost(new BigDecimal(cursor.getString(3)));
-                model.setType(cursor.getInt(4));
-                model.setAmount(cursor.getInt(5));
-                model.setExchange(cursor.getString(6));
-                model.setProfit(new BigDecimal(cursor.getString(7)));
                 result.add(model);
             }
             cursor.close();
@@ -895,15 +892,14 @@ public class DataContext {
             }
             //判断游标是否为空
             while (cursor.moveToNext()) {
-                Position model = new Position();
+                Position model = new Position(cursor.getString(1),
+                        cursor.getString(2),
+                        new BigDecimal(cursor.getString(3)),
+                        cursor.getInt(4),
+                        cursor.getInt(5),
+                        cursor.getString(6),
+                        new BigDecimal(cursor.getString(7)));
                 model.setId(UUID.fromString(cursor.getString(0)));
-                model.setCode(cursor.getString(1));
-                model.setName(cursor.getString(2));
-                model.setCost(new BigDecimal(cursor.getString(3)));
-                model.setType(cursor.getInt(4));
-                model.setAmount(cursor.getInt(5));
-                model.setExchange(cursor.getString(6));
-                model.setProfit(new BigDecimal(cursor.getString(7)));
                 result.add(model);
             }
             cursor.close();
@@ -1089,16 +1085,16 @@ public class DataContext {
             Cursor cursor = db.query("trade", null, "id = ?", new String[]{id.toString()}, null, null, null);
             //判断游标是否为空
             while (cursor.moveToNext()) {
-                Trade model = new Trade();
+                Trade model = new Trade(new DateTime(cursor.getLong(1)),
+                        cursor.getString(2),
+                        cursor.getString(3),
+                        new BigDecimal(cursor.getString(4)),
+                        cursor.getInt(5),
+                        cursor.getInt(6),
+                        cursor.getInt(7),
+                        new BigDecimal("0"),
+                        cursor.getInt(8));
                 model.setId(UUID.fromString(cursor.getString(0)));
-                model.setDateTime(new DateTime(cursor.getLong(1)));
-                model.setCode(cursor.getString(2));
-                model.setName(cursor.getString(3));
-                model.setPrice(new BigDecimal(cursor.getString(4)));
-                model.setAmount(cursor.getInt(5));
-                model.setType(cursor.getInt(6));
-                model.setTag(cursor.getInt(7));
-                model.setHold(cursor.getInt(8));
                 cursor.close();
                 db.close();
                 return model;
@@ -1118,16 +1114,16 @@ public class DataContext {
             Cursor cursor = db.query("trade", null, "code = ?", new String[]{code}, null, null, "dateTime DESC");
             //判断游标是否为空
             while (cursor.moveToNext()) {
-                Trade model = new Trade();
+                Trade model = new Trade(new DateTime(cursor.getLong(1)),
+                        cursor.getString(2),
+                        cursor.getString(3),
+                        new BigDecimal(cursor.getString(4)),
+                        cursor.getInt(5),
+                        cursor.getInt(6),
+                        cursor.getInt(7),
+                        new BigDecimal("0"),
+                        cursor.getInt(8));
                 model.setId(UUID.fromString(cursor.getString(0)));
-                model.setDateTime(new DateTime(cursor.getLong(1)));
-                model.setCode(cursor.getString(2));
-                model.setName(cursor.getString(3));
-                model.setPrice(new BigDecimal(cursor.getString(4)));
-                model.setAmount(cursor.getInt(5));
-                model.setType(cursor.getInt(6));
-                model.setTag(cursor.getInt(7));
-                model.setHold(cursor.getInt(8));
                 result.add(model);
             }
             cursor.close();
@@ -1149,16 +1145,16 @@ public class DataContext {
             Cursor cursor = db.query("trade", null, "code = ? and tag = ?", new String[]{code, "1"}, null, null, "dateTime DESC");
             //判断游标是否为空
             while (cursor.moveToNext()) {
-                Trade model = new Trade();
+                Trade model = new Trade(new DateTime(cursor.getLong(1)),
+                        cursor.getString(2),
+                        cursor.getString(3),
+                        new BigDecimal(cursor.getString(4)),
+                        cursor.getInt(5),
+                        cursor.getInt(6),
+                        cursor.getInt(7),
+                        new BigDecimal("0"),
+                        cursor.getInt(8));
                 model.setId(UUID.fromString(cursor.getString(0)));
-                model.setDateTime(new DateTime(cursor.getLong(1)));
-                model.setCode(cursor.getString(2));
-                model.setName(cursor.getString(3));
-                model.setPrice(new BigDecimal(cursor.getString(4)));
-                model.setAmount(cursor.getInt(5));
-                model.setType(cursor.getInt(6));
-                model.setTag(cursor.getInt(7));
-                model.setHold(cursor.getInt(8));
                 result.add(model);
             }
             cursor.close();
@@ -1180,8 +1176,6 @@ public class DataContext {
             Cursor cursor = db.query("trade", null, "code = ?", new String[]{code}, null, null, "dateTime DESC");
             //判断游标是否为空
             while (cursor.moveToNext()) {
-                Trade model = new Trade();
-                model.setId(UUID.fromString(cursor.getString(0)));
                 DateTime dt = new DateTime(cursor.getLong(1));
                 int t = cursor.getInt(6);
                 if (date != null && date.get(Calendar.DAY_OF_YEAR) != dt.get(Calendar.DAY_OF_YEAR)) {
@@ -1192,14 +1186,16 @@ public class DataContext {
                 }
                 date = dt;
                 type = t;
-                model.setDateTime(dt);
-                model.setCode(cursor.getString(2));
-                model.setName(cursor.getString(3));
-                model.setPrice(new BigDecimal(cursor.getString(4)));
-                model.setAmount(cursor.getInt(5));
-                model.setType(t);
-                model.setTag(cursor.getInt(7));
-                model.setHold(cursor.getInt(8));
+                Trade model = new Trade(dt,
+                        cursor.getString(2),
+                        cursor.getString(3),
+                        new BigDecimal(cursor.getString(4)),
+                        cursor.getInt(5),
+                        t,
+                        cursor.getInt(7),
+                        new BigDecimal("0"),
+                        cursor.getInt(8));
+                model.setId(UUID.fromString(cursor.getString(0)));
                 result.add(model);
             }
             cursor.close();
@@ -1219,16 +1215,16 @@ public class DataContext {
             Cursor cursor = db.query("trade", null, null, null, null, null, "dateTime DESC");
             //判断游标是否为空
             while (cursor.moveToNext()) {
-                Trade model = new Trade();
+                Trade model = new Trade(new DateTime(cursor.getLong(1)),
+                        cursor.getString(2),
+                        cursor.getString(3),
+                        new BigDecimal(cursor.getString(4)),
+                        cursor.getInt(5),
+                        cursor.getInt(6),
+                        cursor.getInt(7),
+                        new BigDecimal("0"),
+                        cursor.getInt(8));
                 model.setId(UUID.fromString(cursor.getString(0)));
-                model.setDateTime(new DateTime(cursor.getLong(1)));
-                model.setCode(cursor.getString(2));
-                model.setName(cursor.getString(3));
-                model.setPrice(new BigDecimal(cursor.getString(4)));
-                model.setAmount(cursor.getInt(5));
-                model.setType(cursor.getInt(6));
-                model.setTag(cursor.getInt(7));
-                model.setHold(cursor.getInt(8));
                 result.add(model);
             }
             cursor.close();

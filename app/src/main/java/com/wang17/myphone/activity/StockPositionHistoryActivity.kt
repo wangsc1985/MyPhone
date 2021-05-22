@@ -18,12 +18,11 @@ import android.widget.CalendarView.OnDateChangeListener
 import com.alibaba.fastjson.JSON
 import com.wang17.myphone.*
 import com.wang17.myphone.callback.CloudCallback
-import com.wang17.myphone.database.DataContext
+import com.wang17.myphone.database.*
+import com.wang17.myphone.fragment.ChartDialogFragment
 import com.wang17.myphone.model.DateTime
+import com.wang17.myphone.model.Stock
 import com.wang17.myphone.model.StockInfo
-import com.wang17.myphone.database.Position
-import com.wang17.myphone.database.Setting
-import com.wang17.myphone.database.Trade
 import com.wang17.myphone.util.*
 import com.wang17.myphone.util.TradeUtils.commission
 import com.wang17.myphone.util.TradeUtils.tax
@@ -31,6 +30,7 @@ import com.wang17.myphone.util.TradeUtils.transferFee
 import kotlinx.android.synthetic.main.activity_history_position.*
 import okhttp3.Request
 import okhttp3.Response
+import okhttp3.internal.format
 import java.math.BigDecimal
 import java.text.DecimalFormat
 import java.util.*
@@ -80,79 +80,32 @@ class StockPositionHistoryActivity() : AppCompatActivity() {
         }
         fab_refresh.setOnLongClickListener {
             AlertDialog.Builder(this@StockPositionHistoryActivity).setMessage("是否重新计算所有股票的收益？").setPositiveButton("是", DialogInterface.OnClickListener { dialog, which ->
-                totalProfit = 0.toBigDecimal()
-                for (pos in positions) {
-                    val tradeList = dc.getTrades(pos.code)
-                    var cost = 0.toBigDecimal()
-                    var amount = 0
-                    var profit = 0.toBigDecimal()
-                    for (td in tradeList.reversed()) {
-                        // 成本总资金
-                        val costFund = cost * (amount * 100).toBigDecimal()
-                        // 成交总资金
-                        val tradeFund = td.price * (td.amount * 100).toBigDecimal()
-                        // 佣金
-                        val commission = commission(td)
-                        // 过户费
-                        val transferFee = transferFee(td)
-                        // 印花税
-                        val tax = tax(td)
-                        if (td.type == -2 || td.type == 2) { // 股息 息稅
-
-                            // 计算成本
-                            if (amount == 0) {
-                                cost = 0.toBigDecimal()
-                                // 计算盈利
-                                profit += td.price
-                            } else {
-                                cost = (cost * (amount * 100).toMyDecimal() - td.price) / (amount * 100).toBigDecimal()
-                            }
-                            td.hold = amount
-                        } else {
-                            /**
-                             * 如果是平仓：计算盈利。
-                             */
-                            if (td.type == -1) {
-                                profit += (td.price - cost) * (td.amount * 100).toBigDecimal() - commission - transferFee - tax
-                            }
-                            /**
-                             * 计算成本
-                             */
-                            // 清仓
-                            if (amount + td.type * td.amount == 0) {
-                                dc.editTrade(td)
-                                cost = 0.toBigDecimal()
-                            } else {
-                                cost = (costFund + td.type.toMyDecimal() * tradeFund + commission + transferFee + tax) / (amount * 100 + td.type * td.amount * 100).toBigDecimal()
-                            }
-                            amount = amount + td.type * td.amount
-                            td.hold = amount
-                        }
-                        dc.editTrade(td)
-                    }
-                    totalProfit += profit
-                    pos.profit = profit
-                    pos.amount = amount
-                    pos.cost = cost
-                    dc.editPosition(pos)
-                }
-                val format = DecimalFormat("#,##0")
-                textView_profit.setText(format.format(totalProfit))
-                Toast.makeText(this@StockPositionHistoryActivity, "计算完毕", Toast.LENGTH_LONG).show()
-                positions = dc.allPositions
-                adapter.notifyDataSetChanged()
-
+                refreshData()
             }).show()
             true
         }
         fab_upload.setOnLongClickListener {
-            AlertDialog.Builder(this@StockPositionHistoryActivity).setMessage("是否上传云端？").setPositiveButton("是"){ dialog: DialogInterface, i: Int ->
+            AlertDialog.Builder(this@StockPositionHistoryActivity).setMessage("是否上传云端？").setPositiveButton("是") { dialog: DialogInterface, i: Int ->
                 updatePositions()
             }.show()
             true
         }
         fab_chart.setOnClickListener {
+//            val statements = createChartData()
+//            val fund = statements.last().fund
+//
+//            val format = DecimalFormat("#,##0.00")
+//            var cc = 0.toBigDecimal()
+//            val arr = arrayOfNulls<String>(statements.size)
+//            for (i in statements.indices) {
+//                val dd = statements.get(i)
+//                cc += dd.profit * 100.toBigDecimal() / fund
+//                arr[i] = "${dd.date.toShortDateString()}  ${format.format(dd.fund)}  ${format.format(dd.profit * 100.toBigDecimal() / fund)}%  ${format.format(cc)}%"
+//            }
+//            AlertDialog.Builder(this).setItems(arr, null).show()
 
+//            var fragment = ChartDialogFragment()
+//            fragment.show(supportFragmentManager,"chart fragment")
         }
         adapter = PositionListdAdapter()
         timer.schedule(object : TimerTask() {
@@ -201,6 +154,70 @@ class StockPositionHistoryActivity() : AppCompatActivity() {
         })
 
         wakeLock = _Utils.acquireWakeLock(this, PowerManager.SCREEN_BRIGHT_WAKE_LOCK)!!
+    }
+
+    private fun refreshData() {
+        totalProfit = 0.toBigDecimal()
+        for (pos in positions) {
+            val tradeList = dc.getTrades(pos.code)
+            var cost = 0.toBigDecimal()
+            var amount = 0
+            var profit = 0.toBigDecimal()
+            for (td in tradeList.reversed()) {
+                // 成本总资金
+                val costFund = cost * (amount * 100).toBigDecimal()
+                // 成交总资金
+                val tradeFund = td.price * (td.amount * 100).toBigDecimal()
+                // 佣金
+                val commission = commission(td)
+                // 过户费
+                val transferFee = transferFee(td)
+                // 印花税
+                val tax = tax(td)
+                if (td.type == -2 || td.type == 2) { // 股息 息稅
+
+                    // 计算成本
+                    if (amount == 0) {
+                        cost = 0.toBigDecimal()
+                        // 计算盈利
+                        profit += td.price
+                    } else {
+                        cost = (cost * (amount * 100).toMyDecimal() - td.price) / (amount * 100).toBigDecimal()
+                    }
+                    td.hold = amount
+                } else {
+                    /**
+                     * 如果是平仓：计算盈利。
+                     */
+                    if (td.type == -1) {
+                        profit += (td.price - cost) * (td.amount * 100).toBigDecimal() - commission - transferFee - tax
+                    }
+                    /**
+                     * 计算成本
+                     */
+                    // 清仓
+                    if (amount + td.type * td.amount == 0) {
+                        dc.editTrade(td)
+                        cost = 0.toBigDecimal()
+                    } else {
+                        cost = (costFund + td.type.toMyDecimal() * tradeFund + commission + transferFee + tax) / (amount * 100 + td.type * td.amount * 100).toBigDecimal()
+                    }
+                    amount = amount + td.type * td.amount
+                    td.hold = amount
+                }
+                dc.editTrade(td)
+            }
+            totalProfit += profit
+            pos.profit = profit
+            pos.amount = amount
+            pos.cost = cost
+            dc.editPosition(pos)
+        }
+        val format = DecimalFormat("#,##0")
+        textView_profit.setText(format.format(totalProfit))
+        Toast.makeText(this@StockPositionHistoryActivity, "计算完毕", Toast.LENGTH_LONG).show()
+        positions = dc.allPositions
+        adapter.notifyDataSetChanged()
     }
 
     private fun updatePositions() {
@@ -252,25 +269,20 @@ class StockPositionHistoryActivity() : AppCompatActivity() {
                     val trdt = DateTime()
                     trdt[Calendar.YEAR] = selectDate[Calendar.YEAR]
                     trdt[Calendar.DAY_OF_YEAR] = selectDate[Calendar.DAY_OF_YEAR]
-                    val trade = Trade()
-                    trade.code = position.code
-                    trade.name = position.name
-                    trade.type = -2
-                    trade.price = money
-                    trade.dateTime = trdt
-                    trade.amount = position.amount
-                    dc.addTrade(trade)
 
                     // 成本总资金
                     val costFund = position.cost * (position.amount * 100).toBigDecimal()
                     val amount = position.amount
+                    var cost = 0.toBigDecimal()
                     if (amount > 0) {
-                        val cost = (costFund - money).setMyScale() / (amount * 100).toBigDecimal()
+                        cost = (costFund - money).setMyScale() / (amount * 100).toBigDecimal()
                         position.cost = cost
                         dc.editPosition(position)
                         positions = dc.allPositions
                         adapter.notifyDataSetChanged()
                     }
+
+                    dc.addTrade(Trade(trdt, position.code, position.name, money, position.amount, -2, 0, cost, position.amount))
                     dialog.dismiss()
                 } catch (e: NumberFormatException) {
                     Snackbar.make(editTextCode, "成本价必须为数字", Snackbar.LENGTH_SHORT).show()
@@ -319,14 +331,6 @@ class StockPositionHistoryActivity() : AppCompatActivity() {
                     val trdt = DateTime()
                     trdt[Calendar.YEAR] = selectDate[Calendar.YEAR]
                     trdt[Calendar.DAY_OF_YEAR] = selectDate[Calendar.DAY_OF_YEAR]
-                    val trade = Trade()
-                    trade.code = position.code
-                    trade.name = position.name
-                    trade.type = 2
-                    trade.price = money
-                    trade.dateTime = trdt
-                    trade.amount = position.amount
-                    dc.addTrade(trade)
 
                     // 成本总资金
                     val costFund = position.cost * (position.amount * 100).toBigDecimal()
@@ -334,6 +338,9 @@ class StockPositionHistoryActivity() : AppCompatActivity() {
                     val cost = (costFund - money).setMyScale() / (amount * 100).toBigDecimal()
                     position.cost = cost
                     dc.editPosition(position)
+
+                    dc.addTrade(Trade(trdt, position.code, position.name, money, position.amount, 2, 0, cost, position.amount))
+
                     positions = dc.allPositions
                     adapter.notifyDataSetChanged()
                     dialog.dismiss()
@@ -386,28 +393,23 @@ class StockPositionHistoryActivity() : AppCompatActivity() {
                     val trdt = DateTime()
                     trdt[Calendar.YEAR] = selectDate[Calendar.YEAR]
                     trdt[Calendar.DAY_OF_YEAR] = selectDate[Calendar.DAY_OF_YEAR]
-                    val trade = Trade()
-                    trade.code = position.code
-                    trade.name = position.name
-                    trade.type = 1
-                    trade.price = tradePrice
-                    trade.dateTime = trdt
-                    trade.amount = tradeAmount
-                    dc.addTrade(trade)
 
                     // 成本总资金
                     val costFund = position.cost * (position.amount * 100).toBigDecimal()
                     // 成交总资金
                     val tradeFund = tradePrice * (tradeAmount * 100).toBigDecimal()
                     // 佣金
-                    val commission = commission(trade)
+                    val commission = commission(tradePrice, tradeAmount)
                     // 过户费
-                    val transferFee = transferFee(trade)
+                    val transferFee = transferFee(tradePrice, tradeAmount)
                     val amount = position.amount + tradeAmount
                     val cost = (costFund + tradeFund + commission + transferFee).setMyScale() / (amount * 100).toBigDecimal()
                     position.cost = cost
                     position.amount = amount
                     dc.editPosition(position)
+
+                    dc.addTrade(Trade(trdt, position.code, position.name, tradePrice, tradeAmount, 1, 0, cost, position.amount))
+
                     positions = dc.allPositions
                     adapter.notifyDataSetChanged()
                     dialog.dismiss()
@@ -460,31 +462,20 @@ class StockPositionHistoryActivity() : AppCompatActivity() {
                     val trdt = DateTime()
                     trdt[Calendar.YEAR] = selectDate[Calendar.YEAR]
                     trdt[Calendar.DAY_OF_YEAR] = selectDate[Calendar.DAY_OF_YEAR]
-                    val trade = Trade()
-                    trade.code = position.code
-                    trade.name = position.name
-                    trade.type = -1
-                    trade.price = tradePrice
-                    trade.dateTime = trdt
-                    trade.amount = tradeAmount
-                    if (position.amount == tradeAmount) {
-                        trade.tag = -1
-                    }
-                    dc.addTrade(trade)
 
                     // 成本总资金
                     val costFund = position.cost * (position.amount * 100).toBigDecimal()
                     // 成交总资金
                     val tradeFund = tradePrice * (tradeAmount * 100).toBigDecimal()
                     // 佣金
-                    val commission = commission(trade)
+                    val commission = commission(tradePrice, tradeAmount)
                     // 过户费
-                    val transferFee = transferFee(trade)
+                    val transferFee = transferFee(tradePrice, tradeAmount)
                     // 印花税
-                    val tax = tax(trade)
+                    val tax = tax(-1, tradePrice, tradeAmount)
                     val profit = ((tradePrice - position.cost) * (tradeAmount * 100).toBigDecimal()) - commission - transferFee - tax
                     val amount = position.amount - tradeAmount
-                    var cost:BigDecimal
+                    var cost: BigDecimal
                     if (amount == 0) {
                         cost = 0.toBigDecimal()
                     } else {
@@ -494,6 +485,10 @@ class StockPositionHistoryActivity() : AppCompatActivity() {
                     position.profit = position.profit + profit
                     position.amount = amount
                     dc.editPosition(position)
+
+                    dc.addTrade(Trade(trdt, position.code, position.name, tradePrice, tradeAmount, -1, if (amount == 0) -1 else 0, cost, position.amount))
+
+
                     positions = dc.allPositions
                     adapter.notifyDataSetChanged()
                     dialog.dismiss()
@@ -573,14 +568,7 @@ class StockPositionHistoryActivity() : AppCompatActivity() {
                                 Snackbar.make(editTextCode, "股票代码不存在", Snackbar.LENGTH_SHORT).show()
                                 return
                             }
-                            val position = Position()
-                            position.name = info.name
-                            position.cost = 0.toBigDecimal()
-                            position.code = info.code
-                            position.type = 0
-                            position.amount = 0
-                            position.exchange = info.exchange
-                            dc.addPosition(position)
+                            dc.addPosition(Position(info.code, info.name, 0.toBigDecimal(), 0, 0, info.exchange, 0.toBigDecimal()))
                             positions = dc.allPositions
                             adapter.notifyDataSetChanged()
                             dialog.dismiss()
@@ -694,7 +682,7 @@ class StockPositionHistoryActivity() : AppCompatActivity() {
                             tvAttType.text = if (it.type == 1) "买入" else "卖出"
                             tvAttPrice.text = format.format(it.price)
                             tvAttAmount.text = (it.amount * 100).toString()
-                            attTrades.add(AttTrades(it.code, it.price,it.amount, it.type, tvAttIncrease))
+                            attTrades.add(AttTrades(it.code, it.price, it.amount, it.type, tvAttIncrease))
 
                             layout_trade.addView(view)
                         }
@@ -727,11 +715,11 @@ class StockPositionHistoryActivity() : AppCompatActivity() {
     private var timer = Timer()
 
     data class AttTrades(
-            var code: String,
-            var price: BigDecimal,
-            var amount:Int,
-            var type: Int,
-            var tvIncrease: TextView
+        var code: String,
+        var price: BigDecimal,
+        var amount: Int,
+        var type: Int,
+        var tvIncrease: TextView
     )
 
     init {

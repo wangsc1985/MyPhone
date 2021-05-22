@@ -81,7 +81,8 @@ class BuddhaDetailActivity : AppCompatActivity(), OnActionFragmentBackListener {
                                 }
                             }
                             runOnUiThread {
-                                AlertDialog.Builder(this).setMessage(result.toString()).show()
+                                Toast.makeText(this,result.toString(),Toast.LENGTH_LONG).show()
+//                                AlertDialog.Builder(this).setMessage(result.toString()).show()
                             }
                         }
                     }
@@ -101,7 +102,8 @@ class BuddhaDetailActivity : AppCompatActivity(), OnActionFragmentBackListener {
                                 //
                                 refreshData()
                                 recordListdAdapter.notifyDataSetChanged()
-                                AlertDialog.Builder(this).setMessage(result.toString()).show()
+                                Toast.makeText(this,result.toString(),Toast.LENGTH_LONG).show()
+//                                AlertDialog.Builder(this).setMessage(result.toString()).show()
                             }
                         }
                         else -> {
@@ -157,14 +159,6 @@ class BuddhaDetailActivity : AppCompatActivity(), OnActionFragmentBackListener {
                 val tv_type = convertView.findViewById<TextView>(R.id.tv_type)
                 val tv_number = convertView.findViewById<TextView>(R.id.textView_monthCount)
                 tv_date.text = "" + buddha.startTime.hourStr + "点" + buddha.startTime.miniteStr + "分"
-//                when(buddha.type){
-//                    1->{
-//                        tv_item.text = "计时念佛"
-//                    }
-//                    11->{
-//                        tv_item.text="计数念佛"
-//                    }
-//                }
                 if (buddha.summary.isNotEmpty())
                     tv_item.text = buddha.summary
 //                else
@@ -172,14 +166,6 @@ class BuddhaDetailActivity : AppCompatActivity(), OnActionFragmentBackListener {
                 tv_duration.text = "" + toSpanString(buddha.duration, 3, 2)
                 tv_type.visibility=View.VISIBLE
                 tv_type.text=BuddhaType.fromInt(buddha.type).toString()
-//                when(buddha.type){
-//                    0->tv_type.text="听佛"
-//                    1->tv_type.text="计时念佛"
-//                    10->tv_type.text="听佛计数"
-//                    11->tv_type.text="念佛计数"
-//                    13->tv_type.text="散念"
-//                }
-//                val tap = buddha.count/1080
                 tv_number.text = if (buddha.count > 0) (buddha.count.toDouble()/1000).format(2)+" 千" else ""
             } catch (e: Exception) {
                 printException(this@BuddhaDetailActivity, e)

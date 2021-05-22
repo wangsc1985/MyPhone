@@ -45,6 +45,12 @@ class DateTime : GregorianCalendar {
     val date: DateTime
         get() = DateTime(this[YEAR], this[MONTH], this[DAY_OF_MONTH])
 
+    fun isSameDay(dateTime:DateTime):Boolean{
+        if(this.year==dateTime.year&&this.month==dateTime.month&&this.day==dateTime.day){
+            return true
+        }
+        return false
+    }
     fun addMonths(months: Int): DateTime {
         val dateTime = clone() as DateTime
         dateTime.add(MONTH, months)

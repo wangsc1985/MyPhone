@@ -107,7 +107,8 @@ class BuddhaFragment : Fragment() {
 
                     uiHandler.post {
                         if (buddhaS.size > 0) {
-                            AlertDialog.Builder(context).setMessage("新增${buddhaS.size}条记录").show()
+                            Toast.makeText(context,"新增${buddhaS.size}条记录",Toast.LENGTH_LONG).show()
+//                            AlertDialog.Builder(context).setMessage("新增${buddhaS.size}条记录").show()
                         }
                     }
                     refreshTotalView()
@@ -292,7 +293,8 @@ class BuddhaFragment : Fragment() {
                                     refreshTotalView()
                                     uiHandler.post {
                                         tv_time.text = ""
-                                        AlertDialog.Builder(context).setMessage(result.toString()).show()
+                                        Toast.makeText(context,result.toString(),Toast.LENGTH_LONG).show()
+//                                        AlertDialog.Builder(context).setMessage(result.toString()).show()
                                     }
                                 }
                             }
@@ -432,7 +434,8 @@ class BuddhaFragment : Fragment() {
                         }
                     }
                     uiHandler.post {
-                        AlertDialog.Builder(context!!).setMessage(result.toString()).show()
+                        Toast.makeText(context,result.toString(),Toast.LENGTH_LONG).show()
+//                        AlertDialog.Builder(context!!).setMessage(result.toString()).show()
                     }
                 }
             }
@@ -459,7 +462,8 @@ class BuddhaFragment : Fragment() {
                         }
                     }
                     uiHandler.post {
-                        AlertDialog.Builder(context!!).setMessage(result.toString()).show()
+                        Toast.makeText(context,result.toString(),Toast.LENGTH_LONG).show()
+//                        AlertDialog.Builder(context!!).setMessage(result.toString()).show()
                     }
                 }
             }
@@ -486,7 +490,8 @@ class BuddhaFragment : Fragment() {
                         }
                     }
                     uiHandler.post {
-                        AlertDialog.Builder(context!!).setMessage(result.toString()).show()
+                        Toast.makeText(context,result.toString(),Toast.LENGTH_LONG).show()
+//                        AlertDialog.Builder(context!!).setMessage(result.toString()).show()
                     }
                 }
             }
@@ -704,7 +709,8 @@ class BuddhaFragment : Fragment() {
                             }
                         }
                         uiHandler.post {
-                            AlertDialog.Builder(context!!).setMessage(result.toString()).show()
+                            Toast.makeText(context,result.toString(),Toast.LENGTH_LONG).show()
+//                            AlertDialog.Builder(context!!).setMessage(result.toString()).show()
                         }
                     }
                 }
@@ -720,17 +726,9 @@ class BuddhaFragment : Fragment() {
             if (file.exists()) {
                 val bf = dc.getBuddhaConfig(set.string, file.length())
                 val view = View.inflate(context, R.layout.inflate_dialog_buddha_config, null)
-                val etPitch = view.findViewById<EditText>(R.id.et_pitch)
-                val etSpeed = view.findViewById<EditText>(R.id.et_speed)
-                val ivPitchMinus = view.findViewById<ImageView>(R.id.iv_pitch_minus)
-                val ivPitchAdd = view.findViewById<ImageView>(R.id.iv_pitch_add)
-                val ivSpeedMinus = view.findViewById<ImageView>(R.id.iv_speed_minus)
-                val ivSpeedAdd = view.findViewById<ImageView>(R.id.iv_speed_add)
                 val spType = view.findViewById<Spinner>(R.id.sp_type)
                 val etDuration = view.findViewById<EditText>(R.id.et_duration)
-                val btnUpdate = view.findViewById<Button>(R.id.btnUpdate)
-                etPitch.setText(bf.pitch.toString())
-                etSpeed.setText(bf.speed.toString())
+                etDuration.setText(bf.circleSecond.toString())
                 when (bf.type) {
                     0 -> {
                         spType.setSelection(0)
@@ -745,56 +743,17 @@ class BuddhaFragment : Fragment() {
                         spType.setSelection(3)
                     }
                 }
-                val format = DecimalFormat("0.00")
-                ivPitchAdd.setOnClickListener {
-                    etPitch.setText(format.format(etPitch.text.toString().toFloat() + 0.01))
-                    bf.pitch = etPitch.text.toString().toFloat()
-                    dc.editBuddhaConfig(bf)
 
-                    loadBuddhaName()
-                    EventBus.getDefault().post(EventBusMessage.getInstance(FromBuddhaConfigUpdate(), ""))
-                }
-                ivPitchMinus.setOnClickListener {
-                    etPitch.setText(format.format(etPitch.text.toString().toFloat() - 0.01))
-                    bf.pitch = etPitch.text.toString().toFloat()
-                    dc.editBuddhaConfig(bf)
+                AlertDialog.Builder(context).setTitle(set.string).setView(view).setPositiveButton("更新", DialogInterface.OnClickListener { dialog, which ->
 
-                    loadBuddhaName()
-                    EventBus.getDefault().post(EventBusMessage.getInstance(FromBuddhaConfigUpdate(), ""))
-                }
-                ivSpeedAdd.setOnClickListener {
-                    etSpeed.setText(format.format(etSpeed.text.toString().toFloat() + 0.01))
-                    bf.speed = etSpeed.text.toString().toFloat()
-                    dc.editBuddhaConfig(bf)
-
-                    loadBuddhaName()
-                    EventBus.getDefault().post(EventBusMessage.getInstance(FromBuddhaConfigUpdate(), ""))
-                }
-                ivSpeedMinus.setOnClickListener {
-                    etSpeed.setText(format.format(etSpeed.text.toString().toFloat() - 0.01))
-                    bf.speed = etSpeed.text.toString().toFloat()
-                    dc.editBuddhaConfig(bf)
-
-                    loadBuddhaName()
-                    EventBus.getDefault().post(EventBusMessage.getInstance(FromBuddhaConfigUpdate(), ""))
-                }
-                etDuration.setText(bf.circleSecond.toString())
-
-                val dialog = AlertDialog.Builder(context).setTitle(set.string).setView(view).show()
-                btnUpdate.setOnClickListener {
                     bf.circleSecond = etDuration.text.toString().toInt()
                     bf.type = spType.selectedItem.toString().toInt()
-                    bf.speed = etSpeed.text.toString().toFloat()
-                    bf.pitch = etPitch.text.toString().toFloat()
                     dc.editBuddhaConfig(bf)
                     isFromConfigChanged = true
                     circleSecond = getCurrentCircleSecond()  // 必须在dc.editBuddhaConfig(bf)之后
-                    if (_Utils.isServiceRunning(context!!, BuddhaService::class.qualifiedName!!) && dc.getSetting(Setting.KEYS.buddha_startime) != null) {
-                        context?.stopService(buddhaIntent)
-                        context?.startService(buddhaIntent)
-                    } else {
-                        dialog.dismiss()
-                    }
+
+                    loadBuddhaName()
+                    dialog.dismiss()
 
                     var list = ArrayList<BuddhaConfig>()
                     var bfs = dc.buddhaConfigList
@@ -807,7 +766,7 @@ class BuddhaFragment : Fragment() {
                     }
 
                     dc.deleteBuddhaConfigList(list)
-                }
+                }).show()
             }
         }
     }
@@ -819,7 +778,7 @@ class BuddhaFragment : Fragment() {
             val file = _Session.getFile(setName.string)
             val bf = dc.getBuddhaConfig(setName.string, file.length())
             bf?.let {
-                if (bf.type == 11 || bf.type == 10) {
+                if (bf.type > 9) {
                     circleSecond = (bf.circleSecond / bf.speed).toInt()
                 } else {
                     circleSecond = bf.circleSecond
@@ -890,7 +849,8 @@ class BuddhaFragment : Fragment() {
                         animatorSuofang(btn_buddha_animator)
                     } else {
                         uiHandler.post {
-                            AlertDialog.Builder(context).setMessage(result.toString()).show()
+                            Toast.makeText(context,result.toString(),Toast.LENGTH_LONG).show()
+//                            AlertDialog.Builder(context).setMessage(result.toString()).show()
                         }
                     }
                 }
@@ -946,7 +906,8 @@ class BuddhaFragment : Fragment() {
                                 refreshTotalView()
                                 uiHandler.post {
                                     tv_time.text = ""
-                                    AlertDialog.Builder(context).setMessage(result.toString()).show()
+                                    Toast.makeText(context,result.toString(),Toast.LENGTH_LONG).show()
+//                                    AlertDialog.Builder(context).setMessage(result.toString()).show()
                                 }
                             }
                             callback?.excute(code, result)
@@ -962,7 +923,8 @@ class BuddhaFragment : Fragment() {
                                 refreshTotalView()
                                 uiHandler.post {
                                     tv_time.text = ""
-                                    AlertDialog.Builder(context).setMessage(result.toString()).show()
+                                    Toast.makeText(context,result.toString(),Toast.LENGTH_LONG).show()
+//                                    AlertDialog.Builder(context).setMessage(result.toString()).show()
                                 }
                             }
                             callback?.excute(code, result)

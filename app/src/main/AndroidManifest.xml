@@ -1,25 +1,24 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="com.wang17.myphone">
-    <uses-permission android:name="android.permission.SYSTEM_ALERT_WINDOW" /><!-- 悬浮窗 -->
-    <uses-permission android:name="android.permission.SYSTEM_OVERLAY_WINDOW" />
 
-    <!-- 指纹 -->
+    <uses-permission android:name="android.permission.SYSTEM_ALERT_WINDOW" /> <!-- 悬浮窗 -->
+    <uses-permission android:name="android.permission.SYSTEM_OVERLAY_WINDOW" /> <!-- 指纹 -->
     <uses-permission android:name="android.permission.USE_FINGERPRINT" />
     <uses-permission android:name="android.permission.READ_SMS" /> <!-- 收发短信 -->
     <uses-permission android:name="android.permission.SEND_SMS" />
     <uses-permission android:name="android.permission.BLUETOOTH" /> <!-- 监听蓝牙 -->
-    <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED" />  <!-- 开关机监听 -->
+    <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED" /> <!-- 开关机监听 -->
     <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
     <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
     <uses-permission android:name="android.permission.USE_BIOMETRIC" />
     <uses-permission android:name="android.permission.USE_FINGERPRINT" />
-    <uses-permission android:name="android.permission.VIBRATE" />  <!-- 手机振动权限 -->
+    <uses-permission android:name="android.permission.VIBRATE" /> <!-- 手机振动权限 -->
     <uses-permission android:name="android.permission.RECEIVE_SMS" /> <!-- 接收短信 -->
     <!-- 读写文件 -->
     <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
     <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
-    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" /><!-- 网络状态 -->
+    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" /> <!-- 网络状态 -->
     <uses-permission android:name="android.permission.ACCESS_WIFI_STATE" />
     <uses-permission android:name="android.permission.INTERNET" />
     <uses-permission android:name="android.permission.READ_PHONE_STATE" />
@@ -41,7 +40,8 @@
         android:roundIcon="@mipmap/launcher"
         android:supportsRtl="true"
         android:theme="@style/Theme.AppCompat.Light.NoActionBar">
-        <activity android:name=".activity.LoanActivity"></activity>
+        <activity android:name=".activity.ChartActivity"></activity>
+        <activity android:name=".activity.LoanActivity" />
         <activity
             android:name=".activity.DesktopDialogActivity"
             android:alwaysRetainTaskState="true"
@@ -212,8 +212,7 @@
             <meta-data
                 android:name="android.accessibilityservice"
                 android:resource="@xml/accessibility" />
-        </service>
-        <!-- 定位需要的服务 使用2.0的定位需要加上这个 -->
+        </service> <!-- 定位需要的服务 使用2.0的定位需要加上这个 -->
         <service android:name="com.amap.api.location.APSService" />
         <service android:name=".service.NianfoMusicService" />
         <service android:name=".service.LocationService" /> <!-- 是用于更新widget中的图片的服务。 -->

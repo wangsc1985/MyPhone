@@ -5,7 +5,7 @@ import com.alibaba.fastjson.JSONObject
 import java.io.*
 import java.math.BigDecimal
 import java.util.*
-import java.util.regex.Pattern
+import java.util.concurrent.CountDownLatch
 import kotlin.collections.ArrayList
 
 class MyClass {
@@ -74,10 +74,41 @@ class MyClass {
             return result
         }
 
-        fun getStockHistory(code:String){
-            val url = "http://money.finance.sina.com.cn/quotes_service/api/json_v2.php/CN_MarketData.getKLineData?symbol=${if(code.startsWith("6")) "sh" else "sz"}${code}&scale=240&ma=5&datalen=4023"
+        data class StockPrice(var code:String,var date:DateTime,var price:BigDecimal)
+        fun getStockHistory(code:String,startDate:DateTime):List<StockPrice>{
+            val today = DateTime()
+            val days = (today.date.timeInMillis-startDate.date.timeInMillis)/(60000*60*24)
+            var result = java.util.ArrayList<StockPrice>()
+            // （参数：股票编号、分钟间隔（5、15、30、60、240）、均值（5、10、15、20、25）、查询个数点（最大值242））
+            val url = "http://money.finance.sina.com.cn/quotes_service/api/json_v2.php/CN_MarketData.getKLineData?symbol=${if(code.startsWith("6")) "sh" else "sz"}${code}&scale=240&ma=5&datalen=${days}"
+            val cdl = CountDownLatch(1)
             _OkHttpUtil.getRequest(url){html->
-                println(html)
+                val arr = JSONArray.parse(html) as JSONArray
+                arr.forEach {
+                    val obj = JSONObject.parse(it.toString()) as JSONObject
+                    val dateStr = obj["day"].toString()
+                    val close = obj["close"].toString().toBigDecimal()
+
+                    val dateArr = dateStr.split("-")
+                    var date = DateTime(dateArr[0].toInt(),dateArr[1].toInt()-1,dateArr[2].toInt())
+                    if(date.timeInMillis>=startDate.timeInMillis){
+                        result.add(StockPrice(code,date,close))
+                    }
+                }
+                cdl.countDown()
+            }
+            cdl.await()
+            return result
+        }
+        fun getStockHistory(code:String){
+            val startDate = DateTime(2019,0,1)
+            val today = DateTime()
+            val days = (today.date.timeInMillis-startDate.date.timeInMillis)/(60000*60*24)
+            println(days)
+            val dt1 = System.currentTimeMillis()
+            val url = "http://money.finance.sina.com.cn/quotes_service/api/json_v2.php/CN_MarketData.getKLineData?symbol=${if(code.startsWith("6")) "sh" else "sz"}${code}&scale=240&ma=5&datalen=${days}"
+            _OkHttpUtil.getRequest(url){html->
+//                println(html)
                 val arr = JSONArray.parse(html) as JSONArray
                 var count=0
                 arr.forEach {
@@ -85,33 +116,38 @@ class MyClass {
                     val dateStr = obj["day"].toString()
                     val close = obj["close"].toString().toBigDecimal()
 
-                    val aa = dateStr.split(" ")
-                    val dateArr = aa[0].split("-")
+//                    val dateStrArr = dateStr.split(" ")
+                    val dateArr = dateStr.split("-")
                     var date = DateTime(dateArr[0].toInt(),dateArr[1].toInt()-1,dateArr[2].toInt())
-                    if(aa.size>1){
-                        val timeArr = aa[1].split(":")
-                        date = DateTime(dateArr[0].toInt(),dateArr[1].toInt()-1,dateArr[2].toInt(),timeArr[0].toInt(),timeArr[1].toInt(),timeArr[2].toInt())
-                    }
+//                    if(dateStrArr.size>1){
+//                        val timeArr = dateStrArr[1].split(":")
+//                        date = DateTime(dateArr[0].toInt(),dateArr[1].toInt()-1,dateArr[2].toInt(),timeArr[0].toInt(),timeArr[1].toInt(),timeArr[2].toInt())
+//                    }
 
-                    if(aa.size>1){
-                        if(date.hour==15){
-                            count++
-                            println("${count} : ${code}  ${date.toShortDateString()}  ${close}")
-                        }
-                    }else{
+//                    if(dateStrArr.size>1){
+//                        if(date.hour==15){
+//                            count++
+//                            println("${count} : ${code}  ${date.toShortDateString()}  ${close}")
+//                        }
+//                    }else{
+                    if(date.timeInMillis>=startDate.timeInMillis){
                         count++
                         println("${count} : ${code}  ${date.toShortDateString()}  ${close}")
                     }
+//                    }
                 }
+//                println(System.currentTimeMillis()-dt1)
             }
         }
         @JvmStatic
         fun main(args: Array<String>) {
 
-            var aaa = "0.00".toBigDecimal()
-            var bbb = "0.0".toBigDecimal()
-            println()
-            println(BuddhaType.fromInt(10))
+            val a = getStockHistory("002839",DateTime(2019,0,1))
+            println(a.size)
+//            var aaa = "0.00".toBigDecimal()
+//            var bbb = "0.0".toBigDecimal()
+//            println()
+//            println(BuddhaType.fromInt(10))
 
 //
 //

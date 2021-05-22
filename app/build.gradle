@@ -108,4 +108,8 @@ dependencies {
     // 流动布局
     implementation 'com.google.android:flexbox:0.2.2'
     implementation 'org.greenrobot:eventbus:3.1.1'
+
+
+    // 图表
+    implementation 'com.github.lecho:hellocharts-library:1.5.8@aar'
 }

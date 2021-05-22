@@ -232,29 +232,33 @@ class OperationFragment : Fragment() {
         kotlin.run {
             btn = _Button(context!!, "trade")
             btn.setOnClickListener {
-                _FingerUtils.showFingerPrintDialog(activity!!) {
-                    var dialog = AlertDialog.Builder(context!!).setItems(arrayOf("持仓", "历史")) { dialog, which ->
-                        when (which) {
-                            0 -> {
-                                startActivity(Intent(context, StockPositionActivity::class.java))
-                            }
-                            1 -> {
+//                _FingerUtils.showFingerPrintDialog(activity!!) {
+//                    var dialog = AlertDialog.Builder(context!!).setItems(arrayOf("持仓", "历史")) { dialog, which ->
+//                        when (which) {
+//                            0 -> {
+//                                startActivity(Intent(context, StockPositionActivity::class.java))
+//                            }
+//                            1 -> {
                                 startActivity(Intent(context, StockPositionHistoryActivity::class.java))
-                            }
-                            2 -> {
-                                startActivity(Intent(context, FundMonitorActivity::class.java))
-                            }
-                            3 -> {
-                                startActivity(Intent(context, FuturePositionActivity::class.java))
-                            }
-                            4 -> {
-                                AlertDialog.Builder(context!!).setMessage("StockService运行状态：${_Utils.isServiceRunning(context!!, StockService::class.qualifiedName!!)}").show()
-                            }
-                        }
-                    }.create()
-                    dialog.window?.setGravity(Gravity.BOTTOM)
-                    dialog.show()
-                }
+//                            }
+//                            2 -> {
+//                                startActivity(Intent(context, FundMonitorActivity::class.java))
+//                            }
+//                            3 -> {
+//                                startActivity(Intent(context, FuturePositionActivity::class.java))
+//                            }
+//                            4 -> {
+//                                AlertDialog.Builder(context!!).setMessage("StockService运行状态：${_Utils.isServiceRunning(context!!, StockService::class.qualifiedName!!)}").show()
+//                            }
+//                        }
+//                    }.create()
+//                    dialog.window?.setGravity(Gravity.BOTTOM)
+//                    dialog.show()
+//                }
+            }
+            btn.setOnLongClickListener {
+                startActivity(Intent(context!!,ChartActivity::class.java))
+                true
             }
             layout_flexbox.addView(btn)
         }

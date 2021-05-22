@@ -83,13 +83,7 @@ class FuturePositionActivity : AppCompatActivity() {
                             Snackbar.make(editTextCode, "合约代码不存在", Snackbar.LENGTH_SHORT).show()
                             return
                         }
-                        val position = Position()
-                        position.name = info.name!!
-                        position.cost = BigDecimal(editTextCost.text.toString())
-                        position.code = info.code!!
-                        position.type = 1
-                        position.amount = info.amount
-                        mDataContext!!.addPosition(position)
+                        mDataContext!!.addPosition(Position( info.code!!,info.name!!,BigDecimal(editTextCost.text.toString()),1,info.amount,"",0.toBigDecimal()))
                         positions = mDataContext!!.getPositions(1)
                         infoList!!.clear()
                         adapter!!.notifyDataSetChanged()
@@ -114,13 +108,7 @@ class FuturePositionActivity : AppCompatActivity() {
                             Snackbar.make(editTextCode, "合约代码不存在", Snackbar.LENGTH_SHORT).show()
                             return
                         }
-                        val position = Position()
-                        position.name = info.name!!
-                        position.cost = BigDecimal(editTextCost.text.toString())
-                        position.code = info.code!!
-                        position.type = -1
-                        position.amount = info.amount
-                        mDataContext!!.addPosition(position)
+                        mDataContext!!.addPosition(Position(info.code!!,info.name!!,BigDecimal(editTextCost.text.toString()), -1,info.amount,"",0.toBigDecimal()) )
                         positions = mDataContext!!.getPositions(1)
                         infoList!!.clear()
                         adapter!!.notifyDataSetChanged()

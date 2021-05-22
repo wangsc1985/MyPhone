@@ -461,7 +461,7 @@ class MyWidgetRemoteViewsService : RemoteViewsService() {
 //                    if(toDo.rawId==0){
 //                        _Utils.zhendong(applicationContext,200)
 //                    }else{
-                        _Utils.zhendong2(applicationContext,100)
+                        _Utils.zhendong(applicationContext,100)
 //                        if(now.hour != dc.getSetting(Setting.KEYS.pre_alert_hour, 0).int&& now.hour >= 7)
 //                        _SoundUtils.mediaPlay(applicationContext, toDo.rawId)
 //                    }

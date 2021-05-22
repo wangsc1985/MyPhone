@@ -1,9 +1,13 @@
 package com.wang17.myphone.util
 
 import android.graphics.Color
+import com.alibaba.fastjson.JSONArray
+import com.alibaba.fastjson.JSONObject
 import com.wang17.myphone.activity.StockPositionHistoryActivity.AttTrades
 import com.wang17.myphone.model.StockInfo
 import com.wang17.myphone.database.Position
+import com.wang17.myphone.model.DateTime
+import com.wang17.myphone.model.Stock
 import com.wang17.myphone.service.StockService.Companion.findCommodity
 import com.wang17.myphone.setMyScale
 import com.wang17.myphone.toMyDecimal
@@ -11,6 +15,7 @@ import okhttp3.Request
 import java.math.BigDecimal
 import java.text.DecimalFormat
 import java.util.*
+import java.util.concurrent.CountDownLatch
 
 object _SinaStockUtils {
     fun getStockInfoList(attTrades: List<AttTrades>) {
@@ -215,9 +220,31 @@ object _SinaStockUtils {
         fun onLoadFinished(map: Map<String, Double>)
     }
 
-    fun getStockHistory(code:String){
-        val url = "http://money.finance.sina.com.cn/quotes_service/api/json_v2.php/CN_MarketData.getKLineData?symbol=${if(code.startsWith("6")) "sh" else "sz"}${code}&scale=60&ma=5&datalen=1023"
-        // （参数：股票编号、分钟间隔（5、15、30、60）、均值（5、10、15、20、25）、查询个数点（最大值242））
 
+    fun getStockHistory(code:String,startDate:DateTime):MutableList<Stock>{
+        val today = DateTime()
+        val days = (today.date.timeInMillis-startDate.date.timeInMillis)/(60000*60*24)
+        var result = ArrayList<Stock>()
+        // （参数：股票编号、分钟间隔（5、15、30、60、240）、均值（5、10、15、20、25）、查询个数点（最大值242））
+//      http://money.finance.sina.com.cn/quotes_service/api/json_v2.php/CN_MarketData.getKLineData?symbol=sh600123&scale=240&ma=5&datalen=3000
+        val url = "http://money.finance.sina.com.cn/quotes_service/api/json_v2.php/CN_MarketData.getKLineData?symbol=${if(code.startsWith("6")) "sh" else "sz"}${code}&scale=240&ma=5&datalen=${days}"
+        val countDownLatch = CountDownLatch(1)
+        _OkHttpUtil.getRequest(url){html->
+            val arr = JSONArray.parse(html) as JSONArray
+            arr.forEach {
+                val obj = JSONObject.parse(it.toString()) as JSONObject
+                val dateStr = obj["day"].toString()
+                val close = obj["close"].toString().toBigDecimal()
+
+                val dateArr = dateStr.split("-")
+                var date = DateTime(dateArr[0].toInt(),dateArr[1].toInt()-1,dateArr[2].toInt())
+                if(date.timeInMillis>=startDate.timeInMillis){
+                    result.add(Stock(code,date,close))
+                }
+            }
+            countDownLatch.countDown()
+        }
+        countDownLatch.await()
+        return result
     }
 }
