@@ -41,6 +41,7 @@ import org.greenrobot.eventbus.ThreadMode
 import java.io.File
 import java.math.BigDecimal
 import java.util.*
+import java.util.concurrent.CountDownLatch
 
 
 class BuddhaService : Service() {
@@ -362,11 +363,13 @@ class BuddhaService : Service() {
 
                 var duration2 = settingDuration.long-duration
 
+                var countDownLatch = CountDownLatch(1)
                 _CloudUtils.addBuddha(applicationContext!!, buddha) { code, result ->
                     when (code) {
                         0 -> {
                             dc.addBuddha(buddha)
                             startTimeInMillis = System.currentTimeMillis() - duration2
+                            savedDuration=0
 
                             dc.deleteSetting(Setting.KEYS.buddha_duration)
                             dc.deleteSetting(Setting.KEYS.buddha_stoptime)
@@ -377,11 +380,14 @@ class BuddhaService : Service() {
                             e("code : $code , result : $result")
                         }
                     }
+                    countDownLatch.countDown()
                 }
+                countDownLatch.await()
             }else{
                 startTimeInMillis = System.currentTimeMillis()
                 dc.editSetting(Setting.KEYS.buddha_startime, startTimeInMillis)
             }
+
 
         } catch (e: Exception) {
             dc.addRunLog("err", "pause or stop", e.message)
@@ -402,11 +408,7 @@ class BuddhaService : Service() {
             // 计算当前section的duration
             val settingStartTime = dc.getSetting(Setting.KEYS.buddha_startime)
             settingStartTime?.let {
-//                val setting = dc.getSetting(Setting.KEYS.buddha_duration)
-//                savedDuration = it?.long ?: 0L
-//                e("------------------ 缓存duration : ${savedDuration / 1000}秒  本段duration : ${(System.currentTimeMillis() - startTimeInMillis) / 1000}秒      此段起始时间 : ${DateTime(startTimeInMillis).toTimeString()} ------------------")
                 savedDuration += now - startTimeInMillis
-//                e("++++++++++++++++++ 缓存duration : ${savedDuration / 1000}秒")
                 dc.editSetting(Setting.KEYS.buddha_duration, savedDuration)
                 dc.editSetting(Setting.KEYS.buddha_stoptime, now)
 
