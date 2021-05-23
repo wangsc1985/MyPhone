@@ -23,14 +23,15 @@ import android.view.View
 import android.view.WindowManager
 import android.widget.ImageView
 import android.widget.TextView
+import android.widget.Toast
 import com.wang17.myphone.R
+import com.wang17.myphone.database.*
 import com.wang17.myphone.e
-import com.wang17.myphone.database.BuddhaConfig
-import com.wang17.myphone.database.DataContext
-import com.wang17.myphone.database.Setting
 import com.wang17.myphone.event.ResetTimeEvent
 import com.wang17.myphone.eventbus.*
 import com.wang17.myphone.model.DateTime
+import com.wang17.myphone.toBuddhaType
+import com.wang17.myphone.util._CloudUtils
 import com.wang17.myphone.util._NotificationUtils
 import com.wang17.myphone.util._Session
 import com.wang17.myphone.util._Utils
@@ -346,8 +347,42 @@ class BuddhaService : Service() {
         try {
             dc.addRunLog("BuddhaService","开始念佛","")
 //            e("------------------ start or restart -------------------------")
-            startTimeInMillis = System.currentTimeMillis()
-            dc.editSetting(Setting.KEYS.buddha_startime, startTimeInMillis)
+
+            val settingStopTimeInMillis = dc.getSetting(Setting.KEYS.buddha_stoptime)
+            val settingDuration = dc.getSetting(Setting.KEYS.buddha_duration)
+            val now = System.currentTimeMillis()
+            if(settingStopTimeInMillis!=null&&settingDuration!=null
+                && now-settingStopTimeInMillis.long>15*60000
+                && settingDuration.long/1000/circleSecond>=1){
+
+                val startTime = DateTime(settingStopTimeInMillis.long - settingDuration.long)
+                val count = (settingDuration.long/1000/circleSecond).toInt()
+                val duration = circleSecond*count*1000.toLong()
+                var buddha = BuddhaRecord(startTime, duration, count, buddhaType.toBuddhaType(), "")
+
+                var duration2 = settingDuration.long-duration
+
+                _CloudUtils.addBuddha(applicationContext!!, buddha) { code, result ->
+                    when (code) {
+                        0 -> {
+                            dc.addBuddha(buddha)
+                            startTimeInMillis = System.currentTimeMillis() - duration2
+
+                            dc.deleteSetting(Setting.KEYS.buddha_duration)
+                            dc.deleteSetting(Setting.KEYS.buddha_stoptime)
+                            dc.editSetting(Setting.KEYS.buddha_startime, startTimeInMillis)
+                            Toast.makeText(applicationContext,result.toString(),Toast.LENGTH_LONG).show()
+                        }
+                        else -> {
+                            e("code : $code , result : $result")
+                        }
+                    }
+                }
+            }else{
+                startTimeInMillis = System.currentTimeMillis()
+                dc.editSetting(Setting.KEYS.buddha_startime, startTimeInMillis)
+            }
+
         } catch (e: Exception) {
             dc.addRunLog("err", "pause or stop", e.message)
         }

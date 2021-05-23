@@ -54,12 +54,12 @@ class BuddhaFragment : Fragment() {
     override fun onResume() {
         super.onResume()
 
-        val size = dc.getPhoneMessages(dc.getSetting(Setting.KEYS.sms_last_time,0).long).size
-        if(size>0){
-            tv_msg.visibility=View.VISIBLE
-            _Utils.zhendong(context!!,100)
-        }else{
-            tv_msg.visibility=View.GONE
+        val size = dc.getPhoneMessages(dc.getSetting(Setting.KEYS.sms_last_time, 0).long).size
+        if (size > 0) {
+            tv_msg.visibility = View.VISIBLE
+            _Utils.zhendong(context!!, 100)
+        } else {
+            tv_msg.visibility = View.GONE
         }
         tv_msg.setText(size.toString())
 
@@ -107,7 +107,7 @@ class BuddhaFragment : Fragment() {
 
                     uiHandler.post {
                         if (buddhaS.size > 0) {
-                            Toast.makeText(context,"新增${buddhaS.size}条记录",Toast.LENGTH_LONG).show()
+                            Toast.makeText(context, "新增${buddhaS.size}条记录", Toast.LENGTH_LONG).show()
 //                            AlertDialog.Builder(context).setMessage("新增${buddhaS.size}条记录").show()
                         }
                     }
@@ -188,7 +188,7 @@ class BuddhaFragment : Fragment() {
         tv_msg.setOnClickListener {
             _FingerUtils.showFingerPrintDialog(activity!!) {
                 var intent = Intent(context, SmsActivity::class.java)
-                intent.putExtra("isAll",false)
+                intent.putExtra("isAll", false)
                 startActivity(intent)
             }
         }
@@ -293,7 +293,7 @@ class BuddhaFragment : Fragment() {
                                     refreshTotalView()
                                     uiHandler.post {
                                         tv_time.text = ""
-                                        Toast.makeText(context,result.toString(),Toast.LENGTH_LONG).show()
+                                        Toast.makeText(context, result.toString(), Toast.LENGTH_LONG).show()
 //                                        AlertDialog.Builder(context).setMessage(result.toString()).show()
                                     }
                                 }
@@ -355,13 +355,13 @@ class BuddhaFragment : Fragment() {
         }
 
         layout_dayTotal.setOnClickListener {
-            if(dc.getSetting(Setting.KEYS.is_authorize_buddha_record,false).boolean){
+            if (dc.getSetting(Setting.KEYS.is_authorize_buddha_record, false).boolean) {
                 _FingerUtils.showFingerPrintDialog(activity!!) {
                     val intent = Intent(context, BuddhaDetailActivity::class.java)
                     intent.putExtra("start", System.currentTimeMillis())
                     startActivity(intent)
                 }
-            }else{
+            } else {
                 val intent = Intent(context, BuddhaDetailActivity::class.java)
                 intent.putExtra("start", System.currentTimeMillis())
                 startActivity(intent)
@@ -369,11 +369,11 @@ class BuddhaFragment : Fragment() {
         }
 
         layout_monthTotal.setOnClickListener {
-            if(dc.getSetting(Setting.KEYS.is_authorize_buddha_record,false).boolean){
+            if (dc.getSetting(Setting.KEYS.is_authorize_buddha_record, false).boolean) {
                 _FingerUtils.showFingerPrintDialog(activity!!) {
                     startActivity(Intent(context, BuddhaActivity::class.java))
                 }
-            }else{
+            } else {
                 startActivity(Intent(context, BuddhaActivity::class.java))
             }
         }
@@ -434,7 +434,7 @@ class BuddhaFragment : Fragment() {
                         }
                     }
                     uiHandler.post {
-                        Toast.makeText(context,result.toString(),Toast.LENGTH_LONG).show()
+                        Toast.makeText(context, result.toString(), Toast.LENGTH_LONG).show()
 //                        AlertDialog.Builder(context!!).setMessage(result.toString()).show()
                     }
                 }
@@ -462,7 +462,7 @@ class BuddhaFragment : Fragment() {
                         }
                     }
                     uiHandler.post {
-                        Toast.makeText(context,result.toString(),Toast.LENGTH_LONG).show()
+                        Toast.makeText(context, result.toString(), Toast.LENGTH_LONG).show()
 //                        AlertDialog.Builder(context!!).setMessage(result.toString()).show()
                     }
                 }
@@ -490,7 +490,7 @@ class BuddhaFragment : Fragment() {
                         }
                     }
                     uiHandler.post {
-                        Toast.makeText(context,result.toString(),Toast.LENGTH_LONG).show()
+                        Toast.makeText(context, result.toString(), Toast.LENGTH_LONG).show()
 //                        AlertDialog.Builder(context!!).setMessage(result.toString()).show()
                     }
                 }
@@ -548,8 +548,8 @@ class BuddhaFragment : Fragment() {
             et.setText(dc.getSetting(Setting.KEYS.muyu_period, 666).string)
             AlertDialog.Builder(context!!).setView(view).setTitle("设置木鱼间隔时间(ms/m)").setPositiveButton("确定") { dialogInterface: DialogInterface, i: Int ->
                 var cc = et.text.toString().toDouble()
-                if(cc<300.0){
-                    cc = cc*60000/1080
+                if (cc < 300.0) {
+                    cc = cc * 60000 / 1080
                 }
                 dc.editSetting(Setting.KEYS.muyu_period, cc.toInt())
                 muyuCircleSecond = cc.toInt()
@@ -709,7 +709,7 @@ class BuddhaFragment : Fragment() {
                             }
                         }
                         uiHandler.post {
-                            Toast.makeText(context,result.toString(),Toast.LENGTH_LONG).show()
+                            Toast.makeText(context, result.toString(), Toast.LENGTH_LONG).show()
 //                            AlertDialog.Builder(context!!).setMessage(result.toString()).show()
                         }
                     }
@@ -766,6 +766,9 @@ class BuddhaFragment : Fragment() {
                     }
 
                     dc.deleteBuddhaConfigList(list)
+
+
+                    EventBus.getDefault().post(EventBusMessage.getInstance(FromBuddhaConfigUpdate(), ""))
                 }).show()
             }
         }
@@ -807,35 +810,18 @@ class BuddhaFragment : Fragment() {
     private fun buildBuddhaAndSave(count: Int, duration: Long, stopTimeInMillis: Long, buddhaType: BuddhaType, callback: CloudCallback) {
         val startTime = DateTime(stopTimeInMillis - duration)
 
-        var buddha: BuddhaRecord? = null
+        var buddha = BuddhaRecord(startTime, duration, count, buddhaType, "")
 
-        buddha = BuddhaRecord(startTime, duration, count, buddhaType, "")
-
-//        when (buddhaType) {
-//            10 -> {
-//            }
-//            11 -> {
-//                buddha = BuddhaRecord(startTime, duration, count, 11, "")
-//            }
-//            1 -> {
-//            }
-//            0 -> {
-//                buddha = BuddhaRecord(startTime, duration, 0, 0, "")
-//            }
-//        }
-
-        buddha?.let {
-            _CloudUtils.addBuddha(context!!, it) { code, result ->
-                when (code) {
-                    0 -> {
-                        dc.addBuddha(it)
-                    }
-                    else -> {
-                        e("code : $code , result : $result")
-                    }
+        _CloudUtils.addBuddha(context!!, buddha) { code, result ->
+            when (code) {
+                0 -> {
+                    dc.addBuddha(buddha)
                 }
-                callback.excute(code, result)
+                else -> {
+                    e("code : $code , result : $result")
+                }
             }
+            callback.excute(code, result)
         }
     }
 
@@ -849,7 +835,7 @@ class BuddhaFragment : Fragment() {
                         animatorSuofang(btn_buddha_animator)
                     } else {
                         uiHandler.post {
-                            Toast.makeText(context,result.toString(),Toast.LENGTH_LONG).show()
+                            Toast.makeText(context, result.toString(), Toast.LENGTH_LONG).show()
 //                            AlertDialog.Builder(context).setMessage(result.toString()).show()
                         }
                     }
@@ -906,7 +892,7 @@ class BuddhaFragment : Fragment() {
                                 refreshTotalView()
                                 uiHandler.post {
                                     tv_time.text = ""
-                                    Toast.makeText(context,result.toString(),Toast.LENGTH_LONG).show()
+                                    Toast.makeText(context, result.toString(), Toast.LENGTH_LONG).show()
 //                                    AlertDialog.Builder(context).setMessage(result.toString()).show()
                                 }
                             }
@@ -923,7 +909,7 @@ class BuddhaFragment : Fragment() {
                                 refreshTotalView()
                                 uiHandler.post {
                                     tv_time.text = ""
-                                    Toast.makeText(context,result.toString(),Toast.LENGTH_LONG).show()
+                                    Toast.makeText(context, result.toString(), Toast.LENGTH_LONG).show()
 //                                    AlertDialog.Builder(context).setMessage(result.toString()).show()
                                 }
                             }
