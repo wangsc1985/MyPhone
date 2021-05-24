@@ -6,7 +6,6 @@ import android.content.DialogInterface
 import android.content.Intent
 import android.os.Bundle
 import android.os.Handler
-import android.os.PowerManager
 import android.support.v4.app.Fragment
 import android.text.InputType
 import android.view.LayoutInflater
@@ -594,12 +593,12 @@ class BuddhaFragment : Fragment() {
         }
 
         fab_buddha.setOnClickListener {
-            autoSave = false
+            isLongClickBuddhaButton = false
             startOrStopBuddha()
         }
 
         fab_buddha.setOnLongClickListener {
-            autoSave = true
+            isLongClickBuddhaButton = true
             startOrStopBuddha()
             true
         }
@@ -631,7 +630,7 @@ class BuddhaFragment : Fragment() {
         return bf
     }
 
-    var autoSave = false
+    var isLongClickBuddhaButton = false
     fun addBuddhaRecordDialog() {
         val view = View.inflate(context, R.layout.inflate_dialog_add_buddha1, null)
         val cvDate = view.findViewById<CalendarView>(R.id.cv_date)
@@ -831,6 +830,7 @@ class BuddhaFragment : Fragment() {
             if (!_Utils.isServiceRunning(context!!, BuddhaService::class.qualifiedName!!)) {
                 checkDuration(BuddhaSource.点击开始按钮) { code, result ->
                     if (code == 0) {
+                        dc.editSetting(Setting.KEYS.is显示念佛悬浮窗, isLongClickBuddhaButton)
                         context?.startService(buddhaIntent)
                         animatorSuofang(btn_buddha_animator)
                     } else {
@@ -884,7 +884,7 @@ class BuddhaFragment : Fragment() {
                     duration = (duration / 60000) * 60000
                 }
                 if (duration > 60000) {
-                    if (source == BuddhaSource.念佛服务结束 && autoSave) {
+                    if (source == BuddhaSource.念佛服务结束 && isLongClickBuddhaButton) {
                         buildBuddhaAndSave(tap.toInt() * 1080, duration, stoptimeInMillis, buddhaType.toBuddhaType()) { code, result ->
                             if (code == 0) {
                                 dc.deleteSetting(Setting.KEYS.buddha_duration)

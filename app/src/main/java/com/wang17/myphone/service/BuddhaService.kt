@@ -41,7 +41,6 @@ import org.greenrobot.eventbus.ThreadMode
 import java.io.File
 import java.math.BigDecimal
 import java.util.*
-import java.util.concurrent.CountDownLatch
 
 
 class BuddhaService : Service() {
@@ -72,6 +71,8 @@ class BuddhaService : Service() {
     lateinit var souSound: SoundPool
     var targetTimeInMinute = 120
 
+    var isShowFloatWindow=false
+
     override fun onBind(intent: Intent): IBinder? {
         return null
     }
@@ -88,6 +89,7 @@ class BuddhaService : Service() {
         try {
             dc = DataContext(applicationContext)
             dc.deleteRunLogByTag("BuddhaService")
+            isShowFloatWindow = dc.getSetting(Setting.KEYS.is显示念佛悬浮窗,false).boolean
             targetTimeInMinute = dc.getSetting(Setting.KEYS.念佛自动结束时间_分钟, 120).int
 
             guSound = SoundPool(100, AudioManager.STREAM_MUSIC, 0)
@@ -482,6 +484,7 @@ class BuddhaService : Service() {
     private fun showFloatingWindow() {
 
         try {
+            if(!isShowFloatWindow) return
             //region 悬浮窗
             windowManager = getSystemService(WINDOW_SERVICE) as WindowManager
             layoutParams = WindowManager.LayoutParams()

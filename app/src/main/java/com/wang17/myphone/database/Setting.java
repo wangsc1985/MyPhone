@@ -62,7 +62,7 @@ public class Setting{
     public enum KEYS{
         sms_last_time,chart_date,
         is_authorize_buddha_record,
-        buddha_float_window_x, buddha_float_window_y,buddha_float_window_width, buddha_float_window_size,
+        buddha_float_window_x, buddha_float_window_y,buddha_float_window_width, buddha_float_window_size, is显示念佛悬浮窗,
          彩票, is念佛引罄间隔提醒, is账户超额提醒,
         念佛自动结束时间_分钟,
         muyu_period,yq_period,muyu_count,
