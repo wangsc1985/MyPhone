@@ -66,11 +66,11 @@ class BuddhaService : Service() {
     var speed = 1.0f
     var circleSecond = 600
 
-    var yq_period=1000L
+    var yq_period = 1000L
 
     lateinit var guSound: SoundPool
-    lateinit var souSound:SoundPool
-    var targetTimeInMinute=120
+    lateinit var souSound: SoundPool
+    var targetTimeInMinute = 120
 
     override fun onBind(intent: Intent): IBinder? {
         return null
@@ -88,17 +88,17 @@ class BuddhaService : Service() {
         try {
             dc = DataContext(applicationContext)
             dc.deleteRunLogByTag("BuddhaService")
-            targetTimeInMinute = dc.getSetting(Setting.KEYS.念佛自动结束时间_分钟,120).int
+            targetTimeInMinute = dc.getSetting(Setting.KEYS.念佛自动结束时间_分钟, 120).int
 
             guSound = SoundPool(100, AudioManager.STREAM_MUSIC, 0)
             guSound.load(this, R.raw.yq, 1)
             souSound = SoundPool(100, AudioManager.STREAM_MUSIC, 0)
-            souSound.load(this,R.raw.piu,1)
+            souSound.load(this, R.raw.piu, 1)
             val setting = dc.getSetting(Setting.KEYS.buddha_duration)
             setting?.let {
                 savedDuration = setting.long
             }
-            yq_period = dc.getSetting(Setting.KEYS.yq_period,1000).long
+            yq_period = dc.getSetting(Setting.KEYS.yq_period, 1000).long
             val volume = dc.getSetting(Setting.KEYS.念佛最佳音量)
             volume?.let {
                 setMediaVolume(it.int)
@@ -113,7 +113,7 @@ class BuddhaService : Service() {
             loadBuddhaConfig()
 
             startMediaPlayer(musicName.string)
-                startTimer()
+            startTimer()
             showFloatingWindow()
             //
             val filter = IntentFilter()
@@ -141,7 +141,7 @@ class BuddhaService : Service() {
             buddhaType = bf.type
             speed = bf.speed
             pitch = bf.pitch
-            if(bf.type==11||bf.type==10)
+            if (bf.type == 11 || bf.type == 10)
                 circleSecond = (bf.circleSecond / bf.speed).toInt()
             else
                 circleSecond = bf.circleSecond
@@ -191,7 +191,7 @@ class BuddhaService : Service() {
                     tv_duration?.setText(notificationTime)
 
                     if (prvCount < notificationCount && dc.getSetting(Setting.KEYS.is念佛引罄间隔提醒, true).boolean) {
-                        dc.addRunLog("BuddhaService","引罄","${DateTime().toTimeString()}  ${notificationTime} prv count : ${prvCount} ; notification count : ${notificationCount}")
+                        dc.addRunLog("BuddhaService", "引罄", "${DateTime().toTimeString()}  ${notificationTime} prv count : ${prvCount} ; notification count : ${notificationCount}")
                         guSound.play(1, 1.0f, 1.0f, 0, 0, 1.0f)
                         prvCount = notificationCount
                         if (notificationCount % 2 == 0) {
@@ -199,14 +199,14 @@ class BuddhaService : Service() {
                             guSound.play(1, 1.0f, 1.0f, 0, 0, 1.0f)
                         }
                     }
-                    if(duration>targetTimeInMinute*60000){
+                    if (duration > targetTimeInMinute * 60000) {
                         stopSelf()
                     }
                 }
-                if(preTime>0&&System.currentTimeMillis()-preTime>10000){
-                    dc.addRunLog("BuddhaService","计时器超时","${(System.currentTimeMillis()-preTime)/1000}秒")
+                if (preTime > 0 && System.currentTimeMillis() - preTime > 10000) {
+                    dc.addRunLog("BuddhaService", "计时器超时", "${(System.currentTimeMillis() - preTime) / 1000}秒")
                 }
-                preTime=System.currentTimeMillis()
+                preTime = System.currentTimeMillis()
                 sendNotification(notificationCount, notificationTime)
             }
         }, 0, 1000)
@@ -234,8 +234,8 @@ class BuddhaService : Service() {
         audio.setStreamVolume(AudioManager.STREAM_MUSIC, volume, AudioManager.FLAG_PLAY_SOUND or AudioManager.FLAG_SHOW_UI)
     }
 
-    private var mPlayer: MediaPlayer?=null
-    private var mBackgroundPlayer: MediaPlayer?=null
+    private var mPlayer: MediaPlayer? = null
+    private var mBackgroundPlayer: MediaPlayer? = null
 
     @RequiresApi(Build.VERSION_CODES.M)
     fun startMediaPlayer(musicName: String) {
@@ -292,10 +292,10 @@ class BuddhaService : Service() {
             AudioManager.AUDIOFOCUS_GAIN -> {
 //                dc.addRunLog("BuddhaService","获取永久焦点","")
                 e("获取永久焦点")
-                if(!AUDIOFOCUS_LOSS_TRANSIENT_CAN_DUCK){
+                if (!AUDIOFOCUS_LOSS_TRANSIENT_CAN_DUCK) {
                     chantBuddhaRestart()
-                }else{
-                    AUDIOFOCUS_LOSS_TRANSIENT_CAN_DUCK=false
+                } else {
+                    AUDIOFOCUS_LOSS_TRANSIENT_CAN_DUCK = false
                 }
                 mPlayer?.setVolume(1.0f, 1.0f)
                 floatingWinButState(false)
@@ -332,62 +332,64 @@ class BuddhaService : Service() {
 //                dc.addRunLog("BuddhaService","暂时失去焦点并降音","")
                 e("暂时失去焦点并降音")
                 mPlayer?.setVolume(0.3f, 0.3f)
-                AUDIOFOCUS_LOSS_TRANSIENT_CAN_DUCK=true
+                AUDIOFOCUS_LOSS_TRANSIENT_CAN_DUCK = true
 //                pauseTimer()
 //                pauseOrStopData()
             }
         }
     }
 
-    var AUDIOFOCUS_LOSS_TRANSIENT_CAN_DUCK=false
+    var AUDIOFOCUS_LOSS_TRANSIENT_CAN_DUCK = false
+
     /**
      * 开始或重新开始要做的：
      * 1、记录当前section的startime
      */
     fun reOrStartData() {
         try {
-            dc.addRunLog("BuddhaService","开始念佛","")
+            dc.addRunLog("BuddhaService", "开始念佛", "")
 //            e("------------------ start or restart -------------------------")
+
+            startTimeInMillis = System.currentTimeMillis()
+            dc.editSetting(Setting.KEYS.buddha_startime, startTimeInMillis)
+
+
 
             val settingStopTimeInMillis = dc.getSetting(Setting.KEYS.buddha_stoptime)
             val settingDuration = dc.getSetting(Setting.KEYS.buddha_duration)
             val now = System.currentTimeMillis()
-            if(settingStopTimeInMillis!=null&&settingDuration!=null
-                && now-settingStopTimeInMillis.long>15*60000
-                && settingDuration.long/1000/circleSecond>=1){
+            if (settingStopTimeInMillis != null && settingDuration != null
+                && now - settingStopTimeInMillis.long > 15 * 60000
+                && settingDuration.long / 1000 / circleSecond >= 1 ) {
 
                 val startTime = DateTime(settingStopTimeInMillis.long - settingDuration.long)
-                val tap = (settingDuration.long/1000/circleSecond).toInt()
-                val duration = circleSecond*tap*1000.toLong()
-                var buddha = BuddhaRecord(startTime, duration, tap*1080, buddhaType.toBuddhaType(), "")
+                val tap = (settingDuration.long / 1000 / circleSecond).toInt()
+                val duration = circleSecond * tap * 1000.toLong()
+                var buddha = BuddhaRecord(startTime, duration, tap * 1080, buddhaType.toBuddhaType(), "")
 
-                var duration2 = settingDuration.long-duration
+                var duration2 = settingDuration.long - duration
 
-                var countDownLatch = CountDownLatch(1)
+//                var countDownLatch = CountDownLatch(1)
                 _CloudUtils.addBuddha(applicationContext!!, buddha) { code, result ->
                     when (code) {
                         0 -> {
                             dc.addBuddha(buddha)
                             startTimeInMillis = System.currentTimeMillis() - duration2
-                            savedDuration=0
+                            savedDuration = 0
 
                             dc.deleteSetting(Setting.KEYS.buddha_duration)
                             dc.deleteSetting(Setting.KEYS.buddha_stoptime)
                             dc.editSetting(Setting.KEYS.buddha_startime, startTimeInMillis)
-                            Toast.makeText(applicationContext,result.toString(),Toast.LENGTH_LONG).show()
+                            Toast.makeText(applicationContext, result.toString(), Toast.LENGTH_LONG).show()
                         }
                         else -> {
                             e("code : $code , result : $result")
                         }
                     }
-                    countDownLatch.countDown()
+//                    countDownLatch.countDown()
                 }
-                countDownLatch.await()
-            }else{
-                startTimeInMillis = System.currentTimeMillis()
-                dc.editSetting(Setting.KEYS.buddha_startime, startTimeInMillis)
+//                countDownLatch.await()
             }
-
 
         } catch (e: Exception) {
             dc.addRunLog("err", "pause or stop", e.message)
@@ -400,7 +402,7 @@ class BuddhaService : Service() {
      * 2、删除section的startime
      */
     fun pauseOrStopData() {
-        dc.addRunLog("BuddhaService","暂停念佛","")
+        dc.addRunLog("BuddhaService", "暂停念佛", "")
         try {
 //            e("---------------- pause or stop --------------------")
             val now = System.currentTimeMillis()
@@ -445,10 +447,10 @@ class BuddhaService : Service() {
     }
 
     private fun sendNotification(count: Int, time: String) {
-        _NotificationUtils.sendNotification(ID, applicationContext, R.layout.notification_nf,_NotificationUtils.CHANNEL_BUDDHA) { remoteViews ->
-            remoteViews.setTextViewText(R.id.tv_count, if (buddhaType >9) count.toString() else "")
+        _NotificationUtils.sendNotification(ID, applicationContext, R.layout.notification_nf, _NotificationUtils.CHANNEL_BUDDHA) { remoteViews ->
+            remoteViews.setTextViewText(R.id.tv_count, if (buddhaType > 9) count.toString() else "")
             remoteViews.setTextViewText(R.id.tv_time, time)
-            if (mPlayer?.isPlaying?:false) {
+            if (mPlayer?.isPlaying ?: false) {
                 remoteViews.setImageViewResource(R.id.image_control, R.drawable.pause)
                 val intentRootClick = Intent(ACTION_BUDDHA_PAUSE)
                 val pendingIntent = PendingIntent.getBroadcast(applicationContext, 0, intentRootClick, PendingIntent.FLAG_UPDATE_CURRENT)
@@ -504,7 +506,7 @@ class BuddhaService : Service() {
                 tv_duration = floatingWindowView?.findViewById(R.id.tv_duration)
                 iv_control?.setOnClickListener {
                     if (Math.abs(changeX) < 10 && Math.abs(changeY) < 10) {
-                        if (mPlayer?.isPlaying?:false) {
+                        if (mPlayer?.isPlaying ?: false) {
                             chantBuddhaPause()
                             floatingWinButState(true)
                             mAm.abandonAudioFocus(afChangeListener)
@@ -525,13 +527,14 @@ class BuddhaService : Service() {
         }
     }
 
-    var volume:BigDecimal="1.0".toBigDecimal()
+    var volume: BigDecimal = "1.0".toBigDecimal()
+
     //region EventBus处理
     @Subscribe(threadMode = ThreadMode.BACKGROUND)
-    fun onGetMessage(msg :EventBusMessage){
+    fun onGetMessage(msg: EventBusMessage) {
         try {
-            when(msg.sender){
-                is FromBuddhaConfigUpdate->{
+            when (msg.sender) {
+                is FromBuddhaConfigUpdate -> {
                     loadBuddhaConfig()
 
                     var param = mPlayer?.playbackParams
@@ -542,21 +545,21 @@ class BuddhaService : Service() {
                         mPlayer?.playbackParams = param
                     }
                 }
-                is ResetTimeEvent->{
+                is ResetTimeEvent -> {
                     val duration = savedDuration + System.currentTimeMillis() - startTimeInMillis
                     val count = (duration / 1000 / circleSecond).toInt()
-                    startTimeInMillis = System.currentTimeMillis()-(circleSecond*1000*count-savedDuration)
+                    startTimeInMillis = System.currentTimeMillis() - (circleSecond * 1000 * count - savedDuration)
                     dc.editSetting(Setting.KEYS.buddha_startime, startTimeInMillis)
                 }
-                is FromBuddhaVolumeAdd->{
-                    volume+="0.1".toBigDecimal()
-                    e("声音加"+volume)
-                    mPlayer?.setVolume(volume.toFloat(),volume.toFloat())
+                is FromBuddhaVolumeAdd -> {
+                    volume += "0.1".toBigDecimal()
+                    e("声音加" + volume)
+                    mPlayer?.setVolume(volume.toFloat(), volume.toFloat())
                 }
-                is FromBuddhaVolumeMinus->{
-                    volume-="0.1".toBigDecimal()
-                    e("声音减"+volume)
-                    mPlayer?.setVolume(volume.toFloat(),volume.toFloat())
+                is FromBuddhaVolumeMinus -> {
+                    volume -= "0.1".toBigDecimal()
+                    e("声音减" + volume)
+                    mPlayer?.setVolume(volume.toFloat(), volume.toFloat())
                 }
             }
         } catch (e: Exception) {
