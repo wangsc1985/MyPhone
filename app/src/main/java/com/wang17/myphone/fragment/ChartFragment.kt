@@ -75,10 +75,15 @@ class ChartFragment : Fragment() {
 //            }.start()
             true
         }
+        button2.setOnLongClickListener {
+            dc.deleteAllStatements()
+            true
+        }
     }
 
     private fun generateData() {
 
+        val format = DecimalFormat("#,##0.00")
         val statements = dc.statements
         if(statements.size==0)
             return
@@ -90,9 +95,13 @@ class ChartFragment : Fragment() {
         val values: MutableList<PointValue> = ArrayList()
         var cc = 0.toBigDecimal()
         val fund = statements.last().fund
+        var count=0
         for (i in statements.indices) {
-            cc += statements[i].profit * 100.toBigDecimal() / fund
-            values.add(PointValue(i.toFloat(), cc.toFloat()))
+            if(statements[i].profit.compareTo(0.toBigDecimal())!=0){
+                cc += statements[i].profit * 100.toBigDecimal() / fund
+                e( "${statements[i].date.toShortDateString()}   ${format.format(statements[i].profit * 100.toBigDecimal() / fund)}   ${format.format(cc)}" )
+                values.add(PointValue((++count).toFloat(), cc.toFloat()))
+            }
         }
         val line = Line(values)
         //line.setColor(ChartUtils.COLORS[i]); // 多条数据时选择这个即可
@@ -141,7 +150,6 @@ class ChartFragment : Fragment() {
     lateinit var progressDialog:ProgressDialog
     private fun loadChartData() {
 
-        val format = DecimalFormat("#,##0.00")
         val dt = System.currentTimeMillis()
         var trades = dc.trades.reversed()
         if (trades.size == 0)
@@ -287,7 +295,7 @@ class ChartFragment : Fragment() {
                 prvProfit = profit
                 reset = false
             } else {
-//                statements.add(Statement(dt.date, fund, 0.toBigDecimal()))
+                statements.add(Statement(dt.date, fund, 0.toBigDecimal()))
                 reset = true
             }
         }

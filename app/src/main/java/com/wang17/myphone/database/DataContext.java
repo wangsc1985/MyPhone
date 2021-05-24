@@ -98,6 +98,18 @@ public class DataContext {
         return result;
     }
 
+    public void deleteAllStatements() {
+        try {
+            //获取数据库对象
+            SQLiteDatabase db = dbHelper.getWritableDatabase();
+            db.delete("statement", null, null);
+            //关闭SQLiteDatabase对象
+            db.close();
+        } catch (Exception e) {
+            _Utils.printException(context, e);
+        }
+    }
+
     //region Loan
     public void addLoan(Loan model) {
         try {
