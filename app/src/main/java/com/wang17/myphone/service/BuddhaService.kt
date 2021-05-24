@@ -165,7 +165,9 @@ class BuddhaService : Service() {
         e("------------- 销毁完毕 ---------------")
         EventBus.getDefault().post(EventBusMessage.getInstance(FromBuddhaServiceDestroy(), "buddha service destroyed"))
         //region 悬浮窗
-        windowManager.removeView(floatingWindowView)
+        if(isShowFloatWindow){
+            windowManager.removeView(floatingWindowView)
+        }
         EventBus.getDefault().unregister(this)
     }
 
