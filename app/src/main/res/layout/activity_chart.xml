@@ -8,7 +8,7 @@
 
     <fragment
         android:id="@+id/cc"
-        android:name="com.wang17.myphone.fragment.ChartDialogFragment"
+        android:name="com.wang17.myphone.fragment.ChartFragment"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         app:layout_constraintBottom_toBottomOf="parent"

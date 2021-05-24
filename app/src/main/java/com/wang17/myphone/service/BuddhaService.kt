@@ -357,9 +357,9 @@ class BuddhaService : Service() {
                 && settingDuration.long/1000/circleSecond>=1){
 
                 val startTime = DateTime(settingStopTimeInMillis.long - settingDuration.long)
-                val count = (settingDuration.long/1000/circleSecond).toInt()
-                val duration = circleSecond*count*1000.toLong()
-                var buddha = BuddhaRecord(startTime, duration, count, buddhaType.toBuddhaType(), "")
+                val tap = (settingDuration.long/1000/circleSecond).toInt()
+                val duration = circleSecond*tap*1000.toLong()
+                var buddha = BuddhaRecord(startTime, duration, tap*1080, buddhaType.toBuddhaType(), "")
 
                 var duration2 = settingDuration.long-duration
 

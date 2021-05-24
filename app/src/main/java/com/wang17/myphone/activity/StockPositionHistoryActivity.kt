@@ -19,9 +19,7 @@ import com.alibaba.fastjson.JSON
 import com.wang17.myphone.*
 import com.wang17.myphone.callback.CloudCallback
 import com.wang17.myphone.database.*
-import com.wang17.myphone.fragment.ChartDialogFragment
 import com.wang17.myphone.model.DateTime
-import com.wang17.myphone.model.Stock
 import com.wang17.myphone.model.StockInfo
 import com.wang17.myphone.util.*
 import com.wang17.myphone.util.TradeUtils.commission
@@ -30,7 +28,6 @@ import com.wang17.myphone.util.TradeUtils.transferFee
 import kotlinx.android.synthetic.main.activity_history_position.*
 import okhttp3.Request
 import okhttp3.Response
-import okhttp3.internal.format
 import java.math.BigDecimal
 import java.text.DecimalFormat
 import java.util.*

@@ -77,7 +77,6 @@ class StockService : Service() {
     var format2 = DecimalFormat("0.00")
 
 
-
     override fun onBind(intent: Intent): IBinder? {
         throw UnsupportedOperationException("Not yet implemented")
     }
@@ -208,18 +207,19 @@ class StockService : Service() {
             floatingWindowView.setOnTouchListener(FloatingOnTouchListener())
 
             floatingWindowView.setOnClickListener {
-                if(Math.abs(changeX)<10&&Math.abs(changeY)<10) {
-                    startActivity(Intent(applicationContext,MainActivity::class.java))
+                if (Math.abs(changeX) < 10 && Math.abs(changeY) < 10) {
+                    startActivity(Intent(applicationContext, MainActivity::class.java))
                 }
             }
             windowManager.addView(floatingWindowView, layoutParams)
         }
     }
 
-    var changeX=0
-    var changeY=0
+    var changeX = 0
+    var changeY = 0
     var startX = 0
     var startY = 0
+
     inner class FloatingOnTouchListener : OnTouchListener {
         private var x = 0
         private var y = 0
@@ -228,7 +228,7 @@ class StockService : Service() {
                 MotionEvent.ACTION_DOWN -> {
                     x = event.rawX.toInt()
                     y = event.rawY.toInt()
-                    startX =x
+                    startX = x
                     startY = y
                 }
                 MotionEvent.ACTION_MOVE -> {
@@ -242,9 +242,9 @@ class StockService : Service() {
                     layoutParams.y = layoutParams.y + movedY
                     windowManager.updateViewLayout(view, layoutParams)
                 }
-                MotionEvent.ACTION_UP->{
-                    changeX=event.rawX.toInt()-startX
-                    changeY=event.rawY.toInt()-startY
+                MotionEvent.ACTION_UP -> {
+                    changeX = event.rawX.toInt() - startX
+                    changeY = event.rawY.toInt() - startY
                 }
                 else -> {
                 }
@@ -323,16 +323,16 @@ class StockService : Service() {
                                 val result = sss.substring(sss.indexOf("\"")).replace("\"", "").split(",".toRegex()).toTypedArray()
                                 var price = result[3].toBigDecimal()
                                 val yesPrice = result[2].toBigDecimal()
-                                if(price.compareTo(0.toBigDecimal())==0){
+                                if (price.compareTo(0.toBigDecimal()) == 0) {
                                     price = yesPrice
                                 }
                                 mTimeS = result[31]
-                                val fee = commission(price,position.amount) + transferFee(price,position.amount) + tax(-1,price,position.amount)
-                                val profit = (price - position.cost)*(position.amount*100).toBigDecimal()-fee
-                                var diff = (price-yesPrice)*(position.amount*100).toBigDecimal()
-                                val costFund = position.cost* (position.amount * 100).toBigDecimal()
+                                val fee = commission(price, position.amount) + transferFee(price, position.amount) + tax(-1, price, position.amount)
+                                val profit = (price - position.cost) * (position.amount * 100).toBigDecimal() - fee
+                                var diff = (price - yesPrice) * (position.amount * 100).toBigDecimal()
+                                val costFund = position.cost * (position.amount * 100).toBigDecimal()
                                 totalProfitS += profit
-                                totalCostFundS +=costFund
+                                totalCostFundS += costFund
                                 totalDiff += diff
 //                                e("${position.name} cost fund : $costFund , profit : $profit")
                             } catch (e: Exception) {
@@ -404,7 +404,7 @@ class StockService : Service() {
                 var msgS = ""
                 if (sizeS > 0) {
                     averageTotalIncreaseS = totalProfitS.setMyScale() / totalCostFundS
-                    averageDiffIncreaseS = totalDiff.setMyScale()/totalCostFundS
+                    averageDiffIncreaseS = totalDiff.setMyScale() / totalCostFundS
                     msgS = DecimalFormat("0.00").format(averageTotalIncreaseS * 100.toBigDecimal())
                     if (Math.abs((averageTotalIncreaseS - preAverageTotalIncreaseS).toDouble()) * 100 > 1.0 / sizeS) {
                         preAverageTotalIncreaseS = averageTotalIncreaseS
@@ -434,10 +434,12 @@ class StockService : Service() {
                     }
                     _Utils.speaker(applicationContext, speakMsg, pitch, speech)
                 }
-                sendNotification(format2.format(szPrice),
-                        DecimalFormat("0.00").format(szIncrease * 100),
-                        mTimeS, "${format2.format(averageTotalIncreaseS * 100.toBigDecimal())}",
-                        mTimeF, DecimalFormat("#,###").format(averageTotalProfitF))
+                sendNotification(
+                    format2.format(szPrice),
+                    DecimalFormat("0.00").format(szIncrease * 100),
+                    mTimeS, "${format2.format(averageTotalIncreaseS * 100.toBigDecimal())}",
+                    mTimeF, DecimalFormat("#,###").format(averageTotalProfitF)
+                )
 
                 //region 悬浮窗
                 uiHandler.post {
@@ -464,10 +466,10 @@ class StockService : Service() {
                         szIndex.setTextColor(resources.getColor(R.color.DARK_GREEN))
                     }
 
-                    diffIndex.setText(format2.format(averageDiffIncreaseS*100.toBigDecimal()))
+                    diffIndex.setText(format2.format(averageDiffIncreaseS * 100.toBigDecimal()))
                     if (totalDiff > 0.toBigDecimal()) {
                         diffIndex.setTextColor(resources.getColor(R.color.month_text_color))
-                    } else if (totalDiff ==0.toBigDecimal()) {
+                    } else if (totalDiff == 0.toBigDecimal()) {
                         diffIndex.setTextColor(Color.WHITE)
                     } else {
                         diffIndex.setTextColor(resources.getColor(R.color.DARK_GREEN))
@@ -475,7 +477,8 @@ class StockService : Service() {
                 }
                 //endregion
             } catch (e: Exception) {
-                _Utils.printException(applicationContext, e)
+                if (!(e.message?.startsWith("failed to connect to hq.sinajs.cn") ?: false))
+                    _Utils.printException(applicationContext, e)
             }
         }).start()
     }
@@ -485,7 +488,7 @@ class StockService : Service() {
 
     //region 通知
     private fun sendNotification(szPrice: String, szIncrease: String, sTime: String?, sIncrease: String, fTime: String?, fIncrease: String) {
-        _NotificationUtils.sendNotification(NOTIFICATION_ID, applicationContext, R.layout.notification_stock,_NotificationUtils.CHANNEL_STOCK) { remoteViews ->
+        _NotificationUtils.sendNotification(NOTIFICATION_ID, applicationContext, R.layout.notification_stock, _NotificationUtils.CHANNEL_STOCK) { remoteViews ->
             try {
                 remoteViews.setTextViewText(R.id.textView_price_sz, szPrice)
                 remoteViews.setTextViewText(R.id.textView_increase_sz, szIncrease)

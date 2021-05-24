@@ -1,18 +1,22 @@
 package com.wang17.myphone.fragment
 
+import android.app.ProgressDialog
 import android.content.pm.ActivityInfo
+import android.graphics.Color
 import android.os.Bundle
-import android.support.v4.app.DialogFragment
+import android.os.Handler
 import android.support.v4.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.Toast
 import com.wang17.myphone.R
 import com.wang17.myphone.database.DataContext
 import com.wang17.myphone.database.Position
 import com.wang17.myphone.database.Statement
 import com.wang17.myphone.database.Trade
 import com.wang17.myphone.e
+import com.wang17.myphone.model.Stock
 import com.wang17.myphone.toMyDecimal
 import com.wang17.myphone.util.TradeUtils
 import com.wang17.myphone.util._SinaStockUtils
@@ -21,7 +25,7 @@ import lecho.lib.hellocharts.model.*
 import java.text.DecimalFormat
 
 
-class ChartDialogFragment : Fragment() {
+class ChartFragment : Fragment() {
     private val hasAxes = true
     private val hasAxesNames = true // 横竖行的名字
 
@@ -42,6 +46,8 @@ class ChartDialogFragment : Fragment() {
 
     private val numberOfPoints = 10 // 每行数据有多少个点
 
+    private lateinit var runHandler:Handler
+
     // 存储数据
     var randomNumbersTab = Array(maxNumberOfLines) { FloatArray(numberOfPoints) }
 
@@ -50,6 +56,7 @@ class ChartDialogFragment : Fragment() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         dc = DataContext(context)
+        progressDialog = ProgressDialog(context)
         activity!!.setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE);
     }
 
@@ -59,15 +66,26 @@ class ChartDialogFragment : Fragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
+        runHandler = Handler()
         generateData()
+        fab_load.setOnLongClickListener {
+//            Thread{
+                loadChartData()
+                generateData()
+//            }.start()
+            true
+        }
     }
 
     private fun generateData() {
 
-        val statements = createChartData()
+        val statements = dc.statements
+        if(statements.size==0)
+            return
 
 
-        val whiteColor = resources.getColor(R.color.black_overlay)
+        val whiteColor = Color.BLACK
+        val axisColor = resources.getColor(R.color.black_overlay,null)
 //        generateValues()
         val values: MutableList<PointValue> = ArrayList()
         var cc = 0.toBigDecimal()
@@ -80,12 +98,13 @@ class ChartDialogFragment : Fragment() {
         //line.setColor(ChartUtils.COLORS[i]); // 多条数据时选择这个即可
         line.setColor(whiteColor) // 定制线条颜色
         line.setShape(shape)
-        line.setCubic(isCubic)
+        line.setCubic(true)
         line.setFilled(isFilled)
         line.setHasLabels(hasLabels)
         line.setHasLabelsOnlyForSelected(hasLabelForSelected)
         line.setHasLines(hasLines)
-        line.setHasPoints(hasPoints)
+        line.setHasPoints(false)
+        line.strokeWidth=1
         if (pointsHaveDifferentColor) {
             //多条数据时选择这个即可
             //line.setPointColor(ChartUtils.COLORS[(i + 1) % ChartUtils.COLORS.length]);
@@ -98,14 +117,14 @@ class ChartDialogFragment : Fragment() {
         var data = LineChartData(lines)
         if (hasAxes) {
             val axisX = Axis()
-            val axisY: Axis = Axis().setHasLines(true)
+            val axisY = Axis().setHasLines(true)
             if (hasAxesNames) {
-                axisX.setName("最近10次考试成绩")
-                axisY.setName("")
+                axisX.setName("")
                 axisX.setTextColor(whiteColor)
+                axisX.setLineColor(axisColor)
+                axisY.setName("")
                 axisY.setTextColor(whiteColor)
-                axisY.setLineColor(whiteColor)
-                axisX.setLineColor(whiteColor)
+                axisY.setLineColor(axisColor)
             }
             data.setAxisXBottom(axisX)
             data.setAxisYLeft(axisY)
@@ -114,25 +133,37 @@ class ChartDialogFragment : Fragment() {
             data.setAxisYLeft(null)
         }
         data.setBaseValue(Float.NEGATIVE_INFINITY)
-        chart.setLineChartData(data)
+//        runHandler.post{
+            chart.setLineChartData(data)
+//        }
     }
 
-    private fun createChartData(): List<Statement> {
+    lateinit var progressDialog:ProgressDialog
+    private fun loadChartData() {
+
         val format = DecimalFormat("#,##0.00")
         val dt = System.currentTimeMillis()
-        val allTrades = dc.trades.reversed()
-        if (allTrades.size == 0)
-            return ArrayList()
+        var trades = dc.trades.reversed()
+        if (trades.size == 0)
+            return
         val positions: MutableList<Position> = ArrayList()
         val statements: MutableList<Statement> = ArrayList()
-        val firstTrade: Trade = allTrades.first()
+        val firstTrade: Trade = trades.first()
 
-        val dateList = _SinaStockUtils.getStockHistory(firstTrade.code, firstTrade.dateTime)
-        val stocks = _SinaStockUtils.getStockHistory(firstTrade.code, firstTrade.dateTime)
+        var chartDate = firstTrade.dateTime
+        val ss = dc.statements
+        if(ss.size>0){
+            chartDate = ss.last().date.addDays(1).date
+            trades = dc.getTrades(chartDate).reversed()
+        }
+
+        val dateList = _SinaStockUtils.getStockHistory(firstTrade.code, chartDate)
+        val stocks:MutableList<Stock> = ArrayList()
 
         var prvProfit = 0.toBigDecimal()
         var reset = true
         dateList.forEach { dt ->
+            e(dt.date.toShortDateString())
             /**
              * 1、买入、卖出、股息收入、股税支出
              *      更新持仓成本和持仓量。
@@ -147,7 +178,7 @@ class ChartDialogFragment : Fragment() {
             var profit = 0.toBigDecimal()
             var fund = 0.toBigDecimal()
 
-            val tds = allTrades.filter { it.dateTime.isSameDay(dt.date) }
+            val tds = trades.filter { it.dateTime.isSameDay(dt.date) }
             tds.forEach { td ->
                 when (td.type) {
                     1 -> { //买入
@@ -256,12 +287,13 @@ class ChartDialogFragment : Fragment() {
                 prvProfit = profit
                 reset = false
             } else {
-                statements.add(Statement(dt.date, fund, 0.toBigDecimal()))
+//                statements.add(Statement(dt.date, fund, 0.toBigDecimal()))
                 reset = true
             }
         }
         e("生成图表用时：${System.currentTimeMillis() - dt}")
-        return statements
+        dc.addStatements(statements)
+        Toast.makeText(context,"更新数据用时：${System.currentTimeMillis() - dt}毫秒",Toast.LENGTH_LONG).show()
     }
 
 }

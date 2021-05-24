@@ -134,7 +134,7 @@ class MarkDayFragment : Fragment() {
             val buttonCancel = view.findViewById<Button>(R.id.button_cancel)
             editName.setText(dayItem!!.name)
             editSummary.setText(dayItem.summary)
-            editTarget.setText(dayItem.targetInHour / 24)
+            editTarget.setText((dayItem.targetInHour / 24).toString())
             editName.setSelectAllOnFocus(true)
             editSummary.setSelectAllOnFocus(true)
             editTarget.setSelectAllOnFocus(true)
@@ -216,6 +216,12 @@ class MarkDayFragment : Fragment() {
                 val targetStr = toSpanString(listItemData.dayItem!!.targetInHour.toLong() * 3600000, 4, 3)
                 var targetDate = DateTime(DateTime().timeInMillis + (listItemData.dayItem!!.targetInHour - listItemData.havePassedInHour).toLong() * 3600000)
                 when (listItemData.dayItem!!.summary) {
+                    "周" ->{
+                        havePassedStr = "${listItemData.havePassedInHour / 24/7}周 ${listItemData.havePassedInHour / 24%7}天"
+                        val remainder = listItemData.dayItem!!.targetInHour / 24 - listItemData.havePassedInHour / 24
+                        remainderStr = (if (remainder < 0) "+" + remainder * -1 else remainder).toString() + "天"
+                        targetDate = DateTime(System.currentTimeMillis() + (listItemData.dayItem!!.targetInHour - listItemData.havePassedInHour).toLong() * 3600000)
+                    }
                     "天" -> {
                         havePassedStr = "${listItemData.havePassedInHour / 24}天"
                         val remainder = listItemData.dayItem!!.targetInHour / 24 - listItemData.havePassedInHour / 24

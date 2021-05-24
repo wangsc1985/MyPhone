@@ -348,12 +348,7 @@ class MyWidgetProvider : AppWidgetProvider() {
                 } catch (e: Exception) {
                     _Utils.printException(context, e)
                 }
-                ACTION_CLICK_LIST_ITEM ->
-                    /**
-                     * 点击列表事件
-                     */
-                    // TODO: 2020/8/15 这个地方也要判断
-                {
+                ACTION_CLICK_LIST_ITEM -> {
                     val smsIntent = Intent(context, ToDoActivity::class.java)
                     context.startActivity(smsIntent)
                 }

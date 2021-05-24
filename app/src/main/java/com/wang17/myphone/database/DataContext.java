@@ -34,6 +34,69 @@ public class DataContext {
         dbHelper = new DatabaseHelper(context);
     }
 
+    public void addStatement(Statement model) {
+        try {
+            //获取数据库对象
+            SQLiteDatabase db = dbHelper.getWritableDatabase();
+            //使用insert方法向表中插入数据
+            ContentValues values = new ContentValues();
+            values.put("id", model.getId().toString());
+            values.put("date", model.getDate().getTimeInMillis());
+            values.put("fund", model.getFund().toString());
+            values.put("profit", model.getProfit().toString());
+
+            //调用方法插入数据
+            db.insert("statement", "id", values);
+            //关闭SQLiteDatabase对象
+            db.close();
+        } catch (Exception e) {
+            _Utils.printException(context, e);
+        }
+    }
+
+    public void addStatements(List<Statement> models) {
+        try {
+            //获取数据库对象
+            SQLiteDatabase db = dbHelper.getWritableDatabase();
+            for (Statement model : models) {
+                //使用insert方法向表中插入数据
+                ContentValues values = new ContentValues();
+                values.put("id", model.getId().toString());
+                values.put("date", model.getDate().getTimeInMillis());
+                values.put("fund", model.getFund().toString());
+                values.put("profit", model.getProfit().toString());
+                //调用方法插入数据
+                db.insert("statement", "id", values);
+            }
+            //关闭SQLiteDatabase对象
+            db.close();
+        } catch (Exception e) {
+            _Utils.printException(context, e);
+        }
+    }
+
+    public List<Statement> getStatements() {
+        List<Statement> result = new ArrayList();
+        try {
+            //获取数据库对象
+            SQLiteDatabase db = dbHelper.getReadableDatabase();
+            //查询获得游标
+            Cursor cursor = db.query("statement", null, null,null, null, null, "date asc");
+            //判断游标是否为空
+            while (cursor.moveToNext()) {
+                Statement model = new Statement( new DateTime(cursor.getLong(1)),
+                        new BigDecimal(cursor.getString(2)),
+                        new BigDecimal(cursor.getString(3)));
+                model.setId(UUID.fromString(cursor.getString(0)));
+                result.add(model);
+            }
+            cursor.close();
+            db.close();
+        } catch (Exception e) {
+            _Utils.printException(context, e);
+        }
+        return result;
+    }
 
     //region Loan
     public void addLoan(Loan model) {
@@ -106,7 +169,6 @@ public class DataContext {
         }
         return result;
     }
-
 
     public void editLoan(Loan model) {
 
@@ -1213,6 +1275,35 @@ public class DataContext {
             SQLiteDatabase db = dbHelper.getReadableDatabase();
             //查询获得游标
             Cursor cursor = db.query("trade", null, null, null, null, null, "dateTime DESC");
+            //判断游标是否为空
+            while (cursor.moveToNext()) {
+                Trade model = new Trade(new DateTime(cursor.getLong(1)),
+                        cursor.getString(2),
+                        cursor.getString(3),
+                        new BigDecimal(cursor.getString(4)),
+                        cursor.getInt(5),
+                        cursor.getInt(6),
+                        cursor.getInt(7),
+                        new BigDecimal("0"),
+                        cursor.getInt(8));
+                model.setId(UUID.fromString(cursor.getString(0)));
+                result.add(model);
+            }
+            cursor.close();
+            db.close();
+        } catch (Exception e) {
+            _Utils.printException(context, e);
+        }
+        return result;
+    }
+
+    public List<Trade> getTrades(DateTime startDate) {
+        List<Trade> result = new ArrayList<>();
+        try {
+            //获取数据库对象
+            SQLiteDatabase db = dbHelper.getReadableDatabase();
+            //查询获得游标
+            Cursor cursor = db.query("trade", null, "dateTime>=?", new String[]{startDate.getDate().getTimeInMillis()+""}, null, null, "dateTime DESC");
             //判断游标是否为空
             while (cursor.moveToNext()) {
                 Trade model = new Trade(new DateTime(cursor.getLong(1)),
