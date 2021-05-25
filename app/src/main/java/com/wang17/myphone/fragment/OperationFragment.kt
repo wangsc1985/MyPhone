@@ -232,7 +232,7 @@ class OperationFragment : Fragment() {
         kotlin.run {
             btn = _Button(context!!, "trade")
             btn.setOnClickListener {
-//                _FingerUtils.showFingerPrintDialog(activity!!) {
+                _FingerUtils.showFingerPrintDialog(activity!!) {
 //                    var dialog = AlertDialog.Builder(context!!).setItems(arrayOf("持仓", "历史")) { dialog, which ->
 //                        when (which) {
 //                            0 -> {
@@ -254,7 +254,7 @@ class OperationFragment : Fragment() {
 //                    }.create()
 //                    dialog.window?.setGravity(Gravity.BOTTOM)
 //                    dialog.show()
-//                }
+                }
             }
             btn.setOnLongClickListener {
                 startActivity(Intent(context!!,ChartActivity::class.java))
