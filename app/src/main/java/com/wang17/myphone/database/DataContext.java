@@ -45,6 +45,7 @@ public class DataContext {
             values.put("date", model.getDate().getTimeInMillis());
             values.put("fund", model.getFund().toString());
             values.put("profit", model.getProfit().toString());
+            values.put("totalProfit", model.getTotalProfit().toString());
 
             //调用方法插入数据
             db.insert("statement", "id", values);
@@ -66,6 +67,7 @@ public class DataContext {
                 values.put("date", model.getDate().getTimeInMillis());
                 values.put("fund", model.getFund().toString());
                 values.put("profit", model.getProfit().toString());
+                values.put("totalProfit", model.getTotalProfit().toString());
                 //调用方法插入数据
                 db.insert("statement", "id", values);
             }
@@ -87,7 +89,8 @@ public class DataContext {
             while (cursor.moveToNext()) {
                 Statement model = new Statement( new DateTime(cursor.getLong(1)),
                         new BigDecimal(cursor.getString(2)),
-                        new BigDecimal(cursor.getString(3)));
+                        new BigDecimal(cursor.getString(3)),
+                        new BigDecimal(cursor.getString(4)));
                 model.setId(UUID.fromString(cursor.getString(0)));
                 result.add(model);
             }
@@ -110,8 +113,8 @@ public class DataContext {
             while (cursor.moveToNext()) {
                 Statement model = new Statement( new DateTime(cursor.getLong(1)),
                         new BigDecimal(cursor.getString(2)),
-                        new BigDecimal(cursor.getString(3)));
-                model.setId(UUID.fromString(cursor.getString(0)));
+                        new BigDecimal(cursor.getString(3)),
+                        new BigDecimal(cursor.getString(4)));
                 return model;
             }
             cursor.close();
@@ -122,11 +125,43 @@ public class DataContext {
         return null;
     }
 
-    public void deleteAllStatements() {
+    public void editStatement(Statement model) {
+
+        try {
+            //获取数据库对象
+            SQLiteDatabase db = dbHelper.getWritableDatabase();
+
+            //使用update方法更新表中的数据
+            ContentValues values = new ContentValues();
+            values.put("id", model.getId().toString());
+            values.put("date", model.getDate().getTimeInMillis());
+            values.put("fund", model.getFund().toString());
+            values.put("profit", model.getProfit().toString());
+            values.put("totalProfit", model.getTotalProfit().toString());
+            //调用方法插入数据
+            db.update("statement", values, "id=?", new String[]{model.getId().toString()});
+            db.close();
+        } catch (Exception e) {
+            _Utils.printException(context, e);
+        }
+    }
+
+    public void clearStatements() {
         try {
             //获取数据库对象
             SQLiteDatabase db = dbHelper.getWritableDatabase();
             db.delete("statement", null, null);
+            //关闭SQLiteDatabase对象
+            db.close();
+        } catch (Exception e) {
+            _Utils.printException(context, e);
+        }
+    }
+    public void deleteStatements(DateTime date) {
+        try {
+            //获取数据库对象
+            SQLiteDatabase db = dbHelper.getWritableDatabase();
+            db.delete("statement", "date>=?", new String[]{date.getTimeInMillis()+""});
             //关闭SQLiteDatabase对象
             db.close();
         } catch (Exception e) {
@@ -1134,7 +1169,7 @@ public class DataContext {
         }
     }
 
-    public void deleteAllBankToDo() {
+    public void clearBankToDo() {
         try {
             //获取数据库对象
             SQLiteDatabase db = dbHelper.getWritableDatabase();

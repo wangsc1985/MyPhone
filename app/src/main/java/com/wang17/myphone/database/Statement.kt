@@ -8,6 +8,7 @@ data class Statement(
                               var date: DateTime,
                               var fund: BigDecimal,
                               var profit: BigDecimal,
+                              var totalProfit:BigDecimal
 ){
     var id: UUID=UUID.randomUUID()
 }

@@ -20,7 +20,7 @@ import com.wang17.myphone.model.Stock
 import com.wang17.myphone.toMyDecimal
 import com.wang17.myphone.util.TradeUtils
 import com.wang17.myphone.util._SinaStockUtils
-import kotlinx.android.synthetic.main.fragment_dialog_chart.*
+import kotlinx.android.synthetic.main.fragment_chart.*
 import lecho.lib.hellocharts.model.*
 import java.text.DecimalFormat
 import java.util.*
@@ -62,7 +62,7 @@ class ChartFragment : Fragment() {
     }
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
-        return inflater.inflate(R.layout.fragment_dialog_chart, container, false)
+        return inflater.inflate(R.layout.fragment_chart, container, false)
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
@@ -70,20 +70,21 @@ class ChartFragment : Fragment() {
         runHandler = Handler()
         generateChart()
         checkChartData()
-        fab_load.setOnLongClickListener {
-            loadChartData()
-            generateChart()
-            true
-        }
-        button2.setOnLongClickListener {
-            dc.deleteAllStatements()
-            true
-        }
+//        fab_load.setOnLongClickListener {
+//            loadChartData()
+//            generateChart()
+//            true
+//        }
+//        button2.setOnLongClickListener {
+////            dc.clearStatements()
+//            dc.deleteStatements(DateTime().addDays(-3))
+//            generateChart()
+//            true
+//        }
     }
 
     var axisXValues: MutableList<AxisValue> = ArrayList()
     private fun generateChart() {
-        val format = DecimalFormat("#,##0.00")
         val statements = dc.statements
         if (statements.size == 0)
             return
@@ -93,39 +94,36 @@ class ChartFragment : Fragment() {
 
         val whiteColor = Color.BLACK
         val axisColor = resources.getColor(R.color.black_overlay, null)
-//        generateValues()
         val values: MutableList<PointValue> = ArrayList()
         axisXValues.clear()
         var cc = 0.toBigDecimal()
         val fund = statements.last().fund
         var count = 0
-        var prvMonth =-1
+        var prvMonth = -1
         var prvYear = -1
 
         for (i in statements.indices) {
             val statement = statements[i]
-//e(statement.date.toShortDateString())
             if (statement.profit.compareTo(0.toBigDecimal()) != 0) {
                 cc += statement.profit * 100.toBigDecimal() / fund
-//                e("${statements[i].date.toShortDateString()}   ${format.format(statements[i].profit * 100.toBigDecimal() / fund)}   ${format.format(cc)}")
                 values.add(PointValue((++count).toFloat(), cc.toFloat()))
-                if(statement.date.month!=prvMonth){
-                    var str =""
-                    if(statement.date.year!=prvYear) {
-                        if(prvYear!=-1)
-                            str = "${statement.date.year.toString().substring(2,4)}年"
+                if (statement.date.month != prvMonth) {
+                    var str = ""
+                    if (statement.date.year != prvYear) {
+                        if (prvYear != -1)
+                            str = "${statement.date.year.toString().substring(2, 4)}年"
                         else
                             str = ""
                         prvYear = statement.date.year
-                    }
-                    else{
+                    } else {
                         str = "${statement.date.monthStr}月"
                     }
-                    axisXValues.add(AxisValue(count.toFloat(),str.toCharArray()))
+                    axisXValues.add(AxisValue(count.toFloat(), str.toCharArray()))
                     prvMonth = statement.date.month
                 }
             }
         }
+
         val line = Line(values)
         //line.setColor(ChartUtils.COLORS[i]); // 多条数据时选择这个即可
         line.setColor(whiteColor) // 定制线条颜色
@@ -149,7 +147,7 @@ class ChartFragment : Fragment() {
         var data = LineChartData(lines)
         if (hasAxes) {
             val axisX = Axis().setValues(axisXValues).setHasLines(true)
-            val axisY = Axis().setHasLines(false)
+            val axisY = Axis().setHasLines(true)
             if (hasAxesNames) {
                 axisX.setName("${firstStatement.date.toShortDateString()} - ${lastStatement.date.toShortDateString()}")
                 axisX.setTextColor(whiteColor)
@@ -172,11 +170,13 @@ class ChartFragment : Fragment() {
 
     private fun checkChartData() {
         val ss = dc.lastStatement
+
         ss?.let {
             val now = DateTime()
             val chartDate = it.date.addDays(1).date
             if ((chartDate.timeInMillis < now.date.timeInMillis || (chartDate.isSameDay(now) && now.hour > 15))
-                && now.get(Calendar.DAY_OF_WEEK) != 6 && now.get(Calendar.DAY_OF_WEEK) != 0 ) {
+                && now.get(Calendar.DAY_OF_WEEK) != 6 && now.get(Calendar.DAY_OF_WEEK) != 0
+            ) {
                 loadChartData()
                 generateChart()
             }
@@ -185,28 +185,30 @@ class ChartFragment : Fragment() {
 
     private fun loadChartData() {
 
+        val format = DecimalFormat("#,##0.00")
         val now = DateTime()
+        var positions: MutableList<Position> = ArrayList()
+        val statements: MutableList<Statement> = ArrayList()
         var trades = dc.trades.reversed()
         if (trades.size == 0)
             return
         val firstTrade: Trade = trades.first()
 
+        var prvProfit = 0.toBigDecimal()
+//        var reset = true
         var chartDate = firstTrade.dateTime
         val ss = dc.statements
         if (ss.size > 0) {
             chartDate = ss.last().date.addDays(1).date
             trades = dc.getTrades(chartDate).reversed()
+            positions = dc.positions
+            prvProfit = ss.last().totalProfit
+//            reset = positions.size == 0
         }
-
-
-        val positions: MutableList<Position> = ArrayList()
-        val statements: MutableList<Statement> = ArrayList()
 
         val dateList = _SinaStockUtils.getStockHistory(firstTrade.code, chartDate)
         val stocks: MutableList<Stock> = ArrayList()
 
-        var prvProfit = 0.toBigDecimal()
-        var reset = true
         dateList.forEach { dt ->
 
             var profit = 0.toBigDecimal()
@@ -309,27 +311,26 @@ class ChartFragment : Fragment() {
                     stock?.let {
                         fund += it.price * (p.amount * 100).toBigDecimal()
                         profit += (it.price - p.cost) * (p.amount * 100).toBigDecimal()
-//                    e("${it.code}  ${format.format(it.price)}  ${format.format(p.cost)} ${p.amount} ${format.format((it.price - p.cost) * (p.amount * 100).toBigDecimal())}")
+                        e("${it.code}  ${format.format(it.price)}  ${format.format(p.cost)} ${p.amount} ${format.format((it.price - p.cost) * (p.amount * 100).toBigDecimal())}")
                     }
                 }
 
-                if (reset)
-                    statements.add(Statement(dt.date, fund, profit))
-                else
-                    statements.add(Statement(dt.date, fund, profit - prvProfit))
+//                if (reset)
+//                    statements.add(Statement(dt.date, fund, profit, profit))
+//                else
+                    statements.add(Statement(dt.date, fund, profit - prvProfit, profit))
 
                 prvProfit = profit
-                reset = false
+//                reset = false
             } else {
-                statements.add(Statement(dt.date, fund, 0.toBigDecimal()))
-                reset = true
+                statements.add(Statement(dt.date, 0.toBigDecimal(), 0.toBigDecimal(), 0.toBigDecimal()))
+                prvProfit = 0.toBigDecimal()
+//                reset = true
             }
         }
         e("生成图表用时：${System.currentTimeMillis() - now.timeInMillis}")
         dc.addStatements(statements)
         Toast.makeText(context, "更新数据用时：${System.currentTimeMillis() - -now.timeInMillis}毫秒", Toast.LENGTH_LONG).show()
-
-
     }
 
 }

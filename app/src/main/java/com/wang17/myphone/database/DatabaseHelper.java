@@ -13,7 +13,7 @@ import com.wang17.myphone.structure.RepayType;
  */
 public class DatabaseHelper extends SQLiteOpenHelper {
 
-    private static final int VERSION = 55;
+    private static final int VERSION = 60;
     private static final String DATABASE_NAME = "mp.db";
 
     public DatabaseHelper(Context context) {
@@ -304,6 +304,13 @@ public class DatabaseHelper extends SQLiteOpenHelper {
                             + "date LONG,"
                             + "fund TEXT,"
                             + "profit TEXT)");
+                case 55:
+                    db.execSQL("alter table statement add totalProfit TEXT default '0' ");
+                case 57:
+                case 58:
+                case 59:
+                    db.execSQL("update statement set totalProfit='0' where date>0 ");
+
             }
         } catch (SQLException e) {
             Log.e("wangsc", e.getMessage());
