@@ -92,8 +92,8 @@ class ChartFragment : Fragment() {
         val firstStatement = statements.first()
         val lastStatement = statements.last()
 
-        val whiteColor = Color.BLACK
-        val axisColor = resources.getColor(R.color.black_overlay, null)
+        val lineColor = Color.BLACK
+        val axisColor = resources.getColor(R.color.light_blue_A400, null)
         val values: MutableList<PointValue> = ArrayList()
         axisXValues.clear()
         var cc = 0.toBigDecimal()
@@ -126,7 +126,7 @@ class ChartFragment : Fragment() {
 
         val line = Line(values)
         //line.setColor(ChartUtils.COLORS[i]); // 多条数据时选择这个即可
-        line.setColor(whiteColor) // 定制线条颜色
+        line.setColor(lineColor) // 定制线条颜色
         line.setShape(shape)
         line.setCubic(false)
         line.setFilled(isFilled)
@@ -138,7 +138,7 @@ class ChartFragment : Fragment() {
         if (pointsHaveDifferentColor) {
             //多条数据时选择这个即可
             //line.setPointColor(ChartUtils.COLORS[(i + 1) % ChartUtils.COLORS.length]);
-            line.setPointColor(whiteColor)
+            line.setPointColor(lineColor)
         }
 
         val lines: MutableList<Line> = ArrayList<Line>()
@@ -150,14 +150,15 @@ class ChartFragment : Fragment() {
             val axisY = Axis().setHasLines(true)
             if (hasAxesNames) {
                 axisX.setName("${firstStatement.date.toShortDateString()} - ${lastStatement.date.toShortDateString()}")
-                axisX.setTextColor(whiteColor)
+                axisX.setTextColor(axisColor)
                 axisX.setLineColor(axisColor)
                 axisY.setName("")
-                axisY.setTextColor(whiteColor)
+                axisY.setTextColor(axisColor)
                 axisY.setLineColor(axisColor)
             }
             data.setAxisXBottom(axisX)
             data.setAxisYLeft(axisY)
+            data.setAxisYRight(axisY)
         } else {
             data.setAxisXBottom(null)
             data.setAxisYLeft(null)
