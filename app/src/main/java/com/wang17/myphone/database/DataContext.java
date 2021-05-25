@@ -102,6 +102,29 @@ public class DataContext {
         return result;
     }
 
+    public List<Statement> getStatements(DateTime date) {
+        List<Statement> result = new ArrayList();
+        try {
+            //获取数据库对象
+            SQLiteDatabase db = dbHelper.getReadableDatabase();
+            //查询获得游标
+            Cursor cursor = db.query("statement", null, "date>=?", new String[]{date.getTimeInMillis()+""} , null, null, "date asc");
+            //判断游标是否为空
+            while (cursor.moveToNext()) {
+                Statement model = new Statement( new DateTime(cursor.getLong(1)),
+                        new BigDecimal(cursor.getString(2)),
+                        new BigDecimal(cursor.getString(3)),
+                        new BigDecimal(cursor.getString(4)));
+                model.setId(UUID.fromString(cursor.getString(0)));
+                result.add(model);
+            }
+            cursor.close();
+            db.close();
+        } catch (Exception e) {
+            _Utils.printException(context, e);
+        }
+        return result;
+    }
 
     public Statement getLastStatement() {
         try {

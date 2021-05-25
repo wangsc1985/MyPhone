@@ -60,6 +60,7 @@ public class Setting{
     }
 
     public enum KEYS{
+        is_fill_line_area,chart_start_year,
         sms_last_time,chart_date,
         is_authorize_buddha_record,
         buddha_float_window_x, buddha_float_window_y,buddha_float_window_width, buddha_float_window_size, is显示念佛悬浮窗,

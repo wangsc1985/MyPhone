@@ -10,10 +10,7 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.Toast
 import com.wang17.myphone.R
-import com.wang17.myphone.database.DataContext
-import com.wang17.myphone.database.Position
-import com.wang17.myphone.database.Statement
-import com.wang17.myphone.database.Trade
+import com.wang17.myphone.database.*
 import com.wang17.myphone.e
 import com.wang17.myphone.model.DateTime
 import com.wang17.myphone.model.Stock
@@ -33,7 +30,6 @@ class ChartFragment : Fragment() {
 
     private val hasLines = true
     private val hasPoints = false
-    private val shape = ValueShape.CIRCLE
     private val isFilled = false
     private val hasLabels = false // 是否显示点的数据
 
@@ -85,15 +81,15 @@ class ChartFragment : Fragment() {
 
     var axisXValues: MutableList<AxisValue> = ArrayList()
     private fun generateChart() {
-        val statements = dc.statements
+        val statements = dc.getStatements(DateTime(dc.getSetting(Setting.KEYS.chart_start_year,2020).int,0,1))
         if (statements.size == 0)
             return
 
         val firstStatement = statements.first()
         val lastStatement = statements.last()
 
-        val lineColor = Color.BLACK
-        val axisColor = resources.getColor(R.color.light_blue_A400, null)
+        val lineColor =  resources.getColor(R.color.timerStopColor, null)
+        val axisColor = resources.getColor(R.color.timerPauseColor, null)
         val values: MutableList<PointValue> = ArrayList()
         axisXValues.clear()
         var cc = 0.toBigDecimal()
@@ -127,13 +123,13 @@ class ChartFragment : Fragment() {
         val line = Line(values)
         //line.setColor(ChartUtils.COLORS[i]); // 多条数据时选择这个即可
         line.setColor(lineColor) // 定制线条颜色
-        line.setShape(shape)
-        line.setCubic(false)
-        line.setFilled(isFilled)
-        line.setHasLabels(false)
-        line.setHasLabelsOnlyForSelected(true)
-        line.setHasLines(hasLines)
-        line.setHasPoints(false)
+        line.setShape(ValueShape.CIRCLE)//折线图上每个数据点的形状  这里是圆形 （有三种 ：ValueShape.SQUARE  ValueShape.CIRCLE  ValueShape.DIAMOND）
+        line.setCubic(false) //曲线是否平滑，即是曲线还是折线
+        line.setFilled(dc.getSetting(Setting.KEYS.is_fill_line_area,true).boolean)//是否填充曲线的面积
+        line.setHasLabels(false)//曲线的数据坐标是否加上备注
+        line.setHasLabelsOnlyForSelected(true)//点击数据坐标提示数据（设置了这个line.setHasLabels(true);就无效）
+        line.setHasLines(true)//是否用线显示。如果为false 则没有曲线只有点显示
+        line.setHasPoints(false)//是否显示圆点 如果为false 则没有原点只有点显示（每个数据点都是个大的圆点）
         line.strokeWidth = 1
         if (pointsHaveDifferentColor) {
             //多条数据时选择这个即可
@@ -152,6 +148,7 @@ class ChartFragment : Fragment() {
                 axisX.setName("${firstStatement.date.toShortDateString()} - ${lastStatement.date.toShortDateString()}")
                 axisX.setTextColor(axisColor)
                 axisX.setLineColor(axisColor)
+                axisX.setMaxLabelChars(20); //最多几个X轴坐标，意思就是你的缩放让X轴上数据的个数7<=x<=mAxisXValues.length
                 axisY.setName("")
                 axisY.setTextColor(axisColor)
                 axisY.setLineColor(axisColor)
