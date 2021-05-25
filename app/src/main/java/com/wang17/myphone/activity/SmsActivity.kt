@@ -59,18 +59,18 @@ class SmsActivity : AppCompatActivity() {
             dc = DataContext(this)
             loadSmsData()
 
-                elv_sms.setGroupIndicator(null)
-                elv_sms.setAdapter(expandAdapter)
+            elv_sms.setGroupIndicator(null)
+            elv_sms.setAdapter(expandAdapter)
 
-                elv_sms.setOnChildClickListener { parent, v, groupPosition, childPosition, id ->
-                    AlertDialog.Builder(this).setMessage("确认删除?").setPositiveButton("删除", DialogInterface.OnClickListener { dialog, which ->
-                        val ss = childListList[groupPosition][childPosition]
-                        dc.deletePhoneMessage(ss.id)
-                        loadSmsData()
-                        expandAdapter.notifyDataSetChanged()
-                    }).show()
-                    true
-                }
+            elv_sms.setOnChildClickListener { parent, v, groupPosition, childPosition, id ->
+                AlertDialog.Builder(this).setMessage("确认删除?").setPositiveButton("删除", DialogInterface.OnClickListener { dialog, which ->
+                    val ss = childListList[groupPosition][childPosition]
+                    dc.deletePhoneMessage(ss.id)
+                    loadSmsData()
+                    expandAdapter.notifyDataSetChanged()
+                }).show()
+                true
+            }
 
 
 
@@ -133,26 +133,26 @@ class SmsActivity : AppCompatActivity() {
     fun loadSmsData() {
         groupList.clear()
         childListList.clear()
-            smsList = dc.phoneMessages
-            smsList.forEach { sms ->
-                val group = groupList.firstOrNull { m -> m.number == sms.address }
-                var index = groupList.indexOfFirst { m -> m.number == sms.address }
-                if (group == null) {
-                    groupList.add(GroupItem(sms.createTime, sms.address, findName(sms.body) ?: sms.address, sms.body))
-                    var childList = ArrayList<ChildItem>()
-                    childList.add(ChildItem(sms.id, sms.address, sms.createTime, sms.body))
-                    childListList.add(childList)
-                } else {
+        smsList = dc.phoneMessages
+        smsList.forEach { sms ->
+            val group = groupList.firstOrNull { m -> m.number == sms.address }
+            var index = groupList.indexOfFirst { m -> m.number == sms.address }
+            if (group == null) {
+                groupList.add(GroupItem(sms.createTime, sms.address, findName(sms.body) ?: sms.address, sms.body))
+                var childList = ArrayList<ChildItem>()
+                childList.add(ChildItem(sms.id, sms.address, sms.createTime, sms.body))
+                childListList.add(childList)
+            } else {
 //                if ( sms.createTime.timeInMillis>group.dateTime.timeInMillis) {
 //                    group.dateTime = sms.createTime
 //                    group.body = sms.body
 //                }
-                    findName(sms.body)?.let {
-                        group.name = it
-                    }
-                    childListList.get(index).add(ChildItem(sms.id, sms.address, sms.createTime, sms.body))
+                findName(sms.body)?.let {
+                    group.name = it
                 }
+                childListList.get(index).add(ChildItem(sms.id, sms.address, sms.createTime, sms.body))
             }
+        }
     }
 
     private fun e(log: Any) {

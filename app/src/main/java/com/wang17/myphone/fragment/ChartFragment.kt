@@ -1,6 +1,5 @@
 package com.wang17.myphone.fragment
 
-import android.app.ProgressDialog
 import android.content.pm.ActivityInfo
 import android.graphics.Color
 import android.os.Bundle
@@ -59,7 +58,6 @@ class ChartFragment : Fragment() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         dc = DataContext(context)
-        progressDialog = ProgressDialog(context)
         activity!!.setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE);
     }
 
@@ -70,12 +68,11 @@ class ChartFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         runHandler = Handler()
-        generateData()
+        generateChart()
+        checkChartData()
         fab_load.setOnLongClickListener {
-//            Thread{
-            checkUpdateChartData()
-            generateData()
-//            }.start()
+            loadChartData()
+            generateChart()
             true
         }
         button2.setOnLongClickListener {
@@ -85,8 +82,7 @@ class ChartFragment : Fragment() {
     }
 
     var axisXValues: MutableList<AxisValue> = ArrayList()
-    private fun generateData() {
-
+    private fun generateChart() {
         val format = DecimalFormat("#,##0.00")
         val statements = dc.statements
         if (statements.size == 0)
@@ -103,16 +99,31 @@ class ChartFragment : Fragment() {
         var cc = 0.toBigDecimal()
         val fund = statements.last().fund
         var count = 0
-        var aa = statements.size / 20
-
+        var prvMonth =-1
+        var prvYear = -1
 
         for (i in statements.indices) {
-            if (statements[i].profit.compareTo(0.toBigDecimal()) != 0) {
-                cc += statements[i].profit * 100.toBigDecimal() / fund
-                e("${statements[i].date.toShortDateString()}   ${format.format(statements[i].profit * 100.toBigDecimal() / fund)}   ${format.format(cc)}")
+            val statement = statements[i]
+//e(statement.date.toShortDateString())
+            if (statement.profit.compareTo(0.toBigDecimal()) != 0) {
+                cc += statement.profit * 100.toBigDecimal() / fund
+//                e("${statements[i].date.toShortDateString()}   ${format.format(statements[i].profit * 100.toBigDecimal() / fund)}   ${format.format(cc)}")
                 values.add(PointValue((++count).toFloat(), cc.toFloat()))
-//                if(count%aa==0)
-//                axisXValues.add(AxisValue(count.toFloat(),statements[i].date.toShortDateString().toCharArray()))
+                if(statement.date.month!=prvMonth){
+                    var str =""
+                    if(statement.date.year!=prvYear) {
+                        if(prvYear!=-1)
+                            str = "${statement.date.year.toString().substring(2,4)}年"
+                        else
+                            str = ""
+                        prvYear = statement.date.year
+                    }
+                    else{
+                        str = "${statement.date.monthStr}月"
+                    }
+                    axisXValues.add(AxisValue(count.toFloat(),str.toCharArray()))
+                    prvMonth = statement.date.month
+                }
             }
         }
         val line = Line(values)
@@ -137,8 +148,8 @@ class ChartFragment : Fragment() {
 
         var data = LineChartData(lines)
         if (hasAxes) {
-            val axisX = Axis()
-            val axisY = Axis().setHasLines(true)
+            val axisX = Axis().setValues(axisXValues).setHasLines(true)
+            val axisY = Axis().setHasLines(false)
             if (hasAxesNames) {
                 axisX.setName("${firstStatement.date.toShortDateString()} - ${lastStatement.date.toShortDateString()}")
                 axisX.setTextColor(whiteColor)
@@ -159,8 +170,20 @@ class ChartFragment : Fragment() {
 //        }
     }
 
-    lateinit var progressDialog: ProgressDialog
-    private fun checkUpdateChartData() {
+    private fun checkChartData() {
+        val ss = dc.lastStatement
+        ss?.let {
+            val now = DateTime()
+            val chartDate = it.date.addDays(1).date
+            if ((chartDate.timeInMillis < now.date.timeInMillis || (chartDate.isSameDay(now) && now.hour > 15))
+                && now.get(Calendar.DAY_OF_WEEK) != 6 && now.get(Calendar.DAY_OF_WEEK) != 0 ) {
+                loadChartData()
+                generateChart()
+            }
+        }
+    }
+
+    private fun loadChartData() {
 
         val now = DateTime()
         var trades = dc.trades.reversed()
@@ -175,152 +198,137 @@ class ChartFragment : Fragment() {
             trades = dc.getTrades(chartDate).reversed()
         }
 
-        if ((chartDate.timeInMillis < now.date.timeInMillis || (chartDate.isSameDay(now) && now.hour > 15))
-            && now.get(Calendar.DAY_OF_WEEK) != 6 && now.get(Calendar.DAY_OF_WEEK) != 0 ) {
 
-            val positions: MutableList<Position> = ArrayList()
-            val statements: MutableList<Statement> = ArrayList()
+        val positions: MutableList<Position> = ArrayList()
+        val statements: MutableList<Statement> = ArrayList()
 
-            val dateList = _SinaStockUtils.getStockHistory(firstTrade.code, chartDate)
-            val stocks: MutableList<Stock> = ArrayList()
+        val dateList = _SinaStockUtils.getStockHistory(firstTrade.code, chartDate)
+        val stocks: MutableList<Stock> = ArrayList()
 
-            var prvProfit = 0.toBigDecimal()
-            var reset = true
-            dateList.forEach { dt ->
-                e(dt.date.toShortDateString())
-                /**
-                 * 1、买入、卖出、股息收入、股税支出
-                 *      更新持仓成本和持仓量。
-                 *
-                 * 2、持仓
-                 *      根据持仓价和当天收盘价，计算盈利，并更新资金。
-                 *
-                 * 3、结算信息：当前资金、盈利、
-                 *
-                 */
+        var prvProfit = 0.toBigDecimal()
+        var reset = true
+        dateList.forEach { dt ->
 
-                var profit = 0.toBigDecimal()
-                var fund = 0.toBigDecimal()
+            var profit = 0.toBigDecimal()
+            var fund = 0.toBigDecimal()
 
-                val tds = trades.filter { it.dateTime.isSameDay(dt.date) }
-                tds.forEach { td ->
-                    when (td.type) {
-                        1 -> { //买入
-                            var position = positions.firstOrNull { it.code.trim() == td.code.trim() }
-                            if (position != null) {
-                                // 成本总资金
-                                val costFund = position.cost * (position.amount * 100).toBigDecimal()
-                                // 成交总资金
-                                val tradeFund = td.price * (td.amount * 100).toBigDecimal()
-                                // 佣金
-                                val commission = TradeUtils.commission(td)
-                                // 过户费
-                                val transferFee = TradeUtils.transferFee(td)
-                                // 印花税
-                                val tax = TradeUtils.tax(td)
+            val tds = trades.filter { it.dateTime.isSameDay(dt.date) }
+            tds.forEach { td ->
+                when (td.type) {
+                    1 -> { //买入
+                        var position = positions.firstOrNull { it.code.trim() == td.code.trim() }
+                        if (position != null) {
+                            // 成本总资金
+                            val costFund = position.cost * (position.amount * 100).toBigDecimal()
+                            // 成交总资金
+                            val tradeFund = td.price * (td.amount * 100).toBigDecimal()
+                            // 佣金
+                            val commission = TradeUtils.commission(td)
+                            // 过户费
+                            val transferFee = TradeUtils.transferFee(td)
+                            // 印花税
+                            val tax = TradeUtils.tax(td)
 
-                                val amount = position.amount + td.amount
-                                val cost = (costFund + tradeFund + commission + transferFee + tax) / (amount * 100).toBigDecimal()
+                            val amount = position.amount + td.amount
+                            val cost = (costFund + tradeFund + commission + transferFee + tax) / (amount * 100).toBigDecimal()
 
+                            position.amount = amount
+                            position.cost = cost
+
+                        } else {
+                            // 成交总资金
+                            val tradeFund = td.price * (td.amount * 100).toBigDecimal()
+                            // 佣金
+                            val commission = TradeUtils.commission(td)
+                            // 过户费
+                            val transferFee = TradeUtils.transferFee(td)
+                            // 印花税
+                            val tax = TradeUtils.tax(td)
+
+                            val cost = (tradeFund + commission + transferFee + tax) / (td.amount * 100).toBigDecimal()
+
+                            position = Position(td.code, td.name, cost, 0, td.amount, "", 0.toBigDecimal())
+                            positions.add(position)
+                        }
+
+                    }
+                    -1 -> { //卖出
+
+                        var position = positions.firstOrNull { it.code.trim() == td.code.trim() }
+                        if (position != null) {
+                            // 成本总资金
+                            val costFund = position.cost * (position.amount * 100).toBigDecimal()
+                            // 成交总资金
+                            val tradeFund = td.price * (td.amount * 100).toBigDecimal()
+                            // 佣金
+                            val commission = TradeUtils.commission(td)
+                            // 过户费
+                            val transferFee = TradeUtils.transferFee(td)
+                            // 印花税
+                            val tax = TradeUtils.tax(td)
+
+                            val amount = position.amount - td.amount
+                            if (amount == 0) {
+                                positions.remove(position)
+                            } else {
+                                val cost = (costFund - tradeFund + commission + transferFee + tax) / (amount * 100).toBigDecimal()
                                 position.amount = amount
                                 position.cost = cost
-
-                            } else {
-                                // 成交总资金
-                                val tradeFund = td.price * (td.amount * 100).toBigDecimal()
-                                // 佣金
-                                val commission = TradeUtils.commission(td)
-                                // 过户费
-                                val transferFee = TradeUtils.transferFee(td)
-                                // 印花税
-                                val tax = TradeUtils.tax(td)
-
-                                val cost = (tradeFund + commission + transferFee + tax) / (td.amount * 100).toBigDecimal()
-
-                                position = Position(td.code, td.name, cost, 0, td.amount, "", 0.toBigDecimal())
-                                positions.add(position)
                             }
-
-                        }
-                        -1 -> { //卖出
-
-                            var position = positions.firstOrNull { it.code.trim() == td.code.trim() }
-                            if (position != null) {
-                                // 成本总资金
-                                val costFund = position.cost * (position.amount * 100).toBigDecimal()
-                                // 成交总资金
-                                val tradeFund = td.price * (td.amount * 100).toBigDecimal()
-                                // 佣金
-                                val commission = TradeUtils.commission(td)
-                                // 过户费
-                                val transferFee = TradeUtils.transferFee(td)
-                                // 印花税
-                                val tax = TradeUtils.tax(td)
-
-                                val amount = position.amount - td.amount
-                                if (amount == 0) {
-                                    positions.remove(position)
-                                } else {
-                                    val cost = (costFund - tradeFund + commission + transferFee + tax) / (amount * 100).toBigDecimal()
-                                    position.amount = amount
-                                    position.cost = cost
-                                }
-                                profit += (td.price - position.cost) * (td.amount * 100).toBigDecimal() - commission - transferFee - tax
-                            }
-                        }
-                        2 -> { //股息
-
-                            var position = positions.firstOrNull { it.code.trim() == td.code.trim() }
-                            if (position != null) {
-                                var cost = (position.cost * (position.amount * 100).toMyDecimal() - td.price) / (position.amount * 100).toBigDecimal()
-                                position.cost = cost
-                            }
-
-                            profit += td.price
-
-                        }
-                        -2 -> { //股息税
-                            profit -= td.price
+                            profit += (td.price - position.cost) * (td.amount * 100).toBigDecimal() - commission - transferFee - tax
                         }
                     }
+                    2 -> { //股息
+
+                        var position = positions.firstOrNull { it.code.trim() == td.code.trim() }
+                        if (position != null) {
+                            var cost = (position.cost * (position.amount * 100).toMyDecimal() - td.price) / (position.amount * 100).toBigDecimal()
+                            position.cost = cost
+                        }
+
+                        profit += td.price
+
+                    }
+                    -2 -> { //股息税
+                        profit -= td.price
+                    }
                 }
+            }
 
 //            e("position size : ${positions.size}")
 //            e("-----------------------${dt.date.toShortDateString()} ${positions.size}--------------------------")
-                if (positions.size > 0) {
-                    positions.forEach { p ->
+            if (positions.size > 0) {
+                positions.forEach { p ->
 //                    e("${p.code} ${p.name} ${p.amount} ${format.format(p.cost)}")
-                        var stock = stocks.firstOrNull { stock -> stock.code.trim() == p.code.trim() && stock.date.isSameDay(dt.date) }
-                        if (stock == null) {
-                            stocks.addAll(_SinaStockUtils.getStockHistory(p.code, dt.date))
-                            stock = stocks.firstOrNull { stock -> stock.code.trim() == p.code.trim() && stock.date.isSameDay(dt.date) }
-                        }
-
-                        stock?.let {
-                            fund += it.price * (p.amount * 100).toBigDecimal()
-                            profit += (it.price - p.cost) * (p.amount * 100).toBigDecimal()
-//                    e("${it.code}  ${format.format(it.price)}  ${format.format(p.cost)} ${p.amount} ${format.format((it.price - p.cost) * (p.amount * 100).toBigDecimal())}")
-                        }
+                    var stock = stocks.firstOrNull { stock -> stock.code.trim() == p.code.trim() && stock.date.isSameDay(dt.date) }
+                    if (stock == null) {
+                        stocks.addAll(_SinaStockUtils.getStockHistory(p.code, dt.date))
+                        stock = stocks.firstOrNull { stock -> stock.code.trim() == p.code.trim() && stock.date.isSameDay(dt.date) }
                     }
 
-                    if (reset)
-                        statements.add(Statement(dt.date, fund, profit))
-                    else
-                        statements.add(Statement(dt.date, fund, profit - prvProfit))
-
-                    prvProfit = profit
-                    reset = false
-                } else {
-                    statements.add(Statement(dt.date, fund, 0.toBigDecimal()))
-                    reset = true
+                    stock?.let {
+                        fund += it.price * (p.amount * 100).toBigDecimal()
+                        profit += (it.price - p.cost) * (p.amount * 100).toBigDecimal()
+//                    e("${it.code}  ${format.format(it.price)}  ${format.format(p.cost)} ${p.amount} ${format.format((it.price - p.cost) * (p.amount * 100).toBigDecimal())}")
+                    }
                 }
+
+                if (reset)
+                    statements.add(Statement(dt.date, fund, profit))
+                else
+                    statements.add(Statement(dt.date, fund, profit - prvProfit))
+
+                prvProfit = profit
+                reset = false
+            } else {
+                statements.add(Statement(dt.date, fund, 0.toBigDecimal()))
+                reset = true
             }
-            e("生成图表用时：${System.currentTimeMillis() - now.timeInMillis}")
-            dc.addStatements(statements)
-            Toast.makeText(context, "更新数据用时：${System.currentTimeMillis() - - now.timeInMillis}毫秒", Toast.LENGTH_LONG).show()
-        }else{
-            Toast.makeText(context, "没有新数据", Toast.LENGTH_LONG).show()
         }
+        e("生成图表用时：${System.currentTimeMillis() - now.timeInMillis}")
+        dc.addStatements(statements)
+        Toast.makeText(context, "更新数据用时：${System.currentTimeMillis() - -now.timeInMillis}毫秒", Toast.LENGTH_LONG).show()
+
 
     }
 

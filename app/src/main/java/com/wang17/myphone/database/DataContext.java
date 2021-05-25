@@ -34,6 +34,7 @@ public class DataContext {
         dbHelper = new DatabaseHelper(context);
     }
 
+    //region Statement
     public void addStatement(Statement model) {
         try {
             //获取数据库对象
@@ -98,6 +99,29 @@ public class DataContext {
         return result;
     }
 
+
+    public Statement getLastStatement() {
+        try {
+            //获取数据库对象
+            SQLiteDatabase db = dbHelper.getReadableDatabase();
+            //查询获得游标
+            Cursor cursor = db.query("statement", null, null,null, null, null, "date desc");
+            //判断游标是否为空
+            while (cursor.moveToNext()) {
+                Statement model = new Statement( new DateTime(cursor.getLong(1)),
+                        new BigDecimal(cursor.getString(2)),
+                        new BigDecimal(cursor.getString(3)));
+                model.setId(UUID.fromString(cursor.getString(0)));
+                return model;
+            }
+            cursor.close();
+            db.close();
+        } catch (Exception e) {
+            _Utils.printException(context, e);
+        }
+        return null;
+    }
+
     public void deleteAllStatements() {
         try {
             //获取数据库对象
@@ -109,6 +133,7 @@ public class DataContext {
             _Utils.printException(context, e);
         }
     }
+    //endregion
 
     //region Loan
     public void addLoan(Loan model) {

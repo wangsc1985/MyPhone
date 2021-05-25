@@ -187,6 +187,7 @@ class BuddhaFragment : Fragment() {
             _FingerUtils.showFingerPrintDialog(activity!!) {
                 val dialog = SmsDialogFragment()
                 dialog.show(activity!!.supportFragmentManager,"sms")
+                tv_msg.visibility = View.GONE
             }
         }
 

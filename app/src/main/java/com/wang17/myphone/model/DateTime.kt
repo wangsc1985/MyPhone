@@ -115,6 +115,14 @@ class DateTime : GregorianCalendar {
     fun toShortDateString(): String {
         return _String.concat(year, "/", monthStr, "/", dayStr)
     }
+    /**
+     * 格式：****@/ **@/ **
+     *
+     * @return
+     */
+    fun toShortDateString4(): String {
+        return _String.concat(year.toString().substring(2,4), "/", monthStr)
+    }
 
     /**
      * 格式：****年**月**日

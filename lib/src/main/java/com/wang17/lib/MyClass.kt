@@ -142,8 +142,11 @@ class MyClass {
         @JvmStatic
         fun main(args: Array<String>) {
 
-            val a = getStockHistory("002839",DateTime(2019,0,1))
-            println(a.size)
+            val year = 1985
+            println(year.toString().substring(2,4))
+
+//            val a = getStockHistory("002839",DateTime(2019,0,1))
+//            println(a.size)
 //            var aaa = "0.00".toBigDecimal()
 //            var bbb = "0.0".toBigDecimal()
 //            println()
