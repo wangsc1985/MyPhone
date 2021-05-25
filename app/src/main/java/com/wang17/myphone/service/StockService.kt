@@ -86,7 +86,6 @@ class StockService : Service() {
         try {
 
             mDataContext = DataContext(this)
-            // TODO: 2019/4/26 test
             //region test
             /**
              * 初始化声音
@@ -524,7 +523,6 @@ class StockService : Service() {
     inner class MainReciver : BroadcastReceiver() {
         override fun onReceive(context: Context, intent: Intent) {
             try {
-                // TODO Auto-generated method stub
                 when (intent.action) {
                     Intent.ACTION_BATTERY_CHANGED -> {
                         val level = intent.getIntExtra("level", 0)

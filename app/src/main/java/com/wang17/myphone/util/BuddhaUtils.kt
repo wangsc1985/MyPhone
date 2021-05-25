@@ -74,7 +74,6 @@ object BuddhaUtils {
     fun integrate(latestBuddha: BuddhaRecord?, newBuddhaList: MutableList<BuddhaRecord>) {
         val removeList: MutableList<BuddhaRecord> = ArrayList()
         var tmp: BuddhaRecord? = latestBuddha
-        // TODO: 2021/1/24 这个latestBuddha，在保存到本地数据库中时怎么处理，保存到云端的时候怎么处理？
         newBuddhaList.forEach { buddha ->
             if (tmp != null) {
                 if (buddha.startTime.get(Calendar.DAY_OF_YEAR) != tmp!!.startTime.get(Calendar.DAY_OF_YEAR)) {

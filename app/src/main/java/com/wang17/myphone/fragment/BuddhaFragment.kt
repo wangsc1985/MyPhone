@@ -17,7 +17,6 @@ import com.alibaba.fastjson.JSON
 import com.wang17.myphone.R
 import com.wang17.myphone.activity.BuddhaActivity
 import com.wang17.myphone.activity.BuddhaDetailActivity
-import com.wang17.myphone.activity.SmsActivity
 import com.wang17.myphone.callback.CloudCallback
 import com.wang17.myphone.callback.DialogChoosenCallback
 import com.wang17.myphone.database.*
@@ -186,9 +185,8 @@ class BuddhaFragment : Fragment() {
 
         tv_msg.setOnClickListener {
             _FingerUtils.showFingerPrintDialog(activity!!) {
-                var intent = Intent(context, SmsActivity::class.java)
-                intent.putExtra("isAll", false)
-                startActivity(intent)
+                val dialog = SmsDialogFragment()
+                dialog.show(activity!!.supportFragmentManager,"sms")
             }
         }
 

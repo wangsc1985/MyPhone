@@ -296,7 +296,7 @@
         android:text="0"
         android:textColor="@color/progressbar_background"
         android:textStyle="bold"
-        android:visibility="gone"
+        android:visibility="visible"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="@+id/fab_stock"
         app:layout_constraintStart_toStartOf="@+id/fab_muyu"

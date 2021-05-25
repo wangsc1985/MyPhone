@@ -48,26 +48,16 @@ class SmsActivity : AppCompatActivity() {
     private var childListList: MutableList<MutableList<ChildItem>> = ArrayList()
     private var smsList: List<PhoneMessage> = ArrayList()
     private var expandAdapter: SmsExpandableListAdapter = SmsExpandableListAdapter()
-    private var adapter: SmsListdAdapter = SmsListdAdapter()
     private lateinit var dc: DataContext
-    private var isAll = false
 
     @SuppressLint("RestrictedApi")
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_sms)
 
-        isAll = intent.getBooleanExtra("isAll", false)
         try {
             dc = DataContext(this)
             loadSmsData()
-
-            if (isAll) {
-                lv_sms.visibility = View.INVISIBLE
-                fab_clean.visibility = View.VISIBLE
-                fab_clean_history.visibility = View.VISIBLE
-                fab_express.visibility = View.VISIBLE
-
 
                 elv_sms.setGroupIndicator(null)
                 elv_sms.setAdapter(expandAdapter)
@@ -81,24 +71,6 @@ class SmsActivity : AppCompatActivity() {
                     }).show()
                     true
                 }
-            } else {
-                elv_sms.visibility = View.INVISIBLE
-                fab_clean.visibility = View.INVISIBLE
-                fab_clean_history.visibility = View.INVISIBLE
-                fab_express.visibility = View.INVISIBLE
-
-
-                lv_sms.setAdapter(adapter)
-                lv_sms.setOnItemLongClickListener { parent, view, position, id ->
-                    AlertDialog.Builder(this).setMessage("确认删除?").setPositiveButton("删除", DialogInterface.OnClickListener { dialog, which ->
-                        val ss = smsList[position]
-                        dc.deletePhoneMessage(ss.id)
-                        loadSmsData()
-                        adapter.notifyDataSetChanged()
-                    }).show()
-                    true
-                }
-            }
 
 
 
@@ -161,7 +133,6 @@ class SmsActivity : AppCompatActivity() {
     fun loadSmsData() {
         groupList.clear()
         childListList.clear()
-        if (isAll) {
             smsList = dc.phoneMessages
             smsList.forEach { sms ->
                 val group = groupList.firstOrNull { m -> m.number == sms.address }
@@ -182,10 +153,6 @@ class SmsActivity : AppCompatActivity() {
                     childListList.get(index).add(ChildItem(sms.id, sms.address, sms.createTime, sms.body))
                 }
             }
-        } else {
-            smsList = dc.getPhoneMessages(dc.getSetting(Setting.KEYS.sms_last_time, 0).long)
-        }
-        dc.editSetting(Setting.KEYS.sms_last_time, System.currentTimeMillis())
     }
 
     private fun e(log: Any) {
@@ -283,89 +250,4 @@ class SmsActivity : AppCompatActivity() {
 
     }
 
-    protected inner class SmsListdAdapter : BaseAdapter() {
-        override fun getCount(): Int {
-            return smsList!!.size
-        }
-
-        override fun getItem(position: Int): Any? {
-            return null
-        }
-
-        override fun getItemId(position: Int): Long {
-            return 0
-        }
-
-        override fun getView(position: Int, convertView: View?, parent: ViewGroup): View? {
-            var convertView = convertView
-            try {
-                convertView = View.inflate(this@SmsActivity, R.layout.inflate_list_item_sms, null)
-                if (mHashMap[position] == null) {
-                    mHashMap[position] = convertView
-                    val sms = smsList!![position]
-                    val layoutDate = convertView.findViewById<LinearLayout>(R.id.layout_date)
-                    val root = convertView.findViewById<LinearLayout>(R.id.linear_root)
-                    val textViewDate = convertView.findViewById<TextView>(R.id.tv_att_date)
-                    val textViewDateTime = convertView.findViewById<TextView>(R.id.tv_dateTime)
-                    val textViewBody = convertView.findViewById<TextView>(R.id.tv_body)
-                    val textViewNumber = convertView.findViewById<TextView>(R.id.tv_number)
-                    if (sms.createTime.day != preDay) {
-
-                        val today = DateTime.today
-                        val yestoday = today.addDays(-1)
-                        if (sms.createTime.timeInMillis < yestoday.timeInMillis) {
-                            textViewDate.text = sms.createTime.toShortDateString1()
-                        } else if (sms.createTime.timeInMillis < today.timeInMillis) {
-                            textViewDate.text = "昨天"
-                        } else if (sms.createTime.timeInMillis >= today.timeInMillis) {
-                            textViewDate.text = "今天"
-                        }
-
-//                        textViewDate.text = sms.createTime.toShortDateString()
-                        layoutDate.visibility = View.VISIBLE
-                        preDay = sms.createTime.day
-                    } else {
-                        layoutDate.visibility = View.GONE
-                    }
-                    textViewDateTime.text = sms.createTime.toLongDateTimeString()
-                    textViewBody.text = sms.body
-                    textViewNumber.text = sms.address
-                    val matcher = Pattern.compile("-?\\d+\\.\\d+").matcher(sms.body)
-                    if (matcher.find()) {
-                        val money = matcher.group().toDouble()
-                        if (Math.abs(money) > 100) {
-                            textViewBody.setTextColor(Color.BLACK)
-                        }
-                    }
-                } else {
-                    convertView = mHashMap[position]!!
-                }
-
-            } catch (e: Exception) {
-                printException(this@SmsActivity, e)
-            }
-            return convertView
-        }
-    }
-
-    private fun delTodoDialog() {
-        val view = LayoutInflater.from(this).inflate(R.layout.dialog_del_todo, null)
-        AlertDialog.Builder(this)
-            .setView(view).setCancelable(false).setPositiveButton("OK") { dialog, which ->
-                try {
-                    val editTextTitle = view.findViewById<EditText>(R.id.editText_title)
-                    val editTextSummary = view.findViewById<EditText>(R.id.editText_summary)
-                    val bankName = editTextTitle.text.toString()
-                    val cardNumber = editTextSummary.text.toString()
-                    val dataContext = DataContext(this@SmsActivity)
-                    dataContext.deleteBankToDo(bankName, cardNumber)
-
-                    // 发送更新广播
-                    val intent = Intent(MyWidgetProvider.ACTION_UPDATE_LISTVIEW)
-                    sendBroadcast(intent)
-                } catch (e: Exception) {
-                    printException(this@SmsActivity, e)
-                }
-            }.setNegativeButton("CANCEL", null).create().show()
-    }
 }
