@@ -44,29 +44,9 @@ class LoanFragment : Fragment() {
         lv_loan.adapter = adapter
         lv_loan.setOnItemClickListener { parent, view, position, id ->
             val loan = loanList.get(position)
-            val loanRecordList = dc.getLoanRecordList(loan.id)
-            var values = arrayOfNulls<String>(loanRecordList.size)
-            for (i in loanRecordList.indices){
-                values[i]="${loanRecordList[i].date.toShortDateString()}  ${format.format(loanRecordList[i].sum)}  ${format.format(loanRecordList[i].interest)}"
-            }
-            AlertDialog.Builder(context!!).setItems(values){ dialogInterface: DialogInterface, i: Int ->
-                AlertDialog.Builder(context!!).setMessage("删除当前还款记录？").setPositiveButton("确定"){ dialogInterface: DialogInterface, ii: Int ->
-                    val loanRecord = loanRecordList[i]
-                    loan.sum-=loanRecord.sum
-                    loan.interest -=loanRecord.interest
-                    dc.editLoan(loan)
-                    dc.deleteLoanRecord(loanRecord.id)
-
-                    loadLoanData()
-                    adapter.notifyDataSetChanged()
-                }.show()
-            }.show()
-        }
-        lv_loan.setOnItemLongClickListener { parent, view, position, id ->
-            AlertDialog.Builder(context!!).setItems(arrayOf("还款","删除")){ dialogInterface: DialogInterface, i: Int ->
+            AlertDialog.Builder(context!!).setItems(arrayOf("还款","删除","详单")){ dialogInterface: DialogInterface, i: Int ->
                 when(i){
                     0->{
-                        val loan = loanList.get(position)
                         val view = View.inflate(context, R.layout.inflate_dialog_add_loan_record, null)
                         val cvDate = view.findViewById<CalendarView>(R.id.cv_date)
                         cvDate.date = loan.date.timeInMillis
@@ -91,7 +71,38 @@ class LoanFragment : Fragment() {
                         dc.deleteLoanRecords(loanList.get(position).id)
                         dc.deleteLoan(loanList.get(position).id)
                     }
+                    2->{
+                        val loanRecordList = dc.getLoanRecordList(loan.id)
+                        var values = arrayOfNulls<String>(loanRecordList.size)
+                        for (i in loanRecordList.indices){
+                            values[i]="${loanRecordList[i].date.toShortDateString()}  ${format.format(loanRecordList[i].sum)}  ${format.format(loanRecordList[i].interest)}"
+                        }
+                        AlertDialog.Builder(context!!).setItems(values){ dialogInterface: DialogInterface, i: Int ->
+                            AlertDialog.Builder(context!!).setMessage("删除当前还款记录？").setPositiveButton("确定"){ dialogInterface: DialogInterface, ii: Int ->
+                                val loanRecord = loanRecordList[i]
+                                loan.sum-=loanRecord.sum
+                                loan.interest -=loanRecord.interest
+                                dc.editLoan(loan)
+                                dc.deleteLoanRecord(loanRecord.id)
+
+                                loadLoanData()
+                                adapter.notifyDataSetChanged()
+                            }.show()
+                        }.show()
+                    }
                 }
+                loadLoanData()
+                adapter.notifyDataSetChanged()
+            }.show()
+        }
+        lv_loan.setOnItemLongClickListener { parent, view, position, id ->
+            var et = EditText(context!!)
+            val loan = loanList.get(position)
+            et.setText(loan.rate.toString())
+            AlertDialog.Builder(context!!).setView(et).setPositiveButton("修改"){dialog,which->
+                loan.rate = et.text.toString().toBigDecimal()
+                dc.editLoan(loan)
+
                 loadLoanData()
                 adapter.notifyDataSetChanged()
             }.show()
@@ -161,8 +172,8 @@ class LoanFragment : Fragment() {
                     val tvRate = findViewById<TextView>(R.id.tv_rate)
 
                     tvName.text = loan.name
-                    tvSum.text =  DecimalFormat("#,##0").format(loan.sum)
-                    tvDate.text = loan.date.toShortDateString1()
+                    tvSum.text =  "${DecimalFormat("#,##0.00").format(loan.sum.toFloat()/10000)}万"
+                    tvDate.text = loan.date.toShortDateString()
                     tvRate.text = "${loan.rate}/万/日"
                     val days = (DateTime.today.timeInMillis - loan.date.timeInMillis) / (1000 * 60 * 60 * 24)
                     tvDays.text = "${days/30}月${days%30}天"
