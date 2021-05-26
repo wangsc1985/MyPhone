@@ -63,6 +63,8 @@ class MuyuService : Service() {
 
     lateinit var guSound: SoundPool
     lateinit var muyuSound:SoundPool
+    private var isDaKnock=true
+    private lateinit var yqSound:SoundPool
 
     override fun onBind(intent: Intent): IBinder? {
         return null
@@ -83,9 +85,11 @@ class MuyuService : Service() {
             muyu_count = dc.getSetting(Setting.KEYS.muyu_count,20).int
 
             guSound = SoundPool(100, AudioManager.STREAM_MUSIC, 0)
-            guSound.load(this, R.raw.yq, 1)
+            guSound.load(this, R.raw.gu, 1)
             muyuSound = SoundPool(100, AudioManager.STREAM_MUSIC, 0)
             muyuSound.load(this, R.raw.muyu, 1)
+            yqSound = SoundPool(100, AudioManager.STREAM_MUSIC,0)
+            yqSound.load(this,R.raw.yq,1)
             val setting = dc.getSetting(Setting.KEYS.buddha_duration)
             setting?.let {
                 savedDuration = setting.long
@@ -144,8 +148,24 @@ class MuyuService : Service() {
         timer?.schedule(object : TimerTask() {
             override fun run() {
                 if (timerRuning) {
-                    if(count++/muyu_count%2==0) {
+                    if(muyu_count==0){
                         muyuSound.play(1, 1.0f, 1.0f, 0, 0, 1.0f)
+                        if(isDaKnock){
+                            yqSound.play(1,1.0f,1.0f,0,0,1.0f)
+                            isDaKnock=false
+                            count++
+                        }else{
+                            isDaKnock=true
+                        }
+                    }else if(count++/muyu_count%2==0) {
+                        muyuSound.play(1, 1.0f, 1.0f, 0, 0, 1.0f)
+                        if(isDaKnock){
+                            yqSound.play(1,1.0f,1.0f,0,0,1.0f)
+                            isDaKnock=false
+                            count++
+                        }else{
+                            isDaKnock=true
+                        }
                     }
 //                    e("缓存duration : ${savedDuration/1000}秒  此段duration : ${(System.currentTimeMillis() - startTimeInMillis)/1000}秒   此段起始时间 : ${DateTime(startTimeInMillis).toTimeString()}")
                     val duration = savedDuration + System.currentTimeMillis() - startTimeInMillis

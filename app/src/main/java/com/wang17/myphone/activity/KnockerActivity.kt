@@ -12,19 +12,22 @@ import android.widget.Button
 import android.widget.LinearLayout
 import android.widget.TextView
 import com.wang17.myphone.R
+import kotlinx.android.synthetic.main.activity_knocker.*
 
 class KnockerActivity : AppCompatActivity() {
-    private lateinit var fullscreenContent: TextView
     private lateinit var daKnockSound:SoundPool
     private lateinit var xiaoKnockSound:SoundPool
     private var isDaKnock=true
     private var count = 0
 
     private val hideHandler = Handler()
+    private var prvClickTime = 0L
+    private var avg=0L
+
 
     @SuppressLint("InlinedApi")
     private val hidePart2Runnable = Runnable {
-        fullscreenContent.systemUiVisibility =
+        fullscreen_content.systemUiVisibility =
                 View.SYSTEM_UI_FLAG_LOW_PROFILE or
                         View.SYSTEM_UI_FLAG_FULLSCREEN or
                         View.SYSTEM_UI_FLAG_LAYOUT_STABLE or
@@ -62,20 +65,36 @@ class KnockerActivity : AppCompatActivity() {
 
         daKnockSound = SoundPool(100, AudioManager.STREAM_MUSIC,0)
         xiaoKnockSound = SoundPool(100,AudioManager.STREAM_MUSIC,0)
-        daKnockSound.load(this,R.raw.yq,1)
+        daKnockSound.load(this,R.raw.gu,1)
         xiaoKnockSound.load(this,R.raw.muyu,1)
 
-        fullscreenContent = findViewById(R.id.fullscreen_content)
-        fullscreenContent.setOnClickListener {
+        fullscreen_content.setOnClickListener {
+            val now =  System.currentTimeMillis()
+            if(now-prvClickTime<3000){
+                if(avg==0L){
+                    avg = now-prvClickTime
+                }else{
+                    avg = (avg+(now - prvClickTime))/2
+                }
+                val cc = avg*1.080
+                fullscreen_content.text = "${avg}毫秒/次  ${(cc/60).toInt()}分${(cc%60).toInt()}秒/圈"
+            }
+            prvClickTime = now
+
             if(isDaKnock){
 //                daKnockSound.play(1,1.0f,1.0f,0,0,1.0f)
                 isDaKnock=false
                 count++
-                fullscreenContent.text = count.toString()
             }else{
                 isDaKnock=true
             }
-            xiaoKnockSound.play(1,1.0f,1.0f,0,0,1.0f)
+//            xiaoKnockSound.play(1,1.0f,1.0f,0,0,1.0f)
+        }
+        fullscreen_content.setOnLongClickListener {
+            avg=0
+            fullscreen_content.text = ""
+            prvClickTime = 0
+            true
         }
     }
 
@@ -102,7 +121,7 @@ class KnockerActivity : AppCompatActivity() {
 
     private fun show() {
         // Show the system bar
-        fullscreenContent.systemUiVisibility =
+        fullscreen_content.systemUiVisibility =
                 View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN or
                         View.SYSTEM_UI_FLAG_LAYOUT_HIDE_NAVIGATION
         isFullscreen = true

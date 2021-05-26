@@ -173,6 +173,14 @@ class OperationFragment : Fragment() {
             }
             layout_flexbox.addView(btn)
         }
+        kotlin.run {
+
+            btn = _Button(context!!, "木鱼")
+            btn.setOnClickListener {
+                startActivity(Intent(context,KnockerActivity::class.java))
+            }
+            layout_flexbox.addView(btn)
+        }
 
 
 //       kotlin.run {
