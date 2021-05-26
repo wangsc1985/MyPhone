@@ -4,7 +4,6 @@ import java.util.*
 
 class BuddhaConfig(
 
-        var id:UUID,
         /**
          * 文件名
          */
@@ -34,5 +33,5 @@ class BuddhaConfig(
          */
         var circleSecond: Int
 ) {
-        constructor(name: String, size: Long, md5: String, pitch: Float, speed: Float, type: Int, circleSecond: Int) : this(UUID.randomUUID(),name,size,md5,pitch,speed,type,circleSecond)
+        var id:UUID=UUID.randomUUID()
 }

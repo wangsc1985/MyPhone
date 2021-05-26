@@ -402,16 +402,16 @@ public class DataContext {
         }
     }
 
-    public List<BuddhaConfig> getBuddhaConfigList() {
-        List<BuddhaConfig> result = new ArrayList<>();
+    public List<BuddhaConfig> getAllBuddhaConfig() {
+        List<BuddhaConfig> result = new ArrayList<BuddhaConfig>();
         try {
             //获取数据库对象
             SQLiteDatabase db = dbHelper.getReadableDatabase();
             //查询获得游标
-            Cursor cursor = db.query("buddhaConfig", null, null, null, null, null, null);
+            Cursor cursor = db.query("buddhaConfig", null, null, null,  null, null, null);
             //判断游标是否为空
-            if (cursor.moveToNext()) {
-                BuddhaConfig model = new BuddhaConfig(UUID.fromString(cursor.getString(0)),
+            while (cursor.moveToNext()) {
+                BuddhaConfig model = new BuddhaConfig(
                         cursor.getString(1),
                         cursor.getLong(2),
                         cursor.getString(3),
@@ -419,7 +419,7 @@ public class DataContext {
                         cursor.getFloat(5),
                         cursor.getInt(6),
                         cursor.getInt(7));
-//                e(model.getName());
+                model.setId(UUID.fromString(cursor.getString(0)));
                 result.add(model);
             }
             cursor.close();
@@ -430,7 +430,6 @@ public class DataContext {
         return result;
     }
 
-
     public BuddhaConfig getBuddhaConfig(String name, long size) {
 
         try {
@@ -440,7 +439,7 @@ public class DataContext {
             Cursor cursor = db.query("buddhaConfig", null, "name = ? and size = ?", new String[]{name, size + ""}, null, null, null);
             //判断游标是否为空
             if (cursor.moveToNext()) {
-                BuddhaConfig model = new BuddhaConfig(UUID.fromString(cursor.getString(0)),
+                BuddhaConfig model = new BuddhaConfig(
                         cursor.getString(1),
                         cursor.getLong(2),
                         cursor.getString(3),
@@ -448,6 +447,7 @@ public class DataContext {
                         cursor.getFloat(5),
                         cursor.getInt(6),
                         cursor.getInt(7));
+                model.setId(UUID.fromString(cursor.getString(0)));
                 cursor.close();
                 db.close();
                 return model;
@@ -3469,11 +3469,11 @@ public class DataContext {
         }
     }
 
-    public void deleteRunLogByTag(String tag) {
+    public void deleteRunLog(String tag,DateTime dateTime) {
         try {
             //获取数据库对象
             SQLiteDatabase db = dbHelper.getWritableDatabase();
-            db.delete("runLog", "tag like ?", new String[]{tag});
+            db.delete("runLog", "tag like ? and runTime < ?", new String[]{tag, dateTime.getTimeInMillis()+""});
             //关闭SQLiteDatabase对象
             db.close();
         } catch (Exception e) {
@@ -3481,6 +3481,17 @@ public class DataContext {
         }
     }
 
+    public void deleteRunLogByTag(String tag) {
+        try {
+            //获取数据库对象
+            SQLiteDatabase db = dbHelper.getWritableDatabase();
+            db.delete("runLog", "tag like ? and runTime < ?", new String[]{tag, DateTime.getToday().addDays(-1).getTimeInMillis()+""});
+            //关闭SQLiteDatabase对象
+            db.close();
+        } catch (Exception e) {
+            _Utils.printException(context, e);
+        }
+    }
     public void deleteRunLogByEquals(String item) {
         try {
             //获取数据库对象

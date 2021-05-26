@@ -1,7 +1,6 @@
 package com.wang17.myphone.fragment
 
 import android.content.pm.ActivityInfo
-import android.graphics.Color
 import android.os.Bundle
 import android.os.Handler
 import android.support.v4.app.Fragment
@@ -19,6 +18,7 @@ import com.wang17.myphone.util.TradeUtils
 import com.wang17.myphone.util._SinaStockUtils
 import kotlinx.android.synthetic.main.fragment_chart.*
 import lecho.lib.hellocharts.model.*
+import okhttp3.internal.format
 import java.text.DecimalFormat
 import java.util.*
 import kotlin.collections.ArrayList
@@ -45,6 +45,7 @@ class ChartFragment : Fragment() {
     private val numberOfPoints = 10 // 每行数据有多少个点
 
     private lateinit var runHandler: Handler
+    val format = DecimalFormat("#,##0.00")
 
     // 存储数据
     var randomNumbersTab = Array(maxNumberOfLines) { FloatArray(numberOfPoints) }
@@ -92,7 +93,7 @@ class ChartFragment : Fragment() {
         val axisColor = resources.getColor(R.color.timerPauseColor, null)
         val values: MutableList<PointValue> = ArrayList()
         axisXValues.clear()
-        var cc = 0.toBigDecimal()
+        var totalProfit = 0.toBigDecimal()
         val fund = statements.last().fund
         var count = 0
         var prvMonth = -1
@@ -101,8 +102,8 @@ class ChartFragment : Fragment() {
         for (i in statements.indices) {
             val statement = statements[i]
             if (statement.profit.compareTo(0.toBigDecimal()) != 0) {
-                cc += statement.profit * 100.toBigDecimal() / fund
-                values.add(PointValue((++count).toFloat(), cc.toFloat()))
+                totalProfit += statement.profit * 100.toBigDecimal() / fund
+                values.add(PointValue((++count).toFloat(), totalProfit.toFloat()))
                 if (statement.date.month != prvMonth) {
                     var str = ""
                     if (statement.date.year != prvYear) {
@@ -145,10 +146,10 @@ class ChartFragment : Fragment() {
             val axisX = Axis().setValues(axisXValues).setHasLines(true)
             val axisY = Axis().setHasLines(true)
             if (hasAxesNames) {
-                axisX.setName("${firstStatement.date.toShortDateString()} - ${lastStatement.date.toShortDateString()}")
+                axisX.setName("${firstStatement.date.toShortDateString()} 至 ${lastStatement.date.toShortDateString()}  今日：${format.format(lastStatement.profit*100.toBigDecimal()/lastStatement.fund)}%  总计：${format.format(totalProfit)}%")
                 axisX.setTextColor(axisColor)
                 axisX.setLineColor(axisColor)
-                axisX.setMaxLabelChars(20); //最多几个X轴坐标，意思就是你的缩放让X轴上数据的个数7<=x<=mAxisXValues.length
+                axisX.setMaxLabelChars(7); //最多几个X轴坐标，意思就是你的缩放让X轴上数据的个数7<=x<=mAxisXValues.length
                 axisY.setName("")
                 axisY.setTextColor(axisColor)
                 axisY.setLineColor(axisColor)

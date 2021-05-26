@@ -88,7 +88,7 @@ class BuddhaService : Service() {
         e("buddha service onCreate")
         try {
             dc = DataContext(applicationContext)
-            dc.deleteRunLogByTag("BuddhaService")
+            dc.deleteRunLog("BuddhaService",DateTime.today.addDays(-1))
             isShowFloatWindow = dc.getSetting(Setting.KEYS.is显示念佛悬浮窗,false).boolean
             targetTimeInMinute = dc.getSetting(Setting.KEYS.念佛自动结束时间_分钟, 120).int
 

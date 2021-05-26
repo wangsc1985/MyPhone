@@ -754,15 +754,13 @@ class BuddhaFragment : Fragment() {
                     dialog.dismiss()
 
                     var list = ArrayList<BuddhaConfig>()
-                    var bfs = dc.buddhaConfigList
-                    e("buddha files size : ${bfs.size}  remove list size : ${list.size}")
+                    var bfs = dc.allBuddhaConfig
                     bfs.forEach {
-                        if (!_Session.BUDDHA_MUSIC_NAME_ARR.contains(it.name)) {
+                        if(!(_Session.BUDDHA_MUSIC_NAME_ARR.contains(it.name)&&_Session.getFile(it.name).length()==it.size)){
                             e(it.name)
                             list.add(it)
                         }
                     }
-
                     dc.deleteBuddhaConfigList(list)
 
 

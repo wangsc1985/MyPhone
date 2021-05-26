@@ -14,7 +14,7 @@ android {
         targetSdkVersion 25
         versionCode 6
         versionName '1.68'
-        multiDexEnabled true
+//        multiDexEnabled true
     }
 
     /**
