@@ -81,6 +81,7 @@ class MuyuService : Service() {
         e("buddha service onCreate")
         try {
             dc = DataContext(applicationContext)
+            isShowFloatWindow = false
             circleSecond = (dc.getSetting(Setting.KEYS.muyu_period,666).int*1.080).toInt()*4
             muyu_count = dc.getSetting(Setting.KEYS.muyu_count,20).int
 
@@ -391,11 +392,13 @@ class MuyuService : Service() {
     }
 
     var tv_duration: TextView? = null
+    var isShowFloatWindow=false
 
     @RequiresApi(api = Build.VERSION_CODES.M)
     private fun showFloatingWindow() {
 
         try {
+            if(!isShowFloatWindow) return
             //region 悬浮窗
             windowManager = getSystemService(WINDOW_SERVICE) as WindowManager
             layoutParams = WindowManager.LayoutParams()

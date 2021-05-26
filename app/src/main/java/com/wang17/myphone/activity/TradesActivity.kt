@@ -13,6 +13,8 @@ import android.widget.*
 import android.widget.AdapterView.OnItemClickListener
 import com.wang17.myphone.*
 import com.wang17.myphone.database.DataContext
+import com.wang17.myphone.database.Loan
+import com.wang17.myphone.database.LoanRecord
 import com.wang17.myphone.model.DateTime
 import com.wang17.myphone.database.Trade
 import com.wang17.myphone.util.TradeUtils.commission
@@ -20,21 +22,25 @@ import com.wang17.myphone.util.TradeUtils.tax
 import com.wang17.myphone.util.TradeUtils.transferFee
 import com.wang17.myphone.util._Utils
 import kotlinx.android.synthetic.main.activity_trades.*
+import okhttp3.internal.format
 import java.text.DecimalFormat
+import java.text.Format
 import java.util.*
 
 class TradesActivity : AppCompatActivity() {
 
-    private var dataContext: DataContext? = null
+    private lateinit var dc: DataContext
     private lateinit var trades: List<Trade>
     private var adapter: TradesListdAdapter? = null
     private var code: String? = null
+    private var format = DecimalFormat("#,##0.00")
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_trades)
-        dataContext = DataContext(this)
+        dc = DataContext(this)
         code = intent.getStringExtra("code")
-        trades = dataContext!!.getTrades(code)
+        trades = dc.getTrades(code)
 
         var cost = 0.toBigDecimal()
         var amount = 0
@@ -89,6 +95,40 @@ class TradesActivity : AppCompatActivity() {
         listView_trades.setOnItemClickListener(OnItemClickListener { parent, view, position, id ->
             editTradeDialog(trades.get(position))
         })
+        listView_trades.setOnItemLongClickListener { parent, view, position, id ->
+            var trade = trades[position]
+            var loan = dc.getLoan(trade.id)
+            if(loan==null){
+                var fund = trade.price*(trade.amount*100).toBigDecimal()
+                var view = View.inflate(this,R.layout.inflate_dialog_add_loan,null)
+                val etName = view.findViewById<EditText>(R.id.et_name)
+                val cvDate = view.findViewById<CalendarView>(R.id.cv_date)
+                val etSum = view.findViewById<EditText>(R.id.et_sum)
+                val etRate = view.findViewById<EditText>(R.id.et_rate)
+                etName.setText(trade.name)
+                cvDate.date = trade.dateTime.timeInMillis
+                etSum.setText(format.format(fund))
+                etName.isEnabled = false
+                cvDate.isEnabled = false
+                etSum.isEnabled = false
+
+                AlertDialog.Builder(this).setView(view).setPositiveButton("确定"){ dialogInterface: DialogInterface, i: Int ->
+
+                    loan = Loan(trade.id,trade.name,trade.dateTime,fund,etRate.text.toString().toBigDecimal(),0.toBigDecimal())
+                    val loanRecord = LoanRecord(UUID.randomUUID(),trade.dateTime,fund,0.toBigDecimal(),loan.id)
+
+                    dc.addLoan(loan)
+                    dc.addLoanRecord(loanRecord)
+
+                    trades = dc.getTrades(code)
+                    adapter!!.notifyDataSetChanged()
+                }.show()
+            }else{
+                AlertDialog.Builder(applicationContext).setMessage("已在贷款列表").setPositiveButton("知道了",null).show()
+            }
+
+            true
+        }
     }
 
     fun editTradeDialog(trade: Trade) {
@@ -121,8 +161,8 @@ class TradesActivity : AppCompatActivity() {
                 trade.dateTime = trdt
                 trade.amount = tradeAmount
                 trade.tag = if (switchAtt.isChecked) 1 else 0
-                dataContext!!.editTrade(trade)
-                trades = dataContext!!.getTrades(code)
+                dc.editTrade(trade)
+                trades = dc.getTrades(code)
                 //                    for(Trade t : trades){
 //                        e(t.getName()+"  "+ t.getDateTime().toLongDateTimeString());
 //                    }
@@ -136,11 +176,11 @@ class TradesActivity : AppCompatActivity() {
             }
         }
         dialog.setButton(DialogInterface.BUTTON_NEUTRAL, "删除") { dialog, which ->
-            val position = dataContext!!.getPosition(trade.code)
+            val position = dc.getPosition(trade.code)
             position.amount = position.amount - trade.amount
-            dataContext!!.editPosition(position)
-            dataContext!!.deleteTrade(trade.id)
-            trades = dataContext!!.getTrades(code)
+            dc.editPosition(position)
+            dc.deleteTrade(trade.id)
+            trades = dc.getTrades(code)
             adapter!!.notifyDataSetChanged()
             dialog.dismiss()
             setResult(RESULT_OK)
@@ -197,6 +237,9 @@ class TradesActivity : AppCompatActivity() {
                     -2 -> type = "息税"
                 }
                 textViewType.text = type
+                if(dc.getLoan(trade.id)!=null){
+                    textViewType.setTextColor(Color.RED)
+                }
                 textViewAmount.text = amount
                 tvHold.text =  (trade.hold*100).toString()
                 if (trade.tag == 1) {

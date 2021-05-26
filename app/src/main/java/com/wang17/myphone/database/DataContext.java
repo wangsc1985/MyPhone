@@ -239,6 +239,29 @@ public class DataContext {
         }
         return null;
     }
+    public Loan getLoan(String name) {
+        try {
+            //获取数据库对象
+            SQLiteDatabase db = dbHelper.getReadableDatabase();
+            //查询获得游标
+            Cursor cursor = db.query("loan", null, "name=?",new String[]{name}, null, null, "date desc");
+            //判断游标是否为空
+            while (cursor.moveToNext()) {
+                Loan model = new Loan(UUID.fromString(cursor.getString(0)),
+                        cursor.getString(1),
+                        new DateTime(cursor.getLong(2)),
+                        new BigDecimal(cursor.getString(3)),
+                        new BigDecimal(cursor.getString(4)),
+                        new BigDecimal(cursor.getString(5)==null?"0":cursor.getString(5)));
+                return model;
+            }
+            cursor.close();
+            db.close();
+        } catch (Exception e) {
+            _Utils.printException(context, e);
+        }
+        return null;
+    }
 
     public List<Loan> getLoanList() {
         List<Loan> result = new ArrayList<Loan>();
@@ -344,6 +367,28 @@ public class DataContext {
             _Utils.printException(context, e);
         }
         return result;
+    }
+    public LoanRecord getLoanRecord(UUID id) {
+        try {
+            //获取数据库对象
+            SQLiteDatabase db = dbHelper.getReadableDatabase();
+            //查询获得游标
+            Cursor cursor = db.query("loanRecord", null, "id=?",new String[]{id.toString()}, null, null, "date desc");
+            //判断游标是否为空
+            while (cursor.moveToNext()) {
+                LoanRecord model = new LoanRecord(UUID.fromString(cursor.getString(0)),
+                        new DateTime(cursor.getLong(1)),
+                        new BigDecimal(cursor.getString(2)),
+                        new BigDecimal(cursor.getString(3)),
+                        UUID.fromString(cursor.getString(4)));
+                return model;
+            }
+            cursor.close();
+            db.close();
+        } catch (Exception e) {
+            _Utils.printException(context, e);
+        }
+        return null;
     }
 
 

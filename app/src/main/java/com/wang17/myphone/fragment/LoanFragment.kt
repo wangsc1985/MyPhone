@@ -97,27 +97,27 @@ class LoanFragment : Fragment() {
             }.show()
             true
         }
-        fab_add.setOnClickListener {
-            val view = View.inflate(context, R.layout.inflate_dialog_add_loan, null)
-            val etName = view.findViewById<EditText>(R.id.et_name)
-            val cvDate = view.findViewById<CalendarView>(R.id.cv_date)
-            val etSum = view.findViewById<EditText>(R.id.et_sum)
-            val etRate = view.findViewById<EditText>(R.id.et_rate)
-            cvDate.setOnDateChangeListener { view, year, month, dayOfMonth -> view.date = DateTime(year, month, dayOfMonth).timeInMillis }
-            AlertDialog.Builder(context).setView(view).setPositiveButton("添加") { dialog, which ->
-                val date = DateTime(cvDate.date)
-                e(date.toShortDateString())
-
-                val loan = Loan(UUID.randomUUID(),etName.text.toString(),date,etSum.text.toString().toBigDecimal(),etRate.text.toString().toBigDecimal(),0.toBigDecimal())
-                val loanRecord = LoanRecord(UUID.randomUUID(),date,etSum.text.toString().toBigDecimal(),0.toBigDecimal(),loan.id)
-
-                dc.addLoan(loan)
-                dc.addLoanRecord(loanRecord)
-
-                loadLoanData()
-                adapter.notifyDataSetChanged()
-            }.show()
-        }
+//        fab_add.setOnClickListener {
+//            val view = View.inflate(context, R.layout.inflate_dialog_add_loan, null)
+//            val etName = view.findViewById<EditText>(R.id.et_name)
+//            val cvDate = view.findViewById<CalendarView>(R.id.cv_date)
+//            val etSum = view.findViewById<EditText>(R.id.et_sum)
+//            val etRate = view.findViewById<EditText>(R.id.et_rate)
+//            cvDate.setOnDateChangeListener { view, year, month, dayOfMonth -> view.date = DateTime(year, month, dayOfMonth).timeInMillis }
+//            AlertDialog.Builder(context).setView(view).setPositiveButton("添加") { dialog, which ->
+//                val date = DateTime(cvDate.date)
+//                e(date.toShortDateString())
+//
+//                val loan = Loan(UUID.randomUUID(),etName.text.toString(),date,etSum.text.toString().toBigDecimal(),etRate.text.toString().toBigDecimal(),0.toBigDecimal())
+//                val loanRecord = LoanRecord(UUID.randomUUID(),date,etSum.text.toString().toBigDecimal(),0.toBigDecimal(),loan.id)
+//
+//                dc.addLoan(loan)
+//                dc.addLoanRecord(loanRecord)
+//
+//                loadLoanData()
+//                adapter.notifyDataSetChanged()
+//            }.show()
+//        }
     }
 
     private fun loadLoanData() {
@@ -130,7 +130,7 @@ class LoanFragment : Fragment() {
             money2 += loan.sum.setScale(10) / 10000.toBigDecimal() * loan.rate * days.toBigDecimal()
         }
 
-        tv_money.text="[${format.format(money1)}] + ${format.format(money2)} = ${format.format(money1+money2)}"
+        tv_money.text="结息：${format.format(money1)}  在途：${format.format(money2)}  总计：${format.format(money1+money2)}"
     }
 
     inner class LoanListAdapter : BaseAdapter() {
@@ -156,27 +156,31 @@ class LoanFragment : Fragment() {
                     val tvDate = findViewById<TextView>(R.id.tv_date)
                     val tvSum = findViewById<TextView>(R.id.tv_sum)
                     val tvInterest = findViewById<TextView>(R.id.tv_interest)
+                    val tvInterestRunning = findViewById<TextView>(R.id.tv_interest_running)
                     val tvDays = findViewById<TextView>(R.id.tv_days)
+                    val tvRate = findViewById<TextView>(R.id.tv_rate)
 
                     tvName.text = loan.name
                     tvSum.text =  DecimalFormat("#,##0").format(loan.sum)
                     tvDate.text = loan.date.toShortDateString1()
+                    tvRate.text = "${loan.rate}/万/日"
                     val days = (DateTime.today.timeInMillis - loan.date.timeInMillis) / (1000 * 60 * 60 * 24)
                     tvDays.text = "${days/30}月${days%30}天"
-                    tvInterest.text = "[${format.format(loan.interest)}] + ${format.format(loan.sum.setScale(10) / 10000.toBigDecimal() * loan.rate * days.toBigDecimal())} "
+                    tvInterest.text = "结息：${format.format(loan.interest)}"
+                    tvInterestRunning.text="在途：${format.format(loan.sum.setScale(10) / 10000.toBigDecimal() * loan.rate * days.toBigDecimal())} "
                     e("${loan.name}  ${loan.rate}  ${loan.sum}  ${loan.date.toShortDateString()} ${loan.sum.setScale(10) / 10000.toBigDecimal()* loan.rate* days.toBigDecimal()}")
                     if(loan.sum>0.toBigDecimal()){
-                        tvName.setTextColor(Color.RED)
+//                        tvName.setTextColor(Color.RED)
                         tvSum.setTextColor(Color.RED)
-                        tvDate.setTextColor(Color.RED)
-                        tvDays.setTextColor(Color.RED)
-                        tvInterest.setTextColor(Color.RED)
+//                        tvDate.setTextColor(Color.RED)
+//                        tvDays.setTextColor(Color.RED)
+//                        tvInterest.setTextColor(Color.RED)
                     }else{
-                        tvName.setTextColor(Color.BLACK)
+//                        tvName.setTextColor(Color.BLACK)
                         tvSum.setTextColor(Color.BLACK)
-                        tvDate.setTextColor(Color.BLACK)
-                        tvDays.setTextColor(Color.BLACK)
-                        tvInterest.setTextColor(Color.BLACK)
+//                        tvDate.setTextColor(Color.BLACK)
+//                        tvDays.setTextColor(Color.BLACK)
+//                        tvInterest.setTextColor(Color.BLACK)
                     }
                 }
             } catch (e: Exception) {
