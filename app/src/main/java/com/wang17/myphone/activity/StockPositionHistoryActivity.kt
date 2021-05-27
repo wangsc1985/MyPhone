@@ -88,21 +88,21 @@ class StockPositionHistoryActivity() : AppCompatActivity() {
             true
         }
         fab_chart.setOnClickListener {
-//            val statements = createChartData()
-//            val fund = statements.last().fund
-//
-//            val format = DecimalFormat("#,##0.00")
-//            var cc = 0.toBigDecimal()
-//            val arr = arrayOfNulls<String>(statements.size)
-//            for (i in statements.indices) {
-//                val dd = statements.get(i)
-//                cc += dd.profit * 100.toBigDecimal() / fund
-//                arr[i] = "${dd.date.toShortDateString()}  ${format.format(dd.fund)}  ${format.format(dd.profit * 100.toBigDecimal() / fund)}%  ${format.format(cc)}%"
-//            }
-//            AlertDialog.Builder(this).setItems(arr, null).show()
 
-//            var fragment = ChartDialogFragment()
-//            fragment.show(supportFragmentManager,"chart fragment")
+            val statements = dc.getStatements(DateTime().addDays(-30)).reversed()
+            if(statements.size>0){
+                val last = statements[0]
+                var arr = arrayOfNulls<String>(statements.size)
+                for(i in statements.indices){
+                    arr[i] = "${statements[i].date.toShortDateString1()}   ${DecimalFormat("#,##0").format(statements[i].profit)}  ${DecimalFormat("#,##0.00").format(statements[i].profit*100.toBigDecimal()/last.fund)}"
+                }
+
+                AlertDialog.Builder(this).setItems(arr,null).show()
+            }
+        }
+        fab_chart.setOnLongClickListener {
+            startActivity(Intent(this,ChartActivity::class.java))
+            true
         }
         adapter = PositionListdAdapter()
         timer.schedule(object : TimerTask() {

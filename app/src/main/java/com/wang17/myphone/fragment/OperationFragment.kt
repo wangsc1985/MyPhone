@@ -271,13 +271,6 @@ class OperationFragment : Fragment() {
             layout_flexbox.addView(btn)
         }
 
-//        kotlin.run {
-//            btn = _Button(context!!, "todo")
-//            btn.setOnClickListener {
-//                activity!!.startActivity(Intent(context, ToDoActivity::class.java))
-//            }
-//            layout_flexbox.addView(btn)
-//        }
 
         kotlin.run {
             btn = _Button(context!!, "日志")
@@ -316,14 +309,6 @@ class OperationFragment : Fragment() {
             }
             layout_flexbox.addView(btn)
         }
-//        kotlin.run {
-//            btn = _Button(context!!, "intr")
-//            btn.setOnClickListener {
-//                var msg = interest(dataContext.getSetting(Setting.KEYS.interest, "60,14;60,7;60,7").string)
-//                AlertDialog.Builder(context!!).setMessage(msg).show()
-//            }
-//            layout_flexbox.addView(btn)
-//        }
     }
 
     private fun passwordLoginSms() {

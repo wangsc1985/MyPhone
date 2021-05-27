@@ -20,6 +20,7 @@ import com.wang17.myphone.e
 import com.wang17.myphone.model.DateTime
 import kotlinx.android.synthetic.main.fragment_loan.*
 import java.lang.Exception
+import java.math.BigDecimal
 import java.text.DecimalFormat
 import java.util.*
 import kotlin.collections.ArrayList
@@ -133,15 +134,35 @@ class LoanFragment : Fragment() {
 
     private fun loadLoanData() {
         loanList = dc.loanList
+        var map:MutableMap<BigDecimal,BigDecimal> = TreeMap()
+        var rate = 0.toBigDecimal()
+        var money = 0.toBigDecimal()
         var money1 = 0.toBigDecimal()
         var money2=0.toBigDecimal()
         loanList.forEach {loan->
+            var m = map.get(loan.rate)
+            if(m!=null){
+                map.put(loan.rate,m+loan.sum)
+            }else{
+                map.put(loan.rate,loan.sum)
+            }
+            rate += loan.sum.setScale(10) / 10000.toBigDecimal() * loan.rate
+            money+= loan.sum
             money1 += loan.interest
             val days = (DateTime.today.timeInMillis - loan.date.timeInMillis) / (1000 * 60 * 60 * 24)
             money2 += loan.sum.setScale(10) / 10000.toBigDecimal() * loan.rate * days.toBigDecimal()
         }
 
-        tv_money.text="结息：${format.format(money1)}  在途：${format.format(money2)}  总计：${format.format(money1+money2)}"
+        var str = StringBuffer()
+        str.append("借款：${format2.format(money.toFloat() / 10000)}万\n")
+        map.forEach {
+            str.append("利率：${format2.format(it.key)}  金额：${format2.format(it.value.toFloat()/10000)}万\n")
+        }
+//        str.append("总计\n")
+        str.append("\n利息：${format.format(money1+money2)}\n")
+        str.append("日息：${format2.format(rate)}  结息：${format.format(money1)}  在途：${format.format(money2)}")
+
+        tv_money.text=str.toString()
     }
 
     inner class LoanListAdapter : BaseAdapter() {
@@ -172,7 +193,7 @@ class LoanFragment : Fragment() {
                     val tvRate = findViewById<TextView>(R.id.tv_rate)
 
                     tvName.text = loan.name
-                    tvSum.text =  "${DecimalFormat("#,##0.00").format(loan.sum.toFloat()/10000)}万"
+                    tvSum.text =  "${format2.format(loan.sum.toFloat()/10000)}万"
                     tvDate.text = loan.date.toShortDateString()
                     tvRate.text = "${loan.rate}/万/日"
                     val days = (DateTime.today.timeInMillis - loan.date.timeInMillis) / (1000 * 60 * 60 * 24)

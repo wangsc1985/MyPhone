@@ -351,7 +351,6 @@ class BuddhaService : Service() {
      */
     fun reOrStartData() {
         try {
-            dc.addRunLog("BuddhaService", "开始念佛", "")
 //            e("------------------ start or restart -------------------------")
 
             startTimeInMillis = System.currentTimeMillis()
@@ -362,6 +361,8 @@ class BuddhaService : Service() {
             val settingStopTimeInMillis = dc.getSetting(Setting.KEYS.buddha_stoptime)
             val settingDuration = dc.getSetting(Setting.KEYS.buddha_duration)
             val now = System.currentTimeMillis()
+            dc.addRunLog("BuddhaService", "开始念佛", "上次暂停时间：${settingStopTimeInMillis?.let{DateTime(settingStopTimeInMillis.long).toLongDateTimeString()}}" +
+                    "  上次念佛时长：${settingDuration?.let {settingDuration.long/60000}}分钟  距离上次暂停：${(now - settingStopTimeInMillis.long)/60000}分钟")
             if (settingStopTimeInMillis != null && settingDuration != null
                 && now - settingStopTimeInMillis.long > 15 * 60000
                 && settingDuration.long / 1000 / circleSecond >= 1 ) {

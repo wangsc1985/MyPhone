@@ -67,17 +67,6 @@ class ChartFragment : Fragment() {
         runHandler = Handler()
         generateChart()
         checkChartData()
-//        fab_load.setOnLongClickListener {
-//            loadChartData()
-//            generateChart()
-//            true
-//        }
-//        button2.setOnLongClickListener {
-////            dc.clearStatements()
-//            dc.deleteStatements(DateTime().addDays(-3))
-//            generateChart()
-//            true
-//        }
     }
 
     var axisXValues: MutableList<AxisValue> = ArrayList()

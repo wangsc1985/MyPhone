@@ -21,7 +21,8 @@ object _SinaStockUtils {
     fun getStockInfoList(attTrades: List<AttTrades>) {
         Thread(Runnable {
             try {
-                val format = DecimalFormat("#,##0.00")
+                val format2 = DecimalFormat("#,##0.00")
+                val format = DecimalFormat("#,##0")
                 for ((code,tradePrice,tradeAmount,type,tvIncrease) in attTrades) {
                     val url = "https://hq.sinajs.cn/list=" + (if (code.startsWith("6")) "sh" else "sz") + code
                     val client = _OkHttpUtil.client
@@ -39,6 +40,7 @@ object _SinaStockUtils {
                         var tradeFax=0.toBigDecimal()
 
                         var increase=0.toMyDecimal()
+                        var profit = 0.toMyDecimal()
                         when(type){
                             // 关注的是 买入的交易
                             1->{
@@ -48,7 +50,8 @@ object _SinaStockUtils {
                                 newTransferFee = TradeUtils.transferFee(newPrice,tradeAmount)
                                 newFax = TradeUtils.tax(-1,newPrice,tradeAmount)
 
-                                increase =((newPrice-tradePrice)*tradeAmount.toMyDecimal()*100.toMyDecimal() - tradeCommission -tradeTransferFee-tradeFax -newCommission-newTransferFee-newFax)/(tradePrice*tradeAmount.toBigDecimal()*100.toBigDecimal())
+                                profit = (newPrice-tradePrice)*tradeAmount.toMyDecimal()*100.toMyDecimal() - tradeCommission -tradeTransferFee-tradeFax -newCommission-newTransferFee-newFax
+                                increase =profit/(tradePrice*tradeAmount.toBigDecimal()*100.toBigDecimal())
                             }
                             // 关注的是 卖出的交易
                             -1->{
@@ -58,10 +61,11 @@ object _SinaStockUtils {
                                 newCommission = TradeUtils.commission(newPrice,tradeAmount)
                                 newTransferFee = TradeUtils.transferFee(newPrice,tradeAmount)
 
-                                increase =((newPrice-tradePrice)*tradeAmount.toMyDecimal()*100.toMyDecimal() - tradeCommission -tradeTransferFee-tradeFax -newCommission-newTransferFee-newFax)/(tradePrice*tradeAmount.toBigDecimal()*100.toBigDecimal())
+                                profit = (newPrice-tradePrice)*tradeAmount.toMyDecimal()*100.toMyDecimal() - tradeCommission -tradeTransferFee-tradeFax -newCommission-newTransferFee-newFax
+                                increase =profit/(tradePrice*tradeAmount.toBigDecimal()*100.toBigDecimal())
                             }
                         }
-                        tvIncrease.text = "${format.format(Math.abs((newPrice-tradePrice).toDouble()))}  ${format.format(increase*100.toBigDecimal())}%"
+                        tvIncrease.text = "${format2.format(Math.abs((newPrice-tradePrice).toDouble()))}  ${format2.format(increase*100.toBigDecimal())}%  ${format.format(profit)}"
                         if (increase>0.toBigDecimal()) {
                             tvIncrease.setTextColor(Color.RED)
                         } else if (increase<0.toBigDecimal()) {

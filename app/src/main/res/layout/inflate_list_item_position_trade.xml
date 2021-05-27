@@ -66,8 +66,9 @@
 
         <TextView
             android:id="@+id/tv_att_increase"
-            android:layout_width="115dp"
+            android:layout_width="150dp"
             android:layout_height="wrap_content"
+            android:layout_weight="1"
             android:background="#000000"
             android:gravity="right"
             android:paddingLeft="15dp"

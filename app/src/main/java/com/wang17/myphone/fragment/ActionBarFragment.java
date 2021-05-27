@@ -129,9 +129,9 @@ public class ActionBarFragment extends Fragment {
                 }
             });
 
-            if (settingListener == null) {
+//            if (settingListener == null) {
                 imageView_setting.setVisibility(View.INVISIBLE);
-            }
+//            }
             if (backListener == null) {
                 imageView_back.setVisibility(View.INVISIBLE);
             }

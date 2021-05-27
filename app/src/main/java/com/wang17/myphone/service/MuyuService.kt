@@ -63,7 +63,7 @@ class MuyuService : Service() {
 
     lateinit var guSound: SoundPool
     lateinit var muyuSound:SoundPool
-    private var isDaKnock=true
+    private var isDaKnock=false
     private lateinit var yqSound:SoundPool
 
     override fun onBind(intent: Intent): IBinder? {
@@ -135,6 +135,7 @@ class MuyuService : Service() {
         e("------------- 销毁完毕 ---------------")
         EventBus.getDefault().post(EventBusMessage.getInstance(FromMuyuServiceDestory(), "buddha service destroyed"))
         //region 悬浮窗
+        if(isShowFloatWindow)
         windowManager.removeView(floatingWindowView)
     }
 
@@ -154,16 +155,15 @@ class MuyuService : Service() {
                         if(isDaKnock){
                             yqSound.play(1,1.0f,1.0f,0,0,1.0f)
                             isDaKnock=false
-                            count++
                         }else{
                             isDaKnock=true
                         }
+                        count++
                     }else if(count++/muyu_count%2==0) {
                         muyuSound.play(1, 1.0f, 1.0f, 0, 0, 1.0f)
                         if(isDaKnock){
                             yqSound.play(1,1.0f,1.0f,0,0,1.0f)
                             isDaKnock=false
-                            count++
                         }else{
                             isDaKnock=true
                         }
