@@ -18,6 +18,7 @@ import com.wang17.myphone.database.Loan
 import com.wang17.myphone.database.LoanRecord
 import com.wang17.myphone.e
 import com.wang17.myphone.model.DateTime
+import com.wang17.myphone.toMyDecimal
 import kotlinx.android.synthetic.main.fragment_loan.*
 import java.lang.Exception
 import java.math.BigDecimal
@@ -109,6 +110,15 @@ class LoanFragment : Fragment() {
             }.show()
             true
         }
+
+        tv_money.setOnLongClickListener {
+            AlertDialog.Builder(context).setMessage("重新设置利率吗？").setPositiveButton("确定") { dialog, which ->
+                resetRates()
+                loadLoanData()
+                adapter.notifyDataSetChanged()
+            }.show()
+            true
+        }
 //        fab_add.setOnClickListener {
 //            val view = View.inflate(context, R.layout.inflate_dialog_add_loan, null)
 //            val etName = view.findViewById<EditText>(R.id.et_name)
@@ -130,6 +140,53 @@ class LoanFragment : Fragment() {
 //                adapter.notifyDataSetChanged()
 //            }.show()
 //        }
+    }
+
+    data class Rate(var name:String,var quota:Double,var rate:Double)
+
+    private fun resetRates(){
+        var list = dc.loanList.reversed()
+        val rates = ArrayList<Rate>()
+        rates.add(Rate("交行",119000.0,1.32))
+        rates.add(Rate("工行",80000.0,1.45))
+        rates.add(Rate("浦发",15000.0,1.65))
+        rates.add(Rate("青岛",12000.0,1.65))
+        rates.add(Rate("百度",127700.0,3.0))
+        rates.add(Rate("美团",12000.0,3.5))
+        rates.add(Rate("借呗",135000.0,4.0))
+        rates.add(Rate("招联",75800.0,4.0))
+
+
+        /**
+         * 1.98万  1.32
+         * 3.06万  1.45
+         */
+
+        list.forEach {loan->
+            var loanRate = 0.0
+            var sum = loan.sum.toDouble()
+            run b@{
+                rates.forEach {rate->
+                    if(rate.quota>0){
+                        if(rate.quota>sum){
+                            rate.quota=rate.quota-sum
+                            loanRate += rate.rate * sum/10000
+                            sum=0.0
+                        }else{
+                            loanRate += rate.rate * rate.quota/10000
+                            sum=sum-rate.quota
+                            rate.quota=0.0
+                        }
+                    }
+                    if(sum==0.0){
+                        return@b
+                    }
+                }
+            }
+//            e("HHHHHHHHHHHHHHHHHH${loanRate}  ${(loan.sum.toDouble()/10000)}  ${loanRate/(loan.sum.toDouble()/10000)}")
+            loan.rate = (loanRate/(loan.sum.toDouble()/10000)).toBigDecimal().setScale(2,BigDecimal.ROUND_HALF_UP)
+            dc.editLoan(loan)
+        }
     }
 
     private fun loadLoanData() {
