@@ -142,8 +142,12 @@ class MyClass {
         @JvmStatic
         fun main(args: Array<String>) {
 
-            val year = 1985
-            println(year.toString().substring(2,4))
+            var now = DateTime()
+            for(i in 0..10){
+                var cc  = now.addDays(i)
+               println("${cc.toLongDateString2()}  ${cc.get(Calendar.DAY_OF_WEEK)}")
+
+            }
 
 //            val a = getStockHistory("002839",DateTime(2019,0,1))
 //            println(a.size)

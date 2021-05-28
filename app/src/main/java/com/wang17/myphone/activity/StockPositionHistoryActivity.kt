@@ -94,7 +94,7 @@ class StockPositionHistoryActivity() : AppCompatActivity() {
                 val last = statements[0]
                 var arr = arrayOfNulls<String>(statements.size)
                 for(i in statements.indices){
-                    arr[i] = "${statements[i].date.toShortDateString1()}   ${DecimalFormat("#,##0").format(statements[i].profit)}  ${DecimalFormat("#,##0.00").format(statements[i].profit*100.toBigDecimal()/last.fund)}"
+                    arr[i] = "${statements[i].date.toShortDateString1()}   ${DecimalFormat("#,##0").format(statements[i].profit)}  ${DecimalFormat("#,##0.00").format(statements[i].profit*100.toBigDecimal()/last.fund)}%"
                 }
 
                 AlertDialog.Builder(this).setItems(arr,null).show()

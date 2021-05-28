@@ -148,7 +148,7 @@ class ChartFragment : Fragment() {
             val now = DateTime()
             val chartDate = it.date.addDays(1).date
             if ((chartDate.timeInMillis < now.date.timeInMillis || (chartDate.isSameDay(now) && now.hour > 15))
-                && now.get(Calendar.DAY_OF_WEEK) != 6 && now.get(Calendar.DAY_OF_WEEK) != 0
+                && now.get(Calendar.DAY_OF_WEEK) != 7 && now.get(Calendar.DAY_OF_WEEK) != 1
             ) {
                 loadChartData()
                 generateChart()
