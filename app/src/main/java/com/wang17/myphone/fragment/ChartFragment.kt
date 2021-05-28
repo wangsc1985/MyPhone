@@ -302,7 +302,7 @@ class ChartFragment : Fragment() {
         }
         e("生成图表用时：${System.currentTimeMillis() - now.timeInMillis}")
         dc.addStatements(statements)
-        Toast.makeText(context, "更新数据用时：${System.currentTimeMillis() - -now.timeInMillis}毫秒", Toast.LENGTH_LONG).show()
+        Toast.makeText(context, "更新数据用时：${System.currentTimeMillis()-now.timeInMillis}毫秒", Toast.LENGTH_LONG).show()
     }
 
 }
