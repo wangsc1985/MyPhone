@@ -69,6 +69,12 @@ fun Int.formatCNY():String{
     return this.toDouble().formatCNY(0)
 }
 
+/**
+1、ROUND_UP：进位制：不管保留数字后面是大是小(0除外)都会进1
+2、ROUND_DOWN：保留设置数字，后面所有直接去除 
+3、ROUND_HALF_UP：根据保留数字后一位>=5进行四舍五入
+4、ROUND_HALF_DOWN：根据保留数字后一位>5进行四舍五入
+ */
 val scale = 8
 val roundMode = BigDecimal.ROUND_DOWN
 fun Int.toMyDecimal():BigDecimal{

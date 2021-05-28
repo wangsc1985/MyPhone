@@ -60,6 +60,7 @@ class MuyuService : Service() {
 
     var muyu_period=1000L
     var yq_period=1000L
+    var type = 0
 
     lateinit var guSound: SoundPool
     lateinit var muyuSound:SoundPool
@@ -84,6 +85,7 @@ class MuyuService : Service() {
             isShowFloatWindow = false
             circleSecond = (dc.getSetting(Setting.KEYS.muyu_period,666).int*1.080).toInt()*4
             muyu_count = dc.getSetting(Setting.KEYS.muyu_count,20).int
+            type = dc.getSetting(Setting.KEYS.muyu_type,0).int
 
             guSound = SoundPool(100, AudioManager.STREAM_MUSIC, 0)
             guSound.load(this, R.raw.gu, 1)
@@ -148,21 +150,35 @@ class MuyuService : Service() {
             override fun run() {
                 if (timerRuning) {
                     if(muyu_count==0){
-                        muyuSound.play(1, 1.0f, 1.0f, 0, 0, 1.0f)
-                        if(isDaKnock){
-                            yqSound.play(1,1.0f,1.0f,0,0,1.0f)
-                            isDaKnock=false
-                        }else{
-                            isDaKnock=true
+                        when(type){
+                            0->{
+                                muyuSound.play(1,1.0f,1.0f,0,0,1.0f)
+                            }
+                            1->{
+                                muyuSound.play(1, 1.0f, 1.0f, 0, 0, 1.0f)
+                                if(isDaKnock){
+                                    yqSound.play(1,1.0f,1.0f,0,0,1.0f)
+                                    isDaKnock=false
+                                }else{
+                                    isDaKnock=true
+                                }
+                            }
                         }
                         count++
                     }else if(count++/muyu_count%2==0) {
-                        muyuSound.play(1, 1.0f, 1.0f, 0, 0, 1.0f)
-                        if(isDaKnock){
-                            yqSound.play(1,1.0f,1.0f,0,0,1.0f)
-                            isDaKnock=false
-                        }else{
-                            isDaKnock=true
+                        when(type){
+                            0->{
+                                muyuSound.play(1,1.0f,1.0f,0,0,1.0f)
+                            }
+                            1->{
+                                muyuSound.play(1, 1.0f, 1.0f, 0, 0, 1.0f)
+                                if(isDaKnock){
+                                    yqSound.play(1,1.0f,1.0f,0,0,1.0f)
+                                    isDaKnock=false
+                                }else{
+                                    isDaKnock=true
+                                }
+                            }
                         }
                     }
 //                    e("缓存duration : ${savedDuration/1000}秒  此段duration : ${(System.currentTimeMillis() - startTimeInMillis)/1000}秒   此段起始时间 : ${DateTime(startTimeInMillis).toTimeString()}")

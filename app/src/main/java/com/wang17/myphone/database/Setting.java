@@ -63,7 +63,7 @@ public class Setting{
 
     public enum KEYS{
         念佛自动结束圈数,is念佛自动暂停,
-        muyu_duration,muyu_startime,muyu_stoptime,
+        muyu_duration,muyu_startime,muyu_stoptime,muyu_type,
         is_fill_line_area,chart_start_year,
         sms_last_time,chart_date,
         is_authorize_buddha_record,

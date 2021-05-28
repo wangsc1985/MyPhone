@@ -372,6 +372,7 @@ class BuddhaFragment : Fragment() {
         }
 
         iv_buddha.setOnLongClickListener {
+            var count=0
             val view = View.inflate(context, R.layout.inflate_dialog_add_buddha, null)
             val etCount = view.findViewById<EditText>(R.id.et_count)
             val ivAdd = view.findViewById<ImageView>(R.id.iv_add)
@@ -399,11 +400,12 @@ class BuddhaFragment : Fragment() {
             number_min.value = now.minite
             number_min.descendantFocusability = NumberPicker.FOCUS_BLOCK_DESCENDANTS // 禁止对话框打开后数字选择框被选中
             ivAdd.setOnClickListener {
-                etCount.setText((etCount.text.toString().toInt() + 1).toString())
+                etCount.setText((++count).toString())
             }
             ivMinus.setOnClickListener {
-                if (etCount.text.toString().toInt() > 1)
-                    etCount.setText((etCount.text.toString().toInt() - 1).toString())
+                if (count > 1){
+                    etCount.setText((--count).toString())
+                }
             }
             val btnCount = view.findViewById<Button>(R.id.btn_count)
             val btnTime = view.findViewById<Button>(R.id.btn_time)
@@ -526,12 +528,16 @@ class BuddhaFragment : Fragment() {
         }
 
         fab_muyu.setOnClickListener {
+
             if (_Utils.isServiceRunning(context!!, MuyuService::class.qualifiedName!!)) {
                 context?.stopService(Intent(context!!, MuyuService::class.java))
                 stopAnimatorSuofang(fab_muyu_animator)
             } else {
-                context?.startService(Intent(context!!, MuyuService::class.java))
-                animatorSuofang(fab_muyu_animator)
+                AlertDialog.Builder(context).setItems(arrayOf("木鱼","木鱼+引擎"), DialogInterface.OnClickListener { dialog, which ->
+                    dc.editSetting(Setting.KEYS.muyu_type,which)
+                    context?.startService(Intent(context!!, MuyuService::class.java))
+                    animatorSuofang(fab_muyu_animator)
+                }).show()
             }
         }
         fab_muyu.setOnLongClickListener {
