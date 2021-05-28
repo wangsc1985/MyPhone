@@ -2,6 +2,8 @@ package com.wang17.myphone.database;
 
 import com.wang17.myphone.model.DateTime;
 
+import org.jetbrains.annotations.Nullable;
+
 /**
  * Created by 阿弥陀佛 on 2015/6/30.
  */
@@ -60,6 +62,8 @@ public class Setting{
     }
 
     public enum KEYS{
+        念佛自动结束圈数,is念佛自动暂停,
+        muyu_duration,muyu_startime,muyu_stoptime,
         is_fill_line_area,chart_start_year,
         sms_last_time,chart_date,
         is_authorize_buddha_record,
@@ -89,7 +93,7 @@ public class Setting{
         设置黑名单,
         几天内待办显示,
         wx_new_msg, wx_request_code, wx_sex_date,
-        is小部件罗列股票
+        is小部件罗列股票;
     }
     //endregion
 }

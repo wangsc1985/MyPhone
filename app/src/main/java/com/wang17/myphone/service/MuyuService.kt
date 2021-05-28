@@ -43,7 +43,7 @@ class MuyuService : Service() {
     private var floatingWindowView: View? = null
 
     //endregion
-    private val NOTIFICATION_ID: Int = 12345
+    private val NOTIFICATION_ID: Int = 123123
     private lateinit var dc: DataContext
     val buddhaReceiver = BuddhaReceiver()
 
@@ -91,7 +91,7 @@ class MuyuService : Service() {
             muyuSound.load(this, R.raw.muyu, 1)
             yqSound = SoundPool(100, AudioManager.STREAM_MUSIC,0)
             yqSound.load(this,R.raw.yq,1)
-            val setting = dc.getSetting(Setting.KEYS.buddha_duration)
+            val setting = dc.getSetting(Setting.KEYS.muyu_duration)
             setting?.let {
                 savedDuration = setting.long
             }
@@ -103,9 +103,6 @@ class MuyuService : Service() {
             }
             mAm = getSystemService(AUDIO_SERVICE) as AudioManager
             startTimeInMillis = System.currentTimeMillis()
-            val musicName = dc.getSetting(Setting.KEYS.buddha_music_name)
-            if (musicName == null)
-                return
 
             startBackgroundMediaPlayer()
             startTimer()
@@ -306,7 +303,7 @@ class MuyuService : Service() {
         try {
             e("------------------ start or restart -------------------------")
             startTimeInMillis = System.currentTimeMillis()
-            dc.editSetting(Setting.KEYS.buddha_startime, startTimeInMillis)
+            dc.editSetting(Setting.KEYS.muyu_startime, startTimeInMillis)
         } catch (e: Exception) {
             dc.addRunLog("err", "pause or stop", e.message)
         }
@@ -323,18 +320,18 @@ class MuyuService : Service() {
             val now = System.currentTimeMillis()
 
             // 计算当前section的duration
-            val settingStartTime = dc.getSetting(Setting.KEYS.buddha_startime)
+            val settingStartTime = dc.getSetting(Setting.KEYS.muyu_startime)
             settingStartTime?.let {
 //                val setting = dc.getSetting(Setting.KEYS.buddha_duration)
 //                savedDuration = it?.long ?: 0L
 //                e("------------------ 缓存duration : ${savedDuration / 1000}秒  本段duration : ${(System.currentTimeMillis() - startTimeInMillis) / 1000}秒      此段起始时间 : ${DateTime(startTimeInMillis).toTimeString()} ------------------")
                 savedDuration += now - startTimeInMillis
 //                e("++++++++++++++++++ 缓存duration : ${savedDuration / 1000}秒")
-                dc.editSetting(Setting.KEYS.buddha_duration, savedDuration)
-                dc.editSetting(Setting.KEYS.buddha_stoptime, now)
+                dc.editSetting(Setting.KEYS.muyu_duration, savedDuration)
+                dc.editSetting(Setting.KEYS.muyu_stoptime, now)
 
                 // 删除startime
-                dc.deleteSetting(Setting.KEYS.buddha_startime)
+                dc.deleteSetting(Setting.KEYS.muyu_startime)
             }
         } catch (e: Exception) {
             dc.addRunLog("err", "pause or stop", e.message)

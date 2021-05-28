@@ -14,21 +14,18 @@ import android.view.ViewGroup
 import android.view.inputmethod.EditorInfo
 import android.widget.*
 import com.alibaba.fastjson.JSON
-import com.wang17.myphone.R
+import com.wang17.myphone.*
 import com.wang17.myphone.activity.BuddhaActivity
 import com.wang17.myphone.activity.BuddhaDetailActivity
 import com.wang17.myphone.callback.CloudCallback
 import com.wang17.myphone.callback.DialogChoosenCallback
 import com.wang17.myphone.database.*
-import com.wang17.myphone.e
 import com.wang17.myphone.model.DateTime
 import com.wang17.myphone.event.ResetTimeEvent
 import com.wang17.myphone.eventbus.*
 import com.wang17.myphone.service.BuddhaService
 import com.wang17.myphone.service.MuyuService
 import com.wang17.myphone.service.StockService
-import com.wang17.myphone.toBuddhaType
-import com.wang17.myphone.toMyDecimal
 import com.wang17.myphone.util.*
 import com.wang17.myphone.util._Utils.getFilesWithSuffix
 import kotlinx.android.synthetic.main.fragment_buddha.*
@@ -46,8 +43,6 @@ class BuddhaFragment : Fragment() {
     var uiHandler = Handler()
     lateinit var dc: DataContext
     var isFromConfigChanged = false
-
-    val format = DecimalFormat("0.00")
 
     override fun onResume() {
         super.onResume()
@@ -212,7 +207,7 @@ class BuddhaFragment : Fragment() {
         iv_speed_add.setOnClickListener {
             try {
                 val bf = getBuddhaConfig()
-                bf.speed = format.format(bf.speed + 0.01).toFloat()
+                bf.speed = (bf.speed + 0.01).format(2).toFloat()
 //            bf.speed = ( bf.speed.toBigDecimal().setScale(2,BigDecimal.ROUND_HALF_UP) + 0.01.toBigDecimal()).toFloat()
                 dc.editBuddhaConfig(bf)
 
@@ -226,7 +221,7 @@ class BuddhaFragment : Fragment() {
         iv_speed_minus.setOnClickListener {
             try {
                 val bf = getBuddhaConfig()
-                bf.speed = format.format(bf.speed - 0.01).toFloat()
+                bf.speed = (bf.speed - 0.01).format(2).toFloat()
 //            bf.speed = ( bf.speed.toBigDecimal().setScale(2,BigDecimal.ROUND_HALF_UP) - 0.01.toBigDecimal()).toFloat()
                 dc.editBuddhaConfig(bf)
 
@@ -240,7 +235,7 @@ class BuddhaFragment : Fragment() {
         iv_pitch_add.setOnClickListener {
             try {
                 val bf = getBuddhaConfig()
-                bf.pitch = format.format(bf.pitch + 0.01).toFloat()
+                bf.pitch = (bf.pitch + 0.01).format(2).toFloat()
                 dc.editBuddhaConfig(bf)
 
                 loadBuddhaName()
@@ -253,7 +248,7 @@ class BuddhaFragment : Fragment() {
         iv_pitch_minus.setOnClickListener {
             try {
                 val bf = getBuddhaConfig()
-                bf.pitch = format.format(bf.pitch - 0.01).toFloat()
+                bf.pitch = (bf.pitch - 0.01).format(2).toFloat()
                 dc.editBuddhaConfig(bf)
 
                 loadBuddhaName()
@@ -614,8 +609,8 @@ class BuddhaFragment : Fragment() {
         }
 
         tv_buddha_name.text = "${musicName.string.replace(".mp3", "")}  ${circleSecond}秒"
-        tv_speed.text = "速${format.format(bf.speed)}度"
-        tv_pitch.text = "音${format.format(bf.pitch)}调"
+        tv_speed.text = "速${bf.speed.toFloat().format(2)}度"
+        tv_pitch.text = "音${bf.pitch.toFloat().format(2)}调"
     }
 
     fun getBuddhaConfig(): BuddhaConfig {
@@ -827,7 +822,8 @@ class BuddhaFragment : Fragment() {
             if (!_Utils.isServiceRunning(context!!, BuddhaService::class.qualifiedName!!)) {
                 checkDuration(BuddhaSource.点击开始按钮) { code, result ->
                     if (code == 0) {
-                        dc.editSetting(Setting.KEYS.is显示念佛悬浮窗, isLongClickBuddhaButton)
+                        dc.editSetting(Setting.KEYS.is显示念佛悬浮窗, sw_float_window.isChecked)
+                        dc.editSetting(Setting.KEYS.is念佛自动暂停, isLongClickBuddhaButton)
                         context?.startService(buddhaIntent)
                         animatorSuofang(btn_buddha_animator)
                     } else {

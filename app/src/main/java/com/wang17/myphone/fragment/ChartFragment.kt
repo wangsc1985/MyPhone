@@ -8,18 +8,15 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.Toast
-import com.wang17.myphone.R
+import com.wang17.myphone.*
 import com.wang17.myphone.database.*
-import com.wang17.myphone.e
+import com.wang17.myphone.format
 import com.wang17.myphone.model.DateTime
 import com.wang17.myphone.model.Stock
-import com.wang17.myphone.toMyDecimal
 import com.wang17.myphone.util.TradeUtils
 import com.wang17.myphone.util._SinaStockUtils
 import kotlinx.android.synthetic.main.fragment_chart.*
 import lecho.lib.hellocharts.model.*
-import okhttp3.internal.format
-import java.text.DecimalFormat
 import java.util.*
 import kotlin.collections.ArrayList
 
@@ -27,25 +24,11 @@ import kotlin.collections.ArrayList
 class ChartFragment : Fragment() {
     private val hasAxes = true
     private val hasAxesNames = true // 横竖行的名字
-
-    private val hasLines = true
-    private val hasPoints = false
-    private val isFilled = false
-    private val hasLabels = false // 是否显示点的数据
-
-    private val isCubic = false
-    private val hasLabelForSelected = false
     private val pointsHaveDifferentColor = false
-
-    private var data: LineChartData? = null
-    private val numberOfLines = 1 // 只显示一行数据
-
     private val maxNumberOfLines = 1 // 如果为4则表示最多显示4行，1表示只有一行数据
-
     private val numberOfPoints = 10 // 每行数据有多少个点
 
     private lateinit var runHandler: Handler
-    val format = DecimalFormat("#,##0.00")
 
     // 存储数据
     var randomNumbersTab = Array(maxNumberOfLines) { FloatArray(numberOfPoints) }
@@ -70,6 +53,7 @@ class ChartFragment : Fragment() {
     }
 
     var axisXValues: MutableList<AxisValue> = ArrayList()
+    var axisYValues: MutableList<AxisValue> = ArrayList()
     private fun generateChart() {
         val statements = dc.getStatements(DateTime(dc.getSetting(Setting.KEYS.chart_start_year,2020).int,0,1))
         if (statements.size == 0)
@@ -82,6 +66,7 @@ class ChartFragment : Fragment() {
         val axisColor = resources.getColor(R.color.timerPauseColor, null)
         val values: MutableList<PointValue> = ArrayList()
         axisXValues.clear()
+        axisYValues.clear()
         var totalProfit = 0.toBigDecimal()
         val fund = statements.last().fund
         var count = 0
@@ -91,7 +76,7 @@ class ChartFragment : Fragment() {
         for (i in statements.indices) {
             val statement = statements[i]
             if (statement.profit.compareTo(0.toBigDecimal()) != 0) {
-                totalProfit += statement.profit * 100.toBigDecimal() / fund
+                totalProfit += statement.profit*100.toBigDecimal()/fund
                 values.add(PointValue((++count).toFloat(), totalProfit.toFloat()))
                 if (statement.date.month != prvMonth) {
                     var str = ""
@@ -135,7 +120,7 @@ class ChartFragment : Fragment() {
             val axisX = Axis().setValues(axisXValues).setHasLines(true)
             val axisY = Axis().setHasLines(true)
             if (hasAxesNames) {
-                axisX.setName("${firstStatement.date.toShortDateString()} 至 ${lastStatement.date.toShortDateString()}  今日：${format.format(lastStatement.profit*100.toBigDecimal()/lastStatement.fund)}%  总计：${format.format(totalProfit)}%")
+                axisX.setName("${firstStatement.date.toShortDateString()} 至 ${lastStatement.date.toShortDateString()}  今日：${(lastStatement.profit*100.toBigDecimal()/fund).toFloat().format(2)}%  总计：${totalProfit.toFloat().format(2)}%")
                 axisX.setTextColor(axisColor)
                 axisX.setLineColor(axisColor)
                 axisX.setMaxLabelChars(7); //最多几个X轴坐标，意思就是你的缩放让X轴上数据的个数7<=x<=mAxisXValues.length
@@ -173,7 +158,6 @@ class ChartFragment : Fragment() {
 
     private fun loadChartData() {
 
-        val format = DecimalFormat("#,##0.00")
         val now = DateTime()
         var positions: MutableList<Position> = ArrayList()
         val statements: MutableList<Statement> = ArrayList()
@@ -299,7 +283,7 @@ class ChartFragment : Fragment() {
                     stock?.let {
                         fund += it.price * (p.amount * 100).toBigDecimal()
                         profit += (it.price - p.cost) * (p.amount * 100).toBigDecimal()
-                        e("${it.code}  ${format.format(it.price)}  ${format.format(p.cost)} ${p.amount} ${format.format((it.price - p.cost) * (p.amount * 100).toBigDecimal())}")
+                        e("${it.code}  ${it.price.toFloat().formatCNY(2)}  ${p.cost.toFloat().formatCNY(2)} ${p.amount} ${((it.price - p.cost) * (p.amount * 100).toBigDecimal()).toFloat().formatCNY(2)}")
                     }
                 }
 

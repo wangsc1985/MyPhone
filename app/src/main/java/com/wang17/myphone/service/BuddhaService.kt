@@ -51,7 +51,7 @@ class BuddhaService : Service() {
     private var floatingWindowView: View? = null
 
     //endregion
-    private val ID: Int = 12345
+    private val ID: Int = 123456
     private lateinit var dc: DataContext
     val buddhaReceiver = BuddhaReceiver()
 
@@ -69,9 +69,10 @@ class BuddhaService : Service() {
 
     lateinit var guSound: SoundPool
     lateinit var souSound: SoundPool
-    var targetTimeInMinute = 120
+    var targetTap = 12
 
     var isShowFloatWindow=false
+    var isAutoPause=false
 
     override fun onBind(intent: Intent): IBinder? {
         return null
@@ -90,7 +91,8 @@ class BuddhaService : Service() {
             dc = DataContext(applicationContext)
             dc.deleteRunLog("BuddhaService",DateTime.today.addDays(-1))
             isShowFloatWindow = dc.getSetting(Setting.KEYS.is显示念佛悬浮窗,false).boolean
-            targetTimeInMinute = dc.getSetting(Setting.KEYS.念佛自动结束时间_分钟, 120).int
+            isAutoPause = dc.getSetting(Setting.KEYS.is念佛自动暂停,false).boolean
+            targetTap = dc.getSetting(Setting.KEYS.念佛自动结束圈数, 12).int
 
             guSound = SoundPool(100, AudioManager.STREAM_MUSIC, 0)
             guSound.load(this, R.raw.yq, 1)
@@ -120,6 +122,7 @@ class BuddhaService : Service() {
             //
             val filter = IntentFilter()
             filter.addAction(ACTION_BUDDHA_PLAYE)
+            filter.addAction(ACTION_BUDDHA_PLAYE_AUTO)
             filter.addAction(ACTION_BUDDHA_PAUSE)
             filter.addAction(BluetoothHeadset.ACTION_CONNECTION_STATE_CHANGED)
             filter.addAction(AudioManager.ACTION_AUDIO_BECOMING_NOISY)
@@ -194,16 +197,25 @@ class BuddhaService : Service() {
                     EventBus.getDefault().post(EventBusMessage.getInstance(FromBuddhaServiceTimer(), duration.toString()))
                     tv_duration?.setText(notificationTime)
 
-                    if (prvCount < notificationCount && dc.getSetting(Setting.KEYS.is念佛引罄间隔提醒, true).boolean) {
-                        dc.addRunLog("BuddhaService", "引罄", "${DateTime().toTimeString()}  ${notificationTime} prv count : ${prvCount} ; notification count : ${notificationCount}")
-                        guSound.play(1, 1.0f, 1.0f, 0, 0, 1.0f)
-                        prvCount = notificationCount
-                        if (notificationCount % 2 == 0) {
-                            Thread.sleep(yq_period)
+                    if (prvCount < notificationCount) {
+                        if(dc.getSetting(Setting.KEYS.is念佛引罄间隔提醒, true).boolean){
+                            dc.addRunLog("BuddhaService", "引罄", "${DateTime().toTimeString()}  ${notificationTime} prv count : ${prvCount} ; notification count : ${notificationCount}")
                             guSound.play(1, 1.0f, 1.0f, 0, 0, 1.0f)
+                            prvCount = notificationCount
+                            if (notificationCount % 2 == 0) {
+                                Thread.sleep(yq_period)
+                                guSound.play(1, 1.0f, 1.0f, 0, 0, 1.0f)
+                            }
+                        }
+                        if(isAutoPause){
+                            chantBuddhaPause()
+                            floatingWinButState(true)
+                            mAm.abandonAudioFocus(afChangeListener)
                         }
                     }
-                    if (duration > targetTimeInMinute * 60000) {
+
+
+                    if (notificationCount > targetTap) {
                         stopSelf()
                     }
                 }
@@ -465,6 +477,9 @@ class BuddhaService : Service() {
                 val intentRootClick = Intent(ACTION_BUDDHA_PLAYE)
                 val pendingIntent = PendingIntent.getBroadcast(applicationContext, 0, intentRootClick, PendingIntent.FLAG_UPDATE_CURRENT)
                 remoteViews.setOnClickPendingIntent(R.id.image_control, pendingIntent)
+                val intentRootClick1 = Intent(ACTION_BUDDHA_PLAYE_AUTO)
+                val pendingIntent1 = PendingIntent.getBroadcast(applicationContext, 0, intentRootClick1, PendingIntent.FLAG_UPDATE_CURRENT)
+                remoteViews.setOnClickPendingIntent(R.id.tv_count, pendingIntent1)
             }
         }
     }
@@ -626,6 +641,14 @@ class BuddhaService : Service() {
                     when (it.action) {
                         ACTION_BUDDHA_PLAYE -> {
                             if (requestFocus()) {
+                                isAutoPause=false
+                                chantBuddhaRestart()
+                                floatingWinButState(false)
+                            }
+                        }
+                        ACTION_BUDDHA_PLAYE_AUTO -> {
+                            if (requestFocus()) {
+                                isAutoPause=true
                                 chantBuddhaRestart()
                                 floatingWinButState(false)
                             }
@@ -664,5 +687,6 @@ class BuddhaService : Service() {
     companion object {
         val ACTION_BUDDHA_PAUSE = "com.wang17.myphone.buddha.pause"
         val ACTION_BUDDHA_PLAYE = "com.wang17.myphone.buddha.play"
+        val ACTION_BUDDHA_PLAYE_AUTO = "com.wang17.myphone.buddha.play.auto"
     }
 }
