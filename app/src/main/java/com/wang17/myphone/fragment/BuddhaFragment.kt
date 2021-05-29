@@ -16,6 +16,7 @@ import android.widget.*
 import com.alibaba.fastjson.JSON
 import com.wang17.myphone.*
 import com.wang17.myphone.activity.BuddhaActivity
+import com.wang17.myphone.activity.BuddhaChartActivity
 import com.wang17.myphone.activity.BuddhaDetailActivity
 import com.wang17.myphone.callback.CloudCallback
 import com.wang17.myphone.callback.DialogChoosenCallback
@@ -371,6 +372,11 @@ class BuddhaFragment : Fragment() {
             }
         }
 
+        layout_monthTotal.setOnLongClickListener {
+            startActivity(Intent(context,BuddhaChartActivity::class.java))
+            true
+        }
+
         iv_buddha.setOnLongClickListener {
             var count=0
             val view = View.inflate(context, R.layout.inflate_dialog_add_buddha, null)
@@ -532,6 +538,9 @@ class BuddhaFragment : Fragment() {
             if (_Utils.isServiceRunning(context!!, MuyuService::class.qualifiedName!!)) {
                 context?.stopService(Intent(context!!, MuyuService::class.java))
                 stopAnimatorSuofang(fab_muyu_animator)
+                dc.deleteSetting(Setting.KEYS.muyu_duration)
+                dc.deleteSetting(Setting.KEYS.muyu_startime)
+                dc.deleteSetting(Setting.KEYS.muyu_stoptime)
             } else {
                 AlertDialog.Builder(context).setItems(arrayOf("木鱼","木鱼+引擎"), DialogInterface.OnClickListener { dialog, which ->
                     dc.editSetting(Setting.KEYS.muyu_type,which)
