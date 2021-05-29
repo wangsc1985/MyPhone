@@ -45,7 +45,7 @@ public class SmsHelper {
      * body => 短消息内容
      * service_center => 短信服务中心号码编号。如+8613800755500
      */
-    public List<PhoneMessage> getSMS(SmsType smsType, DateTime smsDate) {
+    public static List<PhoneMessage> getSMS(Context context,SmsType smsType, DateTime smsDate) {
 
         List<PhoneMessage> list = new ArrayList<>();
         try {
@@ -72,7 +72,7 @@ public class SmsHelper {
                 do {
                     threadId = cursor.getInt(threadIdCloum);
                     address = cursor.getString(addressCloum);
-                    date = new DateTime(Long.parseLong(cursor.getColumnName(dateCloum)));
+                    date = new DateTime(Long.parseLong(cursor.getString(dateCloum)));
                     status = cursor.getInt(statusCloum);
                     type = cursor.getInt(typeCloum);
                     body = cursor.getString(bodyCloum);
@@ -119,7 +119,7 @@ public class SmsHelper {
                 do {
                     threadId = cursor.getInt(threadIdCloum);
                     address = cursor.getString(addressCloum);
-                    date = new DateTime(Long.parseLong(cursor.getColumnName(dateCloum)));
+                    date = new DateTime(Long.parseLong(cursor.getString(dateCloum)));
                     status = cursor.getInt(statusCloum);
                     type = cursor.getInt(typeCloum);
                     body = cursor.getString(bodyCloum);

@@ -27,6 +27,7 @@ import com.wang17.myphone.eventbus.*
 import com.wang17.myphone.service.BuddhaService
 import com.wang17.myphone.service.MuyuService
 import com.wang17.myphone.service.StockService
+import com.wang17.myphone.structure.SmsType
 import com.wang17.myphone.util.*
 import com.wang17.myphone.util._Utils.getFilesWithSuffix
 import kotlinx.android.synthetic.main.fragment_buddha.*
@@ -48,13 +49,18 @@ class BuddhaFragment : Fragment() {
     override fun onResume() {
         super.onResume()
 
-        val size = dc.getPhoneMessages(dc.getSetting(Setting.KEYS.sms_last_time, 0).long).size
+        val size = dc.getPhoneMessages(dc.getSetting(Setting.KEYS.sms_last_time,  DateTime.today.timeInMillis).long).size
+//        val dateTime = DateTime(dc.getSetting(Setting.KEYS.sms_last_time, DateTime.today.timeInMillis).long)
+
+//        val sms = SmsHelper.getSMS(context,SmsType.接收到,dateTime)
+//        var size = sms.size
         if (size > 0) {
             tv_msg.visibility = View.VISIBLE
             _Utils.zhendong(context!!, 100)
         } else {
             tv_msg.visibility = View.GONE
         }
+
         tv_msg.setText(size.toString())
 
 

@@ -19,6 +19,8 @@ import com.wang17.myphone.database.DataContext
 import com.wang17.myphone.database.PhoneMessage
 import com.wang17.myphone.database.Setting
 import com.wang17.myphone.model.DateTime
+import com.wang17.myphone.structure.SmsType
+import com.wang17.myphone.util.SmsHelper
 import com.wang17.myphone.util._Utils
 import kotlinx.android.synthetic.main.fragment_sms.*
 import java.util.regex.Pattern
@@ -35,8 +37,9 @@ class SmsDialogFragment: DialogFragment() {
     }
 
     fun loadSmsData() {
-        smsList = dc.getPhoneMessages(dc.getSetting(Setting.KEYS.sms_last_time, 0).long)
-//        smsList = dc.getPhoneMessages(DateTime().addDays(-3).timeInMillis)
+        smsList = dc.getPhoneMessages(dc.getSetting(Setting.KEYS.sms_last_time,  DateTime.today.timeInMillis).long)
+//        val dateTime = DateTime(dc.getSetting(Setting.KEYS.sms_last_time, DateTime.today.timeInMillis).long)
+//        smsList =  SmsHelper.getSMS(context, SmsType.接收到,dateTime)
         dc.editSetting(Setting.KEYS.sms_last_time, System.currentTimeMillis())
     }
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {

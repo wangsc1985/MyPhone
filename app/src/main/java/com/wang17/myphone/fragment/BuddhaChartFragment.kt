@@ -1,6 +1,7 @@
 package com.wang17.myphone.fragment
 
 import android.content.pm.ActivityInfo
+import android.graphics.Color
 import android.os.Bundle
 import android.os.Handler
 import android.support.v4.app.Fragment
@@ -160,7 +161,7 @@ class BuddhaChartFragment : Fragment() {
 
     private fun generateChart(){
 
-        val list = dc.getBuddhas(DateTime().year)
+        val list = dc.getBuddhaListStartDate(DateTime().addDays(-30))
         if (list.size == 0)
             return
 
@@ -192,12 +193,20 @@ class BuddhaChartFragment : Fragment() {
         val columns: MutableList<Column> = ArrayList()
         var values: MutableList<SubcolumnValue?>
         for (i in buddhas.indices) {
-
-
             val budd = buddhas[i]
 
             values = ArrayList()
-            values.add(SubcolumnValue(budd.count.toFloat()/1080, ChartUtils.pickColor()))
+            val value = budd.count.toFloat()/1080
+            var color = Color.GRAY
+            if(value>=15){
+                color = Color.RED
+            }else if(value>=10){
+                color = Color.BLUE
+            }else{
+                color = Color.GRAY
+            }
+
+            values.add(SubcolumnValue(value, color))
             val column = Column(values)
             column.setHasLabels(hasLabels)
             column.setHasLabelsOnlyForSelected(hasLabelForSelected)

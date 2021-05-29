@@ -359,14 +359,14 @@ class MyWidgetProvider : AppWidgetProvider() {
                         return
 
                     var sms = PhoneMessage()
-                    for (count in 0 until objects.size) {
-                        val bytes = objects[count] as ByteArray
-                        val message = SmsMessage.createFromPdu(bytes)
-                        val number = message.originatingAddress
-                        val content = message.messageBody
-                        val dateTime = DateTime(message.timestampMillis)
+                    try {
+                        for (count in 0 until objects.size) {
+                            val bytes = objects[count] as ByteArray
+                            val message = SmsMessage.createFromPdu(bytes)
+                            val number = message.originatingAddress
+                            val content = message.messageBody
+                            val dateTime = DateTime(message.timestampMillis)
 
-                        try {
                             if (count == 0) {
                                 sms.address = number ?: ""
                                 sms.body = content
@@ -377,86 +377,84 @@ class MyWidgetProvider : AppWidgetProvider() {
                                 sms.body += content
                                 sms.createTime = dateTime
                             }
-
-                        } catch (e: Exception) {
-                            dc.addRunLog("拦截短信", e.message ?: "")
                         }
-                        //                        }
+                        dc.addPhoneMessage(sms)
+                        /**
+                         * 验证码
+                         */
+                        if (sms.body.contains("验证码") || sms.body.contains("动态密码")) {
+                            _SoundUtils.play(context, R.raw.maopao)
+
+                            var str = ""
+                            while (true) {
+                                var matcher = Pattern.compile("(?<=验证码.{0,2})([0-9]{6})(?![0-9])").matcher(sms.body)
+                                if (matcher.find()) {
+                                    str = matcher.group()
+                                    break
+                                }
+                                matcher = Pattern.compile("(?<=验证码.{0,2})([0-9]{4})(?![0-9])").matcher(sms.body)
+                                if (matcher.find()) {
+                                    str = matcher.group()
+                                    break
+                                }
+                                matcher = Pattern.compile("(?<![0-9])([0-9]{6})(?![0-9])").matcher(sms.body)
+                                if (matcher.find()) {
+                                    str = matcher.group()
+                                    break
+                                }
+                                matcher = Pattern.compile("(?<![0-9])([0-9]{4})(?![0-9])").matcher(sms.body)
+                                if (matcher.find()) {
+                                    str = matcher.group()
+                                    break
+                                }
+                            }
+                            val clipManager = context.getSystemService(Context.CLIPBOARD_SERVICE) as ClipboardManager
+                            val clip = ClipData.newPlainText("text", str)
+                            clipManager.setPrimaryClip(clip)
+                            _NotificationUtils.alertNotificationTop(context, str)
+                        }
+
+                        when (sms.address) {
+                            "95599" -> {
+                                var bankBill: BankBill?
+                                var balanceStr: String? = null
+                                val format = DecimalFormat("#,##0.00")
+
+                                bankBill = ParseCreditCard.parseABC(context, sms.body)
+                                if (bankBill != null) {
+                                    balanceStr = format.format(bankBill.balance)
+                                }
+                                if (balanceStr != null) {
+                                    _SoundUtils.play(context, R.raw.maopao)
+                                    remoteViews.setTextViewText(R.id.tv_balanceABC, balanceStr)
+                                    appWidgetManager.updateAppWidget(myComponentName, remoteViews)
+                                    dc.editSetting(Setting.KEYS.balanceABC, balanceStr)
+                                }
+                            }
+                            "95588" -> {
+                                var bankBill: BankBill?
+                                var balanceStr: String? = null
+                                val format = DecimalFormat("#,##0.00")
+
+                                /**
+                                 * 解析ICBC
+                                 */
+                                bankBill = ParseCreditCard.parseICBC(context, sms.body)
+                                if (bankBill != null) {
+                                    balanceStr = format.format(bankBill.balance)
+                                }
+                                if (balanceStr != null) {
+                                    _SoundUtils.play(context, R.raw.maopao)
+                                    remoteViews.setTextViewText(R.id.tv_balanceICBC, balanceStr)
+                                    appWidgetManager.updateAppWidget(myComponentName, remoteViews)
+                                    dc.editSetting(Setting.KEYS.balanceICBC, balanceStr)
+                                }
+                            }
+                        }
+
+                    } catch (e: Exception) {
+                        dc.addRunLog("拦截短信", e.message ?: "")
                     }
-                    /**
-                     * 验证码
-                     */
-                    if (sms.body.contains("验证码") || sms.body.contains("动态密码")) {
-                        _SoundUtils.play(context, R.raw.maopao)
-
-                        var str = ""
-                        while(true){
-                            var matcher = Pattern.compile("(?<=验证码.{0,2})([0-9]{6})(?![0-9])").matcher(sms.body)
-                            if (matcher.find()){
-                                str = matcher.group()
-                                break
-                            }
-                            matcher = Pattern.compile("(?<=验证码.{0,2})([0-9]{4})(?![0-9])").matcher(sms.body)
-                            if (matcher.find()) {
-                                str = matcher.group()
-                                break
-                            }
-                            matcher = Pattern.compile("(?<![0-9])([0-9]{6})(?![0-9])").matcher(sms.body)
-                            if (matcher.find()) {
-                                str = matcher.group()
-                                break
-                            }
-                            matcher = Pattern.compile("(?<![0-9])([0-9]{4})(?![0-9])").matcher(sms.body)
-                            if (matcher.find()) {
-                                str = matcher.group()
-                                break
-                            }
-                        }
-                        val clipManager = context.getSystemService(Context.CLIPBOARD_SERVICE) as ClipboardManager
-                        val clip = ClipData.newPlainText("text", str)
-                        clipManager.setPrimaryClip(clip)
-                        _NotificationUtils.alertNotificationTop(context,str)
-                    }
-
-                    when (sms.address) {
-                        "95599" -> {
-                            var bankBill: BankBill?
-                            var balanceStr: String? = null
-                            val format = DecimalFormat("#,##0.00")
-
-                            bankBill = ParseCreditCard.parseABC(context, sms.body)
-                            if (bankBill != null) {
-                                balanceStr = format.format(bankBill.balance)
-                            }
-                            if (balanceStr != null) {
-                                _SoundUtils.play(context, R.raw.maopao)
-                                remoteViews.setTextViewText(R.id.tv_balanceABC, balanceStr)
-                                appWidgetManager.updateAppWidget(myComponentName, remoteViews)
-                                dc.editSetting(Setting.KEYS.balanceABC, balanceStr)
-                            }
-                        }
-                        "95588" -> {
-                            var bankBill: BankBill?
-                            var balanceStr: String? = null
-                            val format = DecimalFormat("#,##0.00")
-
-                            /**
-                             * 解析ICBC
-                             */
-                            bankBill = ParseCreditCard.parseICBC(context, sms.body)
-                            if (bankBill != null) {
-                                balanceStr = format.format(bankBill.balance)
-                            }
-                            if (balanceStr != null) {
-                                _SoundUtils.play(context, R.raw.maopao)
-                                remoteViews.setTextViewText(R.id.tv_balanceICBC, balanceStr)
-                                appWidgetManager.updateAppWidget(myComponentName, remoteViews)
-                                dc.editSetting(Setting.KEYS.balanceICBC, balanceStr)
-                            }
-                        }
-                    }
-
-                    dc.addPhoneMessage(sms)
                 }
             }
         } catch (e: Exception) {

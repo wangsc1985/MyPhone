@@ -75,11 +75,6 @@
         <activity android:name=".activity.TradesActivity" />
         <activity android:name=".activity.StockPositionHistoryActivity" />
 
-        <service android:name=".service.BuddhaTimerService">
-            <intent-filter android:priority="1000">
-                <action android:name="com.wang17.myphone.CLICK_NF_NOTIFICATION" />
-            </intent-filter>
-        </service>
         <service android:name=".service.StockService" />
 
         <meta-data
@@ -156,8 +151,8 @@
             <intent-filter android:priority="1000">
 
                 <!-- 必须要显示声明的action！因为所有的widget的广播都是通过它来发送的；要接收widget的添加、删除等广播，就必须包含它。 -->
-                <action android:name="android.media.VOLUME_CHANGED_ACTION" />
                 <action android:name="android.provider.Telephony.SMS_RECEIVED" />
+                <action android:name="android.media.VOLUME_CHANGED_ACTION" />
                 <action android:name="android.appwidget.action.APPWIDGET_UPDATE" />
                 <action android:name="com.wang17.widget.UPDATE_ALL" />
                 <action android:name="com.wang17.widget.CLICK_ROOT" />
@@ -187,13 +182,6 @@
                 <action android:name="android.intent.action.READ_PHONE_STATE" />
             </intent-filter>
         </receiver>
-        <receiver android:name=".receiver.AlarmReceiver">
-            <intent-filter>
-                <action android:name="ACTION_ALARM_NIANFO_OVER" />
-                <action android:name="ACTION_ALARM_TRADE" />
-                <action android:name="ACTION_ALARM_STOCK_SCREEN" />
-            </intent-filter>
-        </receiver>
         <receiver android:name=".receiver.SystemBroadcaseReceiver">
             <intent-filter android:priority="999">
                 <action android:name="android.net.conn.CONNECTIVITY_CHANGE" />
@@ -215,7 +203,6 @@
                 android:resource="@xml/accessibility" />
         </service> <!-- 定位需要的服务 使用2.0的定位需要加上这个 -->
         <service android:name="com.amap.api.location.APSService" />
-        <service android:name=".service.NianfoMusicService" />
         <service android:name=".service.LocationService" /> <!-- 是用于更新widget中的图片的服务。 -->
         <service
             android:name=".widget.MyWidgetRemoteViewsService"
