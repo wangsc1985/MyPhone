@@ -197,6 +197,7 @@ class BuddhaService : Service() {
                     EventBus.getDefault().post(EventBusMessage.getInstance(FromBuddhaServiceTimer(), duration.toString()))
                     tv_duration?.setText(notificationTime)
 
+//                    e("is auto pause ${isAutoPause}")
                     if (prvCount < notificationCount) {
                         if(dc.getSetting(Setting.KEYS.is念佛引罄间隔提醒, true).boolean){
                             dc.addRunLog("BuddhaService", "引罄", "${DateTime().toTimeString()}  ${notificationTime} prv count : ${prvCount} ; notification count : ${notificationCount}")
@@ -393,6 +394,7 @@ class BuddhaService : Service() {
                             dc.addBuddha(buddha)
                             startTimeInMillis = System.currentTimeMillis() - duration2
                             savedDuration = 0
+                            prvCount=0
 
                             dc.deleteSetting(Setting.KEYS.buddha_duration)
                             dc.deleteSetting(Setting.KEYS.buddha_stoptime)
