@@ -40,7 +40,7 @@
         android:roundIcon="@mipmap/launcher"
         android:supportsRtl="true"
         android:theme="@style/Theme.AppCompat.Light.NoActionBar">
-        <activity android:name=".activity.BuddhaChartActivity"></activity>
+        <activity android:name=".activity.BuddhaChartActivity" />
         <activity android:name=".activity.ChartActivity" />
         <activity android:name=".activity.LoanActivity" />
         <activity

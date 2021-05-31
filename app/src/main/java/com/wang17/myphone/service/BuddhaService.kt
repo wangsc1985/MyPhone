@@ -9,6 +9,7 @@ import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
 import android.content.IntentFilter
+import android.graphics.Color
 import android.graphics.PixelFormat
 import android.media.AudioManager
 import android.media.MediaPlayer
@@ -71,8 +72,8 @@ class BuddhaService : Service() {
     lateinit var souSound: SoundPool
     var targetTap = 12
 
-    var isShowFloatWindow=false
-    var isAutoPause=false
+    var isShowFloatWindow = false
+    var isAutoPause = false
 
     override fun onBind(intent: Intent): IBinder? {
         return null
@@ -89,9 +90,9 @@ class BuddhaService : Service() {
         e("buddha service onCreate")
         try {
             dc = DataContext(applicationContext)
-            dc.deleteRunLog("BuddhaService",DateTime.today.addDays(-1))
-            isShowFloatWindow = dc.getSetting(Setting.KEYS.is显示念佛悬浮窗,false).boolean
-            isAutoPause = dc.getSetting(Setting.KEYS.is念佛自动暂停,false).boolean
+            dc.deleteRunLog("BuddhaService", DateTime.today.addDays(-1))
+            isShowFloatWindow = dc.getSetting(Setting.KEYS.is显示念佛悬浮窗, false).boolean
+            isAutoPause = dc.getSetting(Setting.KEYS.is念佛自动暂停, false).boolean
             targetTap = dc.getSetting(Setting.KEYS.念佛自动结束圈数, 12).int
 
             guSound = SoundPool(100, AudioManager.STREAM_MUSIC, 0)
@@ -168,7 +169,7 @@ class BuddhaService : Service() {
         e("------------- 销毁完毕 ---------------")
         EventBus.getDefault().post(EventBusMessage.getInstance(FromBuddhaServiceDestroy(), "buddha service destroyed"))
         //region 悬浮窗
-        if(isShowFloatWindow){
+        if (isShowFloatWindow) {
             windowManager.removeView(floatingWindowView)
         }
         EventBus.getDefault().unregister(this)
@@ -199,7 +200,7 @@ class BuddhaService : Service() {
 
 //                    e("is auto pause ${isAutoPause}")
                     if (prvCount < notificationCount) {
-                        if(dc.getSetting(Setting.KEYS.is念佛引罄间隔提醒, true).boolean){
+                        if (dc.getSetting(Setting.KEYS.is念佛引罄间隔提醒, true).boolean) {
                             dc.addRunLog("BuddhaService", "引罄", "${DateTime().toTimeString()}  ${notificationTime} prv count : ${prvCount} ; notification count : ${notificationCount}")
                             guSound.play(1, 1.0f, 1.0f, 0, 0, 1.0f)
                             prvCount = notificationCount
@@ -208,10 +209,11 @@ class BuddhaService : Service() {
                                 guSound.play(1, 1.0f, 1.0f, 0, 0, 1.0f)
                             }
                         }
-                        if(isAutoPause){
+                        if (isAutoPause) {
                             chantBuddhaPause()
                             floatingWinButState(true)
                             mAm.abandonAudioFocus(afChangeListener)
+                            isAutoPause=false
                         }
                     }
 
@@ -370,15 +372,16 @@ class BuddhaService : Service() {
             dc.editSetting(Setting.KEYS.buddha_startime, startTimeInMillis)
 
 
-
             val settingStopTimeInMillis = dc.getSetting(Setting.KEYS.buddha_stoptime)
             val settingDuration = dc.getSetting(Setting.KEYS.buddha_duration)
             val now = System.currentTimeMillis()
-            dc.addRunLog("BuddhaService", "开始念佛", "上次暂停时间：${settingStopTimeInMillis?.let{DateTime(settingStopTimeInMillis.long).toLongDateTimeString()}}" +
-                    "  上次念佛时长：${settingDuration?.let {settingDuration.long/60000}}分钟  距离上次暂停：${(now - settingStopTimeInMillis.long)/60000}分钟")
+            dc.addRunLog("BuddhaService", "开始念佛", "上次暂停时间：${settingStopTimeInMillis?.let { DateTime(settingStopTimeInMillis.long).toLongDateTimeString() }}" +
+                    "  上次念佛时长：${settingDuration?.let { settingDuration.long / 60000 }}分钟  距离上次暂停：${(now - settingStopTimeInMillis.long) / 60000}分钟"
+            )
             if (settingStopTimeInMillis != null && settingDuration != null
                 && now - settingStopTimeInMillis.long > 15 * 60000
-                && settingDuration.long / 1000 / circleSecond >= 1 ) {
+                && settingDuration.long / 1000 / circleSecond >= 1
+            ) {
 
                 val startTime = DateTime(settingStopTimeInMillis.long - settingDuration.long)
                 val tap = (settingDuration.long / 1000 / circleSecond).toInt()
@@ -394,7 +397,7 @@ class BuddhaService : Service() {
                             dc.addBuddha(buddha)
                             startTimeInMillis = System.currentTimeMillis() - duration2
                             savedDuration = 0
-                            prvCount=0
+                            prvCount = 0
 
                             dc.deleteSetting(Setting.KEYS.buddha_duration)
                             dc.deleteSetting(Setting.KEYS.buddha_stoptime)
@@ -483,6 +486,13 @@ class BuddhaService : Service() {
                 val pendingIntent1 = PendingIntent.getBroadcast(applicationContext, 0, intentRootClick1, PendingIntent.FLAG_UPDATE_CURRENT)
                 remoteViews.setOnClickPendingIntent(R.id.tv_count, pendingIntent1)
             }
+            if(isAutoPause){
+                remoteViews.setTextColor(R.id.tv_count,resources.getColor(R.color.a,null))
+                remoteViews.setTextColor(R.id.tv_time,resources.getColor(R.color.a,null))
+            }else{
+                remoteViews.setTextColor(R.id.tv_count,resources.getColor(R.color.calendar_yl_color,null))
+                remoteViews.setTextColor(R.id.tv_time,resources.getColor(R.color.calendar_yl_color,null))
+            }
         }
     }
 
@@ -504,7 +514,7 @@ class BuddhaService : Service() {
     private fun showFloatingWindow() {
 
         try {
-            if(!isShowFloatWindow) return
+            if (!isShowFloatWindow) return
             //region 悬浮窗
             windowManager = getSystemService(WINDOW_SERVICE) as WindowManager
             layoutParams = WindowManager.LayoutParams()
@@ -643,17 +653,18 @@ class BuddhaService : Service() {
                     when (it.action) {
                         ACTION_BUDDHA_PLAYE -> {
                             if (requestFocus()) {
-                                isAutoPause=false
                                 chantBuddhaRestart()
                                 floatingWinButState(false)
                             }
                         }
                         ACTION_BUDDHA_PLAYE_AUTO -> {
-                            if (requestFocus()) {
-                                isAutoPause=true
-                                chantBuddhaRestart()
-                                floatingWinButState(false)
+                            if (!isTimerRuning) {
+                                if (requestFocus()) {
+                                    chantBuddhaRestart()
+                                    floatingWinButState(false)
+                                }
                             }
+                            isAutoPause = !isAutoPause
                         }
                         ACTION_BUDDHA_PAUSE -> {
                             chantBuddhaPause()
