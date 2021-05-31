@@ -3530,7 +3530,7 @@ public class DataContext {
         try {
             //获取数据库对象
             SQLiteDatabase db = dbHelper.getWritableDatabase();
-            db.delete("runLog", "tag like ? and runTime < ?", new String[]{tag, DateTime.getToday().addDays(-1).getTimeInMillis()+""});
+            db.delete("runLog", "tag like ?", new String[]{tag});
             //关闭SQLiteDatabase对象
             db.close();
         } catch (Exception e) {

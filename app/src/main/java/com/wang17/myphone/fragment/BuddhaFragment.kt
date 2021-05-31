@@ -160,6 +160,8 @@ class BuddhaFragment : Fragment() {
             tv_monthTotal.setText("${hourS}${miniteS}  ${formatter2.format((totalMonthCount).toMyDecimal() / 10000.toBigDecimal())}万  ${formatter1.format(totalMonthCount.toFloat() / 1080 / now.day)}圈")
             tv_dayTotal.setText("${hourS1}${miniteS1}  ${formatter.format(totalDayCount)}  ${totalDayCount / 1080}圈")
         }
+
+        EventBus.getDefault().post(EventBusMessage.getInstance(FromTotalCount(),(totalDayCount/1080).toString()))
     }
 
     var circleSecond = 600
