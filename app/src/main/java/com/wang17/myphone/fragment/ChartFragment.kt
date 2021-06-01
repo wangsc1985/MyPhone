@@ -73,6 +73,9 @@ class ChartFragment : Fragment() {
         var prvMonth = -1
         var prvYear = -1
 
+        for(i in 0..statements.size/100){
+            values.add(PointValue((++count).toFloat(), firstStatement.profit.toFloat()*100/fund.toFloat()))
+        }
         for (i in statements.indices) {
             val statement = statements[i]
             if (statement.profit.compareTo(0.toBigDecimal()) != 0) {
@@ -93,6 +96,9 @@ class ChartFragment : Fragment() {
                     prvMonth = statement.date.month
                 }
             }
+        }
+        for(i in 0..statements.size/100){
+            values.add(PointValue((++count).toFloat(), totalProfit.toFloat()))
         }
 
         val line = Line(values)
