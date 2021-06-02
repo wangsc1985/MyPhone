@@ -32,7 +32,7 @@ class ChartFragment : Fragment() {
     private val numberOfPoints = 10 // 每行数据有多少个点
 
     private lateinit var runHandler: Handler
-    lateinit var chartDate:DateTime
+    lateinit var chartDate: DateTime
 
     // 存储数据
     var randomNumbersTab = Array(maxNumberOfLines) { FloatArray(numberOfPoints) }
@@ -53,16 +53,16 @@ class ChartFragment : Fragment() {
         super.onViewCreated(view, savedInstanceState)
         runHandler = Handler()
 
-        chartDate = DateTime(dc.getSetting(Setting.KEYS.chart_date,DateTime().addDays(-300).timeInMillis).long)
+        chartDate = DateTime(dc.getSetting(Setting.KEYS.chart_date, DateTime().addDays(-300).timeInMillis).long)
         chart.setOnLongClickListener {
-            var view = View.inflate(context,R.layout.inflate_dialog_date,null)
+            var view = View.inflate(context, R.layout.inflate_dialog_date, null)
             var cvDate = view.findViewById<CalendarView>(R.id.cv_date)
             cvDate.date = chartDate.timeInMillis
             cvDate.setOnDateChangeListener { view, year, month, dayOfMonth ->
-                chartDate.set(Calendar.YEAR,year)
-                chartDate.set(Calendar.MONTH,month)
-                chartDate.set(Calendar.DAY_OF_MONTH,dayOfMonth)
-                dc.editSetting(Setting.KEYS.chart_date,chartDate.timeInMillis)
+                chartDate.set(Calendar.YEAR, year)
+                chartDate.set(Calendar.MONTH, month)
+                chartDate.set(Calendar.DAY_OF_MONTH, dayOfMonth)
+                dc.editSetting(Setting.KEYS.chart_date, chartDate.timeInMillis)
             }
             AlertDialog.Builder(context).setView(view).setPositiveButton("確定", DialogInterface.OnClickListener { dialog, which ->
                 generateChart(chartDate)
@@ -75,7 +75,7 @@ class ChartFragment : Fragment() {
 
     var axisXValues: MutableList<AxisValue> = ArrayList()
     var axisYValues: MutableList<AxisValue> = ArrayList()
-    private fun generateChart(date:DateTime) {
+    private fun generateChart(date: DateTime) {
         val statements = dc.getStatements(date)
         if (statements.size == 0)
             return
@@ -83,9 +83,9 @@ class ChartFragment : Fragment() {
         val firstStatement = statements.first()
         val lastStatement = statements.last()
 
-        val startLineColor =  resources.getColor(R.color.a, null)
-        val lineColor =  resources.getColor(R.color.timerStopColor, null)
-        val endLineColor =  resources.getColor(R.color.a, null)
+        val startLineColor = resources.getColor(R.color.a, null)
+        val lineColor = resources.getColor(R.color.timerStopColor, null)
+        val endLineColor = resources.getColor(R.color.a, null)
         val axisColor = resources.getColor(R.color.timerPauseColor, null)
         val values: MutableList<PointValue> = ArrayList()
         val startValues: MutableList<PointValue> = ArrayList()
@@ -98,17 +98,17 @@ class ChartFragment : Fragment() {
         var prvMonth = -1
         var prvYear = -1
 
-        val spaceCount = statements.size/50+1
+        val spaceCount = statements.size / 50 + 1
 
-        e("${statements.size}++++++++++++++++++++${statements.size/100}")
-        for(i in 0..spaceCount){
-            startValues.add(PointValue((++count).toFloat(), firstStatement.profit.toFloat()*100/fund.toFloat()))
+        e("${statements.size}++++++++++++++++++++${statements.size / 100}")
+        for (i in 0..spaceCount) {
+            startValues.add(PointValue((++count).toFloat(), firstStatement.profit.toFloat() * 100 / fund.toFloat()))
         }
         count--
         for (i in statements.indices) {
             val statement = statements[i]
             if (statement.profit.compareTo(0.toBigDecimal()) != 0) {
-                totalProfit += statement.profit*100.toBigDecimal()/fund
+                totalProfit += statement.profit * 100.toBigDecimal() / fund
                 values.add(PointValue((++count).toFloat(), totalProfit.toFloat()))
                 if (statement.date.month != prvMonth) {
                     var str = ""
@@ -127,7 +127,7 @@ class ChartFragment : Fragment() {
             }
         }
         count--
-        for(i in 0..spaceCount){
+        for (i in 0..spaceCount) {
             endValues.add(PointValue((++count).toFloat(), totalProfit.toFloat()))
         }
 
@@ -136,7 +136,7 @@ class ChartFragment : Fragment() {
         startLine.setColor(startLineColor) // 定制线条颜色
         startLine.setShape(ValueShape.CIRCLE)//折线图上每个数据点的形状  这里是圆形 （有三种 ：ValueShape.SQUARE  ValueShape.CIRCLE  ValueShape.DIAMOND）
         startLine.setCubic(false) //曲线是否平滑，即是曲线还是折线
-        startLine.setFilled(dc.getSetting(Setting.KEYS.is_fill_line_area,true).boolean)//是否填充曲线的面积
+        startLine.setFilled(dc.getSetting(Setting.KEYS.is_fill_line_area, true).boolean)//是否填充曲线的面积
         startLine.setHasLabels(false)//曲线的数据坐标是否加上备注
         startLine.setHasLabelsOnlyForSelected(true)//点击数据坐标提示数据（设置了这个line.setHasLabels(true);就无效）
         startLine.setHasLines(true)//是否用线显示。如果为false 则没有曲线只有点显示
@@ -153,7 +153,7 @@ class ChartFragment : Fragment() {
         line.setColor(lineColor) // 定制线条颜色
         line.setShape(ValueShape.CIRCLE)//折线图上每个数据点的形状  这里是圆形 （有三种 ：ValueShape.SQUARE  ValueShape.CIRCLE  ValueShape.DIAMOND）
         line.setCubic(false) //曲线是否平滑，即是曲线还是折线
-        line.setFilled(dc.getSetting(Setting.KEYS.is_fill_line_area,true).boolean)//是否填充曲线的面积
+        line.setFilled(dc.getSetting(Setting.KEYS.is_fill_line_area, true).boolean)//是否填充曲线的面积
         line.setHasLabels(false)//曲线的数据坐标是否加上备注
         line.setHasLabelsOnlyForSelected(true)//点击数据坐标提示数据（设置了这个line.setHasLabels(true);就无效）
         line.setHasLines(true)//是否用线显示。如果为false 则没有曲线只有点显示
@@ -171,7 +171,7 @@ class ChartFragment : Fragment() {
         endLine.setColor(endLineColor) // 定制线条颜色
         endLine.setShape(ValueShape.CIRCLE)//折线图上每个数据点的形状  这里是圆形 （有三种 ：ValueShape.SQUARE  ValueShape.CIRCLE  ValueShape.DIAMOND）
         endLine.setCubic(false) //曲线是否平滑，即是曲线还是折线
-        endLine.setFilled(dc.getSetting(Setting.KEYS.is_fill_line_area,true).boolean)//是否填充曲线的面积
+        endLine.setFilled(dc.getSetting(Setting.KEYS.is_fill_line_area, true).boolean)//是否填充曲线的面积
         endLine.setHasLabels(false)//曲线的数据坐标是否加上备注
         endLine.setHasLabelsOnlyForSelected(true)//点击数据坐标提示数据（设置了这个line.setHasLabels(true);就无效）
         endLine.setHasLines(true)//是否用线显示。如果为false 则没有曲线只有点显示
@@ -193,7 +193,7 @@ class ChartFragment : Fragment() {
             val axisX = Axis().setValues(axisXValues).setHasLines(true)
             val axisY = Axis().setHasLines(true)
             if (hasAxesNames) {
-                axisX.setName("${firstStatement.date.toShortDateString()} 至 ${lastStatement.date.toShortDateString()}  今日：${(lastStatement.profit*100.toBigDecimal()/fund).toFloat().format(2)}%  总计：${totalProfit.toFloat().format(2)}%")
+                axisX.setName("${firstStatement.date.toShortDateString()} 至 ${lastStatement.date.toShortDateString()}  今日：${(lastStatement.profit * 100.toBigDecimal() / fund).toFloat().format(2)}%  总计：${totalProfit.toFloat().format(2)}%")
                 axisX.setTextColor(axisColor)
                 axisX.setLineColor(axisColor)
                 axisX.setMaxLabelChars(7); //最多几个X轴坐标，意思就是你的缩放让X轴上数据的个数7<=x<=mAxisXValues.length
@@ -217,12 +217,26 @@ class ChartFragment : Fragment() {
     private fun checkChartData() {
         val ss = dc.lastStatement
 
-        ss?.let {
+        ss?.let { last ->
             val now = DateTime()
-            val chartDate = it.date.addDays(1).date
-            if ((chartDate.timeInMillis < now.date.timeInMillis || (chartDate.isSameDay(now) && now.hour > 15))
-                && now.get(Calendar.DAY_OF_WEEK) != 7 && now.get(Calendar.DAY_OF_WEEK) != 1
-            ) {
+            val chartDate = last.date.addDays(1).date
+
+            var isToLoad = false
+            var dt = chartDate.date
+            kotlin.run a@{
+                while (dt.timeInMillis < now.date.timeInMillis) {
+                    if (dt.get(Calendar.DAY_OF_WEEK) != 7 && dt.get(Calendar.DAY_OF_WEEK) != 1) {
+                        isToLoad = true
+                        return@a
+                    }
+                    dt = dt.addDays(1)
+                }
+            }
+            if(isToLoad==false&&(dt.isSameDay(now) && now.hour > 15) && now.get(Calendar.DAY_OF_WEEK) != 7 && now.get(Calendar.DAY_OF_WEEK) != 1){
+                isToLoad=true
+            }
+
+            if (isToLoad) {
                 loadChartData()
                 generateChart(chartDate)
             }
@@ -363,7 +377,7 @@ class ChartFragment : Fragment() {
 //                if (reset)
 //                    statements.add(Statement(dt.date, fund, profit, profit))
 //                else
-                    statements.add(Statement(dt.date, fund, profit - prvProfit, profit))
+                statements.add(Statement(dt.date, fund, profit - prvProfit, profit))
 
                 prvProfit = profit
 //                reset = false
@@ -375,7 +389,7 @@ class ChartFragment : Fragment() {
         }
         e("生成图表用时：${System.currentTimeMillis() - now.timeInMillis}")
         dc.addStatements(statements)
-        Toast.makeText(context, "更新数据用时：${System.currentTimeMillis()-now.timeInMillis}毫秒", Toast.LENGTH_LONG).show()
+        Toast.makeText(context, "更新数据用时：${System.currentTimeMillis() - now.timeInMillis}毫秒", Toast.LENGTH_LONG).show()
     }
 
 }
