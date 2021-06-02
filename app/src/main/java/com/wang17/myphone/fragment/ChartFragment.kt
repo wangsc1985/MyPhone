@@ -1,5 +1,7 @@
 package com.wang17.myphone.fragment
 
+import android.app.AlertDialog
+import android.content.DialogInterface
 import android.content.pm.ActivityInfo
 import android.os.Bundle
 import android.os.Handler
@@ -7,6 +9,7 @@ import android.support.v4.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.CalendarView
 import android.widget.Toast
 import com.wang17.myphone.*
 import com.wang17.myphone.database.*
@@ -29,6 +32,7 @@ class ChartFragment : Fragment() {
     private val numberOfPoints = 10 // 每行数据有多少个点
 
     private lateinit var runHandler: Handler
+    lateinit var chartDate:DateTime
 
     // 存储数据
     var randomNumbersTab = Array(maxNumberOfLines) { FloatArray(numberOfPoints) }
@@ -48,23 +52,44 @@ class ChartFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         runHandler = Handler()
-        generateChart()
+
+        chartDate = DateTime(dc.getSetting(Setting.KEYS.chart_date,DateTime().addDays(-300).timeInMillis).long)
+        chart.setOnLongClickListener {
+            var view = View.inflate(context,R.layout.inflate_dialog_date,null)
+            var cvDate = view.findViewById<CalendarView>(R.id.cv_date)
+            cvDate.date = chartDate.timeInMillis
+            cvDate.setOnDateChangeListener { view, year, month, dayOfMonth ->
+                chartDate.set(Calendar.YEAR,year)
+                chartDate.set(Calendar.MONTH,month)
+                chartDate.set(Calendar.DAY_OF_MONTH,dayOfMonth)
+                dc.editSetting(Setting.KEYS.chart_date,chartDate.timeInMillis)
+            }
+            AlertDialog.Builder(context).setView(view).setPositiveButton("確定", DialogInterface.OnClickListener { dialog, which ->
+                generateChart(chartDate)
+            }).show()
+            true
+        }
+        generateChart(chartDate)
         checkChartData()
     }
 
     var axisXValues: MutableList<AxisValue> = ArrayList()
     var axisYValues: MutableList<AxisValue> = ArrayList()
-    private fun generateChart() {
-        val statements = dc.getStatements(DateTime(dc.getSetting(Setting.KEYS.chart_start_year,2020).int,0,1))
+    private fun generateChart(date:DateTime) {
+        val statements = dc.getStatements(date)
         if (statements.size == 0)
             return
 
         val firstStatement = statements.first()
         val lastStatement = statements.last()
 
+        val startLineColor =  resources.getColor(R.color.a, null)
         val lineColor =  resources.getColor(R.color.timerStopColor, null)
+        val endLineColor =  resources.getColor(R.color.a, null)
         val axisColor = resources.getColor(R.color.timerPauseColor, null)
         val values: MutableList<PointValue> = ArrayList()
+        val startValues: MutableList<PointValue> = ArrayList()
+        val endValues: MutableList<PointValue> = ArrayList()
         axisXValues.clear()
         axisYValues.clear()
         var totalProfit = 0.toBigDecimal()
@@ -73,9 +98,13 @@ class ChartFragment : Fragment() {
         var prvMonth = -1
         var prvYear = -1
 
-        for(i in 0..statements.size/100){
-            values.add(PointValue((++count).toFloat(), firstStatement.profit.toFloat()*100/fund.toFloat()))
+        val spaceCount = statements.size/50+1
+
+        e("${statements.size}++++++++++++++++++++${statements.size/100}")
+        for(i in 0..spaceCount){
+            startValues.add(PointValue((++count).toFloat(), firstStatement.profit.toFloat()*100/fund.toFloat()))
         }
+        count--
         for (i in statements.indices) {
             val statement = statements[i]
             if (statement.profit.compareTo(0.toBigDecimal()) != 0) {
@@ -97,8 +126,26 @@ class ChartFragment : Fragment() {
                 }
             }
         }
-        for(i in 0..statements.size/100){
-            values.add(PointValue((++count).toFloat(), totalProfit.toFloat()))
+        count--
+        for(i in 0..spaceCount){
+            endValues.add(PointValue((++count).toFloat(), totalProfit.toFloat()))
+        }
+
+        val startLine = Line(startValues)
+        //line.setColor(ChartUtils.COLORS[i]); // 多条数据时选择这个即可
+        startLine.setColor(startLineColor) // 定制线条颜色
+        startLine.setShape(ValueShape.CIRCLE)//折线图上每个数据点的形状  这里是圆形 （有三种 ：ValueShape.SQUARE  ValueShape.CIRCLE  ValueShape.DIAMOND）
+        startLine.setCubic(false) //曲线是否平滑，即是曲线还是折线
+        startLine.setFilled(dc.getSetting(Setting.KEYS.is_fill_line_area,true).boolean)//是否填充曲线的面积
+        startLine.setHasLabels(false)//曲线的数据坐标是否加上备注
+        startLine.setHasLabelsOnlyForSelected(true)//点击数据坐标提示数据（设置了这个line.setHasLabels(true);就无效）
+        startLine.setHasLines(true)//是否用线显示。如果为false 则没有曲线只有点显示
+        startLine.setHasPoints(false)//是否显示圆点 如果为false 则没有原点只有点显示（每个数据点都是个大的圆点）
+        startLine.strokeWidth = 1
+        if (pointsHaveDifferentColor) {
+            //多条数据时选择这个即可
+            //line.setPointColor(ChartUtils.COLORS[(i + 1) % ChartUtils.COLORS.length]);
+            startLine.setPointColor(lineColor)
         }
 
         val line = Line(values)
@@ -118,8 +165,28 @@ class ChartFragment : Fragment() {
             line.setPointColor(lineColor)
         }
 
+
+        val endLine = Line(endValues)
+        //line.setColor(ChartUtils.COLORS[i]); // 多条数据时选择这个即可
+        endLine.setColor(endLineColor) // 定制线条颜色
+        endLine.setShape(ValueShape.CIRCLE)//折线图上每个数据点的形状  这里是圆形 （有三种 ：ValueShape.SQUARE  ValueShape.CIRCLE  ValueShape.DIAMOND）
+        endLine.setCubic(false) //曲线是否平滑，即是曲线还是折线
+        endLine.setFilled(dc.getSetting(Setting.KEYS.is_fill_line_area,true).boolean)//是否填充曲线的面积
+        endLine.setHasLabels(false)//曲线的数据坐标是否加上备注
+        endLine.setHasLabelsOnlyForSelected(true)//点击数据坐标提示数据（设置了这个line.setHasLabels(true);就无效）
+        endLine.setHasLines(true)//是否用线显示。如果为false 则没有曲线只有点显示
+        endLine.setHasPoints(false)//是否显示圆点 如果为false 则没有原点只有点显示（每个数据点都是个大的圆点）
+        endLine.strokeWidth = 1
+        if (pointsHaveDifferentColor) {
+            //多条数据时选择这个即可
+            //line.setPointColor(ChartUtils.COLORS[(i + 1) % ChartUtils.COLORS.length]);
+            endLine.setPointColor(lineColor)
+        }
+
         val lines: MutableList<Line> = ArrayList<Line>()
+        lines.add(startLine)
         lines.add(line)
+        lines.add(endLine)
 
         var data = LineChartData(lines)
         if (hasAxes) {
@@ -157,7 +224,7 @@ class ChartFragment : Fragment() {
                 && now.get(Calendar.DAY_OF_WEEK) != 7 && now.get(Calendar.DAY_OF_WEEK) != 1
             ) {
                 loadChartData()
-                generateChart()
+                generateChart(chartDate)
             }
         }
     }

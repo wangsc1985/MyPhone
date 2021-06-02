@@ -93,7 +93,8 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-        <activity android:name=".activity.ToDoActivity" />
+        <activity android:name=".activity.ToDoActivity"
+            android:launchMode="singleTask" />
         <activity
             android:name=".activity.FuturePositionActivity"
             android:launchMode="singleTask" />
