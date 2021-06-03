@@ -1,5 +1,6 @@
 package com.wang17.myphone.service
 
+import android.app.Notification
 import android.app.PendingIntent
 import android.app.Service
 import android.bluetooth.BluetoothAdapter
@@ -59,6 +60,10 @@ class BuddhaService : Service() {
     var savedDuration = 0L
     var notificationCount = 0
     var notificationTime = ""
+    var notificationCountTotal = 0
+    var notificationTimeTotal = ""
+    var dbCount=0
+    var dbDuration=0L
 
     var buddhaType = 11
     var pitch = 1.0f
@@ -70,7 +75,6 @@ class BuddhaService : Service() {
     lateinit var guSound: SoundPool
     lateinit var souSound: SoundPool
     var targetTap = 12
-    var savedCount=0
 
     var isShowFloatWindow = false
     var isAutoPause = false
@@ -81,6 +85,7 @@ class BuddhaService : Service() {
     override fun onBind(intent: Intent): IBinder? {
         return null
     }
+
 
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
         return super.onStartCommand(intent, flags, startId)
@@ -99,9 +104,10 @@ class BuddhaService : Service() {
 
             val ls = dc.getBuddhas(DateTime())
             ls.forEach {
-                savedCount+=it.count
+                dbCount+=it.count
+                dbDuration += it.duration
             }
-            savedCount = savedCount/1080
+            dbCount = dbCount/1080
 
             isShowFloatWindow = dc.getSetting(Setting.KEYS.is显示念佛悬浮窗, false).boolean
             isAutoPause = dc.getSetting(Setting.KEYS.is念佛自动暂停, false).boolean
@@ -205,8 +211,16 @@ class BuddhaService : Service() {
                     val miniteT = duration / 60000
                     val minite = miniteT % 60
                     val hour = miniteT / 60
+                    val duration1 = dbDuration + savedDuration + System.currentTimeMillis() - startTimeInMillis
+                    val second1 = duration1 % 60000 / 1000
+                    val miniteT1 = duration1 / 60000
+                    val minite1 = miniteT1 % 60
+                    val hour1 = miniteT1 / 60
                     notificationCount = (duration / 1000 / circleSecond).toInt()
                     notificationTime = "$hour:${if (minite < 10) "0" + minite else minite}:${if (second < 10) "0" + second else second}"
+                    notificationCountTotal = dbCount+notificationCount
+                    notificationTimeTotal = "$hour1:${if (minite1 < 10) "0" + minite1 else minite1}:${if (second1 < 10) "0" + second1 else second1}"
+
                     EventBus.getDefault().post(EventBusMessage.getInstance(FromBuddhaServiceTimer(), duration.toString()))
                     tv_duration?.setText(notificationTime)
 
@@ -236,7 +250,7 @@ class BuddhaService : Service() {
                     dc.addRunLog("BuddhaService", "计时器超时", "${(System.currentTimeMillis() - preTime) / 1000}秒")
                 }
                 preTime = System.currentTimeMillis()
-                sendNotification(notificationCount,savedCount+notificationCount, notificationTime)
+                sendNotification(notificationCount,notificationCountTotal, notificationTime,notificationTimeTotal)
             }
         }, 0, 1000)
     }
@@ -323,7 +337,7 @@ class BuddhaService : Service() {
                 }
                 mPlayer?.setVolume(1.0f, 1.0f)
                 floatingWinButState(false)
-                sendNotification(notificationCount,savedCount+notificationCount, notificationTime)
+                sendNotification(notificationCount,notificationCountTotal, notificationTime,notificationTimeTotal)
             }
             /**
              * 长时间丢失焦点,当其他应用申请的焦点为AUDIOFOCUS_GAIN时，
@@ -335,7 +349,7 @@ class BuddhaService : Service() {
                 e("永久失去焦点")
                 chantBuddhaPause()
                 floatingWinButState(true)
-                sendNotification(notificationCount,savedCount+notificationCount, notificationTime)
+                sendNotification(notificationCount,notificationCountTotal, notificationTime,notificationTimeTotal)
             }
             /**
              * 短暂性丢失焦点，当其他应用申请AUDIOFOCUS_GAIN_TRANSIENT或AUDIOFOCUS_GAIN_TRANSIENT_EXCLUSIVE时，
@@ -347,7 +361,7 @@ class BuddhaService : Service() {
                 e("暂时失去焦点")
                 chantBuddhaPause()
                 floatingWinButState(true)
-                sendNotification(notificationCount,savedCount+notificationCount, notificationTime)
+                sendNotification(notificationCount,notificationCountTotal, notificationTime,notificationTimeTotal)
             }
             /**
              * 短暂性丢失焦点并作降音处理
@@ -384,7 +398,7 @@ class BuddhaService : Service() {
                     "  上次念佛时长：${settingDuration?.let { settingDuration.long / 60000 }}分钟  距离上次暂停：${(now - it.long) / 60000}分钟" }?:""
             )
             if (settingStopTimeInMillis != null && settingDuration != null
-                && now - settingStopTimeInMillis.long > 15 * 60000
+                && now - settingStopTimeInMillis.long > 12 * 60000
                 && settingDuration.long / 1000 / circleSecond >= 1
             ) {
 
@@ -403,6 +417,8 @@ class BuddhaService : Service() {
                             startTimeInMillis = System.currentTimeMillis() - duration2
                             savedDuration = 0
                             prvCount = 0
+                            dbDuration += duration
+                            dbCount += tap
 
                             dc.deleteSetting(Setting.KEYS.buddha_duration)
                             dc.deleteSetting(Setting.KEYS.buddha_stoptime)
@@ -473,12 +489,21 @@ class BuddhaService : Service() {
         pauseOrStopData()
     }
 
-    private fun sendNotification(count: Int, totalCount:Int, time: String) {
+    private fun sendNotification(count: Int, totalCount:Int, time: String,totalTime:String) {
         _NotificationUtils.sendNotification(ID, applicationContext, R.layout.notification_nf, _NotificationUtils.CHANNEL_BUDDHA) { remoteViews ->
-            remoteViews.setTextViewText(R.id.tv_count, if (buddhaType > 9) "${count}/${totalCount}" else "")
+            remoteViews.setTextViewText(R.id.tv_count, if (buddhaType > 9) "${count}" else "")
             remoteViews.setTextViewText(R.id.tv_time, time)
+            remoteViews.setTextViewText(R.id.tv_countTotal, if (buddhaType > 9) "${totalCount}" else "")
+            remoteViews.setTextViewText(R.id.tv_timeTotal, totalTime)
             remoteViews.setTextViewText(R.id.tv_topTitle,topTitle)
             remoteViews.setTextViewText(R.id.tv_bottomTitle,bottomTitle)
+            if(totalCount==count){
+                remoteViews.setViewVisibility(R.id.tv_countTotal,View.GONE)
+                remoteViews.setViewVisibility(R.id.tv_timeTotal,View.GONE)
+            }else{
+                remoteViews.setViewVisibility(R.id.tv_countTotal,View.VISIBLE)
+                remoteViews.setViewVisibility(R.id.tv_timeTotal,View.VISIBLE)
+            }
 
             if (mPlayer?.isPlaying ?: false) {
                 remoteViews.setImageViewResource(R.id.image_control, R.drawable.pause)
@@ -494,16 +519,17 @@ class BuddhaService : Service() {
             val intentRootClick1 = Intent(ACTION_BUDDHA_PLAYE_AUTO)
             val pendingIntent1 = PendingIntent.getBroadcast(applicationContext, 0, intentRootClick1, PendingIntent.FLAG_UPDATE_CURRENT)
             remoteViews.setOnClickPendingIntent(R.id.tv_count, pendingIntent1)
+            remoteViews.setOnClickPendingIntent(R.id.tv_countTotal, pendingIntent1)
             if(isAutoPause){
                 remoteViews.setTextColor(R.id.tv_count,resources.getColor(R.color.a,null))
                 remoteViews.setTextColor(R.id.tv_time,resources.getColor(R.color.a,null))
-//                remoteViews.setTextColor(R.id.tv_topTitle,resources.getColor(R.color.a,null))
-//                remoteViews.setTextColor(R.id.tv_bottomTitle,resources.getColor(R.color.a,null))
+                remoteViews.setTextColor(R.id.tv_countTotal,resources.getColor(R.color.a,null))
+                remoteViews.setTextColor(R.id.tv_timeTotal,resources.getColor(R.color.a,null))
             }else{
                 remoteViews.setTextColor(R.id.tv_count,resources.getColor(R.color.calendar_yl_color,null))
                 remoteViews.setTextColor(R.id.tv_time,resources.getColor(R.color.calendar_yl_color,null))
-//                remoteViews.setTextColor(R.id.tv_topTitle,resources.getColor(R.color.calendar_yl_color,null))
-//                remoteViews.setTextColor(R.id.tv_bottomTitle,resources.getColor(R.color.calendar_yl_color,null))
+                remoteViews.setTextColor(R.id.tv_countTotal,resources.getColor(R.color.calendar_yl_color,null))
+                remoteViews.setTextColor(R.id.tv_timeTotal,resources.getColor(R.color.calendar_yl_color,null))
             }
         }
     }
@@ -561,7 +587,7 @@ class BuddhaService : Service() {
                                 floatingWinButState(false)
                             }
                         }
-                        sendNotification(notificationCount,savedCount+notificationCount, notificationTime)
+                        sendNotification(notificationCount,notificationCountTotal, notificationTime,notificationTimeTotal)
                     }
                 }
                 iv_control?.setOnTouchListener(FloatingOnTouchListener())
@@ -607,7 +633,7 @@ class BuddhaService : Service() {
                     mPlayer?.setVolume(volume.toFloat(), volume.toFloat())
                 }
                 is FromTotalCount->{
-                    savedCount = msg.msg.toInt()
+                    dbCount = msg.msg.toInt()
                 }
             }
         } catch (e: Exception) {
@@ -703,7 +729,7 @@ class BuddhaService : Service() {
                         }
                     }
 
-                    sendNotification(notificationCount, savedCount+notificationCount,notificationTime)
+                    sendNotification(notificationCount,notificationCountTotal, notificationTime,notificationTimeTotal)
                 }
             } catch (e: Exception) {
                 e("eeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee" + e.message ?: "")
