@@ -3,7 +3,6 @@ package com.wang17.myphone.model;
 import android.content.Context;
 import android.util.AttributeSet;
 
-@Deprecated
 public class MySpinner extends android.support.v7.widget.AppCompatSpinner {
     public boolean isDropDownMenuShown=false;//标志下拉列表是否正在显示
 
