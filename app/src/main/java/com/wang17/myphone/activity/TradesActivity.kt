@@ -22,9 +22,7 @@ import com.wang17.myphone.util.TradeUtils.tax
 import com.wang17.myphone.util.TradeUtils.transferFee
 import com.wang17.myphone.util._Utils
 import kotlinx.android.synthetic.main.activity_trades.*
-import okhttp3.internal.format
 import java.text.DecimalFormat
-import java.text.Format
 import java.util.*
 
 class TradesActivity : AppCompatActivity() {
@@ -135,7 +133,7 @@ class TradesActivity : AppCompatActivity() {
         val view = View.inflate(this, R.layout.inflate_dialog_add_trade, null)
         val dialog = AlertDialog.Builder(this).create()
         dialog.setView(view)
-        val calendarViewDate = view.findViewById<CalendarView>(R.id.calendarView_date)
+        val calendarViewDate = view.findViewById<CalendarView>(R.id.cv_date)
         val editTextCode = view.findViewById<EditText>(R.id.editText_code)
         val editTextCost = view.findViewById<EditText>(R.id.editText_cost)
         val editTextAmount = view.findViewById<EditText>(R.id.editText_amount)

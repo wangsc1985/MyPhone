@@ -118,7 +118,6 @@
             android:launchMode="singleTask" />
         <activity android:name=".activity.SettingActivity" />
         <activity android:name=".activity.AddCardActivity" />
-        <activity android:name=".activity.EditCardActivity" />
         <activity android:name=".activity.BuddhaDetailActivity" />
         <activity android:name=".activity.AlarmWindowActivity" />
         <activity

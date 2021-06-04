@@ -112,18 +112,18 @@ object _CloudUtils {
                             val code = _JsonUtils.getValueByKey(resp_data.toString(), "code").toInt()
                             val msg = _JsonUtils.getValueByKey(resp_data.toString(), "msg")
                             when (code) {
-                                0 -> callback?.excute(0, msg)
-                                else-> callback?.excute(-1, msg)
+                                0 -> callback?.excute(code, msg)
+                                else-> callback?.excute(code, msg)
                             }
                         }else{
                             callback?.excute(-2, errmsg)
                         }
                     } catch (e: Exception) {
-                        callback?.excute(-2, e.message)
+                        callback?.excute(-200, e.message)
                     }
                 })
             } catch (e: Exception) {
-                callback?.excute(-1, e.message)
+                callback?.excute(-100, e.message)
             }
 
         }.start()
@@ -153,18 +153,18 @@ object _CloudUtils {
                             val code = _JsonUtils.getValueByKey(resp_data.toString(), "code").toInt()
                             val msg = _JsonUtils.getValueByKey(resp_data.toString(), "msg")
                             when (code) {
-                                0 -> callback?.excute(0, msg)
-                                else-> callback?.excute(-1, msg)
+                                0 -> callback?.excute(code, msg)
+                                else-> callback?.excute(code, msg)
                             }
                         }else{
                             callback?.excute(-2, errmsg)
                         }
                     } catch (e: Exception) {
-                        callback?.excute(-2, e.message)
+                        callback?.excute(-200, e.message)
                     }
                 })
             } catch (e: Exception) {
-                callback?.excute(-1, e.message)
+                callback?.excute(-100, e.message)
             }
 
         }.start()

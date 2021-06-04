@@ -13,7 +13,6 @@ import android.view.ViewGroup
 import android.widget.BaseAdapter
 import android.widget.TextView
 import com.wang17.myphone.R
-import com.wang17.myphone.e
 import com.wang17.myphone.model.DateTime
 import com.wang17.myphone.model.DateTime.Companion.dayOffset
 import com.wang17.myphone.database.BankToDo
@@ -26,15 +25,15 @@ import java.text.DecimalFormat
 import java.util.*
 
 class ToDoActivity : FragmentActivity() {
-    private lateinit var mDataContext: DataContext
-    private lateinit var mBankToDoList: List<BankToDo>
-    private lateinit var listAdapter: TodoListAdapter
+    private lateinit var dc: DataContext
+    private var mBankToDoList: MutableList<BankToDo> = ArrayList()
+    private var listAdapter: TodoListAdapter = TodoListAdapter()
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
         //region activity启用这段代码
         setContentView(R.layout.fragment_to_do)
-        mDataContext = DataContext(this)
+        dc = DataContext(this)
         getBankTodos()
         listView_todo.setAdapter(listAdapter)
         val actionButton: FloatingActionButton = findViewById(R.id.fab_add)
@@ -52,28 +51,17 @@ class ToDoActivity : FragmentActivity() {
     }
 
     private fun getBankTodos() {
-        mBankToDoList = mDataContext.bankToDos
-        e(mBankToDoList.size)
-        mBankToDoList.forEach {
-            e(it.money)
-        }
+        mBankToDoList.clear()
+        mBankToDoList.addAll(dc.bankToDosMoney)
 
         Collections.sort(mBankToDoList, Comparator { o1, o2 ->
-//                if (o1.money == -1.0) {
-//                    return@Comparator 1
-//                }
-//                if (o2.money == -1.0) {
-//                    return@Comparator -1
-//                }
-
-//                return (int)(o1.getDateTime().getTimeInMillis()-o2.getDateTime().getTimeInMillis());
             if (o1.dateTime.timeInMillis < o2.dateTime.timeInMillis) {
                 -1
             } else {
                 1
             }
         })
-        listAdapter = TodoListAdapter()
+        mBankToDoList.addAll(dc.bankToDosNoMoney)
     }
 
     inner class TodoListAdapter : BaseAdapter() {
@@ -100,7 +88,7 @@ class ToDoActivity : FragmentActivity() {
                 val textViewDays = convertView.findViewById<TextView>(R.id.textView_days)
                 val textViewName = convertView.findViewById<TextView>(R.id.tv_name)
                 val textViewMoney = convertView.findViewById<TextView>(R.id.textView_money)
-                if (bankToDo.money == 0.0 || bankToDo.money == -1.0) {
+                if (bankToDo.money <= 0.0) {
                     textViewName.setTextColor(Color.GRAY)
                 } else {
                     textViewName.setTextColor(Color.BLACK)
@@ -111,47 +99,58 @@ class ToDoActivity : FragmentActivity() {
                     true
                 }
                 layoutRoot.setOnClickListener {
-                    AlertDialog.Builder(this@ToDoActivity).setItems(arrayOf("编辑", "删除", "月+", "月-")) { dialog, which ->
+
+                    AlertDialog.Builder(this@ToDoActivity).setTitle(bankToDo.bankName).setItems(arrayOf("编辑", "删除", "月+", "月-",if(bankToDo.money<=0.0) "启用" else "停用")) { dialog, which ->
                         when (which) {
                             0 ->                                         //  3/1 001 编辑选中项
                                 _DialogUtils.editTodoDialog(this@ToDoActivity, bankToDo) {
-                                    mBankToDoList = mDataContext!!.bankToDos
+                                    getBankTodos()
                                     listAdapter!!.notifyDataSetChanged()
                                 }
                             1 ->
                                 // 3/1 001 删除选中项
                                 AlertDialog.Builder(this@ToDoActivity).setMessage("确定要删除此项目及其所有记录吗？").setNegativeButton("确定") { dialog, which ->
-                                    mDataContext!!.deleteBankToDo(bankToDo.id)
-                                    mBankToDoList = mDataContext!!.bankToDos
+                                    dc.deleteBankToDo(bankToDo.id)
+                                    getBankTodos()
                                     listAdapter!!.notifyDataSetChanged()
 
                                     // 发送更新广播
                                     val intent = Intent(MyWidgetProvider.ACTION_UPDATE_LISTVIEW)
                                     this@ToDoActivity.sendBroadcast(intent)
                                 }.setPositiveButton("取消") { dialog, which -> dialog.dismiss() }.show()
-                            2 -> AlertDialog.Builder(this@ToDoActivity).setMessage("是否将" + bankToDo.bankName + "目标日期切换至" + bankToDo.dateTime.addMonths(1).toShortDateString3() + "？").setPositiveButton("是") { dialog, which ->
+                            2 -> AlertDialog.Builder(this@ToDoActivity).setMessage("是否将【" + bankToDo.bankName + "】目标日期切换至" + bankToDo.dateTime.addMonths(1).toShortDateString3() + "？").setPositiveButton("是") { dialog, which ->
                                 bankToDo.dateTime = bankToDo.dateTime.addMonths(1)
-                                mDataContext!!.editBankToDo(bankToDo)
-                                mBankToDoList = mDataContext!!.bankToDos
+                                dc.editBankToDo(bankToDo)
+                                getBankTodos()
                                 listAdapter!!.notifyDataSetChanged()
                                 // 发送更新广播
                                 val intent = Intent(MyWidgetProvider.ACTION_UPDATE_LISTVIEW)
                                 this@ToDoActivity.sendBroadcast(intent)
                             }.setNegativeButton("否", null).show()
-                            3 -> AlertDialog.Builder(this@ToDoActivity).setMessage("是否将" + bankToDo.bankName + "目标日期切换至" + bankToDo.dateTime.addMonths(-1).toShortDateString3() + "？").setPositiveButton("是") { dialog, which ->
+                            3 -> AlertDialog.Builder(this@ToDoActivity).setMessage("是否将【" + bankToDo.bankName + "】目标日期切换至" + bankToDo.dateTime.addMonths(-1).toShortDateString3() + "？").setPositiveButton("是") { dialog, which ->
                                 bankToDo.dateTime = bankToDo.dateTime.addMonths(-1)
-                                mDataContext!!.editBankToDo(bankToDo)
-                                mBankToDoList = mDataContext!!.bankToDos
+                                dc.editBankToDo(bankToDo)
+                                getBankTodos()
                                 listAdapter!!.notifyDataSetChanged()
                                 // 发送更新广播
                                 val intent1 = Intent(MyWidgetProvider.ACTION_UPDATE_LISTVIEW)
                                 this@ToDoActivity.sendBroadcast(intent1)
                             }.setNegativeButton("否", null).show()
+                            4->{
+                                if(bankToDo.money<=0){
+                                    bankToDo.money=100.0
+                                }else{
+                                    bankToDo.money=0.0
+                                }
+                                dc.editBankToDo(bankToDo)
+                                getBankTodos()
+                                listAdapter!!.notifyDataSetChanged()
+                            }
                         }
                     }.show()
                 }
                 val formatter = DecimalFormat("#,##0")
-                textViewDate.text = bankToDo.dateTime.toShortDateString()
+                textViewDate.text = bankToDo.dateTime.toShortDateString1()
                 if (dayOffset < 0) {
                     textViewDays.text = "+" + -dayOffset
                 } else {
@@ -159,7 +158,8 @@ class ToDoActivity : FragmentActivity() {
                 }
                 textViewName.text = bankToDo.bankName
                 textViewMoney.text = formatter.format(bankToDo.money)
-                if (bankToDo.money == -1.0) {
+                if (bankToDo.money <=0) {
+                    textViewDate.text = ""
                     textViewDays.text = ""
                     textViewMoney.text = ""
                 }

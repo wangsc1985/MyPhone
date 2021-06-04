@@ -1,6 +1,5 @@
 package com.wang17.myphone.service
 
-import android.app.Notification
 import android.app.PendingIntent
 import android.app.Service
 import android.bluetooth.BluetoothAdapter
@@ -16,6 +15,7 @@ import android.media.MediaPlayer
 import android.media.SoundPool
 import android.os.Build
 import android.os.IBinder
+import android.os.Looper
 import android.provider.Settings
 import android.support.annotation.RequiresApi
 import android.view.Gravity
@@ -92,6 +92,16 @@ class BuddhaService : Service() {
         e("buddha service onStartCommand")
     }
 
+    fun loadDb(){
+        dbCount=0
+        dbDuration=0
+        val ls = dc.getBuddhas(DateTime())
+        ls.forEach {
+            dbCount+=it.count
+            dbDuration += it.duration
+        }
+        dbCount = dbCount/1080
+    }
     @RequiresApi(Build.VERSION_CODES.M)
     override fun onCreate() {
         super.onCreate()
@@ -102,12 +112,7 @@ class BuddhaService : Service() {
             topTitle = dc.getSetting(Setting.KEYS.top_title,"").string
             bottomTitle = dc.getSetting(Setting.KEYS.bottom_title,"").string
 
-            val ls = dc.getBuddhas(DateTime())
-            ls.forEach {
-                dbCount+=it.count
-                dbDuration += it.duration
-            }
-            dbCount = dbCount/1080
+            loadDb()
 
             isShowFloatWindow = dc.getSetting(Setting.KEYS.is显示念佛悬浮窗, false).boolean
             isAutoPause = dc.getSetting(Setting.KEYS.is念佛自动暂停, false).boolean
@@ -197,6 +202,13 @@ class BuddhaService : Service() {
     var isTimerRuning = true
     var timer: Timer? = null
 
+    fun longToTimeString(duration :Long):String{
+        val second = duration % 60000 / 1000
+        val miniteT = duration / 60000
+        val minite = miniteT % 60
+        val hour = miniteT / 60
+        return "$hour:${if (minite < 10) "0" + minite else minite}:${if (second < 10) "0" + second else second}"
+    }
     var preTime = 0L
     fun startTimer() {
         timer?.cancel()
@@ -207,19 +219,12 @@ class BuddhaService : Service() {
                 if (isTimerRuning) {
 //                    e("缓存duration : ${savedDuration/1000}秒  此段duration : ${(System.currentTimeMillis() - startTimeInMillis)/1000}秒   此段起始时间 : ${DateTime(startTimeInMillis).toTimeString()}")
                     val duration = savedDuration + System.currentTimeMillis() - startTimeInMillis
-                    val second = duration % 60000 / 1000
-                    val miniteT = duration / 60000
-                    val minite = miniteT % 60
-                    val hour = miniteT / 60
-                    val duration1 = dbDuration + savedDuration + System.currentTimeMillis() - startTimeInMillis
-                    val second1 = duration1 % 60000 / 1000
-                    val miniteT1 = duration1 / 60000
-                    val minite1 = miniteT1 % 60
-                    val hour1 = miniteT1 / 60
                     notificationCount = (duration / 1000 / circleSecond).toInt()
-                    notificationTime = "$hour:${if (minite < 10) "0" + minite else minite}:${if (second < 10) "0" + second else second}"
+                    notificationTime = longToTimeString(duration)
+                    e("db duration: ${longToTimeString(dbDuration)} ; save duration: ${longToTimeString(savedDuration)}  section duration:${longToTimeString(System.currentTimeMillis() - startTimeInMillis)}")
+                    val duration1 = dbDuration + savedDuration + System.currentTimeMillis() - startTimeInMillis
                     notificationCountTotal = dbCount+notificationCount
-                    notificationTimeTotal = "$hour1:${if (minite1 < 10) "0" + minite1 else minite1}:${if (second1 < 10) "0" + second1 else second1}"
+                    notificationTimeTotal =  longToTimeString(duration1)
 
                     EventBus.getDefault().post(EventBusMessage.getInstance(FromBuddhaServiceTimer(), duration.toString()))
                     tv_duration?.setText(notificationTime)
@@ -246,9 +251,9 @@ class BuddhaService : Service() {
                         stopSelf()
                     }
                 }
-                if (preTime > 0 && System.currentTimeMillis() - preTime > 10000) {
-                    dc.addRunLog("BuddhaService", "计时器超时", "${(System.currentTimeMillis() - preTime) / 1000}秒")
-                }
+//                if (preTime > 0 && System.currentTimeMillis() - preTime > 10000) {
+//                    dc.addRunLog("BuddhaService", "计时器超时", "${(System.currentTimeMillis() - preTime) / 1000}秒")
+//                }
                 preTime = System.currentTimeMillis()
                 sendNotification(notificationCount,notificationCountTotal, notificationTime,notificationTimeTotal)
             }
@@ -397,41 +402,40 @@ class BuddhaService : Service() {
             dc.addRunLog("BuddhaService", "开始念佛", settingStopTimeInMillis?.let { "上次暂停时间：${DateTime(it.long).toLongDateTimeString()}" +
                     "  上次念佛时长：${settingDuration?.let { settingDuration.long / 60000 }}分钟  距离上次暂停：${(now - it.long) / 60000}分钟" }?:""
             )
-            if (settingStopTimeInMillis != null && settingDuration != null
-                && now - settingStopTimeInMillis.long > 12 * 60000
-                && settingDuration.long / 1000 / circleSecond >= 1
-            ) {
+            if (settingStopTimeInMillis != null && settingDuration != null && now - settingStopTimeInMillis.long > 12 * 60000 && settingDuration.long / 1000 / circleSecond >= 1) {
 
                 val startTime = DateTime(settingStopTimeInMillis.long - settingDuration.long)
                 val tap = (settingDuration.long / 1000 / circleSecond).toInt()
-                val duration = circleSecond * tap * 1000.toLong()
-                var buddha = BuddhaRecord(startTime, duration, tap * 1080, buddhaType.toBuddhaType(), "")
+                val durationWhole = circleSecond * tap * 1000.toLong()
+                var buddha = BuddhaRecord(startTime, durationWhole, tap * 1080, buddhaType.toBuddhaType(), "")
 
-                var duration2 = settingDuration.long - duration
+                var durationOdd = settingDuration.long - durationWhole
 
-//                var countDownLatch = CountDownLatch(1)
                 _CloudUtils.addBuddha(applicationContext!!, buddha) { code, result ->
                     when (code) {
                         0 -> {
+                            dc.addRunLog("BuddhaService", "云储存buddha成功", "${code}   ${result}")
                             dc.addBuddha(buddha)
-                            startTimeInMillis = System.currentTimeMillis() - duration2
+                            startTimeInMillis = System.currentTimeMillis() - durationOdd
                             savedDuration = 0
                             prvCount = 0
-                            dbDuration += duration
-                            dbCount += tap
+                            loadDb()
+//                            dbDuration += durationWhole
+//                            dbCount += tap
 
                             dc.deleteSetting(Setting.KEYS.buddha_duration)
                             dc.deleteSetting(Setting.KEYS.buddha_stoptime)
                             dc.editSetting(Setting.KEYS.buddha_startime, startTimeInMillis)
+                            Looper.prepare()
                             Toast.makeText(applicationContext, result.toString(), Toast.LENGTH_LONG).show()
+                            Looper.loop()
                         }
                         else -> {
+                            dc.addRunLog("err", "云储存buddha失败", "${code}   ${result}")
                             e("code : $code , result : $result")
                         }
                     }
-//                    countDownLatch.countDown()
                 }
-//                countDownLatch.await()
             }
 
         } catch (e: Exception) {
@@ -633,7 +637,7 @@ class BuddhaService : Service() {
                     mPlayer?.setVolume(volume.toFloat(), volume.toFloat())
                 }
                 is FromTotalCount->{
-                    dbCount = msg.msg.toInt()
+                    loadDb()
                 }
             }
         } catch (e: Exception) {

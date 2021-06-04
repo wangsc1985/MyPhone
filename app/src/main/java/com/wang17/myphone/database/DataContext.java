@@ -1138,7 +1138,7 @@ public class DataContext {
             values.put("id", bankToDo.getId().toString());
             values.put("dateTime", bankToDo.getDateTime().getTimeInMillis());
             values.put("bankName", bankToDo.getBankName());
-            values.put("cardNumber", bankToDo.getCardNumber());
+            values.put("cardNumber", bankToDo.getSummary());
             values.put("money", bankToDo.getMoney());
             //调用方法插入数据
             db.insert("bankToDo", "id", values);
@@ -1159,7 +1159,7 @@ public class DataContext {
         ContentValues values = new ContentValues();
         values.put("dateTime", bankToDo.getDateTime().getTimeInMillis());
         values.put("bankName", bankToDo.getBankName());
-        values.put("cardNumber", bankToDo.getCardNumber());
+        values.put("cardNumber", bankToDo.getSummary());
         values.put("money", bankToDo.getMoney());
 
 
@@ -1210,6 +1210,46 @@ public class DataContext {
         return result;
     }
 
+    public List<BankToDo> getBankToDosMoney() {
+        List<BankToDo> result = new ArrayList<>();
+        try {
+            //获取数据库对象
+            SQLiteDatabase db = dbHelper.getReadableDatabase();
+            //查询获得游标
+            Cursor cursor = db.query("bankToDo", null, "money>0", null, null, null, "dateTime ASC");
+            //判断游标是否为空
+            while (cursor.moveToNext()) {
+                BankToDo model = new BankToDo(new DateTime(cursor.getLong(1)), cursor.getString(2), cursor.getString(3), cursor.getDouble(4));
+                model.setId(UUID.fromString(cursor.getString(0)));
+                result.add(model);
+            }
+            cursor.close();
+            db.close();
+        } catch (Exception e) {
+            _Utils.printException(context, e);
+        }
+        return result;
+    }
+    public List<BankToDo> getBankToDosNoMoney() {
+        List<BankToDo> result = new ArrayList<>();
+        try {
+            //获取数据库对象
+            SQLiteDatabase db = dbHelper.getReadableDatabase();
+            //查询获得游标
+            Cursor cursor = db.query("bankToDo", null, "money<=0", null, null, null, "dateTime ASC");
+            //判断游标是否为空
+            while (cursor.moveToNext()) {
+                BankToDo model = new BankToDo(new DateTime(cursor.getLong(1)), cursor.getString(2), cursor.getString(3), cursor.getDouble(4));
+                model.setId(UUID.fromString(cursor.getString(0)));
+                result.add(model);
+            }
+            cursor.close();
+            db.close();
+        } catch (Exception e) {
+            _Utils.printException(context, e);
+        }
+        return result;
+    }
     public void deleteBankToDo(String bankName, String cardNumber) {
         try {
             //获取数据库对象
@@ -2089,90 +2129,6 @@ public class DataContext {
     }
     //endregion
 
-    //region BillStatement
-
-    public void addBillStatement(BillStatement billStatement) {
-        try {
-            //获取数据库对象
-            SQLiteDatabase db = dbHelper.getWritableDatabase();
-            //使用insert方法向表中插入数据
-            ContentValues values = new ContentValues();
-            values.put("id", billStatement.getId().toString());
-            values.put("cardNumber", billStatement.getCardNumber());
-            values.put("startDate", billStatement.getStartDate().getTimeInMillis());
-            values.put("endDate", billStatement.getEndDate().getTimeInMillis());
-            values.put("repayDate", billStatement.getRepayDate().getTimeInMillis());
-            values.put("bill", billStatement.getBill());
-            values.put("billRemain", billStatement.getBillRemain());
-
-            //调用方法插入数据
-            db.insert("billStatement", "id", values);
-            //关闭SQLiteDatabase对象
-            db.close();
-        } catch (Exception e) {
-            _Utils.printException(context, e);
-        }
-    }
-
-    public void updateBillStatement(BillStatement billStatement) {
-
-        try {
-            //获取数据库对象
-            SQLiteDatabase db = dbHelper.getWritableDatabase();
-
-            //使用update方法更新表中的数据
-            ContentValues values = new ContentValues();
-            values.put("cardNumber", billStatement.getCardNumber());
-            values.put("startDate", billStatement.getStartDate().getTimeInMillis());
-            values.put("endDate", billStatement.getEndDate().getTimeInMillis());
-            values.put("repayDate", billStatement.getRepayDate().getTimeInMillis());
-            values.put("bill", billStatement.getBill());
-            values.put("billRemain", billStatement.getBillRemain());
-
-            db.update("billStatement", values, "id=?", new String[]{billStatement.getId().toString()});
-            db.close();
-        } catch (Exception e) {
-            _Utils.printException(context, e);
-        }
-    }
-
-    public BillStatement getBillStatement(DateTime startDate) {
-        try {
-            //获取数据库对象
-            SQLiteDatabase db = dbHelper.getReadableDatabase();
-            //查询获得游标
-            Cursor cursor = db.query("billStatement", null, "startDate=?", new String[]{startDate.getTimeInMillis() + ""}, null, null, null);
-            //判断游标是否为空
-            while (cursor.moveToNext()) {
-                BillStatement model = new BillStatement(UUID.fromString(cursor.getString(0)));
-                model.setCardNumber(cursor.getString(1));
-                model.setStartDate(new DateTime(cursor.getLong(2)));
-                model.setEndDate(new DateTime(cursor.getLong(3)));
-                model.setRepayDate(new DateTime(cursor.getLong(4)));
-                model.setBill(cursor.getDouble(5));
-                model.setBillRemain(cursor.getDouble(6));
-                cursor.close();
-                db.close();
-                return model;
-            }
-        } catch (Exception e) {
-            _Utils.printException(context, e);
-        }
-        return null;
-    }
-
-    public void deleteBillStatement() {
-        try {
-            //获取数据库对象
-            SQLiteDatabase db = dbHelper.getWritableDatabase();
-            db.delete("billStatement", null, null);
-            //关闭SQLiteDatabase对象
-            db.close();
-        } catch (Exception e) {
-            _Utils.printException(context, e);
-        }
-    }
-    //endregion
 
     //region sms
 
@@ -2854,281 +2810,6 @@ public class DataContext {
             _Utils.printException(context, e);
         }
     }
-    //endregion
-
-    //region BillRecord
-
-    /**
-     * 增加一条记录
-     *
-     * @param billRecord 记录对象
-     */
-    public void addBillRecord(BillRecord billRecord) {
-        try {
-            //获取数据库对象
-            SQLiteDatabase db = dbHelper.getWritableDatabase();
-            //使用insert方法向表中插入数据
-            ContentValues values = new ContentValues();
-            values.put("id", billRecord.getId().toString());
-            values.put("dateTime", billRecord.getDateTime().getTimeInMillis());
-            values.put("cardNumber", billRecord.getCardNumber());
-            values.put("country", billRecord.getCountry());
-            values.put("currency", billRecord.getCurrency());
-            values.put("location", billRecord.getLocation());
-            values.put("money", billRecord.getMoney());
-            values.put("summary", billRecord.getSummary());
-            values.put("balance", billRecord.getBalance());
-            values.put("smsId", billRecord.getSmsId());
-
-            //调用方法插入数据
-            db.insert("billRecord", "id", values);
-            //关闭SQLiteDatabase对象
-            db.close();
-        } catch (Exception e) {
-            _Utils.printException(context, e);
-        }
-    }
-
-    public BillRecord getBillRecord(UUID id) {
-        try {
-            //获取数据库对象
-            SQLiteDatabase db = dbHelper.getReadableDatabase();
-            //查询获得游标
-            Cursor cursor = db.query("billRecord", null, "id=?", new String[]{id.toString()}, null, null, null);
-            //判断游标是否为空
-            while (cursor.moveToNext()) {
-                BillRecord model = new BillRecord(UUID.fromString(cursor.getString(0)));
-                model.setDateTime(new DateTime(cursor.getLong(1)));
-                model.setCardNumber(cursor.getString(2));
-                model.setCountry(cursor.getString(3));
-                model.setCurrency(cursor.getString(4));
-                model.setLocation(cursor.getString(5));
-                model.setMoney(cursor.getDouble(6));
-                model.setSummary(cursor.getString(7));
-                model.setBalance(cursor.getDouble(8));
-                model.setSmsId(cursor.getInt(9));
-                cursor.close();
-                db.close();
-                return model;
-            }
-        } catch (Exception e) {
-            _Utils.printException(context, e);
-        }
-        return null;
-    }
-
-    public List<BillRecord> getBillRecords(String cardNumber) {
-        List<BillRecord> result = new ArrayList<BillRecord>();
-        try {
-            //获取数据库对象
-            SQLiteDatabase db = dbHelper.getReadableDatabase();
-            //查询获得游标
-            Cursor cursor = db.query("billRecord", null, "cardNumber=?",
-                    new String[]{cardNumber}, null, null, "dateTime asc");
-            //判断游标是否为空
-            while (cursor.moveToNext()) {
-                BillRecord model = new BillRecord(UUID.fromString(cursor.getString(0)));
-                model.setDateTime(new DateTime(cursor.getLong(1)));
-                model.setCardNumber(cursor.getString(2));
-                model.setCountry(cursor.getString(3));
-                model.setCurrency(cursor.getString(4));
-                model.setLocation(cursor.getString(5));
-                model.setMoney(cursor.getDouble(6));
-                model.setSummary(cursor.getString(7));
-                model.setBalance(cursor.getDouble(8));
-                model.setSmsId(cursor.getInt(9));
-                result.add(model);
-            }
-            cursor.close();
-            db.close();
-        } catch (Exception e) {
-            _Utils.printException(context, e);
-        }
-        return result;
-    }
-
-    public BillRecord getLastBillRecord(String cardNumber) {
-        try {
-            //获取数据库对象
-            SQLiteDatabase db = dbHelper.getReadableDatabase();
-            //查询获得游标
-            Cursor cursor = db.query("billRecord", null, "cardNumber=?",
-                    new String[]{cardNumber}, null, null, "dateTime desc");
-            //判断游标是否为空
-            while (cursor.moveToNext()) {
-                BillRecord model = new BillRecord(UUID.fromString(cursor.getString(0)));
-                model.setDateTime(new DateTime(cursor.getLong(1)));
-                model.setCardNumber(cursor.getString(2));
-                model.setCountry(cursor.getString(3));
-                model.setCurrency(cursor.getString(4));
-                model.setLocation(cursor.getString(5));
-                model.setMoney(cursor.getDouble(6));
-                model.setSummary(cursor.getString(7));
-                model.setBalance(cursor.getDouble(8));
-                model.setSmsId(cursor.getInt(9));
-                cursor.close();
-                db.close();
-                return model;
-            }
-        } catch (Exception e) {
-            _Utils.printException(context, e);
-        }
-        return null;
-    }
-
-    public List<BillRecord> getBillRecords(String cardNumber, DateTime startDateTime, DateTime endDateTime) {
-        List<BillRecord> result = new ArrayList<BillRecord>();
-        try {
-            //获取数据库对象
-            SQLiteDatabase db = dbHelper.getReadableDatabase();
-            //查询获得游标
-            Cursor cursor = db.query("billRecord", null, "cardNumber=? and dateTime>=? and dateTime<?",
-                    new String[]{cardNumber, startDateTime.getTimeInMillis() + "", endDateTime.getTimeInMillis() + ""}, null, null, null);
-            //判断游标是否为空
-            while (cursor.moveToNext()) {
-                BillRecord model = new BillRecord(UUID.fromString(cursor.getString(0)));
-                model.setDateTime(new DateTime(cursor.getLong(1)));
-                model.setCardNumber(cursor.getString(2));
-                model.setCountry(cursor.getString(3));
-                model.setCurrency(cursor.getString(4));
-                model.setLocation(cursor.getString(5));
-                model.setMoney(cursor.getDouble(6));
-                model.setSummary(cursor.getString(7));
-                model.setBalance(cursor.getDouble(8));
-                model.setSmsId(cursor.getInt(9));
-                result.add(model);
-            }
-            cursor.close();
-            db.close();
-        } catch (Exception e) {
-            _Utils.printException(context, e);
-        }
-        return result;
-    }
-
-    /**
-     * 微粒贷专用方法，isDebt=true，未还清借款，isDebt=false，已还清的借款。
-     *
-     * @param cardNumber
-     * @param isDebt
-     * @return
-     */
-    public List<BillRecord> getBillRecords(String cardNumber, boolean isDebt) {
-        List<BillRecord> result = new ArrayList<BillRecord>();
-        try {
-            // 获取数据库对象
-            SQLiteDatabase db = dbHelper.getReadableDatabase();
-            // 查询获得游标
-            /**
-             * 借款记录
-             *      money > 0
-             *
-             *      已还清：balance = 0
-             *      未还清：balance = money
-             *
-             * 还款记录
-             *      money < 0
-             *
-             *      balance = 0
-             */
-
-            Cursor cursor = null;
-            if (isDebt) {
-                cursor = db.query("billRecord", null, "cardNumber=? and money>0 and balance!=0",
-                        new String[]{cardNumber}, null, null, null);
-            } else {
-                cursor = db.query("billRecord", null, "cardNumber=? and money>0 and balance==0",
-                        new String[]{cardNumber}, null, null, null);
-            }
-            //判断游标是否为空
-            while (cursor.moveToNext()) {
-                BillRecord model = new BillRecord(UUID.fromString(cursor.getString(0)));
-                model.setDateTime(new DateTime(cursor.getLong(1)));
-                model.setCardNumber(cursor.getString(2));
-                model.setCountry(cursor.getString(3));
-                model.setCurrency(cursor.getString(4));
-                model.setLocation(cursor.getString(5));
-                model.setMoney(cursor.getDouble(6));
-                model.setSummary(cursor.getString(7));
-                model.setBalance(cursor.getDouble(8));
-                model.setSmsId(cursor.getInt(9));
-                result.add(model);
-            }
-            cursor.close();
-            db.close();
-        } catch (Exception e) {
-            _Utils.printException(context, e);
-        }
-        return result;
-    }
-
-    /**
-     * 删除指定的record
-     *
-     * @param cardNumber
-     */
-    public void deleteBillRecord(String cardNumber) {
-        try {
-            //获取数据库对象
-            SQLiteDatabase db = dbHelper.getWritableDatabase();
-            db.delete("billRecord", "cardNumber=?", new String[]{cardNumber});
-            //关闭SQLiteDatabase对象
-            db.close();
-        } catch (Exception e) {
-            _Utils.printException(context, e);
-        }
-    }
-
-    public void deleteBillRecord() {
-        try {
-            //获取数据库对象
-            SQLiteDatabase db = dbHelper.getWritableDatabase();
-            db.delete("billRecord", null, null);
-            //关闭SQLiteDatabase对象
-            db.close();
-        } catch (Exception e) {
-            _Utils.printException(context, e);
-        }
-    }
-
-    public void deleteBillRecord(UUID id) {
-        try {
-            //获取数据库对象
-            SQLiteDatabase db = dbHelper.getWritableDatabase();
-            db.delete("billRecord", "id=?", new String[]{id.toString()});
-            //关闭SQLiteDatabase对象
-            db.close();
-        } catch (Exception e) {
-            _Utils.printException(context, e);
-        }
-    }
-
-    public void updateBillRecord(BillRecord billRecord) {
-
-        try {
-            //获取数据库对象
-            SQLiteDatabase db = dbHelper.getWritableDatabase();
-
-            //使用update方法更新表中的数据
-            ContentValues values = new ContentValues();
-            values.put("id", billRecord.getId().toString());
-            values.put("dateTime", billRecord.getDateTime().getTimeInMillis());
-            values.put("cardNumber", billRecord.getCardNumber());
-            values.put("country", billRecord.getCountry());
-            values.put("currency", billRecord.getCurrency());
-            values.put("location", billRecord.getLocation());
-            values.put("money", billRecord.getMoney());
-            values.put("summary", billRecord.getSummary());
-            values.put("balance", billRecord.getBalance());
-            values.put("smsId", billRecord.getSmsId());
-
-            db.update("billRecord", values, "id=?", new String[]{billRecord.getId().toString()});
-            db.close();
-        } catch (Exception e) {
-            _Utils.printException(context, e);
-        }
-    }
-
     //endregion
 
     //region TallyRecord

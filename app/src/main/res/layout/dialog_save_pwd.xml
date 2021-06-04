@@ -8,12 +8,12 @@
     android:padding="20dp">
 
     <CalendarView
-        android:id="@+id/calendarView_date"
+        android:id="@+id/cv_date"
         android:layout_width="match_parent"
         android:layout_height="wrap_content" />
 
     <EditText
-        android:id="@+id/editText_title"
+        android:id="@+id/et_bankName"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:ems="10"
@@ -24,7 +24,7 @@
         tools:layout_editor_absoluteY="20dp" />
 
     <EditText
-        android:id="@+id/editText_summery"
+        android:id="@+id/et_money"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:ems="10"
@@ -35,7 +35,7 @@
         tools:layout_editor_absoluteY="20dp" />
 
     <EditText
-        android:id="@+id/editText_number"
+        android:id="@+id/et_summary"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:ems="10"

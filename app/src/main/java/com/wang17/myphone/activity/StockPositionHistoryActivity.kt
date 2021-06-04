@@ -244,7 +244,7 @@ class StockPositionHistoryActivity() : AppCompatActivity() {
         val dialog = AlertDialog.Builder(this).create()
         dialog.setView(view)
         dialog.setCancelable(false)
-        val calendarViewDate = view.findViewById<CalendarView>(R.id.calendarView_date)
+        val calendarViewDate = view.findViewById<CalendarView>(R.id.cv_date)
         val historyTrades = dc.getTrades(position.code)
         if (historyTrades.size != 0) calendarViewDate.date = historyTrades.get(0).dateTime.timeInMillis
         calendarViewDate.setOnDateChangeListener(object : OnDateChangeListener {
@@ -306,7 +306,7 @@ class StockPositionHistoryActivity() : AppCompatActivity() {
         val dialog = AlertDialog.Builder(this).create()
         dialog.setView(view)
         dialog.setCancelable(false)
-        val calendarViewDate = view.findViewById<CalendarView>(R.id.calendarView_date)
+        val calendarViewDate = view.findViewById<CalendarView>(R.id.cv_date)
         val historyTrades = dc.getTrades(position.code)
         if (historyTrades.size != 0) calendarViewDate.date = historyTrades.get(0).dateTime.timeInMillis
         calendarViewDate.setOnDateChangeListener(object : OnDateChangeListener {
@@ -364,7 +364,7 @@ class StockPositionHistoryActivity() : AppCompatActivity() {
         val dialog = AlertDialog.Builder(this).create()
         dialog.setView(view)
         dialog.setCancelable(false)
-        val calendarViewDate = view.findViewById<CalendarView>(R.id.calendarView_date)
+        val calendarViewDate = view.findViewById<CalendarView>(R.id.cv_date)
 //        val historyTrades = dataContext.getTrades(position.code)
 //        if (historyTrades.size != 0)
 //            calendarViewDate.date = historyTrades.get(0).dateTime.timeInMillis
@@ -436,7 +436,7 @@ class StockPositionHistoryActivity() : AppCompatActivity() {
 //        val historyTrades = dataContext.getTrades(position.code)
 //        if (historyTrades.size == 0) return
 //        calendarViewDate.date = historyTrades.get(0).dateTime.timeInMillis
-        val calendarViewDate = view.findViewById<CalendarView>(R.id.calendarView_date)
+        val calendarViewDate = view.findViewById<CalendarView>(R.id.cv_date)
         calendarViewDate.date = DateTime().timeInMillis
         calendarViewDate.setOnDateChangeListener(object : OnDateChangeListener {
             override fun onSelectedDayChange(view: CalendarView, year: Int, month: Int, dayOfMonth: Int) {

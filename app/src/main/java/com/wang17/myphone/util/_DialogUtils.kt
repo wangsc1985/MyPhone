@@ -46,18 +46,18 @@ object _DialogUtils {
     @JvmStatic
     fun addTodoDialog(context: Context, callback: MyCallback?) {
         val view = LayoutInflater.from(context).inflate(R.layout.dialog_add_todo, null)
-        val calendarViewDate = view.findViewById<CalendarView>(R.id.calendarView_date)
-        val editTextTitle = view.findViewById<EditText>(R.id.editText_title)
-        val editTextSummery = view.findViewById<EditText>(R.id.editText_summery)
-        val editTextNumber = view.findViewById<EditText>(R.id.editText_number)
+        val cvDate = view.findViewById<CalendarView>(R.id.cv_date)
+        val etBankName = view.findViewById<EditText>(R.id.et_bankName)
+        val etMoney = view.findViewById<EditText>(R.id.et_money)
+        val etSummary = view.findViewById<EditText>(R.id.et_summary)
         val dateTime = DateTime()
-        calendarViewDate.setOnDateChangeListener { view, year, month, dayOfMonth -> dateTime[year, month] = dayOfMonth }
+        cvDate.setOnDateChangeListener { view, year, month, dayOfMonth -> dateTime[year, month] = dayOfMonth }
         AlertDialog.Builder(context)
                 .setView(view).setCancelable(false).setPositiveButton("提交") { dialog, which ->
                     try {
-                        val bankName = editTextTitle.text.toString()
-                        val money = editTextSummery.text.toString().toDouble()
-                        val number = editTextNumber.text.toString()
+                        val bankName = etBankName.text.toString()
+                        val money = etMoney.text.toString().toDouble()
+                        val number = etSummary.text.toString()
                         val dataContext = DataContext(context)
                         val bankToDo = BankToDo(dateTime, bankName, number, money)
                         dataContext.addBankToDo(bankToDo)
@@ -81,10 +81,10 @@ object _DialogUtils {
         val view = LayoutInflater.from(context).inflate(R.layout.dialog_add_todo, null)
         val dataContext = DataContext(context)
         val dateTime = bankToDo.dateTime
-        val calendarViewDate = view.findViewById<CalendarView>(R.id.calendarView_date)
-        val editTextTitle = view.findViewById<EditText>(R.id.editText_title)
-        val editTextSummery = view.findViewById<EditText>(R.id.editText_summery)
-        val editTextNumber = view.findViewById<EditText>(R.id.editText_number)
+        val calendarViewDate = view.findViewById<CalendarView>(R.id.cv_date)
+        val editTextTitle = view.findViewById<EditText>(R.id.et_bankName)
+        val editTextSummery = view.findViewById<EditText>(R.id.et_money)
+        val editTextNumber = view.findViewById<EditText>(R.id.et_summary)
         e("xxxxxxxxxxxxxxxxxxxxxxxx : " + bankToDo.dateTime.toLongDateTimeString())
         calendarViewDate.date = bankToDo.dateTime.timeInMillis
         calendarViewDate.setOnDateChangeListener { view, year, month, dayOfMonth -> dateTime[year, month] = dayOfMonth }
@@ -104,7 +104,7 @@ object _DialogUtils {
                 editTextSummery.selectAll()
             }
         }
-        editTextNumber.setText(bankToDo.cardNumber)
+        editTextNumber.setText(bankToDo.summary)
         editTextNumber.onFocusChangeListener = OnFocusChangeListener { v, hasFocus ->
             if (hasFocus) {
                 editTextNumber.selectAll()
@@ -118,7 +118,7 @@ object _DialogUtils {
                 bankToDo.bankName = bankName
                 bankToDo.dateTime = dateTime
                 bankToDo.money = money
-                bankToDo.cardNumber = number
+                bankToDo.summary = number
                 dataContext.editBankToDo(bankToDo)
 
                 // 发送更新广播

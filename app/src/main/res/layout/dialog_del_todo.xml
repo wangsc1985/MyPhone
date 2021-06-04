@@ -9,7 +9,7 @@
 
 
     <EditText
-        android:id="@+id/editText_title"
+        android:id="@+id/et_bankName"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:ems="10"

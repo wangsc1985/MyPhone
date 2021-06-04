@@ -8,41 +8,40 @@
     android:padding="20dp">
 
     <CalendarView
-        android:id="@+id/calendarView_date"
+        android:id="@+id/cv_date"
         android:layout_width="match_parent"
         android:layout_height="wrap_content" />
 
     <EditText
-        android:id="@+id/editText_title"
+        android:id="@+id/et_bankName"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:ems="10"
-        android:hint="标题/行名"
+        android:hint="行名"
         android:inputType="text"
         android:selectAllOnFocus="true"
         tools:layout_editor_absoluteX="20dp"
         tools:layout_editor_absoluteY="20dp" />
 
     <EditText
-        android:id="@+id/editText_summery"
+        android:id="@+id/et_money"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:ems="10"
-        android:hint="金额（0：不提醒；-1：隐藏；其他：正常。）"
+        android:hint="金额"
         android:inputType="text"
         android:selectAllOnFocus="true"
         tools:layout_editor_absoluteX="20dp"
         tools:layout_editor_absoluteY="20dp" />
 
     <EditText
-        android:id="@+id/editText_number"
+        android:id="@+id/et_summary"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:ems="10"
-        android:hint="账号"
+        android:hint="摘要"
         android:inputType="text"
         android:selectAllOnFocus="true"
-        android:text="0000"
         tools:layout_editor_absoluteX="20dp"
         tools:layout_editor_absoluteY="20dp" />
 
