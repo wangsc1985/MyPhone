@@ -13,7 +13,7 @@ import com.wang17.myphone.structure.RepayType;
  */
 public class DatabaseHelper extends SQLiteOpenHelper {
 
-    private static final int VERSION = 60;
+    private static final int VERSION = 61;
     private static final String DATABASE_NAME = "mp.db";
 
     public DatabaseHelper(Context context) {
@@ -41,18 +41,15 @@ public class DatabaseHelper extends SQLiteOpenHelper {
                     + "summary TEXT NOT NULL DEFAULT '')");
             db.execSQL("create table if not exists creditCard("
                     + "id TEXT PRIMARY KEY,"
-                    + "cardName TEXT,"
-                    + "cardNumber TEXT,"
                     + "bankName TEXT,"
+                    + "userName TEXT,"
+                    + "number TEXT,"
+                    + "quota TEXT,"
+                    + "balance TEXT,"
                     + "billDay INTEGER,"
                     + "repayDay INTEGER,"
-                    + "annualFee REAL,"
-                    + "creditLine REAL,"
-                    + "cardType TEXT,"
-                    + "balance REAL,"
-                    + "isBlackList TEXT,"
-                    + "isVisible TEXT,"
-                    + "repayType TEXT)");
+                    + "annualFee TEXT,"
+                    + "isVisible TEXT)");
             db.execSQL("create table if not exists billRecord("
                     + "id TEXT PRIMARY KEY,"
                     + "dateTime LONG,"
@@ -311,6 +308,19 @@ public class DatabaseHelper extends SQLiteOpenHelper {
                 case 59:
                     db.execSQL("update statement set totalProfit='0' where date>0 ");
 
+                case 60:
+                    db.execSQL("drop table creditCard");
+                    db.execSQL("create table if not exists creditCard("
+                            + "id TEXT PRIMARY KEY,"
+                            + "bankName TEXT,"
+                            + "userName TEXT,"
+                            + "number TEXT,"
+                            + "quota TEXT,"
+                            + "balance TEXT,"
+                            + "billDay INTEGER,"
+                            + "repayDay INTEGER,"
+                            + "annualFee TEXT,"
+                            + "isVisible TEXT)");
             }
         } catch (SQLException e) {
             Log.e("wangsc", e.getMessage());

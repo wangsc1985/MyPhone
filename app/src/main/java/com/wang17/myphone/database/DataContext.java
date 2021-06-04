@@ -7,8 +7,6 @@ import android.database.sqlite.SQLiteDatabase;
 import android.util.Log;
 
 import com.wang17.myphone.model.DateTime;
-import com.wang17.myphone.structure.CardType;
-import com.wang17.myphone.structure.RepayType;
 import com.wang17.myphone.structure.SmsStatus;
 import com.wang17.myphone.structure.SmsType;
 import com.wang17.myphone.util._Utils;
@@ -2668,18 +2666,15 @@ public class DataContext {
             //使用insert方法向表中插入数据
             ContentValues values = new ContentValues();
             values.put("id", creditCard.getId().toString());
-            values.put("cardName", creditCard.getCardName());
-            values.put("cardNumber", creditCard.getCardNumber());
+            values.put("cardName", creditCard.getUserName());
+            values.put("cardNumber", creditCard.getNumber());
             values.put("bankName", creditCard.getBankName());
             values.put("billDay", creditCard.getBillDay());
             values.put("repayDay", creditCard.getRepayDay());
-            values.put("annualFee", creditCard.getAnnualFee());
-            values.put("creditLine", creditCard.getCreditLine());
-            values.put("cardType", creditCard.getCardType().toString());
-            values.put("balance", creditCard.getBalance());
-            values.put("isBlackList", creditCard.isBlackList() + "");
+            values.put("annualFee", creditCard.getAnnualFee().toString());
+            values.put("creditLine", creditCard.getQuota().toString());
+            values.put("balance", creditCard.getBalance().toString());
             values.put("isVisible", creditCard.isVisible() + "");
-            values.put("repayType", creditCard.getRepayType().toString() + "");
 
             //调用方法插入数据
             db.insert("creditCard", "id", values);
@@ -2699,19 +2694,10 @@ public class DataContext {
             Cursor cursor = db.query("creditCard", null, null, null, null, null, null);
             //判断游标是否为空
             while (cursor.moveToNext()) {
-                CreditCard model = new CreditCard(UUID.fromString(cursor.getString(0)));
-                model.setCardName(cursor.getString(1));
-                model.setCardNumber(cursor.getString(2));
-                model.setBankName(cursor.getString(3));
-                model.setBillDay(cursor.getInt(4));
-                model.setRepayDay(cursor.getInt(5));
-                model.setAnnualFee(cursor.getDouble(6));
-                model.setCreditLine(cursor.getDouble(7));
-                model.setCardType(CardType.valueOf(cursor.getString(8)));
-                model.setBalance(cursor.getDouble(9));
-                model.setBlackList(Boolean.parseBoolean(cursor.getString(10)));
-                model.setVisible(Boolean.parseBoolean(cursor.getString(11)));
-                model.setRepayType(RepayType.valueOf(cursor.getString(12)));
+                CreditCard model = new CreditCard(cursor.getString(1),cursor.getString(2),cursor.getString(3),
+                        new BigDecimal(cursor.getString(4)),new BigDecimal(cursor.getDouble(5)),cursor.getInt(6),
+                        cursor.getInt(7),new BigDecimal(cursor.getString(8)),Boolean.parseBoolean(cursor.getString(9)));
+                model.setId(UUID.fromString(cursor.getString(0)));
                 creditCardList.add(model);
             }
             cursor.close();
@@ -2730,19 +2716,10 @@ public class DataContext {
             Cursor cursor = db.query("creditCard", null, "cardNumber like ?", new String[]{"%" + cardNumber}, null, null, null);
             //判断游标是否为空
             while (cursor.moveToNext()) {
-                CreditCard model = new CreditCard(UUID.fromString(cursor.getString(0)));
-                model.setCardName(cursor.getString(1));
-                model.setCardNumber(cursor.getString(2));
-                model.setBankName(cursor.getString(3));
-                model.setBillDay(cursor.getInt(4));
-                model.setRepayDay(cursor.getInt(5));
-                model.setAnnualFee(cursor.getDouble(6));
-                model.setCreditLine(cursor.getDouble(7));
-                model.setCardType(CardType.valueOf(cursor.getString(8)));
-                model.setBalance(cursor.getDouble(9));
-                model.setBlackList(Boolean.parseBoolean(cursor.getString(10)));
-                model.setVisible(Boolean.parseBoolean(cursor.getString(11)));
-                model.setRepayType(RepayType.valueOf(cursor.getString(12)));
+                CreditCard model = new CreditCard(cursor.getString(1),cursor.getString(2),cursor.getString(3),
+                        new BigDecimal(cursor.getString(4)),new BigDecimal(cursor.getDouble(5)),cursor.getInt(6),
+                        cursor.getInt(7),new BigDecimal(cursor.getString(8)),Boolean.parseBoolean(cursor.getString(9)));
+                model.setId(UUID.fromString(cursor.getString(0)));
                 cursor.close();
                 db.close();
                 return model;
@@ -2761,19 +2738,15 @@ public class DataContext {
 
             //使用update方法更新表中的数据
             ContentValues values = new ContentValues();
-            values.put("id", creditCard.getId().toString());
-            values.put("cardName", creditCard.getCardName());
-            values.put("cardNumber", creditCard.getCardNumber());
+            values.put("cardName", creditCard.getUserName());
+            values.put("cardNumber", creditCard.getNumber());
             values.put("bankName", creditCard.getBankName());
             values.put("billDay", creditCard.getBillDay());
             values.put("repayDay", creditCard.getRepayDay());
-            values.put("annualFee", creditCard.getAnnualFee());
-            values.put("creditLine", creditCard.getCreditLine());
-            values.put("cardType", creditCard.getCardType().toString());
-            values.put("balance", creditCard.getBalance());
-            values.put("isBlackList", creditCard.isBlackList() + "");
+            values.put("annualFee", creditCard.getAnnualFee().toString());
+            values.put("creditLine", creditCard.getQuota().toString());
+            values.put("balance", creditCard.getBalance().toString());
             values.put("isVisible", creditCard.isVisible() + "");
-            values.put("repayType", creditCard.getRepayType().toString() + "");
 
             db.update("creditCard", values, "id=?", new String[]{creditCard.getId().toString()});
             db.close();

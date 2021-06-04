@@ -196,7 +196,7 @@ class MyWidgetRemoteViewsService : RemoteViewsService() {
             mToDoList.add(ToDo("          ", "${now.toShortDateString1()}   ${lunar.monthStr}${lunar.dayStr}   ${lunar.hourStr}时", "          ", Color.WHITE, false))
 
 
-            val bankToDos = dc.bankToDos
+            val bankToDos = dc.bankToDosMoney
             /**
              * BankToDo
              */
