@@ -30,6 +30,7 @@ import com.wang17.myphone.e
 import com.wang17.myphone.eventbus.EventBusMessage
 import com.wang17.myphone.eventbus.FromMuyuServiceDestory
 import com.wang17.myphone.eventbus.FromMuyuServiceTimer
+import com.wang17.myphone.model.MyChannel
 import com.wang17.myphone.util._NotificationUtils
 import com.wang17.myphone.util._Utils
 import org.greenrobot.eventbus.EventBus
@@ -375,7 +376,7 @@ class MuyuService : Service() {
     }
 
     private fun sendNotification(count: Int, time: String) {
-        _NotificationUtils.sendNotification(NOTIFICATION_ID, applicationContext, R.layout.notification_nf,_NotificationUtils.CHANNEL_BUDDHA) { remoteViews ->
+        _NotificationUtils.sendNotification(NOTIFICATION_ID, applicationContext, R.layout.notification_nf,MyChannel.老实念佛) { remoteViews ->
             remoteViews.setTextViewText(R.id.tv_count, if (buddhaType > 9 ) count.toString() else "")
             remoteViews.setTextViewText(R.id.tv_time, time)
             if (timerRuning) {

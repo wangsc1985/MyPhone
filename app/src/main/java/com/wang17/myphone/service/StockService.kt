@@ -35,6 +35,7 @@ import com.wang17.myphone.database.DataContext
 import com.wang17.myphone.model.Commodity
 import com.wang17.myphone.database.Position
 import com.wang17.myphone.database.Setting
+import com.wang17.myphone.model.MyChannel
 import com.wang17.myphone.setMyScale
 import com.wang17.myphone.util.*
 import com.wang17.myphone.util.TradeUtils.commission
@@ -487,7 +488,7 @@ class StockService : Service() {
 
     //region 通知
     private fun sendNotification(szPrice: String, szIncrease: String, sTime: String?, sIncrease: String, fTime: String?, fIncrease: String) {
-        _NotificationUtils.sendNotification(NOTIFICATION_ID, applicationContext, R.layout.notification_stock, _NotificationUtils.CHANNEL_STOCK) { remoteViews ->
+        _NotificationUtils.sendNotification(NOTIFICATION_ID, applicationContext, R.layout.notification_stock, MyChannel.财经频道) { remoteViews ->
             try {
                 remoteViews.setTextViewText(R.id.textView_price_sz, szPrice)
                 remoteViews.setTextViewText(R.id.textView_increase_sz, szIncrease)
