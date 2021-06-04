@@ -20,7 +20,7 @@ import com.wang17.myphone.database.PhoneMessage
 import com.wang17.myphone.database.Setting
 import com.wang17.myphone.model.BankBill
 import com.wang17.myphone.model.DateTime
-import com.wang17.myphone.model.MyChannel
+import com.wang17.myphone.model.ChannelName
 import com.wang17.myphone.model.StockInfo
 import com.wang17.myphone.structure.SmsStatus
 import com.wang17.myphone.structure.SmsType
@@ -384,7 +384,6 @@ class MyWidgetProvider : AppWidgetProvider() {
                          * 验证码
                          */
                         if (sms.body.contains("验证码") || sms.body.contains("动态密码")) {
-                            _SoundUtils.play(context, R.raw.maopao)
 
                             var str = ""
                             while (true) {
@@ -412,9 +411,11 @@ class MyWidgetProvider : AppWidgetProvider() {
                             val clipManager = context.getSystemService(Context.CLIPBOARD_SERVICE) as ClipboardManager
                             val clip = ClipData.newPlainText("text", str)
                             clipManager.setPrimaryClip(clip)
-                            _NotificationUtils.alertNotificationTop(context, str,MyChannel.顶部弹窗)
+                            _SoundUtils.play(context, R.raw.maopao)
+                            _NotificationUtils.alertNotificationTop(context,ChannelName.顶部弹窗, str)
                         }else if(sms.body.contains("【有钱花】恭喜您借款已成功放款至指定银行卡") ){
-                            _NotificationUtils.alertNotificationTop(context, "umoney",MyChannel.重要通知)
+                            _SoundUtils.play(context, R.raw.ding)
+                            _NotificationUtils.alertNotificationTop(context,ChannelName.顶部弹窗, "umoney")
                         }
 
                         when (sms.address) {

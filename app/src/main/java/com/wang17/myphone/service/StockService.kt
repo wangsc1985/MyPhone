@@ -35,7 +35,7 @@ import com.wang17.myphone.database.DataContext
 import com.wang17.myphone.model.Commodity
 import com.wang17.myphone.database.Position
 import com.wang17.myphone.database.Setting
-import com.wang17.myphone.model.MyChannel
+import com.wang17.myphone.model.ChannelName
 import com.wang17.myphone.setMyScale
 import com.wang17.myphone.util.*
 import com.wang17.myphone.util.TradeUtils.commission
@@ -457,7 +457,8 @@ class StockService : Service() {
                         zjIndex.setTextColor(resources.getColor(R.color.DARK_GREEN))
                     }
 
-                    szIndex.setText("${format2.format(szIncrease * 100)} [${mTimeS.split(":").get(1)}]")
+//                    szIndex.setText("${format2.format(szIncrease * 100)} [${mTimeS.split(":").get(1)}]")
+                    szIndex.setText("${format2.format(szIncrease * 100)}z")
                     if (szIncrease > 0) {
                         szIndex.setTextColor(resources.getColor(R.color.month_text_color))
                     } else if (szIncrease == 0.0) {
@@ -488,7 +489,7 @@ class StockService : Service() {
 
     //region 通知
     private fun sendNotification(szPrice: String, szIncrease: String, sTime: String?, sIncrease: String, fTime: String?, fIncrease: String) {
-        _NotificationUtils.sendNotification(NOTIFICATION_ID, applicationContext, R.layout.notification_stock, MyChannel.财经频道) { remoteViews ->
+        _NotificationUtils.sendNotification(applicationContext, ChannelName.财经频道,NOTIFICATION_ID,  R.layout.notification_stock) { remoteViews ->
             try {
                 remoteViews.setTextViewText(R.id.textView_price_sz, szPrice)
                 remoteViews.setTextViewText(R.id.textView_increase_sz, szIncrease)
