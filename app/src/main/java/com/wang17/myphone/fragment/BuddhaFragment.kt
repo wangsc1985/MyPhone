@@ -195,23 +195,23 @@ class BuddhaFragment : Fragment() {
             }
         }
 
-        iv_volume_add.setOnClickListener {
-            try {
-                EventBus.getDefault().post(EventBusMessage.getInstance(FromBuddhaVolumeAdd(), ""))
-                _Utils.zhendong70(context!!)
-            } catch (e: Exception) {
-
-            }
-        }
-
-        iv_volume_minus.setOnClickListener {
-            try {
-                EventBus.getDefault().post(EventBusMessage.getInstance(FromBuddhaVolumeMinus(), ""))
-                _Utils.zhendong70(context!!)
-            } catch (e: Exception) {
-
-            }
-        }
+//        iv_volume_add.setOnClickListener {
+//            try {
+//                EventBus.getDefault().post(EventBusMessage.getInstance(FromBuddhaVolumeAdd(), ""))
+//                _Utils.zhendong70(context!!)
+//            } catch (e: Exception) {
+//
+//            }
+//        }
+//
+//        iv_volume_minus.setOnClickListener {
+//            try {
+//                EventBus.getDefault().post(EventBusMessage.getInstance(FromBuddhaVolumeMinus(), ""))
+//                _Utils.zhendong70(context!!)
+//            } catch (e: Exception) {
+//
+//            }
+//        }
 
         iv_speed_add.setOnClickListener {
             try {

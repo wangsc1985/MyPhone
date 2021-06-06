@@ -24,6 +24,9 @@ import android.view.animation.LinearInterpolator;
 import android.widget.Toast;
 
 import com.amap.api.maps.TextureMapView;
+import com.wang17.myphone.eventbus.EventBusMessage;
+import com.wang17.myphone.eventbus.FromBuddhaVolumeAdd;
+import com.wang17.myphone.eventbus.FromBuddhaVolumeMinus;
 import com.wang17.myphone.fragment.ActionBarFragment;
 import com.wang17.myphone.fragment.OperationFragment;
 import com.wang17.myphone.fragment.MarkDayFragment;
@@ -35,6 +38,8 @@ import com.wang17.myphone.database.DataContext;
 import com.wang17.myphone.util._DialogUtils;
 import com.wang17.myphone.util._Utils;
 import com.wang17.myphone.database.Setting;
+
+import org.greenrobot.eventbus.EventBus;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -214,16 +219,18 @@ public class MainActivity extends AppCompatActivity implements BackupTask.OnFini
             AudioManager audio = (AudioManager) getSystemService(Service.AUDIO_SERVICE);
             switch (keyCode) {
                 case KeyEvent.KEYCODE_VOLUME_UP:
-                    audio.adjustStreamVolume(
-                            AudioManager.STREAM_MUSIC,
-                            AudioManager.ADJUST_RAISE,
-                            AudioManager.FLAG_PLAY_SOUND | AudioManager.FLAG_SHOW_UI);
+                    EventBus.getDefault().post(EventBusMessage.getInstance(new FromBuddhaVolumeAdd(), ""));
+//                    audio.adjustStreamVolume(
+//                            AudioManager.STREAM_MUSIC,
+//                            AudioManager.ADJUST_RAISE,
+//                            AudioManager.FLAG_PLAY_SOUND | AudioManager.FLAG_SHOW_UI);
                     return true;
                 case KeyEvent.KEYCODE_VOLUME_DOWN:
-                    audio.adjustStreamVolume(
-                            AudioManager.STREAM_MUSIC,
-                            AudioManager.ADJUST_LOWER,
-                            AudioManager.FLAG_PLAY_SOUND | AudioManager.FLAG_SHOW_UI);
+                    EventBus.getDefault().post(EventBusMessage.getInstance(new FromBuddhaVolumeMinus(), ""));
+//                    audio.adjustStreamVolume(
+//                            AudioManager.STREAM_MUSIC,
+//                            AudioManager.ADJUST_LOWER,
+//                            AudioManager.FLAG_PLAY_SOUND | AudioManager.FLAG_SHOW_UI);
                     return true;
 
                 case KeyEvent.KEYCODE_BACK:

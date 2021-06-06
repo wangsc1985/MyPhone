@@ -32,10 +32,4 @@ public class Location{
 
     public long Time; // 定位时间
     public String Summary;
-
-    public long UpdateTime=1;
-    public long SyncTime=1;
-    public int Status=1;// 值为-1，说明此数据已删除。
-
-
 }

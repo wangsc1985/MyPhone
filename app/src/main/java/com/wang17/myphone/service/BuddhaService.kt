@@ -58,7 +58,7 @@ class BuddhaService : Service() {
     val buddhaReceiver = BuddhaReceiver()
 
     var startTimeInMillis: Long = 0
-    var savedDuration = 0L
+    var setting_duration = 0L
     var notificationCount = 0
     var notificationTime = ""
     var notificationCountTotal = 0
@@ -125,7 +125,7 @@ class BuddhaService : Service() {
             souSound.load(this, R.raw.piu, 1)
             val setting = dc.getSetting(Setting.KEYS.buddha_duration)
             setting?.let {
-                savedDuration = setting.long
+                setting_duration = setting.long
             }
             yq_period = dc.getSetting(Setting.KEYS.yq_period, 1000).long
             val volume = dc.getSetting(Setting.KEYS.念佛最佳音量)
@@ -210,7 +210,7 @@ class BuddhaService : Service() {
         val hour = miniteT / 60
         return "$hour:${if (minite < 10) "0" + minite else minite}:${if (second < 10) "0" + second else second}"
     }
-    var preTime = 0L
+
     fun startTimer() {
         timer?.cancel()
         timer = null
@@ -219,11 +219,11 @@ class BuddhaService : Service() {
             override fun run() {
                 if (isTimerRuning) {
 //                    e("缓存duration : ${savedDuration/1000}秒  此段duration : ${(System.currentTimeMillis() - startTimeInMillis)/1000}秒   此段起始时间 : ${DateTime(startTimeInMillis).toTimeString()}")
-                    val duration = savedDuration + System.currentTimeMillis() - startTimeInMillis
+                    val duration = setting_duration + System.currentTimeMillis() - startTimeInMillis
                     notificationCount = (duration / 1000 / circleSecond).toInt()
                     notificationTime = longToTimeString(duration)
-                    e("db duration: ${longToTimeString(dbDuration)} ; save duration: ${longToTimeString(savedDuration)}  section duration:${longToTimeString(System.currentTimeMillis() - startTimeInMillis)}")
-                    val duration1 = dbDuration + savedDuration + System.currentTimeMillis() - startTimeInMillis
+                    e("db duration: ${longToTimeString(dbDuration)} ; save duration: ${longToTimeString(setting_duration)}  section duration:${longToTimeString(System.currentTimeMillis() - startTimeInMillis)}")
+                    val duration1 = dbDuration + setting_duration + System.currentTimeMillis() - startTimeInMillis
                     notificationCountTotal = dbCount+notificationCount
                     notificationTimeTotal =  longToTimeString(duration1)
 
@@ -251,11 +251,13 @@ class BuddhaService : Service() {
                     if (notificationCount > targetTap) {
                         stopSelf()
                     }
+                }else{
+                    val now = DateTime()
+                    if(!isCloudError&&now.second==0){
+                        checkSection()
+                    }
                 }
-//                if (preTime > 0 && System.currentTimeMillis() - preTime > 10000) {
-//                    dc.addRunLog("BuddhaService", "计时器超时", "${(System.currentTimeMillis() - preTime) / 1000}秒")
-//                }
-                preTime = System.currentTimeMillis()
+
                 sendNotification(notificationCount,notificationCountTotal, notificationTime,notificationTimeTotal)
             }
         }, 0, 1000)
@@ -396,51 +398,61 @@ class BuddhaService : Service() {
             startTimeInMillis = System.currentTimeMillis()
             dc.editSetting(Setting.KEYS.buddha_startime, startTimeInMillis)
 
+            dc.addRunLog( "BuddhaService", "开始念佛", "" )
 
-            val settingStopTimeInMillis = dc.getSetting(Setting.KEYS.buddha_stoptime)
-            val settingDuration = dc.getSetting(Setting.KEYS.buddha_duration)
-            val now = System.currentTimeMillis()
-            dc.addRunLog("BuddhaService", "开始念佛", settingStopTimeInMillis?.let { "上次暂停时间：${DateTime(it.long).toLongDateTimeString()}" +
-                    "  上次念佛时长：${settingDuration?.let { settingDuration.long / 60000 }}分钟  距离上次暂停：${(now - it.long) / 60000}分钟" }?:""
-            )
-            if (settingStopTimeInMillis != null && settingDuration != null && now - settingStopTimeInMillis.long > 12 * 60000 && settingDuration.long / 1000 / circleSecond >= 1) {
-
-                val startTime = DateTime(settingStopTimeInMillis.long - settingDuration.long)
-                val tap = (settingDuration.long / 1000 / circleSecond).toInt()
-                val durationWhole = circleSecond * tap * 1000.toLong()
-                var buddha = BuddhaRecord(startTime, durationWhole, tap * 1080, buddhaType.toBuddhaType(), "")
-
-                var durationOdd = settingDuration.long - durationWhole
-
-                _CloudUtils.addBuddha(applicationContext!!, buddha) { code, result ->
-                    when (code) {
-                        0 -> {
-                            dc.addRunLog("BuddhaService", "云储存buddha成功", "${code}   ${result}")
-                            dc.addBuddha(buddha)
-                            startTimeInMillis = System.currentTimeMillis() - durationOdd
-                            savedDuration = 0
-                            prvCount = 0
-                            loadDb()
-//                            dbDuration += durationWhole
-//                            dbCount += tap
-
-                            dc.deleteSetting(Setting.KEYS.buddha_duration)
-                            dc.deleteSetting(Setting.KEYS.buddha_stoptime)
-                            dc.editSetting(Setting.KEYS.buddha_startime, startTimeInMillis)
-                            Looper.prepare()
-                            Toast.makeText(applicationContext, result.toString(), Toast.LENGTH_LONG).show()
-                            Looper.loop()
-                        }
-                        else -> {
-                            dc.addRunLog("err", "云储存buddha失败", "${code}   ${result}")
-                            e("code : $code , result : $result")
-                        }
-                    }
-                }
-            }
+//            checkSection()
 
         } catch (e: Exception) {
             dc.addRunLog("err", "reOrStartData", e.message)
+        }
+    }
+
+    var isCloudError=false
+    private fun checkSection() {
+        val now = System.currentTimeMillis()
+        if (setting_stoptime >0 && setting_duration >0 && now - setting_stoptime > 12 * 60000 && setting_duration / 1000 / circleSecond >= 1) {
+
+            dc.addRunLog(
+                "BuddhaService", "自动保存section", if(setting_stoptime>0){ "上次暂停时间：${DateTime(setting_stoptime).toLongDateTimeString()}" +
+                            "  上次念佛时长：${if(setting_duration>0) "${ setting_duration / 60000 }分钟" else ""} 距离上次暂停：${(now - setting_stoptime) / 60000}分钟"
+                } else ""
+            )
+            val startTime = DateTime(setting_stoptime - setting_duration)
+            val tap = (setting_duration / 1000 / circleSecond).toInt()
+            val durationWhole = circleSecond * tap * 1000.toLong()
+            var buddha = BuddhaRecord(startTime, durationWhole, tap * 1080, buddhaType.toBuddhaType(), "")
+
+            var durationOdd = setting_duration - durationWhole
+
+            _CloudUtils.addBuddha(applicationContext!!, buddha) { code, result ->
+                when (code) {
+                    0 -> {
+
+                        dc.addRunLog("BuddhaService", "云储存buddha成功", "${code}   ${result}")
+                        dc.addBuddha(buddha)
+                        startTimeInMillis = System.currentTimeMillis() - durationOdd
+                        prvCount = 0
+
+                        setting_duration = 0
+                        setting_stoptime = 0
+                        dc.deleteSetting(Setting.KEYS.buddha_duration)
+                        dc.deleteSetting(Setting.KEYS.buddha_stoptime)
+                        dc.editSetting(Setting.KEYS.buddha_startime, startTimeInMillis)
+
+                        loadDb()
+
+                        Looper.prepare()
+                        Toast.makeText(applicationContext, result.toString(), Toast.LENGTH_LONG).show()
+                        Looper.loop()
+                        isCloudError=false
+                    }
+                    else -> {
+                        dc.addRunLog("err", "云储存buddha失败", "${code}   ${result}")
+                        e("code : $code , result : $result")
+                        isCloudError=true
+                    }
+                }
+            }
         }
     }
 
@@ -449,6 +461,7 @@ class BuddhaService : Service() {
      * 1、将当前section的duration累加入数据库中的总的duration
      * 2、删除section的startime
      */
+    var setting_stoptime:Long=0
     fun pauseOrStopData() {
         dc.addRunLog("BuddhaService", "暂停念佛", "")
         try {
@@ -458,9 +471,10 @@ class BuddhaService : Service() {
             // 计算当前section的duration
             val settingStartTime = dc.getSetting(Setting.KEYS.buddha_startime)
             settingStartTime?.let {
-                savedDuration += now - startTimeInMillis
-                dc.editSetting(Setting.KEYS.buddha_duration, savedDuration)
-                dc.editSetting(Setting.KEYS.buddha_stoptime, now)
+                setting_duration += now - startTimeInMillis
+                setting_stoptime = now
+                dc.editSetting(Setting.KEYS.buddha_duration, setting_duration)
+                dc.editSetting(Setting.KEYS.buddha_stoptime, setting_stoptime)
 
                 // 删除startime
                 dc.deleteSetting(Setting.KEYS.buddha_startime)
@@ -622,9 +636,9 @@ class BuddhaService : Service() {
                     }
                 }
                 is ResetTimeEvent -> {
-                    val duration = savedDuration + System.currentTimeMillis() - startTimeInMillis
+                    val duration = setting_duration + System.currentTimeMillis() - startTimeInMillis
                     val count = (duration / 1000 / circleSecond).toInt()
-                    startTimeInMillis = System.currentTimeMillis() - (circleSecond * 1000 * count - savedDuration)
+                    startTimeInMillis = System.currentTimeMillis() - (circleSecond * 1000 * count - setting_duration)
                     dc.editSetting(Setting.KEYS.buddha_startime, startTimeInMillis)
                 }
                 is FromBuddhaVolumeAdd -> {
