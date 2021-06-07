@@ -334,6 +334,7 @@ class BuddhaService : Service() {
         return result == AudioManager.AUDIOFOCUS_REQUEST_GRANTED
     }
 
+    //region 声音焦点
     var afChangeListener = AudioManager.OnAudioFocusChangeListener { focusChange ->
         when (focusChange) {
             /**
@@ -348,7 +349,7 @@ class BuddhaService : Service() {
                 } else {
                     AUDIOFOCUS_LOSS_TRANSIENT_CAN_DUCK = false
                 }
-                mPlayer?.setVolume(1.0f, 1.0f)
+                mPlayer?.setVolume(volume.toFloat(), volume.toFloat())
                 floatingWinButState(false)
                 sendNotification(notificationCount, notificationCountTotal, notificationTime, notificationTimeTotal)
             }
@@ -389,6 +390,7 @@ class BuddhaService : Service() {
             }
         }
     }
+    //endregion
 
     var AUDIOFOCUS_LOSS_TRANSIENT_CAN_DUCK = false
 
@@ -417,6 +419,8 @@ class BuddhaService : Service() {
     private fun checkSection() {
         isCloudSaved = true
         val now = System.currentTimeMillis()
+
+        dc.addRunLog("checkSection", "进入check", "duration: ${durationToTimeString(setting_duration)}  stoptime: ${DateTime(setting_stoptime).toShortTimeString()}  count: ${setting_duration / 1000 / circleSecond}  ${(now - setting_stoptime)/60000}分钟")
         if (setting_duration > 0 && setting_stoptime > 0 && setting_duration / 1000 / circleSecond >= 1 && now - setting_stoptime > 12 * 60000) {
             dc.addRunLog("BuddhaService", "自动保存section", "")
             val startTime = DateTime(setting_stoptime - setting_duration)
