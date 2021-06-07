@@ -219,18 +219,18 @@ public class MainActivity extends AppCompatActivity implements BackupTask.OnFini
             AudioManager audio = (AudioManager) getSystemService(Service.AUDIO_SERVICE);
             switch (keyCode) {
                 case KeyEvent.KEYCODE_VOLUME_UP:
-                    EventBus.getDefault().post(EventBusMessage.getInstance(new FromBuddhaVolumeAdd(), ""));
-//                    audio.adjustStreamVolume(
-//                            AudioManager.STREAM_MUSIC,
-//                            AudioManager.ADJUST_RAISE,
-//                            AudioManager.FLAG_PLAY_SOUND | AudioManager.FLAG_SHOW_UI);
+//                    EventBus.getDefault().post(EventBusMessage.getInstance(new FromBuddhaVolumeAdd(), ""));
+                    audio.adjustStreamVolume(
+                            AudioManager.STREAM_MUSIC,
+                            AudioManager.ADJUST_RAISE,
+                            AudioManager.FLAG_PLAY_SOUND | AudioManager.FLAG_SHOW_UI);
                     return true;
                 case KeyEvent.KEYCODE_VOLUME_DOWN:
-                    EventBus.getDefault().post(EventBusMessage.getInstance(new FromBuddhaVolumeMinus(), ""));
-//                    audio.adjustStreamVolume(
-//                            AudioManager.STREAM_MUSIC,
-//                            AudioManager.ADJUST_LOWER,
-//                            AudioManager.FLAG_PLAY_SOUND | AudioManager.FLAG_SHOW_UI);
+//                    EventBus.getDefault().post(EventBusMessage.getInstance(new FromBuddhaVolumeMinus(), ""));
+                    audio.adjustStreamVolume(
+                            AudioManager.STREAM_MUSIC,
+                            AudioManager.ADJUST_LOWER,
+                            AudioManager.FLAG_PLAY_SOUND | AudioManager.FLAG_SHOW_UI);
                     return true;
 
                 case KeyEvent.KEYCODE_BACK:
