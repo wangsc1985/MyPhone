@@ -111,9 +111,6 @@
             android:name=".activity.BuddhaActivity"
             android:launchMode="singleTask" />
         <activity
-            android:name=".activity.CardRecordActivity"
-            android:launchMode="singleTask" />
-        <activity
             android:name=".activity.MarkDayRecordActivity"
             android:launchMode="singleTask" />
         <activity android:name=".activity.SettingActivity" />

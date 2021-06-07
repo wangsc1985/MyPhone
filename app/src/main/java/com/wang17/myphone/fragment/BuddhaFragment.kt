@@ -972,6 +972,16 @@ class BuddhaFragment : Fragment() {
     @Subscribe(threadMode = ThreadMode.MAIN)
     fun onGetMessage(bus: EventBusMessage) {
         when (bus.sender) {
+            is FromBuddhaAutoCloud->{
+                val duration = bus.msg.toLong()
+                val second = duration % 60000 / 1000
+                val miniteT = duration / 1000 / 60
+                val minite = miniteT % 60
+                val hour = miniteT / 60
+                var count = (duration / 1000 / circleSecond).toInt()
+                var time = "$hour:${if (minite < 10) "0" + minite else minite}:${if (second < 10) "0" + second else second}"
+                tv_time.text = "$time  ${count}"
+            }
             is FromBuddhaServiceDestroy -> {
                 if (isFromConfigChanged) {
                     isFromConfigChanged = false
