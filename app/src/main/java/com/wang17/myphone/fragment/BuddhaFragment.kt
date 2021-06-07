@@ -49,6 +49,7 @@ class BuddhaFragment : Fragment() {
     override fun onResume() {
         super.onResume()
 
+        refreshTotalView()
         val size = dc.getPhoneMessages(dc.getSetting(Setting.KEYS.sms_last_time,  DateTime.today.timeInMillis).long).size
 //        val dateTime = DateTime(dc.getSetting(Setting.KEYS.sms_last_time, DateTime.today.timeInMillis).long)
 
@@ -162,6 +163,17 @@ class BuddhaFragment : Fragment() {
         }
 
         EventBus.getDefault().post(EventBusMessage.getInstance(FromTotalCount(),(totalDayCount/1080).toString()))
+
+        val setting = dc.getSetting(Setting.KEYS.buddha_duration)
+        setting?.let {
+            val duration = it.long
+            val second = duration % 60000 / 1000
+            val miniteT = duration / 60000
+            val minite = miniteT % 60
+            val hour = miniteT / 60
+            var tap = (duration / 1000 / circleSecond).toInt()
+            tv_time.text = "$hour:${if (minite < 10) "0" + minite else minite}:${if (second < 10) "0" + second else second} \t $tap \t "
+        }
     }
 
     var circleSecond = 600
@@ -175,17 +187,6 @@ class BuddhaFragment : Fragment() {
         dc = DataContext(context)
         circleSecond = getCurrentCircleSecond()
         muyuCircleSecond = (dc.getSetting(Setting.KEYS.muyu_period, 666).int * 1.080).toInt()
-
-        val setting = dc.getSetting(Setting.KEYS.buddha_duration)
-        setting?.let {
-            val duration = it.long
-            val second = duration % 60000 / 1000
-            val miniteT = duration / 60000
-            val minite = miniteT % 60
-            val hour = miniteT / 60
-            var tap = (duration / 1000 / circleSecond).toInt()
-            tv_time.text = "$hour:${if (minite < 10) "0" + minite else minite}:${if (second < 10) "0" + second else second} \t $tap \t "
-        }
 
         tv_msg.setOnClickListener {
             _FingerUtils.showFingerPrintDialog(activity!!) {

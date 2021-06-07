@@ -443,7 +443,6 @@ class BuddhaService : Service() {
                         Looper.prepare()
                         Toast.makeText(applicationContext, result.toString(), Toast.LENGTH_LONG).show()
                         Looper.loop()
-                        EventBus.getDefault().post(EventBusMessage.getInstance(FromBuddhaAutoCloud(),setting_duration.toString()) )
                     }
                     else -> {
                         dc.addRunLog("err", "云储存buddha失败", "${code}   ${result}")
