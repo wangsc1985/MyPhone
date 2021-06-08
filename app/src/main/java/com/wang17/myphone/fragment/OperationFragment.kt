@@ -41,11 +41,6 @@ class OperationFragment : Fragment() {
         var btn = _Button(context!!, "设置")
         btn.setOnClickListener {
             _FingerUtils.showFingerPrintDialog(activity!!) {
-                startActivity(Intent(context!!, SettingActivity::class.java))
-            }
-        }
-        btn.setOnLongClickListener {
-            _FingerUtils.showFingerPrintDialog(activity!!) {
                 AlertDialog.Builder(context!!).setItems(arrayOf("本地", "云端")) { dialog, which ->
                     when (which) {
                         0 -> {
@@ -61,6 +56,9 @@ class OperationFragment : Fragment() {
                     }
                 }.show()
             }
+        }
+        btn.setOnLongClickListener {
+            startActivity(Intent(context!!, SettingActivity::class.java))
             true
         }
         layout_flexbox.addView(btn)

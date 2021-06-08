@@ -9,7 +9,6 @@ import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
 import android.content.IntentFilter
-import android.graphics.ColorSpace
 import android.graphics.PixelFormat
 import android.media.AudioManager
 import android.media.MediaPlayer
@@ -43,7 +42,6 @@ import org.greenrobot.eventbus.Subscribe
 import org.greenrobot.eventbus.ThreadMode
 import java.io.File
 import java.math.BigDecimal
-import java.text.DecimalFormat
 import java.util.*
 
 
@@ -216,12 +214,15 @@ class BuddhaService : Service() {
         return "$hour:${if (minite < 10) "0" + minite else minite}:${if (second < 10) "0" + second else second}"
     }
 
+    var prvDayOfYear = DateTime().get(Calendar.DAY_OF_YEAR)
     fun startTimer() {
         timer?.cancel()
         timer = null
         timer = Timer()
         timer?.schedule(object : TimerTask() {
             override fun run() {
+                val now = DateTime()
+                val dayOfYear = now.get(Calendar.DAY_OF_YEAR)
                 if (isTimerRuning) {
 //                    e("缓存duration : ${savedDuration/1000}秒  此段duration : ${(System.currentTimeMillis() - startTimeInMillis)/1000}秒   此段起始时间 : ${DateTime(startTimeInMillis).toTimeString()}")
                     val duration = setting_duration + System.currentTimeMillis() - startTimeInMillis
@@ -236,6 +237,12 @@ class BuddhaService : Service() {
                     tv_duration?.setText(notificationTime)
 
                     if (prvCount < notificationCount) {
+                        // TODO: 2021/6/8 如果隔天 初始化总数，并自动保存昨天已经count的数据
+                        if (dayOfYear != prvDayOfYear) {
+                            saveSection()
+                            prvDayOfYear = dayOfYear
+                        }
+
                         if (dc.getSetting(Setting.KEYS.is念佛引罄间隔提醒, true).boolean) {
                             dc.addRunLog("BuddhaService", "引罄", "${DateTime().toTimeString()}  ${notificationTime} prv count : ${prvCount} ; notification count : ${notificationCount}")
                             guSound.play(1, 1.0f, 1.0f, 0, 0, 1.0f)
@@ -257,7 +264,10 @@ class BuddhaService : Service() {
                     }
 
                 } else {
-                    val now = DateTime()
+                    if (dayOfYear != prvDayOfYear) {
+                        loadDb()
+                        prvDayOfYear = dayOfYear
+                    }
                     if (!isCloudSaved && now.second == 0) {
                         checkSection()
                     }
@@ -400,15 +410,11 @@ class BuddhaService : Service() {
      */
     fun reOrStartData() {
         try {
-//            e("------------------ start or restart -------------------------")
-
             isCloudSaved = false
+
             startTimeInMillis = System.currentTimeMillis()
             dc.editSetting(Setting.KEYS.buddha_startime, startTimeInMillis)
-
             dc.addRunLog("BuddhaService", "开始念佛", "")
-
-//            checkSection()
 
         } catch (e: Exception) {
             dc.addRunLog("err", "reOrStartData", e.message)
@@ -417,11 +423,11 @@ class BuddhaService : Service() {
 
     var isCloudSaved = false
     private fun checkSection() {
-        isCloudSaved = true
         val now = System.currentTimeMillis()
 
-        dc.addRunLog("checkSection", "进入check", "duration: ${durationToTimeString(setting_duration)}  stoptime: ${DateTime(setting_stoptime).toShortTimeString()}  count: ${setting_duration / 1000 / circleSecond}  ${(now - setting_stoptime)/60000}分钟")
+//        dc.addRunLog("checkSection", "进入check", "duration: ${durationToTimeString(setting_duration)}  stoptime: ${DateTime(setting_stoptime).toShortTimeString()}  count: ${setting_duration / 1000 / circleSecond}  ${(now - setting_stoptime)/60000}分钟")
         if (setting_duration > 0 && setting_stoptime > 0 && setting_duration / 1000 / circleSecond >= 1 && now - setting_stoptime > 12 * 60000) {
+            isCloudSaved = true
             dc.addRunLog("BuddhaService", "自动保存section", "")
             val startTime = DateTime(setting_stoptime - setting_duration)
             val tap = (setting_duration / 1000 / circleSecond).toInt()
@@ -461,7 +467,46 @@ class BuddhaService : Service() {
             }
         }
     }
+    private fun saveSection() {
+        val now = System.currentTimeMillis()
 
+        val duration = setting_duration + now - startTimeInMillis
+        notificationCount = (duration / 1000 / circleSecond).toInt()
+        if (notificationCount >= 1) {
+
+            dc.addRunLog("BuddhaService", "自动保存昨天section", "")
+            val startTime = DateTime(now - duration)
+            val tap = (duration / 1000 / circleSecond).toInt()
+            val durationWhole = circleSecond * tap * 1000.toLong()
+            var buddha = BuddhaRecord(startTime, durationWhole, tap * 1080, buddhaType.toBuddhaType(), "")
+
+            var durationOdd = duration - durationWhole
+
+            _CloudUtils.addBuddha(applicationContext!!, buddha) { code, result ->
+                when (code) {
+                    0 -> {
+
+                        dc.addRunLog("BuddhaService", "云储存buddha成功", "${code}   ${result}")
+                        dc.addBuddha(buddha)
+                        startTimeInMillis = System.currentTimeMillis() - durationOdd
+                        dc.editSetting(Setting.KEYS.buddha_startime, startTimeInMillis)
+
+                        prvCount = 0
+                        dbDuration=0
+                        dbCount=0
+
+                        Looper.prepare()
+                        Toast.makeText(applicationContext, result.toString(), Toast.LENGTH_LONG).show()
+                        Looper.loop()
+                    }
+                    else -> {
+                        dc.addRunLog("err", "云储存buddha失败", "${code}   ${result}")
+                        e("code : $code , result : $result")
+                    }
+                }
+            }
+        }
+    }
     /**
      * 停止或暂停是要做的：
      * 1、将当前section的duration累加入数据库中的总的duration
@@ -522,13 +567,6 @@ class BuddhaService : Service() {
             remoteViews.setTextViewText(R.id.tv_timeTotal, totalTime)
             remoteViews.setTextViewText(R.id.tv_topTitle, topTitle)
             remoteViews.setTextViewText(R.id.tv_bottomTitle, bottomTitle)
-            if (totalCount == count) {
-                remoteViews.setViewVisibility(R.id.tv_countTotal, View.GONE)
-                remoteViews.setViewVisibility(R.id.tv_timeTotal, View.GONE)
-            } else {
-                remoteViews.setViewVisibility(R.id.tv_countTotal, View.VISIBLE)
-                remoteViews.setViewVisibility(R.id.tv_timeTotal, View.VISIBLE)
-            }
 
             if (mPlayer?.isPlaying ?: false) {
                 remoteViews.setImageViewResource(R.id.image_control, R.drawable.pause)

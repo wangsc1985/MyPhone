@@ -62,6 +62,7 @@ public class Setting{
     }
 
     public enum KEYS{
+        is_setting_verify,
         top_title,bottom_title,
         念佛自动结束圈数,is念佛自动暂停,
         muyu_duration,muyu_startime,muyu_stoptime,muyu_type,
