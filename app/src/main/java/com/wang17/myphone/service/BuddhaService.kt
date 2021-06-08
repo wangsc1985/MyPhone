@@ -467,6 +467,7 @@ class BuddhaService : Service() {
             }
         }
     }
+
     private fun saveSection() {
         val now = System.currentTimeMillis()
 
@@ -492,8 +493,8 @@ class BuddhaService : Service() {
                         dc.editSetting(Setting.KEYS.buddha_startime, startTimeInMillis)
 
                         prvCount = 0
-                        dbDuration=0
-                        dbCount=0
+                        dbDuration = 0
+                        dbCount = 0
 
                         Looper.prepare()
                         Toast.makeText(applicationContext, result.toString(), Toast.LENGTH_LONG).show()
@@ -507,6 +508,7 @@ class BuddhaService : Service() {
             }
         }
     }
+
     /**
      * 停止或暂停是要做的：
      * 1、将当前section的duration累加入数据库中的总的duration
@@ -605,6 +607,49 @@ class BuddhaService : Service() {
         }
     }
 
+    //region 消息处理
+    @Subscribe(threadMode = ThreadMode.BACKGROUND)
+    fun onGetMessage(msg: EventBusMessage) {
+        try {
+            when (msg.sender) {
+                is FromBuddhaConfigUpdate -> {
+                    loadBuddhaConfig()
+
+                    if (mPlayer?.isPlaying ?: false) {
+                        var param = mPlayer?.playbackParams
+                        param?.let {
+                            e("pitch : ${msg.msg}")
+                            param.pitch = pitch
+                            param.speed = speed
+                            mPlayer?.playbackParams = param
+                        }
+                    }
+                }
+                is ResetTimeEvent -> {
+                    val duration = setting_duration + System.currentTimeMillis() - startTimeInMillis
+                    val count = (duration / 1000 / circleSecond).toInt()
+                    startTimeInMillis = System.currentTimeMillis() - (circleSecond * 1000 * count - setting_duration)
+                    dc.editSetting(Setting.KEYS.buddha_startime, startTimeInMillis)
+                }
+                is FromBuddhaVolumeAdd -> {
+                    volume += "0.1".toBigDecimal()
+                    e("声音加" + volume)
+                    mPlayer?.setVolume(volume.toFloat(), volume.toFloat())
+                }
+                is FromBuddhaVolumeMinus -> {
+                    volume -= "0.1".toBigDecimal()
+                    e("声音减" + volume)
+                    mPlayer?.setVolume(volume.toFloat(), volume.toFloat())
+                }
+                is FromTotalCount -> {
+                    loadDb()
+                }
+            }
+        } catch (e: Exception) {
+            dc.addRunLog("BuddhaService", "EventBus", e.message)
+        }
+    }
+    //endregion
     //region 悬浮窗
     private fun floatingWinButState(sate: Boolean) {
         floatingWindowView?.let {
@@ -671,47 +716,6 @@ class BuddhaService : Service() {
 
     var volume: BigDecimal = "1.0".toBigDecimal()
 
-    //region EventBus处理
-    @Subscribe(threadMode = ThreadMode.BACKGROUND)
-    fun onGetMessage(msg: EventBusMessage) {
-        try {
-            when (msg.sender) {
-                is FromBuddhaConfigUpdate -> {
-                    loadBuddhaConfig()
-
-                    var param = mPlayer?.playbackParams
-                    param?.let {
-                        e("pitch : ${msg.msg}")
-                        param.pitch = pitch
-                        param.speed = speed
-                        mPlayer?.playbackParams = param
-                    }
-                }
-                is ResetTimeEvent -> {
-                    val duration = setting_duration + System.currentTimeMillis() - startTimeInMillis
-                    val count = (duration / 1000 / circleSecond).toInt()
-                    startTimeInMillis = System.currentTimeMillis() - (circleSecond * 1000 * count - setting_duration)
-                    dc.editSetting(Setting.KEYS.buddha_startime, startTimeInMillis)
-                }
-                is FromBuddhaVolumeAdd -> {
-                    volume += "0.1".toBigDecimal()
-                    e("声音加" + volume)
-                    mPlayer?.setVolume(volume.toFloat(), volume.toFloat())
-                }
-                is FromBuddhaVolumeMinus -> {
-                    volume -= "0.1".toBigDecimal()
-                    e("声音减" + volume)
-                    mPlayer?.setVolume(volume.toFloat(), volume.toFloat())
-                }
-                is FromTotalCount -> {
-                    loadDb()
-                }
-            }
-        } catch (e: Exception) {
-            dc.addRunLog("BuddhaService", "EventBus", e.message)
-        }
-    }
-    //endregion
 
     var changeX = 0
     var changeY = 0
@@ -768,6 +772,7 @@ class BuddhaService : Service() {
                                 volume += "0.1".toBigDecimal()
                                 e("声音加" + volume)
                                 mPlayer?.setVolume(volume.toFloat(), volume.toFloat())
+                                _Utils.zhendong70(context!!)
 //                            Toast.makeText(context,volume.setScale(1,BigDecimal.ROUND_DOWN).toString(),Toast.LENGTH_SHORT).show()
                             }
                         }
@@ -776,6 +781,7 @@ class BuddhaService : Service() {
                                 volume -= "0.1".toBigDecimal()
                                 e("声音减" + volume)
                                 mPlayer?.setVolume(volume.toFloat(), volume.toFloat())
+                                _Utils.zhendong70(context!!)
 //                            Toast.makeText(context,volume.setScale(1,BigDecimal.ROUND_DOWN).toString(),Toast.LENGTH_SHORT).show()
                             }
                         }
