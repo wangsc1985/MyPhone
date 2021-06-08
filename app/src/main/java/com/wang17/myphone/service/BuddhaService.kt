@@ -111,8 +111,6 @@ class BuddhaService : Service() {
         try {
             dc = DataContext(applicationContext)
             dc.deleteRunLog("BuddhaService", DateTime.today.addDays(-1))
-            topTitle = dc.getSetting(Setting.KEYS.top_title, "").string
-            bottomTitle = dc.getSetting(Setting.KEYS.bottom_title, "").string
 
             loadDb()
 
@@ -410,6 +408,9 @@ class BuddhaService : Service() {
      */
     fun reOrStartData() {
         try {
+
+            topTitle = dc.getSetting(Setting.KEYS.top_title, "南无阿弥陀佛").string
+            bottomTitle = dc.getSetting(Setting.KEYS.bottom_title, "一门深入 长时薰修").string
             isCloudSaved = false
 
             startTimeInMillis = System.currentTimeMillis()
