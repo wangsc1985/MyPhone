@@ -493,8 +493,7 @@ class BuddhaService : Service() {
                         dc.editSetting(Setting.KEYS.buddha_startime, startTimeInMillis)
 
                         prvCount = 0
-                        dbDuration = 0
-                        dbCount = 0
+                        loadDb()
 
                         Looper.prepare()
                         Toast.makeText(applicationContext, result.toString(), Toast.LENGTH_LONG).show()
