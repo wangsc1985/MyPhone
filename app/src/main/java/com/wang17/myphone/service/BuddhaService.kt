@@ -222,7 +222,7 @@ class BuddhaService : Service() {
             override fun run() {
                 try {
                     val now = DateTime()
-                    e("${notificationCount}  ${notificationTime}  ${notificationCountDay}  ${notificationTimeDay}  ${now.toTimeString()}")
+//                    e("${notificationCount}  ${notificationTime}  ${notificationCountDay}  ${notificationTimeDay}  ${now.toTimeString()}")
                     val dayOfYear = now.get(Calendar.DAY_OF_YEAR)
                     if (isTimerRuning) {
                         //                    e("缓存duration : ${savedDuration/1000}秒  此段duration : ${(System.currentTimeMillis() - startTimeInMillis)/1000}秒   此段起始时间 : ${DateTime(startTimeInMillis).toTimeString()}")
@@ -272,7 +272,6 @@ class BuddhaService : Service() {
                                 checkSection()
                             }
 //                            loadDb()
-                            guSound.play(1, 1.0f, 1.0f, 0, 0, 1.0f)
                             val durationSection = setting_duration
                             notificationCount = (durationSection / 1000 / circleSecond).toInt()
                             notificationTime = durationToTimeString(durationSection)
@@ -283,8 +282,8 @@ class BuddhaService : Service() {
                             prvDayOfYear = dayOfYear
 
                         } else if (!isCloudSaved && now.second == 1) {
-                                checkSection()
-                            }
+                            checkSection()
+                        }
                     }
 
                     sendNotification(notificationCount, notificationCountDay, notificationTime, notificationTimeDay)
@@ -460,28 +459,21 @@ class BuddhaService : Service() {
 
                 val latch = CountDownLatch(1)
                 _CloudUtils.addBuddha(applicationContext!!, buddha) { code, result ->
-                    e("01")
                     when (code) {
                         0 -> {
                             dc.addRunLog("BuddhaService", "云储存buddha成功", "${code}   ${result}")
                             dc.addBuddha(buddha)
-                            //                        startTimeInMillis = System.currentTimeMillis() - durationOdd
                             prvCount = 0
 
                             setting_duration = durationOdd
                             notificationCount = 0
                             notificationTime = durationToTimeString(setting_duration)
                             dc.editSetting(Setting.KEYS.buddha_duration, setting_duration)
-                            //                        dc.deleteSetting(Setting.KEYS.buddha_duration)
-                            //                        dc.deleteSetting(Setting.KEYS.buddha_stoptime)
-                            //                        dc.editSetting(Setting.KEYS.buddha_startime, startTimeInMillis)
 
                             loadDb()
 
                             latch.countDown()
-                            Looper.prepare()
-                            Toast.makeText(applicationContext, result.toString(), Toast.LENGTH_LONG).show()
-                            Looper.loop()
+                            guSound.play(1, 1.0f, 1.0f, 0, 0, 1.0f)
                         }
                         else -> {
                             dc.addRunLog("err", "云储存buddha失败", "${code}   ${result}")
