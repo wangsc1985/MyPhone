@@ -56,13 +56,20 @@ class BuddhaFragment : Fragment() {
 //        val sms = SmsHelper.getSMS(context,SmsType.接收到,dateTime)
 //        var size = sms.size
         if (size > 0) {
-            tv_msg.visibility = View.VISIBLE
+            uiHandler.post {
+                tv_msg.visibility = View.VISIBLE
+            }
             _Utils.zhendong(context!!, 100)
+            EventBus.getDefault().post(EventBusMessage.getInstance(ChangeFragmentTab(),"2"))
         } else {
-            tv_msg.visibility = View.GONE
+            uiHandler.post {
+                tv_msg.visibility = View.GONE
+            }
         }
 
-        tv_msg.setText(size.toString())
+        uiHandler.post {
+            tv_msg.setText(size.toString())
+        }
 
 
         if (_Utils.isServiceRunning(context!!, StockService::class.qualifiedName!!)) {
@@ -115,7 +122,7 @@ class BuddhaFragment : Fragment() {
                     refreshTotalView()
                 }
             } catch (e: Exception) {
-                e(e.message!!)
+                e("BuddhaFragment.onResume  "+e.message!!)
             }
         }
     }
@@ -195,24 +202,6 @@ class BuddhaFragment : Fragment() {
                 tv_msg.visibility = View.GONE
             }
         }
-
-//        iv_volume_add.setOnClickListener {
-//            try {
-//                EventBus.getDefault().post(EventBusMessage.getInstance(FromBuddhaVolumeAdd(), ""))
-//                _Utils.zhendong70(context!!)
-//            } catch (e: Exception) {
-//
-//            }
-//        }
-//
-//        iv_volume_minus.setOnClickListener {
-//            try {
-//                EventBus.getDefault().post(EventBusMessage.getInstance(FromBuddhaVolumeMinus(), ""))
-//                _Utils.zhendong70(context!!)
-//            } catch (e: Exception) {
-//
-//            }
-//        }
 
         iv_speed_add.setOnClickListener {
             try {
@@ -862,7 +851,7 @@ class BuddhaFragment : Fragment() {
                 stopAnimatorSuofang(btn_buddha_animator)
             }
         } catch (e: Exception) {
-            e(e.message!!)
+            e("BuddhaFragment.startOrStopBuddha  "+e.message!!)
         }
     }
 

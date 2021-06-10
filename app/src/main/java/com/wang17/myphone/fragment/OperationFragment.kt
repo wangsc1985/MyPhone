@@ -191,7 +191,7 @@ class OperationFragment : Fragment() {
         kotlin.run {
             btn = _Button(context!!, "彩票")
             btn.setOnClickListener {
-               var dialog = AlertDialog.Builder(context!!).setItems(arrayOf("大乐透", "双色球")) { dialog, which ->
+               var dialog = AlertDialog.Builder(context!!).setTitle("兑彩票").setItems(arrayOf("大乐透", "双色球")) { dialog, which ->
                     when (which) {
                         0 -> {
                             redeemLottery(1)
@@ -205,7 +205,7 @@ class OperationFragment : Fragment() {
                    dialog.show()
             }
             btn.setOnLongClickListener {
-                var dialog = AlertDialog.Builder(context!!).setItems(arrayOf("大乐透", "双色球")) { dialog, which ->
+                var dialog = AlertDialog.Builder(context!!).setTitle("添加彩票").setItems(arrayOf("大乐透", "双色球")) { dialog, which ->
                     when (which) {
                         0 -> {
                             addLottery(1)

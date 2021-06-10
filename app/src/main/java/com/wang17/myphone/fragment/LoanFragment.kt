@@ -280,7 +280,7 @@ class LoanFragment : Fragment() {
                     }
                 }
             } catch (e: Exception) {
-                e(e.message!!)
+                e("LoanFragment.LoanListAdapter"+e.message!!)
             }
             return convertView
         }

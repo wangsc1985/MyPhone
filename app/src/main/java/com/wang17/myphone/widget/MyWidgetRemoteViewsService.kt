@@ -180,10 +180,10 @@ class MyWidgetRemoteViewsService : RemoteViewsService() {
                 //endregion
             } catch (e: JSONException) {
                 _Utils.printException(mContext, e)
-                e(e.message!!)
+                e("MyWidgetRemoteViewsService.MyWidgetRemoteViewsFactory  "+e.message!!)
             } catch (e: Exception) {
                 _Utils.printException(mContext, e)
-                e(e.message!!)
+                e("MyWidgetRemoteViewsService.MyWidgetRemoteViewsFactory  "+e.message!!)
             }
         }
 

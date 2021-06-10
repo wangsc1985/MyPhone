@@ -261,7 +261,7 @@ class MuyuService : Service() {
         val result = try {
             mAm.requestAudioFocus(afChangeListener, AudioManager.STREAM_MUSIC, AudioManager.AUDIOFOCUS_GAIN)
         } catch (e: Exception) {
-            e(e.message!!)
+            e("MuyuService.requestFocus  "+e.message!!)
         }
         return result == AudioManager.AUDIOFOCUS_REQUEST_GRANTED
     }

@@ -24,6 +24,7 @@ import android.view.animation.LinearInterpolator;
 import android.widget.Toast;
 
 import com.amap.api.maps.TextureMapView;
+import com.wang17.myphone.eventbus.ChangeFragmentTab;
 import com.wang17.myphone.eventbus.EventBusMessage;
 import com.wang17.myphone.eventbus.FromBuddhaVolumeAdd;
 import com.wang17.myphone.eventbus.FromBuddhaVolumeMinus;
@@ -32,6 +33,7 @@ import com.wang17.myphone.fragment.OperationFragment;
 import com.wang17.myphone.fragment.MarkDayFragment;
 import com.wang17.myphone.fragment.BuddhaFragment;
 import com.wang17.myphone.fragment.ReligiousFragment;
+import com.wang17.myphone.listener.TabControlListener;
 import com.wang17.myphone.receiver.NetWorkStateReceiver;
 import com.wang17.myphone.util.BackupTask;
 import com.wang17.myphone.database.DataContext;
@@ -40,6 +42,8 @@ import com.wang17.myphone.util._Utils;
 import com.wang17.myphone.database.Setting;
 
 import org.greenrobot.eventbus.EventBus;
+import org.greenrobot.eventbus.Subscribe;
+import org.greenrobot.eventbus.ThreadMode;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -72,6 +76,7 @@ public class MainActivity extends AppCompatActivity implements BackupTask.OnFini
     @Override
     protected void onStop() {
         super.onStop();
+        EventBus.getDefault().unregister(this);
 //        e("main activity on stop");
     }
 
@@ -95,6 +100,7 @@ public class MainActivity extends AppCompatActivity implements BackupTask.OnFini
     @Override
     protected void onResume() {
         super.onResume();
+        EventBus.getDefault().register(this);
 //        e("main activity on resume");
     }
 
@@ -137,6 +143,12 @@ public class MainActivity extends AppCompatActivity implements BackupTask.OnFini
     }
     //endregion
 
+    @Subscribe(threadMode = ThreadMode.MAIN)
+    public void onGetMessage( EventBusMessage bus) {
+        if(bus.getSender() instanceof ChangeFragmentTab){
+            tabLayout_menu.getTabAt(Integer.parseInt(bus.getMsg())).select();
+        }
+    }
 
     private void init(Bundle savedInstanceState) {
         try {

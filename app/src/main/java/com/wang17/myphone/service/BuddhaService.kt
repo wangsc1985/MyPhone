@@ -43,6 +43,7 @@ import org.greenrobot.eventbus.ThreadMode
 import java.io.File
 import java.math.BigDecimal
 import java.util.*
+import java.util.concurrent.CountDownLatch
 
 
 class BuddhaService : Service() {
@@ -61,8 +62,8 @@ class BuddhaService : Service() {
     var setting_duration = 0L
     var notificationCount = 0
     var notificationTime = ""
-    var notificationCountTotal = 0
-    var notificationTimeTotal = ""
+    var notificationCountDay = 0
+    var notificationTimeDay = ""
     var dbCount = 0
     var dbDuration = 0L
 
@@ -73,8 +74,8 @@ class BuddhaService : Service() {
 
     var yq_period = 1000L
 
+    lateinit var yqSound: SoundPool
     lateinit var guSound: SoundPool
-    lateinit var souSound: SoundPool
     var targetTap = 12
 
     var isShowFloatWindow = false
@@ -118,10 +119,10 @@ class BuddhaService : Service() {
             isAutoPause = dc.getSetting(Setting.KEYS.is念佛自动暂停, false).boolean
             targetTap = dc.getSetting(Setting.KEYS.念佛自动结束圈数, 12).int
 
+            yqSound = SoundPool(100, AudioManager.STREAM_MUSIC, 0)
+            yqSound.load(this, R.raw.yq, 1)
             guSound = SoundPool(100, AudioManager.STREAM_MUSIC, 0)
-            guSound.load(this, R.raw.yq, 1)
-            souSound = SoundPool(100, AudioManager.STREAM_MUSIC, 0)
-            souSound.load(this, R.raw.piu, 1)
+            guSound.load(this, R.raw.gu, 1)
             val setting = dc.getSetting(Setting.KEYS.buddha_duration)
             setting?.let {
                 setting_duration = setting.long
@@ -219,59 +220,77 @@ class BuddhaService : Service() {
         timer = Timer()
         timer?.schedule(object : TimerTask() {
             override fun run() {
-                val now = DateTime()
-                val dayOfYear = now.get(Calendar.DAY_OF_YEAR)
-                if (isTimerRuning) {
-//                    e("缓存duration : ${savedDuration/1000}秒  此段duration : ${(System.currentTimeMillis() - startTimeInMillis)/1000}秒   此段起始时间 : ${DateTime(startTimeInMillis).toTimeString()}")
-                    val duration = setting_duration + System.currentTimeMillis() - startTimeInMillis
-                    notificationCount = (duration / 1000 / circleSecond).toInt()
-                    notificationTime = durationToTimeString(duration)
-//                    e("db duration: ${durationToTimeString(dbDuration)} ; save duration: ${durationToTimeString(setting_duration)}  section duration:${durationToTimeString(System.currentTimeMillis() - startTimeInMillis)}")
-                    val duration1 = dbDuration + setting_duration + System.currentTimeMillis() - startTimeInMillis
-                    notificationCountTotal = dbCount + notificationCount
-                    notificationTimeTotal = durationToTimeString(duration1)
+                try {
+                    val now = DateTime()
+                    e("${notificationCount}  ${notificationTime}  ${notificationCountDay}  ${notificationTimeDay}  ${now.toTimeString()}")
+                    val dayOfYear = now.get(Calendar.DAY_OF_YEAR)
+                    if (isTimerRuning) {
+                        //                    e("缓存duration : ${savedDuration/1000}秒  此段duration : ${(System.currentTimeMillis() - startTimeInMillis)/1000}秒   此段起始时间 : ${DateTime(startTimeInMillis).toTimeString()}")
+                        val durationSection = setting_duration + System.currentTimeMillis() - startTimeInMillis
+                        notificationCount = (durationSection / 1000 / circleSecond).toInt()
+                        notificationTime = durationToTimeString(durationSection)
+                        //                    e("db duration: ${durationToTimeString(dbDuration)} ; save duration: ${durationToTimeString(setting_duration)}  section duration:${durationToTimeString(System.currentTimeMillis() - startTimeInMillis)}")
+                        val durationDay = dbDuration + setting_duration + System.currentTimeMillis() - startTimeInMillis
+                        notificationCountDay = dbCount + notificationCount
+                        notificationTimeDay = durationToTimeString(durationDay)
 
-                    EventBus.getDefault().post(EventBusMessage.getInstance(FromBuddhaServiceTimer(), duration.toString()))
-                    tv_duration?.setText(notificationTime)
+                        EventBus.getDefault().post(EventBusMessage.getInstance(FromBuddhaServiceTimer(), durationSection.toString()))
+                        tv_duration?.setText(notificationTime)
 
-                    if (prvCount < notificationCount) {
-                        // TODO: 2021/6/8 如果隔天 初始化总数，并自动保存昨天已经count的数据
-                        if (dayOfYear != prvDayOfYear) {
-                            saveSection()
-                            prvDayOfYear = dayOfYear
-                        }
-
-                        if (dc.getSetting(Setting.KEYS.is念佛引罄间隔提醒, true).boolean) {
-                            dc.addRunLog("BuddhaService", "引罄", "${DateTime().toTimeString()}  ${notificationTime} prv count : ${prvCount} ; notification count : ${notificationCount}")
-                            guSound.play(1, 1.0f, 1.0f, 0, 0, 1.0f)
-                            prvCount = notificationCount
-                            if (notificationCount % 2 == 0) {
-                                Thread.sleep(yq_period)
+                        if (prvCount < notificationCount) {
+                            // TODO: 2021/6/8 如果隔天 初始化总数，并自动保存昨天已经count的数据
+                            if (dayOfYear != prvDayOfYear) {
+                                saveSection()
                                 guSound.play(1, 1.0f, 1.0f, 0, 0, 1.0f)
+                                prvDayOfYear = dayOfYear
+                            }
+
+                            if (dc.getSetting(Setting.KEYS.is念佛引罄间隔提醒, true).boolean) {
+                                dc.addRunLog("BuddhaService", "引罄", "${DateTime().toTimeString()}  ${notificationTime} prv count : ${prvCount} ; notification count : ${notificationCount}")
+                                yqSound.play(1, 1.0f, 1.0f, 0, 0, 1.0f)
+                                prvCount = notificationCount
+                                if (notificationCount % 2 == 0) {
+                                    Thread.sleep(yq_period)
+                                    yqSound.play(1, 1.0f, 1.0f, 0, 0, 1.0f)
+                                }
+                            }
+                            if (isAutoPause) {
+                                chantBuddhaPause()
+                                floatingWinButState(true)
+                                mAm.abandonAudioFocus(afChangeListener)
                             }
                         }
-                        if (isAutoPause) {
-                            chantBuddhaPause()
-                            floatingWinButState(true)
-                            mAm.abandonAudioFocus(afChangeListener)
+
+                        if (notificationCount > targetTap) {
+                            stopSelf()
                         }
+
+                    } else {
+                        if (dayOfYear != prvDayOfYear) {
+
+                            if (setting_duration / 1000 / circleSecond >= 1) {
+                                checkSection()
+                            }
+//                            loadDb()
+                            guSound.play(1, 1.0f, 1.0f, 0, 0, 1.0f)
+                            val durationSection = setting_duration
+                            notificationCount = (durationSection / 1000 / circleSecond).toInt()
+                            notificationTime = durationToTimeString(durationSection)
+                            val durationDay = dbDuration + setting_duration
+                            notificationCountDay = dbCount + notificationCount
+                            notificationTimeDay = durationToTimeString(durationDay)
+
+                            prvDayOfYear = dayOfYear
+
+                        } else if (!isCloudSaved && now.second == 1) {
+                                checkSection()
+                            }
                     }
 
-                    if (notificationCount > targetTap) {
-                        stopSelf()
-                    }
-
-                } else {
-                    if (dayOfYear != prvDayOfYear) {
-                        loadDb()
-                        prvDayOfYear = dayOfYear
-                    }
-                    if (!isCloudSaved && now.second == 0) {
-                        checkSection()
-                    }
+                    sendNotification(notificationCount, notificationCountDay, notificationTime, notificationTimeDay)
+                } catch (e: Exception) {
+                    dc.addRunLog("BuddhaService", "timer err", e.message)
                 }
-
-                sendNotification(notificationCount, notificationCountTotal, notificationTime, notificationTimeTotal)
             }
         }, 0, 1000)
     }
@@ -337,7 +356,7 @@ class BuddhaService : Service() {
         val result = try {
             mAm.requestAudioFocus(afChangeListener, AudioManager.STREAM_MUSIC, AudioManager.AUDIOFOCUS_GAIN)
         } catch (e: Exception) {
-            e(e.message!!)
+            e("BuddhaService.requestFocus" + e.message!!)
         }
         return result == AudioManager.AUDIOFOCUS_REQUEST_GRANTED
     }
@@ -345,6 +364,7 @@ class BuddhaService : Service() {
     //region 声音焦点
     var afChangeListener = AudioManager.OnAudioFocusChangeListener { focusChange ->
         when (focusChange) {
+
             /**
              * 当其他应用申请焦点之后又释放焦点会触发此回调
              * 可重新播放音乐
@@ -359,7 +379,7 @@ class BuddhaService : Service() {
                 }
                 mPlayer?.setVolume(volume.toFloat(), volume.toFloat())
                 floatingWinButState(false)
-                sendNotification(notificationCount, notificationCountTotal, notificationTime, notificationTimeTotal)
+                sendNotification(notificationCount, notificationCountDay, notificationTime, notificationTimeDay)
             }
             /**
              * 长时间丢失焦点,当其他应用申请的焦点为AUDIOFOCUS_GAIN时，
@@ -371,7 +391,7 @@ class BuddhaService : Service() {
                 e("永久失去焦点")
                 chantBuddhaPause()
                 floatingWinButState(true)
-                sendNotification(notificationCount, notificationCountTotal, notificationTime, notificationTimeTotal)
+                sendNotification(notificationCount, notificationCountDay, notificationTime, notificationTimeDay)
             }
             /**
              * 短暂性丢失焦点，当其他应用申请AUDIOFOCUS_GAIN_TRANSIENT或AUDIOFOCUS_GAIN_TRANSIENT_EXCLUSIVE时，
@@ -383,7 +403,7 @@ class BuddhaService : Service() {
                 e("暂时失去焦点")
                 chantBuddhaPause()
                 floatingWinButState(true)
-                sendNotification(notificationCount, notificationCountTotal, notificationTime, notificationTimeTotal)
+                sendNotification(notificationCount, notificationCountDay, notificationTime, notificationTimeDay)
             }
             /**
              * 短暂性丢失焦点并作降音处理
@@ -424,88 +444,99 @@ class BuddhaService : Service() {
 
     var isCloudSaved = false
     private fun checkSection() {
-        val now = System.currentTimeMillis()
+        try {
+            val now = System.currentTimeMillis()
 
 //        dc.addRunLog("checkSection", "进入check", "duration: ${durationToTimeString(setting_duration)}  stoptime: ${DateTime(setting_stoptime).toShortTimeString()}  count: ${setting_duration / 1000 / circleSecond}  ${(now - setting_stoptime)/60000}分钟")
-        if (setting_duration > 0 && setting_stoptime > 0 && setting_duration / 1000 / circleSecond >= 1 && now - setting_stoptime > 12 * 60000) {
-            isCloudSaved = true
-            dc.addRunLog("BuddhaService", "自动保存section", "")
-            val startTime = DateTime(setting_stoptime - setting_duration)
-            val tap = (setting_duration / 1000 / circleSecond).toInt()
-            val durationWhole = circleSecond * tap * 1000.toLong()
-            var buddha = BuddhaRecord(startTime, durationWhole, tap * 1080, buddhaType.toBuddhaType(), "")
+            if (setting_stoptime > 0 && setting_duration / 1000 / circleSecond >= 1 && now - setting_stoptime > 12 * 60000) {
+                isCloudSaved = true
+                dc.addRunLog("BuddhaService", "自动保存section", "")
+                val startTime = DateTime(setting_stoptime - setting_duration)
+                val tap = (setting_duration / 1000 / circleSecond).toInt()
+                val durationWhole = circleSecond * tap * 1000.toLong()
+                var buddha = BuddhaRecord(startTime, durationWhole, tap * 1080, buddhaType.toBuddhaType(), "")
 
-            var durationOdd = setting_duration - durationWhole
+                var durationOdd = setting_duration - durationWhole
 
-            _CloudUtils.addBuddha(applicationContext!!, buddha) { code, result ->
-                when (code) {
-                    0 -> {
+                val latch = CountDownLatch(1)
+                _CloudUtils.addBuddha(applicationContext!!, buddha) { code, result ->
+                    e("01")
+                    when (code) {
+                        0 -> {
+                            dc.addRunLog("BuddhaService", "云储存buddha成功", "${code}   ${result}")
+                            dc.addBuddha(buddha)
+                            //                        startTimeInMillis = System.currentTimeMillis() - durationOdd
+                            prvCount = 0
 
-                        dc.addRunLog("BuddhaService", "云储存buddha成功", "${code}   ${result}")
-                        dc.addBuddha(buddha)
-//                        startTimeInMillis = System.currentTimeMillis() - durationOdd
-                        prvCount = 0
+                            setting_duration = durationOdd
+                            notificationCount = 0
+                            notificationTime = durationToTimeString(setting_duration)
+                            dc.editSetting(Setting.KEYS.buddha_duration, setting_duration)
+                            //                        dc.deleteSetting(Setting.KEYS.buddha_duration)
+                            //                        dc.deleteSetting(Setting.KEYS.buddha_stoptime)
+                            //                        dc.editSetting(Setting.KEYS.buddha_startime, startTimeInMillis)
 
-                        setting_duration = durationOdd
-                        notificationCount = 0
-                        notificationTime = durationToTimeString(setting_duration)
-                        dc.editSetting(Setting.KEYS.buddha_duration, setting_duration)
-//                        dc.deleteSetting(Setting.KEYS.buddha_duration)
-//                        dc.deleteSetting(Setting.KEYS.buddha_stoptime)
-//                        dc.editSetting(Setting.KEYS.buddha_startime, startTimeInMillis)
+                            loadDb()
 
-                        loadDb()
-
-                        Looper.prepare()
-                        Toast.makeText(applicationContext, result.toString(), Toast.LENGTH_LONG).show()
-                        Looper.loop()
-                    }
-                    else -> {
-                        dc.addRunLog("err", "云储存buddha失败", "${code}   ${result}")
-                        e("code : $code , result : $result")
+                            latch.countDown()
+                            Looper.prepare()
+                            Toast.makeText(applicationContext, result.toString(), Toast.LENGTH_LONG).show()
+                            Looper.loop()
+                        }
+                        else -> {
+                            dc.addRunLog("err", "云储存buddha失败", "${code}   ${result}")
+                            e("code : $code , result : $result")
+                        }
                     }
                 }
+                latch.await()
             }
+        } catch (e: Exception) {
+            dc.addRunLog("err", "BuddhaService.checkSection", e.message)
         }
     }
 
     private fun saveSection() {
-        val now = System.currentTimeMillis()
+        try {
+            val now = System.currentTimeMillis()
 
-        val duration = setting_duration + now - startTimeInMillis
-        notificationCount = (duration / 1000 / circleSecond).toInt()
-        if (notificationCount >= 1) {
+            val duration = setting_duration + now - startTimeInMillis
+            notificationCount = (duration / 1000 / circleSecond).toInt()
+            if (notificationCount >= 1) {
 
-            dc.addRunLog("BuddhaService", "自动保存昨天section", "")
-            val startTime = DateTime(now - duration)
-            val tap = (duration / 1000 / circleSecond).toInt()
-            val durationWhole = circleSecond * tap * 1000.toLong()
-            var buddha = BuddhaRecord(startTime, durationWhole, tap * 1080, buddhaType.toBuddhaType(), "")
+                dc.addRunLog("BuddhaService", "自动保存昨天section", "")
+                val startTime = DateTime(now - duration)
+                val tap = (duration / 1000 / circleSecond).toInt()
+                val durationWhole = circleSecond * tap * 1000.toLong()
+                var buddha = BuddhaRecord(startTime, durationWhole, tap * 1080, buddhaType.toBuddhaType(), "")
 
-            var durationOdd = duration - durationWhole
+                var durationOdd = duration - durationWhole
 
-            _CloudUtils.addBuddha(applicationContext!!, buddha) { code, result ->
-                when (code) {
-                    0 -> {
+                _CloudUtils.addBuddha(applicationContext!!, buddha) { code, result ->
+                    when (code) {
+                        0 -> {
 
-                        dc.addRunLog("BuddhaService", "云储存buddha成功", "${code}   ${result}")
-                        dc.addBuddha(buddha)
-                        startTimeInMillis = System.currentTimeMillis() - durationOdd
-                        dc.editSetting(Setting.KEYS.buddha_startime, startTimeInMillis)
+                            dc.addRunLog("BuddhaService", "云储存buddha成功", "${code}   ${result}")
+                            dc.addBuddha(buddha)
+                            startTimeInMillis = System.currentTimeMillis() - durationOdd
+                            dc.editSetting(Setting.KEYS.buddha_startime, startTimeInMillis)
 
-                        prvCount = 0
-                        loadDb()
+                            prvCount = 0
+                            loadDb()
 
-                        Looper.prepare()
-                        Toast.makeText(applicationContext, result.toString(), Toast.LENGTH_LONG).show()
-                        Looper.loop()
-                    }
-                    else -> {
-                        dc.addRunLog("err", "云储存buddha失败", "${code}   ${result}")
-                        e("code : $code , result : $result")
+                            Looper.prepare()
+                            Toast.makeText(applicationContext, result.toString(), Toast.LENGTH_LONG).show()
+                            Looper.loop()
+                        }
+                        else -> {
+                            dc.addRunLog("err", "云储存buddha失败", "${code}   ${result}")
+                            e("code : $code , result : $result")
+                        }
                     }
                 }
             }
+        } catch (e: Exception) {
+            dc.addRunLog("err", "BuddhaService.saveSection", e.message)
         }
     }
 
@@ -649,6 +680,7 @@ class BuddhaService : Service() {
             dc.addRunLog("BuddhaService", "EventBus", e.message)
         }
     }
+
     //endregion
     //region 悬浮窗
     private fun floatingWinButState(sate: Boolean) {
@@ -703,7 +735,7 @@ class BuddhaService : Service() {
                                 floatingWinButState(false)
                             }
                         }
-                        sendNotification(notificationCount, notificationCountTotal, notificationTime, notificationTimeTotal)
+                        sendNotification(notificationCount, notificationCountDay, notificationTime, notificationTimeDay)
                     }
                 }
                 iv_control?.setOnTouchListener(FloatingOnTouchListener())
@@ -822,7 +854,7 @@ class BuddhaService : Service() {
                         }
                     }
 
-                    sendNotification(notificationCount, notificationCountTotal, notificationTime, notificationTimeTotal)
+                    sendNotification(notificationCount, notificationCountDay, notificationTime, notificationTimeDay)
                 }
             } catch (e: Exception) {
                 e("eeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee" + e.message ?: "")

@@ -37,11 +37,11 @@ import java.util.regex.Pattern
  */
 class MyWidgetProvider : AppWidgetProvider() {
     private var mContext: Context? = null
-
     /**
      * 每次窗口小部件被更新都调用一次该方法，或者每次添加小部件时。
      */
     override fun onUpdate(context: Context, appWidgetManager: AppWidgetManager, appWidgetIds: IntArray) {
+        e("MyWidgetProvider.onUpdate")
         super.onUpdate(context, appWidgetManager, appWidgetIds)
         val dataContext = DataContext(context)
         mContext = context
@@ -192,6 +192,7 @@ class MyWidgetProvider : AppWidgetProvider() {
      * 当小部件大小改变时
      */
     override fun onAppWidgetOptionsChanged(context: Context, appWidgetManager: AppWidgetManager, appWidgetId: Int, newOptions: Bundle) {
+        e("MyWidgetProvider.onAppWidgetOptionsChanged")
         super.onAppWidgetOptionsChanged(context, appWidgetManager, appWidgetId, newOptions)
     }
 
@@ -199,6 +200,7 @@ class MyWidgetProvider : AppWidgetProvider() {
      * 每删除一次窗口小部件就调用一次
      */
     override fun onDeleted(context: Context, appWidgetIds: IntArray) {
+        e("MyWidgetProvider.onDeleted")
         super.onDeleted(context, appWidgetIds)
     }
 
@@ -208,6 +210,7 @@ class MyWidgetProvider : AppWidgetProvider() {
      * @param context
      */
     override fun onEnabled(context: Context) {
+        e("MyWidgetProvider.onEnabled")
         super.onEnabled(context)
         updateListviewBroadcast(context)
     }
@@ -216,14 +219,16 @@ class MyWidgetProvider : AppWidgetProvider() {
      * 当最后一个该窗口小部件删除时调用该方法
      */
     override fun onDisabled(context: Context) {
+        e("MyWidgetProvider.onDisabled")
         super.onDisabled(context)
     }
 
     /**
      * 接收窗口小部件发送的广播
      */
-    @SuppressLint("ServiceCast")
+//    @SuppressLint("ServiceCast")
     override fun onReceive(context: Context, intent: Intent) {
+        e("MyWidgetProvider.onReceive")
         try {
             val action = intent.action
             val dc = DataContext(context)

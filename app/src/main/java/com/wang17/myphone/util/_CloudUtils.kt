@@ -76,7 +76,7 @@ object _CloudUtils {
 //                    e("从微软获取到token：$token, 有效期：${DateTime(exprires).toLongDateTimeString()} 用时：${b - a}")
                 }
             } catch (e: Exception) {
-                e(e.message!!)
+                e("_CloudUtils.loadNewTokenFromHttp  "+e.message!!)
             } finally {
                 latch.countDown()
             }

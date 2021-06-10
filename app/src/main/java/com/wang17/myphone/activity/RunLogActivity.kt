@@ -67,7 +67,7 @@ class RunLogActivity : FragmentActivity() {
             listView_runlog.setAdapter(listAdapter)
         } catch (e: Exception) {
             mDataContext.addRunLog("err","运行错误",e.message)
-            e(e.message!!)
+            e("RunLogActivity.onCreate  "+e.message!!)
         }
     }
 
