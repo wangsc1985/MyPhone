@@ -104,7 +104,6 @@ object _CloudUtils {
                 args.add(PostArgument("type", buddha.type))
                 postRequestByJson(url, args, HttpCallback { html ->
                     try {
-                        e(html)
                         val errcode = _JsonUtils.getValueByKey(html, "errcode")
                         val errmsg = _JsonUtils.getValueByKey(html, "errmsg")
                         if(errcode=="0"){

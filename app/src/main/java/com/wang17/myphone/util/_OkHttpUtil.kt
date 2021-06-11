@@ -25,7 +25,7 @@ object _OkHttpUtil {
 
     @JvmStatic
     fun postRequestByJson(url: String?, args: List<PostArgument>, callback: HttpCallback) {
-        try {
+//        try {
             //创建OkHttpClient对象。
             val client = client
             //创建表单请求体
@@ -43,7 +43,9 @@ object _OkHttpUtil {
             val call = client!!.newCall(request)
             //请求加入调度
             call.enqueue(object : Callback {
-                override fun onFailure(call: Call, e: IOException) {}
+                override fun onFailure(call: Call, e: IOException) {
+                    callback.excute("........  ${e.message} ........")
+                }
 
                 @Throws(IOException::class)
                 override fun onResponse(call: Call, response: Response) {
@@ -56,9 +58,9 @@ object _OkHttpUtil {
                     }
                 }
             })
-        } catch (e: JSONException) {
-            e.printStackTrace()
-        }
+//        } catch (e: JSONException) {
+//            e.printStackTrace()
+//        }
     }
     fun postRequestByJsonStr(url: String?, json:String, callback: HttpCallback) {
         //创建OkHttpClient对象。
@@ -72,7 +74,9 @@ object _OkHttpUtil {
         val call = client!!.newCall(request)
         //请求加入调度
         call.enqueue(object : Callback {
-            override fun onFailure(call: Call, e: IOException) {}
+            override fun onFailure(call: Call, e: IOException) {
+                callback.excute("........  ${e.message} ........")
+            }
 
             @Throws(IOException::class)
             override fun onResponse(call: Call, response: Response) {
@@ -104,7 +108,9 @@ object _OkHttpUtil {
         val call = client!!.newCall(request)
         //请求加入调度
         call.enqueue(object : Callback {
-            override fun onFailure(call: Call, e: IOException) {}
+            override fun onFailure(call: Call, e: IOException) {
+                callback.excute("........  ${e.message} ........")
+            }
 
             @Throws(IOException::class)
             override fun onResponse(call: Call, response: Response) {

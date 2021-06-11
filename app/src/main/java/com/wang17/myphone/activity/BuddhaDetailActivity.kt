@@ -15,11 +15,14 @@ import com.wang17.myphone.model.DateTime.Companion.toSpanString
 import com.wang17.myphone.database.BuddhaRecord
 import com.wang17.myphone.database.BuddhaType
 import com.wang17.myphone.database.DataContext
+import com.wang17.myphone.eventbus.EventBusMessage
+import com.wang17.myphone.eventbus.FromTotalCount
 import com.wang17.myphone.format
 import com.wang17.myphone.util._CloudUtils
 import com.wang17.myphone.util._Utils.printException
 import kotlinx.android.synthetic.main.activity_buddha_detail.*
 import kotlinx.android.synthetic.main.widget_timer.*
+import org.greenrobot.eventbus.EventBus
 import java.text.DecimalFormat
 
 class BuddhaDetailActivity : AppCompatActivity(), OnActionFragmentBackListener {
@@ -128,6 +131,8 @@ class BuddhaDetailActivity : AppCompatActivity(), OnActionFragmentBackListener {
         }
         val tap = count.toFloat() / 1080
         tv_info.text = "${DateTime(start).toShortDateString()}   ${DateTime.toSpanString2(duration)}   ${if (count > 0) DecimalFormat("#,##0").format(count) else ""}"
+
+        EventBus.getDefault().post(EventBusMessage.getInstance(FromTotalCount(),tap.toString()))
     }
 
     override fun onBackButtonClickListener() {

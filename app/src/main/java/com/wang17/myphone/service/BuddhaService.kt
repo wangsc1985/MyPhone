@@ -240,7 +240,7 @@ class BuddhaService : Service() {
                         if (prvCount < notificationCount) {
                             // TODO: 2021/6/8 如果隔天 初始化总数，并自动保存昨天已经count的数据
                             if (dayOfYear != prvDayOfYear) {
-                                saveSection()
+                                checkSectionOnRunning()
                                 guSound.play(1, 1.0f, 1.0f, 0, 0, 1.0f)
                                 prvDayOfYear = dayOfYear
                             }
@@ -266,10 +266,11 @@ class BuddhaService : Service() {
                         }
 
                     } else {
+                        e("${DateTime().toTimeString()}  cloud saved : ${cloudSaved}")
                         if (now.second == 1) {
                             if (dayOfYear != prvDayOfYear) {
                                 if (setting_duration / 1000 / circleSecond >= 1) {
-                                    checkSection()
+                                    checkSectionOnPause()
                                 } else {
                                     loadDb()
                                 }
@@ -283,7 +284,7 @@ class BuddhaService : Service() {
                                 prvDayOfYear = dayOfYear
 
                             } else if (cloudSaved<5) {
-                                checkSection()
+                                checkSectionOnPause()
                             }
                         }
                     }
@@ -436,6 +437,8 @@ class BuddhaService : Service() {
 
             startTimeInMillis = System.currentTimeMillis()
             dc.editSetting(Setting.KEYS.buddha_startime, startTimeInMillis)
+
+            checkSectionBeforeRestart()
             dc.addRunLog("BuddhaService", "开始念佛", "")
 
         } catch (e: Exception) {
@@ -444,13 +447,14 @@ class BuddhaService : Service() {
     }
 
     var cloudSaved = 0
-    private fun checkSection() {
+    private fun checkSectionOnPause() {
         try {
             val now = System.currentTimeMillis()
 
 //        dc.addRunLog("checkSection", "进入check", "duration: ${durationToTimeString(setting_duration)}  stoptime: ${DateTime(setting_stoptime).toShortTimeString()}  count: ${setting_duration / 1000 / circleSecond}  ${(now - setting_stoptime)/60000}分钟")
-            if (setting_stoptime > 0 && setting_duration / 1000 / circleSecond >= 1 && now - setting_stoptime > 12 * 60000) {
+            if (setting_stoptime > 0 && setting_duration / 1000 / circleSecond >= 1 && now - setting_stoptime > circleSecond * 1000) {
                 cloudSaved++
+                e("自动保存section${cloudSaved}")
                 dc.addRunLog("BuddhaService", "自动保存section", "")
                 val startTime = DateTime(setting_stoptime - setting_duration)
                 val tap = (setting_duration / 1000 / circleSecond).toInt()
@@ -474,7 +478,6 @@ class BuddhaService : Service() {
 
                             loadDb()
 
-                            latch.countDown()
                             guSound.play(1, 1.0f, 1.0f, 0, 0, 1.0f)
                             cloudSaved=5
                         }
@@ -483,6 +486,7 @@ class BuddhaService : Service() {
                             e("code : $code , result : $result")
                         }
                     }
+                    latch.countDown()
                 }
                 latch.await()
             }
@@ -491,7 +495,7 @@ class BuddhaService : Service() {
         }
     }
 
-    private fun saveSection() {
+    private fun checkSectionOnRunning() {
         try {
             val now = System.currentTimeMillis()
 
@@ -519,6 +523,51 @@ class BuddhaService : Service() {
                             prvCount = 0
                             loadDb()
 
+                            guSound.play(1, 1.0f, 1.0f, 0, 0, 1.0f)
+                            Looper.prepare()
+                            Toast.makeText(applicationContext, result.toString(), Toast.LENGTH_LONG).show()
+                            Looper.loop()
+                        }
+                        else -> {
+                            dc.addRunLog("err", "云储存buddha失败", "${code}   ${result}")
+                            e("code : $code , result : $result")
+                        }
+                    }
+                }
+            }
+        } catch (e: Exception) {
+            dc.addRunLog("err", "BuddhaService.saveSection", e.message)
+        }
+    }
+    private fun checkSectionBeforeRestart() {
+        try {
+            val now = System.currentTimeMillis()
+
+            if (setting_stoptime > 0 && (setting_duration / 1000 / circleSecond) >= 1 && (now - setting_stoptime) > circleSecond * 1000) {
+
+                dc.addRunLog("BuddhaService", "重启前保存section", "")
+                val duration = setting_duration + now - startTimeInMillis
+                notificationCount = (duration / 1000 / circleSecond).toInt()
+                val startTime = DateTime(now - duration)
+                val tap = (duration / 1000 / circleSecond).toInt()
+                val durationWhole = circleSecond * tap * 1000.toLong()
+                var buddha = BuddhaRecord(startTime, durationWhole, tap * 1080, buddhaType.toBuddhaType(), "")
+
+                var durationOdd = duration - durationWhole
+
+                _CloudUtils.addBuddha(applicationContext!!, buddha) { code, result ->
+                    when (code) {
+                        0 -> {
+
+                            dc.addRunLog("BuddhaService", "云储存buddha成功", "${code}   ${result}")
+                            dc.addBuddha(buddha)
+                            startTimeInMillis = System.currentTimeMillis() - durationOdd
+                            dc.editSetting(Setting.KEYS.buddha_startime, startTimeInMillis)
+
+                            prvCount = 0
+                            loadDb()
+
+                            guSound.play(1, 1.0f, 1.0f, 0, 0, 1.0f)
                             Looper.prepare()
                             Toast.makeText(applicationContext, result.toString(), Toast.LENGTH_LONG).show()
                             Looper.loop()
@@ -669,6 +718,12 @@ class BuddhaService : Service() {
                 }
                 is FromTotalCount -> {
                     loadDb()
+                    val durationSection = setting_duration
+                    notificationCount = (durationSection / 1000 / circleSecond).toInt()
+                    notificationTime = durationToTimeString(durationSection)
+                    val durationDay = dbDuration + setting_duration
+                    notificationCountDay = dbCount + notificationCount
+                    notificationTimeDay = durationToTimeString(durationDay)
                 }
             }
         } catch (e: Exception) {
