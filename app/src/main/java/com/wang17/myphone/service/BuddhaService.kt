@@ -668,16 +668,18 @@ class BuddhaService : Service() {
             val intentRootClick3 = Intent(ACTION_BUDDHA_VOLUME_ADD)
             val pendingIntent3 = PendingIntent.getBroadcast(applicationContext, 0, intentRootClick3, PendingIntent.FLAG_UPDATE_CURRENT)
             remoteViews.setOnClickPendingIntent(R.id.tv_countTotal, pendingIntent3)
+            val autoPauseColor = resources.getColor(R.color.a, null)
+            val normalColor = resources.getColor(R.color.cardview_dark_background, null)
             if (isAutoPause) {
-                remoteViews.setTextColor(R.id.tv_count, resources.getColor(R.color.a, null))
-                remoteViews.setTextColor(R.id.tv_time, resources.getColor(R.color.a, null))
-                remoteViews.setTextColor(R.id.tv_countTotal, resources.getColor(R.color.a, null))
-                remoteViews.setTextColor(R.id.tv_timeTotal, resources.getColor(R.color.a, null))
+                remoteViews.setTextColor(R.id.tv_count, autoPauseColor)
+                remoteViews.setTextColor(R.id.tv_time, autoPauseColor)
+                remoteViews.setTextColor(R.id.tv_countTotal, autoPauseColor)
+                remoteViews.setTextColor(R.id.tv_timeTotal, autoPauseColor)
             } else {
-                remoteViews.setTextColor(R.id.tv_count, resources.getColor(R.color.calendar_yl_color, null))
-                remoteViews.setTextColor(R.id.tv_time, resources.getColor(R.color.calendar_yl_color, null))
-                remoteViews.setTextColor(R.id.tv_countTotal, resources.getColor(R.color.calendar_yl_color, null))
-                remoteViews.setTextColor(R.id.tv_timeTotal, resources.getColor(R.color.calendar_yl_color, null))
+                remoteViews.setTextColor(R.id.tv_count, normalColor)
+                remoteViews.setTextColor(R.id.tv_time, normalColor)
+                remoteViews.setTextColor(R.id.tv_countTotal, normalColor)
+                remoteViews.setTextColor(R.id.tv_timeTotal, normalColor)
             }
         }
     }
