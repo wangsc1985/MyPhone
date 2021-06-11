@@ -266,23 +266,25 @@ class BuddhaService : Service() {
                         }
 
                     } else {
-                        if (dayOfYear != prvDayOfYear) {
+                        if (now.second == 1) {
+                            if (dayOfYear != prvDayOfYear) {
+                                if (setting_duration / 1000 / circleSecond >= 1) {
+                                    checkSection()
+                                } else {
+                                    loadDb()
+                                }
+                                val durationSection = setting_duration
+                                notificationCount = (durationSection / 1000 / circleSecond).toInt()
+                                notificationTime = durationToTimeString(durationSection)
+                                val durationDay = dbDuration + setting_duration
+                                notificationCountDay = dbCount + notificationCount
+                                notificationTimeDay = durationToTimeString(durationDay)
 
-                            if (setting_duration / 1000 / circleSecond >= 1) {
+                                prvDayOfYear = dayOfYear
+
+                            } else if (cloudSaved<5) {
                                 checkSection()
                             }
-//                            loadDb()
-                            val durationSection = setting_duration
-                            notificationCount = (durationSection / 1000 / circleSecond).toInt()
-                            notificationTime = durationToTimeString(durationSection)
-                            val durationDay = dbDuration + setting_duration
-                            notificationCountDay = dbCount + notificationCount
-                            notificationTimeDay = durationToTimeString(durationDay)
-
-                            prvDayOfYear = dayOfYear
-
-                        } else if (!isCloudSaved && now.second == 1) {
-                            checkSection()
                         }
                     }
 
@@ -430,7 +432,7 @@ class BuddhaService : Service() {
 
             topTitle = dc.getSetting(Setting.KEYS.top_title, "南无阿弥陀佛").string
             bottomTitle = dc.getSetting(Setting.KEYS.bottom_title, "一门深入 长时薰修").string
-            isCloudSaved = false
+            cloudSaved = 0
 
             startTimeInMillis = System.currentTimeMillis()
             dc.editSetting(Setting.KEYS.buddha_startime, startTimeInMillis)
@@ -441,14 +443,14 @@ class BuddhaService : Service() {
         }
     }
 
-    var isCloudSaved = false
+    var cloudSaved = 0
     private fun checkSection() {
         try {
             val now = System.currentTimeMillis()
 
 //        dc.addRunLog("checkSection", "进入check", "duration: ${durationToTimeString(setting_duration)}  stoptime: ${DateTime(setting_stoptime).toShortTimeString()}  count: ${setting_duration / 1000 / circleSecond}  ${(now - setting_stoptime)/60000}分钟")
             if (setting_stoptime > 0 && setting_duration / 1000 / circleSecond >= 1 && now - setting_stoptime > 12 * 60000) {
-                isCloudSaved = true
+                cloudSaved++
                 dc.addRunLog("BuddhaService", "自动保存section", "")
                 val startTime = DateTime(setting_stoptime - setting_duration)
                 val tap = (setting_duration / 1000 / circleSecond).toInt()
@@ -474,6 +476,7 @@ class BuddhaService : Service() {
 
                             latch.countDown()
                             guSound.play(1, 1.0f, 1.0f, 0, 0, 1.0f)
+                            cloudSaved=5
                         }
                         else -> {
                             dc.addRunLog("err", "云储存buddha失败", "${code}   ${result}")
