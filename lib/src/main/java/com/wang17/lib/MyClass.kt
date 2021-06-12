@@ -141,13 +141,19 @@ class MyClass {
         }
         @JvmStatic
         fun main(args: Array<String>) {
+            val url = "http://openapi.baidu.com/oauth/2.0/authorize?response_type=token&client_id=In28xdlKbsW13MiS86QOc8AEilUREQxb&redirect_uri=oob&scope=basic,netdisk&display=mobile&state=xxx"
+            _OkHttpUtil.getRequest(url,object : HttpCallback{
+                override fun excute(html: String?) {
+                    println(html)
+                }
+            })
 
-            var now = DateTime()
-            for(i in 0..10){
-                var cc  = now.addDays(i)
-               println("${cc.toLongDateString2()}  ${cc.get(Calendar.DAY_OF_WEEK)}")
-
-            }
+//            var now = DateTime()
+//            for(i in 0..10){
+//                var cc  = now.addDays(i)
+//               println("${cc.toLongDateString2()}  ${cc.get(Calendar.DAY_OF_WEEK)}")
+//
+//            }
 
 //            val a = getStockHistory("002839",DateTime(2019,0,1))
 //            println(a.size)

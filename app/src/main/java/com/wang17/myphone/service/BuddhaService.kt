@@ -258,6 +258,7 @@ class BuddhaService : Service() {
                                 chantBuddhaPause()
                                 floatingWinButState(true)
                                 mAm.abandonAudioFocus(afChangeListener)
+                                dc.addRunLog("BuddhaService", "暂停念佛", "")
                             }
                         }
 
@@ -335,6 +336,7 @@ class BuddhaService : Service() {
                 mPlayer?.playbackParams = params
             }
             chantBuddhaStart()
+            dc.addRunLog("BuddhaService", "开始念佛", "")
 
 
             mBackgroundPlayer = MediaPlayer.create(applicationContext, R.raw.second_60)
@@ -372,7 +374,6 @@ class BuddhaService : Service() {
              * 可重新播放音乐
              */
             AudioManager.AUDIOFOCUS_GAIN -> {
-//                dc.addRunLog("BuddhaService","获取永久焦点","")
                 e("获取永久焦点")
                 if (!AUDIOFOCUS_LOSS_TRANSIENT_CAN_DUCK) {
                     chantBuddhaRestart()
@@ -389,7 +390,6 @@ class BuddhaService : Service() {
              * 通常需要暂停音乐播放，若没有暂停播放就会出现和其他音乐同时输出声音
              */
             AudioManager.AUDIOFOCUS_LOSS -> {
-//                dc.addRunLog("BuddhaService","永久失去焦点","")
                 e("永久失去焦点")
                 chantBuddhaPause()
                 floatingWinButState(true)
@@ -401,7 +401,6 @@ class BuddhaService : Service() {
              * 通常需要暂停音乐播放
              */
             AudioManager.AUDIOFOCUS_LOSS_TRANSIENT -> {
-//                dc.addRunLog("BuddhaService","暂时失去焦点","")
                 e("暂时失去焦点")
                 chantBuddhaPause()
                 floatingWinButState(true)
@@ -411,7 +410,6 @@ class BuddhaService : Service() {
              * 短暂性丢失焦点并作降音处理
              */
             AudioManager.AUDIOFOCUS_LOSS_TRANSIENT_CAN_DUCK -> {
-//                dc.addRunLog("BuddhaService","暂时失去焦点并降音","")
                 e("暂时失去焦点并降音")
                 mPlayer?.setVolume(0.3f, 0.3f)
                 AUDIOFOCUS_LOSS_TRANSIENT_CAN_DUCK = true
@@ -439,7 +437,6 @@ class BuddhaService : Service() {
             dc.editSetting(Setting.KEYS.buddha_startime, startTimeInMillis)
 
             checkSectionBeforeRestart()
-            dc.addRunLog("BuddhaService", "开始念佛", "")
 
         } catch (e: Exception) {
             dc.addRunLog("err", "reOrStartData", e.message)
@@ -591,7 +588,6 @@ class BuddhaService : Service() {
      */
     var setting_stoptime: Long = 0
     fun pauseOrStopData() {
-        dc.addRunLog("BuddhaService", "暂停念佛", "")
         try {
 //            e("---------------- pauseOrStopData --------------------")
             val now = System.currentTimeMillis()
@@ -781,10 +777,12 @@ class BuddhaService : Service() {
                             chantBuddhaPause()
                             floatingWinButState(true)
                             mAm.abandonAudioFocus(afChangeListener)
+                            dc.addRunLog("BuddhaService", "暂停念佛", "")
                         } else {
                             if (requestFocus()) {
                                 chantBuddhaRestart()
                                 floatingWinButState(false)
+                                dc.addRunLog("BuddhaService", "开始念佛", "")
                             }
                         }
                         sendNotification(notificationCount, notificationCountDay, notificationTime, notificationTimeDay)
@@ -873,6 +871,7 @@ class BuddhaService : Service() {
                             if (requestFocus()) {
                                 chantBuddhaRestart()
                                 floatingWinButState(false)
+                                dc.addRunLog("BuddhaService", "开始念佛", "")
                             }
                         }
                         ACTION_BUDDHA_PLAYE_AUTO -> {
@@ -880,6 +879,7 @@ class BuddhaService : Service() {
                                 if (requestFocus()) {
                                     chantBuddhaRestart()
                                     floatingWinButState(false)
+                                    dc.addRunLog("BuddhaService", "开始念佛", "")
                                 }
                             }
                             isAutoPause = !isAutoPause
@@ -888,6 +888,7 @@ class BuddhaService : Service() {
                             chantBuddhaPause()
                             floatingWinButState(true)
                             mAm.abandonAudioFocus(afChangeListener)
+                            dc.addRunLog("BuddhaService", "暂停念佛", "")
                         }
                         BluetoothHeadset.ACTION_CONNECTION_STATE_CHANGED -> {
                             val adapter = BluetoothAdapter.getDefaultAdapter()
@@ -897,12 +898,14 @@ class BuddhaService : Service() {
                                 chantBuddhaPause()
                                 floatingWinButState(true)
                                 mAm.abandonAudioFocus(afChangeListener)
+                                dc.addRunLog("BuddhaService", "耳机断开1", "")
                             }
                         }
                         AudioManager.ACTION_AUDIO_BECOMING_NOISY -> {
                             chantBuddhaPause()
                             floatingWinButState(true)
                             mAm.abandonAudioFocus(afChangeListener)
+                            dc.addRunLog("BuddhaService", "耳机断开2", "")
                         }
                     }
 

@@ -18,6 +18,7 @@ import com.alibaba.fastjson.JSONArray
 import com.wang17.myphone.R
 import com.wang17.myphone.activity.*
 import com.wang17.myphone.callback.CloudCallback
+import com.wang17.myphone.callback.HttpCallback
 import com.wang17.myphone.database.DataContext
 import com.wang17.myphone.database.Setting
 import com.wang17.myphone.model.Lottery
@@ -307,6 +308,25 @@ class OperationFragment : Fragment() {
             }
             layout_flexbox.addView(btn)
         }
+        kotlin.run {
+            var xiaoKnockSound = SoundPool(100, AudioManager.STREAM_MUSIC, 0)
+            xiaoKnockSound.load(context, R.raw.yq, 1)
+            btn = _Button(context!!, "下载")
+            btn.setOnClickListener {
+                download()
+            }
+            layout_flexbox.addView(btn)
+        }
+    }
+
+    fun download(){
+        val url = "http://openapi.baidu.com/oauth/2.0/authorize?response_type=token&client_id=In28xdlKbsW13MiS86QOc8AEilUREQxb&redirect_uri=oob&scope=basic,netdisk&display=mobile&state=xxx"
+        _OkHttpUtil.getRequest(url,object : HttpCallback{
+            override fun excute(html: String?) {
+
+
+            }
+        })
     }
 
     private fun passwordLoginSms() {
