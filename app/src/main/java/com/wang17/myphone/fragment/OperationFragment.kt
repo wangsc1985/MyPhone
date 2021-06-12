@@ -48,7 +48,7 @@ class OperationFragment : Fragment() {
                             startActivity(Intent(context!!, SettingActivity::class.java))
                         }
                         1 -> {
-                            _CloudUtils.getSettingList(context!!, dataContext.getSetting(Setting.KEYS.wx_request_code, "0088").string, CloudCallback { code, result ->
+                            _CloudUtils.getSettingList(context!!, CloudCallback { code, result ->
                                 uiHandler.post {
                                     AlertDialog.Builder(context!!).setMessage(result.toString()).show()
                                 }

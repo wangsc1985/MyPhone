@@ -46,10 +46,7 @@ class ScreenBroadcaseReceiver : BroadcastReceiver() {
                                     dc.addLocation(newLocation)
 
                                     // 记录到云数据库
-                                    val pwd = dc.getSetting(Setting.KEYS.wx_request_code, "0088").string
-                                    val t4 = System.currentTimeMillis()
-                                    addLocation(context, pwd,newLocation.Speed, newLocation.Latitude, newLocation.Longitude, newLocation.Address) { code, result ->
-                                        val t5 = System.currentTimeMillis()
+                                    addLocation(context,newLocation.Speed, newLocation.Latitude, newLocation.Longitude, newLocation.Address) { code, result ->
                                     }
                                 }
                             }

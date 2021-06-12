@@ -53,7 +53,7 @@ class ChartFragment : Fragment() {
         super.onViewCreated(view, savedInstanceState)
         runHandler = Handler()
 
-        chartDate = DateTime(dc.getSetting(Setting.KEYS.chart_date, DateTime().addDays(-300).timeInMillis).long)
+        chartDate = DateTime(dc.getSetting(Setting.KEYS.图表开始日期, DateTime().addDays(-300).timeInMillis).long)
         chart.setOnLongClickListener {
             var view = View.inflate(context, R.layout.inflate_dialog_date, null)
             var cvDate = view.findViewById<CalendarView>(R.id.cv_date)
@@ -62,7 +62,7 @@ class ChartFragment : Fragment() {
                 chartDate.set(Calendar.YEAR, year)
                 chartDate.set(Calendar.MONTH, month)
                 chartDate.set(Calendar.DAY_OF_MONTH, dayOfMonth)
-                dc.editSetting(Setting.KEYS.chart_date, chartDate.timeInMillis)
+                dc.editSetting(Setting.KEYS.图表开始日期, chartDate.timeInMillis)
             }
             AlertDialog.Builder(context).setView(view).setPositiveButton("確定", DialogInterface.OnClickListener { dialog, which ->
                 generateChart(chartDate)
@@ -136,7 +136,7 @@ class ChartFragment : Fragment() {
         startLine.setColor(startLineColor) // 定制线条颜色
         startLine.setShape(ValueShape.CIRCLE)//折线图上每个数据点的形状  这里是圆形 （有三种 ：ValueShape.SQUARE  ValueShape.CIRCLE  ValueShape.DIAMOND）
         startLine.setCubic(false) //曲线是否平滑，即是曲线还是折线
-        startLine.setFilled(dc.getSetting(Setting.KEYS.is_fill_line_area, true).boolean)//是否填充曲线的面积
+        startLine.setFilled(dc.getSetting(Setting.KEYS.is填充图表区域, true).boolean)//是否填充曲线的面积
         startLine.setHasLabels(false)//曲线的数据坐标是否加上备注
         startLine.setHasLabelsOnlyForSelected(true)//点击数据坐标提示数据（设置了这个line.setHasLabels(true);就无效）
         startLine.setHasLines(true)//是否用线显示。如果为false 则没有曲线只有点显示
@@ -153,7 +153,7 @@ class ChartFragment : Fragment() {
         line.setColor(lineColor) // 定制线条颜色
         line.setShape(ValueShape.CIRCLE)//折线图上每个数据点的形状  这里是圆形 （有三种 ：ValueShape.SQUARE  ValueShape.CIRCLE  ValueShape.DIAMOND）
         line.setCubic(false) //曲线是否平滑，即是曲线还是折线
-        line.setFilled(dc.getSetting(Setting.KEYS.is_fill_line_area, true).boolean)//是否填充曲线的面积
+        line.setFilled(dc.getSetting(Setting.KEYS.is填充图表区域, true).boolean)//是否填充曲线的面积
         line.setHasLabels(false)//曲线的数据坐标是否加上备注
         line.setHasLabelsOnlyForSelected(true)//点击数据坐标提示数据（设置了这个line.setHasLabels(true);就无效）
         line.setHasLines(true)//是否用线显示。如果为false 则没有曲线只有点显示
@@ -171,7 +171,7 @@ class ChartFragment : Fragment() {
         endLine.setColor(endLineColor) // 定制线条颜色
         endLine.setShape(ValueShape.CIRCLE)//折线图上每个数据点的形状  这里是圆形 （有三种 ：ValueShape.SQUARE  ValueShape.CIRCLE  ValueShape.DIAMOND）
         endLine.setCubic(false) //曲线是否平滑，即是曲线还是折线
-        endLine.setFilled(dc.getSetting(Setting.KEYS.is_fill_line_area, true).boolean)//是否填充曲线的面积
+        endLine.setFilled(dc.getSetting(Setting.KEYS.is填充图表区域, true).boolean)//是否填充曲线的面积
         endLine.setHasLabels(false)//曲线的数据坐标是否加上备注
         endLine.setHasLabelsOnlyForSelected(true)//点击数据坐标提示数据（设置了这个line.setHasLabels(true);就无效）
         endLine.setHasLines(true)//是否用线显示。如果为false 则没有曲线只有点显示

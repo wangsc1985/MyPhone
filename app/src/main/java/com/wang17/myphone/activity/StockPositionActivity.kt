@@ -33,19 +33,26 @@ import java.util.*
 
 class StockPositionActivity : AppCompatActivity() {
     private lateinit var adapter: StockListdAdapter
-    private lateinit var mDataContext: DataContext
+    private lateinit var dc: DataContext
     private lateinit var positions: MutableList<Position>
 
     //    private StockInfo info;
     private lateinit var infoList: MutableList<StockInfo>
     private var isSoundLoaded = false
     private lateinit var mSoundPool: SoundPool
+
+    private var preTime: String? = null
+    private var mTime: String? = null
+
+    //缩放
+    private var preTotalAverageIncrease = 0.toBigDecimal()
+    
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_position_stock)
         infoList = ArrayList()
-        mDataContext = DataContext(this)
-        positions = mDataContext.getPositions(0)
+        dc = DataContext(this)
+        positions = dc.getPositions(0)
         adapter = StockListdAdapter()
         lv_stocks.setAdapter(adapter)
         fab_home.setOnClickListener(View.OnClickListener { finish() })
@@ -264,7 +271,6 @@ class StockPositionActivity : AppCompatActivity() {
         }).start()
     }
 
-    private var loadStockCount = 0
     private fun fillStockInfoList(infoList: List<StockInfo>) {
 
         //http://hq.sinajs.cn/list=sh601555
@@ -347,18 +353,6 @@ class StockPositionActivity : AppCompatActivity() {
                             msg = "加$msg"
                         }
                     }
-                    isFirst = false
-                    if (mDataContext.getSetting(Setting.KEYS.is_stock_load_noke, false).boolean && ++loadStockCount >= 20) {
-                        if (!isSoundLoaded) {
-                            mSoundPool.setOnLoadCompleteListener { soundPool, sampleId, status ->
-                                isSoundLoaded = true
-                                soundPool.play(1, 0.6f, 0.6f, 0, 0, 1f)
-                            }
-                        } else {
-                            mSoundPool.play(1, 0.6f, 0.6f, 0, 0, 1f)
-                        }
-                        loadStockCount = 0
-                    }
 
                     textView_totalProfit.text = DecimalFormat("0.00%").format(totalAverageIncrease)
                     if (totalAverageIncrease > 0.toBigDecimal()) {
@@ -376,43 +370,5 @@ class StockPositionActivity : AppCompatActivity() {
             } catch (e: Exception) {
             }
         }).start()
-    }
-
-    private var preTime: String? = null
-    private var mTime: String? = null
-    private var isFirst = true
-
-    //缩放
-    //    public ObjectAnimator scaleY;
-    //    public void stopSuofang() {
-    //        if (scaleY != null)
-    //            scaleY.cancel();
-    //    }
-    private var preTotalAverageIncrease = 0.toBigDecimal()
-    override fun onKeyDown(keyCode: Int, event: KeyEvent): Boolean {
-        try {
-            val audio = getSystemService(AUDIO_SERVICE) as AudioManager
-            when (keyCode) {
-                KeyEvent.KEYCODE_VOLUME_UP -> {
-                    audio.adjustStreamVolume(
-                            AudioManager.STREAM_MUSIC,
-                            AudioManager.ADJUST_RAISE,
-                            AudioManager.FLAG_SHOW_UI)
-                    return true
-                }
-                KeyEvent.KEYCODE_VOLUME_DOWN -> {
-                    audio.adjustStreamVolume(
-                            AudioManager.STREAM_MUSIC,
-                            AudioManager.ADJUST_LOWER,
-                            AudioManager.FLAG_SHOW_UI)
-                    return true
-                }
-                else -> {
-                }
-            }
-        } catch (e: Exception) {
-            _Utils.printException(this@StockPositionActivity, e)
-        }
-        return super.onKeyDown(keyCode, event)
     }
 }

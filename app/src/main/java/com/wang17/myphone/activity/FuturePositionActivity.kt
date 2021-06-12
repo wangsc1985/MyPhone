@@ -38,6 +38,10 @@ class FuturePositionActivity : AppCompatActivity() {
     private lateinit var infoList: MutableList<StockInfo>
     private var isSoundLoaded = false
     private lateinit var mSoundPool: SoundPool
+    private var preTime: String? = null
+    private var mTime: String? = null
+    private var preAverageTotalProfit = 0.0.toBigDecimal()
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_position_future)
@@ -333,7 +337,6 @@ class FuturePositionActivity : AppCompatActivity() {
         }).start()
     }
 
-    private var loadStockCount = 0
     private fun fillStockInfoList(infoList: List<StockInfo>?) {
 
         //http://hq.sinajs.cn/list=sh601555
@@ -408,19 +411,7 @@ class FuturePositionActivity : AppCompatActivity() {
 //                                    _Utils.speaker(AttentionFutureActivity.this.getApplicationContext(), msg);
 //                                }
                     }
-                    isFirst = false
-                    Log.e("wangsc", "count: $loadStockCount")
-                    if (mDataContext!!.getSetting(Setting.KEYS.is_stock_load_noke, false).boolean && ++loadStockCount >= 20) {
-                        if (!isSoundLoaded) {
-                            mSoundPool!!.setOnLoadCompleteListener { soundPool, sampleId, status ->
-                                isSoundLoaded = true
-                                soundPool.play(1, 0.6f, 0.6f, 0, 0, 1f)
-                            }
-                        } else {
-                            mSoundPool!!.play(1, 0.6f, 0.6f, 0, 0, 1f)
-                        }
-                        loadStockCount = 0
-                    }
+
                     textView_totalProfit!!.text = DecimalFormat("#0,000").format(averageTotalProfit)
                     if (averageTotalProfit > 0.toBigDecimal()) {
                         textView_totalProfit!!.setTextColor(Color.RED)
@@ -441,9 +432,6 @@ class FuturePositionActivity : AppCompatActivity() {
         }).start()
     }
 
-    private var isFirst = true
-    private var preTime: String? = null
-    private var mTime: String? = null
     fun findCommodity(code: String?): Commodity? {
         for (commodity in _Session.commoditys) {
             if (commodity.item.toLowerCase() == parseItem(code).toLowerCase()) {
@@ -483,7 +471,6 @@ class FuturePositionActivity : AppCompatActivity() {
         return item.toString()
     }
 
-    private var preAverageTotalProfit = 0.0.toBigDecimal()
 
     internal inner class StockInfo {
         var time: String? = null

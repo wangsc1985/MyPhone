@@ -319,7 +319,7 @@ public class LocationListActivity extends AppCompatActivity {
                     }
 
                     List<Location> searchLocationList = new ArrayList<>();
-                    locationList = dataContext.getLocatiosByDayspan(_Session.UUID_NULL,dataContext.getSetting(Setting.KEYS.location_search_days,90).getInt(), true);
+                    locationList = dataContext.getLocatiosByDayspan(_Session.UUID_NULL,dataContext.getSetting(Setting.KEYS.地图搜索周期_天,90).getInt(), true);
                     for (Location location : locationList) {
                         if (searchCircle.contains(new LatLng(location.Latitude, location.Longitude))) {
                             searchLocationList.add(location);
@@ -376,7 +376,7 @@ public class LocationListActivity extends AppCompatActivity {
     private void initData() {
         dataContext = new DataContext(this);
 
-        locationList = dataContext.getLocatiosByYear(_Session.UUID_NULL,dataContext.getSetting(Setting.KEYS.足迹展示年份,2019).getInt(), true);
+        locationList = dataContext.getLocatiosByYear(_Session.UUID_NULL,dataContext.getSetting(Setting.KEYS.足迹展示哪一年,2019).getInt(), true);
 
         initListData(locationList);
 

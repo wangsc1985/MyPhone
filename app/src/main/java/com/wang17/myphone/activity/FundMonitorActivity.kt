@@ -10,7 +10,6 @@ import android.media.SoundPool
 import android.os.BatteryManager
 import android.os.Build
 import android.os.Bundle
-import android.os.PowerManager
 import android.support.annotation.RequiresApi
 import android.support.v7.app.AppCompatActivity
 import android.util.Log
@@ -32,7 +31,7 @@ import java.util.*
 
 class FundMonitorActivity : AppCompatActivity() {
     private lateinit var positions: List<Position>
-    private lateinit var mDataContext: DataContext
+    private lateinit var dc: DataContext
     private var preClickTime: Long = 0
     private lateinit var mainReciver: MainReciver
     private var isSoundLoaded = false
@@ -51,15 +50,15 @@ class FundMonitorActivity : AppCompatActivity() {
         //全屏
         window.setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN, WindowManager.LayoutParams.FLAG_FULLSCREEN)
         setContentView(R.layout.activity_fund_monitor)
-        mDataContext = DataContext(this)
+        dc = DataContext(this)
         preClickTime = System.currentTimeMillis()
-        positions = mDataContext.getPositions(0)
+        positions = dc.getPositions(0)
         /**
          * 初始化电量记录
          */
         val batteryManager = getSystemService(BATTERY_SERVICE) as BatteryManager
         val battery = batteryManager.getIntProperty(BatteryManager.BATTERY_PROPERTY_CAPACITY)
-        mDataContext.editSetting(Setting.KEYS.battery, battery)
+        dc.editSetting(Setting.KEYS.battery, battery)
         /**
          * 监听
          */
@@ -143,7 +142,7 @@ class FundMonitorActivity : AppCompatActivity() {
                                             preAverageProfit = averageProfit
                                             speakMsg += msgS
                                         }
-                                        if (!speakMsg.isEmpty() && mDataContext.getSetting(Setting.KEYS.is_stock_broadcast, true).boolean) {
+                                        if (!speakMsg.isEmpty() && dc.getSetting(Setting.KEYS.is语音播报价格大幅变动, true).boolean) {
                                             var pitch = 1.0f
                                             var speech = 1.2f
                                             if (averageProfit < 0.toBigDecimal()) {
@@ -203,19 +202,13 @@ class FundMonitorActivity : AppCompatActivity() {
     inner class MainReciver : BroadcastReceiver() {
         override fun onReceive(context: Context, intent: Intent) {
             when (intent.action) {
-                Intent.ACTION_SCREEN_OFF, Intent.ACTION_SCREEN_ON -> {
-                    val pm = context.getSystemService(POWER_SERVICE) as PowerManager
-                    if (!pm.isScreenOn) {
-                        _Utils.speaker(this@FundMonitorActivity.applicationContext, mDataContext.getSetting(Setting.KEYS.speaker_screen_off, "关").string)
-                    }
-                }
                 Intent.ACTION_BATTERY_CHANGED -> {
                     val level = intent.getIntExtra("level", 0)
-                    val dataLevel = mDataContext.getSetting(Setting.KEYS.battery, 0).int
+                    val dataLevel = dc.getSetting(Setting.KEYS.battery, 0).int
                     if (dataLevel != level) {
                         val span = System.currentTimeMillis() - if (preBatteryTime == 0L) System.currentTimeMillis() else preBatteryTime
                         preBatteryTime = System.currentTimeMillis()
-                        mDataContext.editSetting(Setting.KEYS.battery, level)
+                        dc.editSetting(Setting.KEYS.battery, level)
                     }
                 }
             }

@@ -139,7 +139,7 @@ public class MarkDayRecordActivity extends AppCompatActivity implements ActionBa
 
             listItemDatas = new ArrayList<>();
 
-            fillListItemData(false, dataContext.getSetting(Setting.KEYS.is_mark_day_show_all, "false").getBoolean());
+            fillListItemData(false, dataContext.getSetting(Setting.KEYS.is显示所有MarkDay, "false").getBoolean());
 
             if (dayItem != null) {
                 if (dayItem.getId() == _Session.UUID_NULL) {
@@ -283,7 +283,7 @@ public class MarkDayRecordActivity extends AppCompatActivity implements ActionBa
                                                 @Override
                                                 public void onClick(DialogInterface dialog, int which) {
                                                     dataContext.deleteMarkDay(markDays.get(index).getId());
-                                                    fillListItemData(false, dataContext.getSetting(Setting.KEYS.is_mark_day_show_all, "false").getBoolean());
+                                                    fillListItemData(false, dataContext.getSetting(Setting.KEYS.is显示所有MarkDay, "false").getBoolean());
                                                     recordListdAdapter.notifyDataSetChanged();
                                                     dialog.cancel();
                                                     snackbar("删除成功");

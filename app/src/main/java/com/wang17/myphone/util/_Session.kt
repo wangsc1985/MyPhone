@@ -12,11 +12,6 @@ import java.util.*
  */
 object _Session {
     const val ACTION_ALARM_NIANFO_OVER = "ACTION_ALARM_NIANFO_OVER"
-    const val ACTION_ALARM_TRADE = "ACTION_ALARM_TRADE"
-    const val ACTION_ALARM_STOCK_SCREEN = "ACTION_ALARM_STOCK_SCREEN"
-    const val NIAN_FO_ACTION = "NIAN_FO_VOICE"
-    const val NIAN_FO_TIMER = "NIAN_FO_TIMER"
-    const val POWER_MANAGER_ACTION = "POWER_MANAGER_VOICE"
     @JvmField
     val UUID_NULL = UUID.fromString("00000000-0000-0000-0000-000000000000")
     const val ALERT_VOLUMN = 0.2f

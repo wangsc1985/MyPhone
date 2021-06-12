@@ -46,7 +46,7 @@ class MarkDayFragment : Fragment() {
         try {
             dataContext = DataContext(context)
             listItemDatas = ArrayList()
-            markdayFocusedId = UUID.fromString(dataContext.getSetting(Setting.KEYS.mark_day_focused, _Session.UUID_NULL).string)
+            markdayFocusedId = UUID.fromString(dataContext.getSetting(Setting.KEYS.MarkDay主项, _Session.UUID_NULL).string)
             listAdapter = DayItemListAdapter()
         } catch (e: Exception) {
             Log.e(_TAG, e.message!!)
@@ -79,7 +79,7 @@ class MarkDayFragment : Fragment() {
                         listAdapter!!.notifyDataSetChanged()
                     }.setPositiveButton("取消") { dialog, which -> dialog.dismiss() }.show()
                     3 -> {
-                        dataContext.editSetting(Setting.KEYS.mark_day_focused, listItemData.dayItem!!.id)
+                        dataContext.editSetting(Setting.KEYS.MarkDay主项, listItemData.dayItem!!.id)
                         markdayFocusedId = listItemData.dayItem!!.id
                         listAdapter!!.notifyDataSetChanged()
                     }
@@ -312,7 +312,7 @@ class MarkDayFragment : Fragment() {
                     val markDay = MarkDay(selectedDateTime, item.id, "")
                     dataContext.addMarkDay(markDay)
                     if (item.name == "戒期") {
-                        saveSetting(context!!, dataContext.getSetting(Setting.KEYS.wx_request_code, "0000").string, Setting.KEYS.wx_sex_date.toString(), selectedDateTime.timeInMillis) { code, result ->
+                        saveSetting(context!!, "wx_sex_date", selectedDateTime.timeInMillis) { code, result ->
                             when (code) {
                                 0 -> e(result)
                                 1 -> e(result)

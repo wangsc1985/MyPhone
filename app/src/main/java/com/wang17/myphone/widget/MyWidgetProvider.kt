@@ -1,6 +1,5 @@
 package com.wang17.myphone.widget
 
-import android.annotation.SuppressLint
 import android.app.PendingIntent
 import android.app.Service
 import android.appwidget.AppWidgetManager
@@ -25,8 +24,6 @@ import com.wang17.myphone.model.StockInfo
 import com.wang17.myphone.structure.SmsStatus
 import com.wang17.myphone.structure.SmsType
 import com.wang17.myphone.util.*
-import com.wang17.myphone.util._SinaStockUtils.OnLoadStockInfoListListener
-import java.math.BigDecimal
 import java.text.DecimalFormat
 import java.util.*
 import java.util.regex.Pattern
@@ -45,7 +42,6 @@ class MyWidgetProvider : AppWidgetProvider() {
         super.onUpdate(context, appWidgetManager, appWidgetIds)
         val dataContext = DataContext(context)
         mContext = context
-        isStockList = false
         try {
             val remoteViews = RemoteViews(context.packageName, R.layout.widget_timer)
             val intentRootClick = Intent(ACTION_CLICK_ROOT)
@@ -103,7 +99,7 @@ class MyWidgetProvider : AppWidgetProvider() {
         var text = context.resources.getString(R.string.widget_text)
         var progress = 0
         var progressMax = 24
-        val id = UUID.fromString(dataContext.getSetting(Setting.KEYS.mark_day_focused, _Session.UUID_NULL).string)
+        val id = UUID.fromString(dataContext.getSetting(Setting.KEYS.MarkDay主项, _Session.UUID_NULL).string)
         val lastMarkDay = dataContext.getLastMarkDay(id)
         val dayItem = dataContext.getDayItem(id)
         if (lastMarkDay != null) {
@@ -247,8 +243,6 @@ class MyWidgetProvider : AppWidgetProvider() {
                 ACTION_CLICK_LAYOUT_LEFT -> {
                     setWidgetAlertColor(remoteViews)
 
-                    //region 获取股票列表
-
                     // 更新listview
 //                    remoteViews.setTextViewText(R.id.textView_date, "——")
                     remoteViews.setTextViewText(R.id.tv_balanceABC, "——")
@@ -258,44 +252,8 @@ class MyWidgetProvider : AppWidgetProvider() {
                     // 更新上证指数
                     setSZindex(context, remoteViews, myComponentName, appWidgetManager)
 
+                    appWidgetManager.notifyAppWidgetViewDataChanged(appWidgetManager.getAppWidgetIds(myComponentName), R.id.listview_todo)
 
-                    val isAllowWidgetListStock = dc.getSetting(Setting.KEYS.is小部件罗列股票, true).boolean
-
-                    val is_list_stock = dc.getSetting(Setting.KEYS.is_widget_list_stock, true).boolean
-                    if (isAllowWidgetListStock) {
-                        val positions = dc.getPositions(if (is_list_stock) 0 else 1)
-                        isStockList = positions.size > 0
-                        _SinaStockUtils.getStockInfoList(positions, object : OnLoadStockInfoListListener {
-                            override fun onLoadFinished(infoList: List<StockInfo>, totalProfit: BigDecimal, averageProfit: BigDecimal, time: String) {
-                                try {
-                                    if (stockInfoList.size == 0) {
-                                        return
-                                    }
-                                    if (is_list_stock) {
-                                        remoteViews.setTextViewText(R.id.textView_markDay, DecimalFormat("0.00").format(averageProfit * 100.toBigDecimal()))
-                                    } else {
-                                        remoteViews.setTextViewText(R.id.textView_markDay, time.substring(0, 2) + ":" + time.substring(2, 4))
-                                    }
-                                    if (totalProfit > 0.toBigDecimal()) {
-                                        markday_color = context.resources.getColor(R.color.month_text_color)
-                                    } else if (totalProfit == 0.0.toBigDecimal()) {
-                                        markday_color = Color.BLACK
-                                    } else {
-                                        markday_color = context.resources.getColor(R.color.DARK_GREEN)
-                                    }
-                                    remoteViews.setTextColor(R.id.textView_markDay, markday_color)
-                                    appWidgetManager.updateAppWidget(myComponentName, remoteViews)
-                                    Companion.stockInfoList = stockInfoList
-                                    appWidgetManager.notifyAppWidgetViewDataChanged(appWidgetManager.getAppWidgetIds(myComponentName), R.id.listview_todo)
-                                } catch (e: Exception) {
-                                    _Utils.printException(context, e)
-                                    Log.e("wangsc", e.message!!)
-                                }
-                            }
-                        })
-                    } else {
-                        appWidgetManager.notifyAppWidgetViewDataChanged(appWidgetManager.getAppWidgetIds(myComponentName), R.id.listview_todo)
-                    }
                 }
                 ACTION_CLICK_LAYOUT_RIGHT -> {
                     val mainIntent = Intent(context, MainActivity::class.java)
@@ -306,7 +264,7 @@ class MyWidgetProvider : AppWidgetProvider() {
                     //相当于获得所有本程序创建的appwidget
                     var text = context.resources.getString(R.string.widget_text)
                     var progress = 0
-                    val lastMarkDay = dc.getLastMarkDay(UUID.fromString(dc.getSetting(Setting.KEYS.mark_day_focused, _Session.UUID_NULL).string))
+                    val lastMarkDay = dc.getLastMarkDay(UUID.fromString(dc.getSetting(Setting.KEYS.MarkDay主项, _Session.UUID_NULL).string))
                     if (lastMarkDay != null) {
                         val have = ((DateTime().timeInMillis - lastMarkDay.dateTime.timeInMillis) / 3600000).toInt()
                         val day = have / 24
@@ -340,8 +298,7 @@ class MyWidgetProvider : AppWidgetProvider() {
                     setBankBalance(context, remoteViews)
                     appWidgetManager.updateAppWidget(myComponentName, remoteViews)
 
-                    // 更新 todo
-                    isStockList = false
+
                     setWidgetAlertColor(remoteViews)
                     appWidgetManager.notifyAppWidgetViewDataChanged(appWidgetManager.getAppWidgetIds(myComponentName), R.id.listview_todo)
                 } catch (e: Exception) {
@@ -508,7 +465,6 @@ class MyWidgetProvider : AppWidgetProvider() {
         const val ACTION_CLICK_TEXT = "com.wang17.widget.CLICK_TEXT"
         const val ACTION_CLICK_LAYOUT_LEFT = "com.wang17.widget.CLICK_LAYOUT_LEFT"
         const val ACTION_CLICK_LAYOUT_RIGHT = "com.wang17.widget.CLICK_LAYOUT_RIGHT"
-        var isStockList = false
         var stockInfoList: List<StockInfo> = ArrayList()
         var markday_color = Color.BLACK
     }

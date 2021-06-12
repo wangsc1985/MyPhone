@@ -27,7 +27,6 @@ import com.wang17.myphone.eventbus.*
 import com.wang17.myphone.service.BuddhaService
 import com.wang17.myphone.service.MuyuService
 import com.wang17.myphone.service.StockService
-import com.wang17.myphone.structure.SmsType
 import com.wang17.myphone.util.*
 import com.wang17.myphone.util._Utils.getFilesWithSuffix
 import kotlinx.android.synthetic.main.fragment_buddha.*
@@ -347,7 +346,7 @@ class BuddhaFragment : Fragment() {
         }
 
         layout_dayTotal.setOnClickListener {
-            if (dc.getSetting(Setting.KEYS.is_authorize_buddha_record, false).boolean) {
+            if (dc.getSetting(Setting.KEYS.is查看念佛记录需要验证, false).boolean) {
                 _FingerUtils.showFingerPrintDialog(activity!!) {
                     val intent = Intent(context, BuddhaDetailActivity::class.java)
                     intent.putExtra("start", System.currentTimeMillis())
@@ -361,7 +360,7 @@ class BuddhaFragment : Fragment() {
         }
 
         layout_monthTotal.setOnClickListener {
-            if (dc.getSetting(Setting.KEYS.is_authorize_buddha_record, false).boolean) {
+            if (dc.getSetting(Setting.KEYS.is查看念佛记录需要验证, false).boolean) {
                 _FingerUtils.showFingerPrintDialog(activity!!) {
                     startActivity(Intent(context, BuddhaActivity::class.java))
                 }
@@ -509,7 +508,6 @@ class BuddhaFragment : Fragment() {
             //region 在StockReportService里面执行
             if (!_Utils.isServiceRunning(context!!, StockService::class.qualifiedName!!)) {
                 context!!.startService(Intent(context, StockService::class.java))
-                dc.editSetting(Setting.KEYS.is_stocks_listener, true)
                 animatorSuofang(abtn_stockAnimator)
             }
             //endregion
@@ -518,11 +516,9 @@ class BuddhaFragment : Fragment() {
         fab_stock.setOnLongClickListener { //region 在StockReportService里面执行
             if (_Utils.isServiceRunning(context!!, StockService::class.qualifiedName!!)) {
                 context!!.stopService(Intent(context, StockService::class.java))
-                dc.editSetting(Setting.KEYS.is_stocks_listener, false)
                 stopAnimatorSuofang(abtn_stockAnimator)
             } else {
                 context!!.startService(Intent(context, StockService::class.java))
-                dc.editSetting(Setting.KEYS.is_stocks_listener, true)
                 animatorSuofang(abtn_stockAnimator)
                 //
                 _Utils.clickHomeButton(context!!)

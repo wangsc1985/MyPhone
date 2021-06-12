@@ -10,7 +10,6 @@ import android.view.View
 import android.widget.RemoteViews
 import android.widget.RemoteViewsService
 import com.wang17.myphone.R
-import com.wang17.myphone.callback.CloudCallback
 import com.wang17.myphone.model.DateTime
 import com.wang17.myphone.model.Lunar
 import com.wang17.myphone.model.SolarTerm
@@ -122,32 +121,8 @@ class MyWidgetRemoteViewsService : RemoteViewsService() {
         override fun onDataSetChanged() {
             try {
                 dc = DataContext(mContext)
-                if (MyWidgetProvider.isStockList) {
-                    var time = ""
-                    for (info in MyWidgetProvider.stockInfoList) {
-                        var color: Int
-                        var color1: Int
-                        time = info.time
-                        color1 = if (info.type == -1) {
-                            Color.GREEN
-                        } else {
-                            Color.RED
-                        }
-                        color = if (info.increase > 0.toBigDecimal()) {
-                            Color.RED
-                        } else if (info.increase == 0.0.toBigDecimal()) {
-                            Color.WHITE
-                        } else {
-                            Color.GREEN
-                        }
-                        val isListStock = dc.getSetting(Setting.KEYS.is_widget_list_stock, true).boolean
-                        val format = if (isListStock) "0.00%" else "0"
-                        mToDoList.add(ToDo(info.name, DecimalFormat("0.00").format(info.price), DecimalFormat(format).format(info.increase), color1, color, color, false))
-                    }
-                    mToDoList.add(ToDo("          ", "          ", time, Color.WHITE, false))
-                } else {
+
                     setToDos()
-                }
 
                 //region 余额警戒
                 if (dc.getSetting(Setting.KEYS.is账户超额提醒, true).boolean) {
@@ -207,7 +182,7 @@ class MyWidgetRemoteViewsService : RemoteViewsService() {
                 val toDo = ToDo()
                 val now = DateTime()
                 val dayOffset = DateTime.dayOffset(now, bankToDo.dateTime)
-                if (dayOffset > dc.getSetting(Setting.KEYS.几天内待办显示, 3).int && bankToDo.money != 0.0) continue
+                if (dayOffset > dc.getSetting(Setting.KEYS.显示几天内的待办, 3).int && bankToDo.money != 0.0) continue
                 if (dayOffset < 0) {
                     toDo.header = "+" + -dayOffset
                     toDo.color1 = Color.RED
@@ -403,9 +378,9 @@ class MyWidgetRemoteViewsService : RemoteViewsService() {
 
                 //
                 dc.editSetting(Setting.KEYS.上一次几点保存的小部件戒期信息, today.day)
-                dc.editSetting(Setting.KEYS.小部件戒期信息, list_religious)
+                dc.editSetting(Setting.KEYS.今天小部件戒期信息, list_religious)
             } else {
-                val religious = dc.getSetting(Setting.KEYS.小部件戒期信息, "").string.split("\n").toTypedArray()
+                val religious = dc.getSetting(Setting.KEYS.今天小部件戒期信息, "").string.split("\n").toTypedArray()
                 for (str in religious) {
                     var color: Int
                     color = if (findReligiousKeyWord(str) == 1) {

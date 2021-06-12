@@ -41,39 +41,39 @@ public class MapLocation {
         return mOption;
     }
 
-    // 根据控件的选择，重新设置定位参数
-    private void resetOption(Context context) {
-        DataContext dataContext = new DataContext(context);
-        // 设置是否需要显示地址信息
-        locationOption.setNeedAddress(dataContext.getSetting(Setting.KEYS.map_isNeedAddress, true).getBoolean());
-        /**
-         * 设置是否优先返回GPS定位结果，如果30秒内GPS没有返回定位结果则进行网络定位
-         * 注意：只有在高精度模式下的单次定位有效，其他方式无效
-         */
-        locationOption.setGpsFirst(dataContext.getSetting(Setting.KEYS.map_isGpsFirst, false).getBoolean());
-        // 设置是否开启缓存
-        locationOption.setLocationCacheEnable(dataContext.getSetting(Setting.KEYS.map_isLocationCacheEnable, true).getBoolean());
-        // 设置是否单次定位
-        locationOption.setOnceLocation(dataContext.getSetting(Setting.KEYS.map_isOnceLocation, false).getBoolean());
-        //设置是否等待设备wifi刷新，如果设置为true,会自动变为单次定位，持续定位时不要使用
-        locationOption.setOnceLocationLatest(dataContext.getSetting(Setting.KEYS.map_isOnceLocationLatest, false).getBoolean());
-        //设置是否使用传感器
-        locationOption.setSensorEnable(dataContext.getSetting(Setting.KEYS.map_isSensorEnable, false).getBoolean());
-        //设置是否开启wifi扫描，如果设置为false时同时会停止主动刷新，停止以后完全依赖于系统刷新，定位位置可能存在误差
-            try {
-                // 设置发送定位请求的时间间隔,最小值为1000，如果小于1000，按照1000算
-                locationOption.setInterval(dataContext.getSetting(Setting.KEYS.map_interval, 30000).getLong());
-            } catch (Throwable e) {
-                e.printStackTrace();
-            }
-
-        try {
-            // 设置网络请求超时时间
-            locationOption.setHttpTimeOut(dataContext.getSetting(Setting.KEYS.map_httpTimeOut, 30000).getLong());
-        } catch (Throwable e) {
-            e.printStackTrace();
-        }
-    }
+//    // 根据控件的选择，重新设置定位参数
+//    private void resetOption(Context context) {
+//        DataContext dataContext = new DataContext(context);
+//        // 设置是否需要显示地址信息
+//        locationOption.setNeedAddress(dataContext.getSetting(Setting.KEYS.map_isNeedAddress, true).getBoolean());
+//        /**
+//         * 设置是否优先返回GPS定位结果，如果30秒内GPS没有返回定位结果则进行网络定位
+//         * 注意：只有在高精度模式下的单次定位有效，其他方式无效
+//         */
+//        locationOption.setGpsFirst(dataContext.getSetting(Setting.KEYS.map_isGpsFirst, false).getBoolean());
+//        // 设置是否开启缓存
+//        locationOption.setLocationCacheEnable(dataContext.getSetting(Setting.KEYS.map_isLocationCacheEnable, true).getBoolean());
+//        // 设置是否单次定位
+//        locationOption.setOnceLocation(dataContext.getSetting(Setting.KEYS.map_isOnceLocation, false).getBoolean());
+//        //设置是否等待设备wifi刷新，如果设置为true,会自动变为单次定位，持续定位时不要使用
+//        locationOption.setOnceLocationLatest(dataContext.getSetting(Setting.KEYS.map_isOnceLocationLatest, false).getBoolean());
+//        //设置是否使用传感器
+//        locationOption.setSensorEnable(dataContext.getSetting(Setting.KEYS.map_isSensorEnable, false).getBoolean());
+//        //设置是否开启wifi扫描，如果设置为false时同时会停止主动刷新，停止以后完全依赖于系统刷新，定位位置可能存在误差
+//            try {
+//                // 设置发送定位请求的时间间隔,最小值为1000，如果小于1000，按照1000算
+//                locationOption.setInterval(dataContext.getSetting(Setting.KEYS.map_interval, 30000).getLong());
+//            } catch (Throwable e) {
+//                e.printStackTrace();
+//            }
+//
+//        try {
+//            // 设置网络请求超时时间
+//            locationOption.setHttpTimeOut(dataContext.getSetting(Setting.KEYS.map_httpTimeOut, 30000).getLong());
+//        } catch (Throwable e) {
+//            e.printStackTrace();
+//        }
+//    }
 
     /**
      * 定位监听

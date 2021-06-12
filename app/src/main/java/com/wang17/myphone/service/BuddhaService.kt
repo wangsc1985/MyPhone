@@ -117,7 +117,7 @@ class BuddhaService : Service() {
 
             isShowFloatWindow = dc.getSetting(Setting.KEYS.is显示念佛悬浮窗, false).boolean
             isAutoPause = dc.getSetting(Setting.KEYS.is念佛自动暂停, false).boolean
-            targetTap = dc.getSetting(Setting.KEYS.念佛自动结束圈数, 12).int
+            targetTap = dc.getSetting(Setting.KEYS.几圈后自动结束念佛, 12).int
 
             yqSound = SoundPool(100, AudioManager.STREAM_MUSIC, 0)
             yqSound.load(this, R.raw.yq, 1)
@@ -222,6 +222,10 @@ class BuddhaService : Service() {
             override fun run() {
                 try {
                     val now = DateTime()
+                    if(now.minite==0&&now.second==0&&dc.getSetting(Setting.KEYS.is开启整点报时,true).boolean){
+                        _Utils.speaker(applicationContext,"${now.minite}点")
+                    }
+
 //                    e("${notificationCount}  ${notificationTime}  ${notificationCountDay}  ${notificationTimeDay}  ${now.toTimeString()}")
                     val dayOfYear = now.get(Calendar.DAY_OF_YEAR)
                     if (isTimerRuning) {
@@ -245,7 +249,7 @@ class BuddhaService : Service() {
                                 prvDayOfYear = dayOfYear
                             }
 
-                            if (dc.getSetting(Setting.KEYS.is念佛引罄间隔提醒, true).boolean) {
+                            if (dc.getSetting(Setting.KEYS.is念佛整圈响引罄, true).boolean) {
                                 dc.addRunLog("BuddhaService", "引罄", "${DateTime().toTimeString()}  ${notificationTime} prv count : ${prvCount} ; notification count : ${notificationCount}")
                                 yqSound.play(1, 1.0f, 1.0f, 0, 0, 1.0f)
                                 prvCount = notificationCount

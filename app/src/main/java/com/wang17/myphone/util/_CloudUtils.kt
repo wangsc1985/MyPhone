@@ -344,7 +344,7 @@ object _CloudUtils {
     }
 
     @JvmStatic
-    fun saveSetting(context: Context, pwd: String?, name: String?, value: Any, callback: CloudCallback?) {
+    fun saveSetting(context: Context, name: String?, value: Any, callback: CloudCallback?) {
         Thread {
             try {
                 val accessToken = getToken(context)
@@ -378,7 +378,7 @@ object _CloudUtils {
     }
 
     @JvmStatic
-    fun getSetting(context: Context, pwd: String, name: String, callback: CloudCallback) {
+    fun getSetting(context: Context, name: String, callback: CloudCallback) {
         Thread {
             // 获取accessToken
             try {
@@ -415,7 +415,7 @@ object _CloudUtils {
     }
 
     @JvmStatic
-    fun getSettingList(context: Context, pwd: String, callback: CloudCallback) {
+    fun getSettingList(context: Context, callback: CloudCallback) {
         Thread {
             // 获取accessToken
             try {
@@ -498,7 +498,7 @@ object _CloudUtils {
     }
 
     @JvmStatic
-    fun getUser(context: Context, pwd: String?, callback: CloudCallback?) {
+    fun getUser(context: Context, callback: CloudCallback?) {
         Thread {
             // 获取accessToken
             try {
@@ -530,7 +530,7 @@ object _CloudUtils {
     }
 
     @JvmStatic
-    fun addLocation(context: Context, pwd: String,speed:Float, latitude: Double, longitude: Double, address: String?, callback: CloudCallback?) {
+    fun addLocation(context: Context, speed:Float, latitude: Double, longitude: Double, address: String?, callback: CloudCallback?) {
         Thread {
             // 获取accessToken
             try {
@@ -589,7 +589,7 @@ object _CloudUtils {
         }.start()
     }
 
-    fun updatePositions(context: Context, pwd: String?, positoinsJson: String?, callback: CloudCallback?) {
+    fun updatePositions(context: Context,  positoinsJson: String?, callback: CloudCallback?) {
         Thread {
             // 获取accessToken
             try {
@@ -614,7 +614,7 @@ object _CloudUtils {
         }.start()
     }
 
-    fun getPositions(context: Context, pwd: String, callback: CloudCallback) {
+    fun getPositions(context: Context, callback: CloudCallback) {
         Thread {
             val result: MutableList<Position> = ArrayList()
             // 获取accessToken

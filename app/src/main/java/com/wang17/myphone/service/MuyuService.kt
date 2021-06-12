@@ -192,7 +192,7 @@ class MuyuService : Service() {
                     notificationTime = "$hour:${if (minite < 10) "0" + minite else minite}:${if (second < 10) "0" + second else second}"
                     EventBus.getDefault().post(EventBusMessage.getInstance(FromMuyuServiceTimer(), duration.toString()))
                     tv_duration?.setText(notificationTime)
-                    if (prvCount < notificationCount && dc.getSetting(Setting.KEYS.is念佛引罄间隔提醒, true).boolean) {
+                    if (prvCount < notificationCount && dc.getSetting(Setting.KEYS.is念佛整圈响引罄, true).boolean) {
                         guSound.play(1, 1.0f, 1.0f, 0, 0, 1.0f)
                         prvCount = notificationCount
                         if (notificationCount % 2 == 0) {

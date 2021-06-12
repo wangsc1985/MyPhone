@@ -118,7 +118,7 @@ class StockService : Service() {
 
     fun getPositionsFromCloud(): MutableList<Position> {
         val latch = CountDownLatch(1)
-        _CloudUtils.getPositions(this, "0088", object : CloudCallback {
+        _CloudUtils.getPositions(this, object : CloudCallback {
             override fun excute(code: Int, result: Any) {
                 when (code) {
                     0 -> {
@@ -261,10 +261,6 @@ class StockService : Service() {
             mPlayer.setLooping(false)
             mPlayer.setOnCompletionListener(OnCompletionListener {
                 try {
-                    if (++loadStockCount >= 10 && mDataContext.getSetting(Setting.KEYS.is_stock_load_noke, false).boolean) {
-                        playknock()
-                        loadStockCount = 1
-                    }
                     fillStockInfoList()
                     mPlayer.start()
                 } catch (e: IOException) {
@@ -425,7 +421,7 @@ class StockService : Service() {
                     }
                 }
                 //endregion
-                if (!speakMsg.isEmpty() && mDataContext.getSetting(Setting.KEYS.is_stock_broadcast, true).boolean) {
+                if (!speakMsg.isEmpty() && mDataContext.getSetting(Setting.KEYS.is语音播报价格大幅变动, true).boolean) {
                     var pitch = 1.0f
                     var speech = 1.2f
                     if (averageTotalIncreaseS < 0.toBigDecimal()) {

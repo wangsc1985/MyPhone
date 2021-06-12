@@ -219,7 +219,7 @@ class StockPositionHistoryActivity() : AppCompatActivity() {
 
     private fun updatePositions() {
         val json = JSON.toJSONString(positions)
-        _CloudUtils.updatePositions(this, dc.getSetting(Setting.KEYS.wx_request_code).string, json, object : CloudCallback {
+        _CloudUtils.updatePositions(this,json, object : CloudCallback {
             override fun excute(code: Int, result: Any) {
                 runOnUiThread(object : Runnable {
                     override fun run() {

@@ -359,7 +359,7 @@ public class AmapFragment extends Fragment implements AMap.OnMarkerClickListener
             @Override
             public void onClick(View v) {
                 // 插入海量点
-                List<Location> locations = dataContext.getLocatiosByDayspan(_Session.UUID_NULL, dataContext.getSetting(Setting.KEYS.location_search_days, 1000).getInt(), true);
+                List<Location> locations = dataContext.getLocatiosByDayspan(_Session.UUID_NULL, dataContext.getSetting(Setting.KEYS.地图搜索周期_天, 1000).getInt(), true);
                 List<MultiPointItem> latLngs = new ArrayList<>();
                 Log.e("wangsc", "location size: " + locations.size());
                 for (Location location : locations) {
@@ -372,7 +372,7 @@ public class AmapFragment extends Fragment implements AMap.OnMarkerClickListener
             @Override
             public boolean onLongClick(View v) {
                 // 插入热力点
-                List<Location> locations = dataContext.getLocatiosByDayspan(_Session.UUID_NULL, dataContext.getSetting(Setting.KEYS.location_search_days, 1000).getInt(), true);
+                List<Location> locations = dataContext.getLocatiosByDayspan(_Session.UUID_NULL, dataContext.getSetting(Setting.KEYS.地图搜索周期_天, 1000).getInt(), true);
                 List<LatLng> latLngs = new ArrayList<>();
                 Log.e("wangsc", "location size: " + locations.size());
                 for (Location location : locations) {
