@@ -54,29 +54,33 @@ object _CloudUtils {
     fun loadNewTokenFromHttp(context: Context): String {
         var token = ""
         // https://sahacloudmanager.azurewebsites.net/home/token/wxbdf065bdeba96196/d2834f10c0d81728e73a4fe4012c0a5d
-        val a = System.currentTimeMillis()
         val latch = CountDownLatch(1)
-        getRequest("https://sahacloudmanager.azurewebsites.net/home/token/${appid}/${secret}", HttpCallback { html ->
+        getRequest("https://sahacloudmanager.azurewebsites.net/home/token/${appid}/${secret}", HttpCallback {code, html ->
             try {
-//                e(html)
-                val data = html.split(":")
-                if (data.size == 2) {
-                    token = data[0]
-                    e(data[1].toDouble())
-                    e(data[1].toDouble().toLong())
-                    val exprires = data[1].toDouble().toLong()
+                when(code){
+                    _OkHttpUtil.HttpCode200->{
+                        val data = html.split(":")
+                        if (data.size == 2) {
+                            token = data[0]
+                            e(data[1].toDouble())
+                            e(data[1].toDouble().toLong())
+                            val exprires = data[1].toDouble().toLong()
 
-                    // 将新获取的token及exprires存入本地数据库
-                    val dc = DataContext(context)
-                    dc.editSetting("token", token)
-                    dc.editSetting("token_exprires", exprires)
-
-
-                    val b = System.currentTimeMillis()
-//                    e("从微软获取到token：$token, 有效期：${DateTime(exprires).toLongDateTimeString()} 用时：${b - a}")
+                            // 将新获取的token及exprires存入本地数据库
+                            val dc = DataContext(context)
+                            dc.editSetting("token", token)
+                            dc.editSetting("token_exprires", exprires)
+                        }
+                    }
+                    _OkHttpUtil.HttpCode503->{
+                        throw Exception("服务不可用")
+                    }
+                    _OkHttpUtil.HttpCode404->{
+                        throw Exception("网页不存在")
+                    }
                 }
             } catch (e: Exception) {
-                e("_CloudUtils.loadNewTokenFromHttp  "+e.message!!)
+                throw e
             } finally {
                 latch.countDown()
             }
@@ -102,20 +106,30 @@ object _CloudUtils {
                 args.add(PostArgument("count", buddha.count))
                 args.add(PostArgument("summary", buddha.summary))
                 args.add(PostArgument("type", buddha.type))
-                postRequestByJson(url, args, HttpCallback { html ->
+                postRequestByJson(url, args, HttpCallback {code, html ->
                     try {
-                        val errcode = _JsonUtils.getValueByKey(html, "errcode")
-                        val errmsg = _JsonUtils.getValueByKey(html, "errmsg")
-                        if(errcode=="0"){
-                            val resp_data: Any = _JsonUtils.getValueByKey(html, "resp_data")
-                            val code = _JsonUtils.getValueByKey(resp_data.toString(), "code").toInt()
-                            val msg = _JsonUtils.getValueByKey(resp_data.toString(), "msg")
-                            when (code) {
-                                0 -> callback?.excute(code, msg)
-                                else-> callback?.excute(code, msg)
+                        when(code){
+                            _OkHttpUtil.HttpCode200->{
+                                val errcode = _JsonUtils.getValueByKey(html, "errcode")
+                                val errmsg = _JsonUtils.getValueByKey(html, "errmsg")
+                                if(errcode=="0"){
+                                    val resp_data: Any = _JsonUtils.getValueByKey(html, "resp_data")
+                                    val code = _JsonUtils.getValueByKey(resp_data.toString(), "code").toInt()
+                                    val msg = _JsonUtils.getValueByKey(resp_data.toString(), "msg")
+                                    when (code) {
+                                        0 -> callback?.excute(code, msg)
+                                        else-> callback?.excute(code, msg)
+                                    }
+                                }else{
+                                    callback?.excute(-2, errmsg)
+                                }
                             }
-                        }else{
-                            callback?.excute(-2, errmsg)
+                            _OkHttpUtil.HttpCode503->{
+                                callback?.excute(_OkHttpUtil.HttpCode503, "服务不可用")
+                            }
+                            _OkHttpUtil.HttpCode404->{
+                                callback?.excute(_OkHttpUtil.HttpCode404, "网页不存在")
+                            }
                         }
                     } catch (e: Exception) {
                         callback?.excute(-200, e.message)
@@ -142,21 +156,30 @@ object _CloudUtils {
                 args.add(PostArgument("count", buddha.count))
                 args.add(PostArgument("summary", buddha.summary))
                 args.add(PostArgument("type", buddha.type))
-                postRequestByJson(url, args, HttpCallback { html ->
+                postRequestByJson(url, args, HttpCallback { code,html ->
                     try {
-                        e(html)
-                        val errcode = _JsonUtils.getValueByKey(html, "errcode")
-                        val errmsg = _JsonUtils.getValueByKey(html, "errmsg")
-                        if(errcode=="0"){
-                            val resp_data: Any = _JsonUtils.getValueByKey(html, "resp_data")
-                            val code = _JsonUtils.getValueByKey(resp_data.toString(), "code").toInt()
-                            val msg = _JsonUtils.getValueByKey(resp_data.toString(), "msg")
-                            when (code) {
-                                0 -> callback?.excute(code, msg)
-                                else-> callback?.excute(code, msg)
+                        when(code){
+                            _OkHttpUtil.HttpCode200->{
+                                val errcode = _JsonUtils.getValueByKey(html, "errcode")
+                                val errmsg = _JsonUtils.getValueByKey(html, "errmsg")
+                                if(errcode=="0"){
+                                    val resp_data: Any = _JsonUtils.getValueByKey(html, "resp_data")
+                                    val code = _JsonUtils.getValueByKey(resp_data.toString(), "code").toInt()
+                                    val msg = _JsonUtils.getValueByKey(resp_data.toString(), "msg")
+                                    when (code) {
+                                        0 -> callback?.excute(code, msg)
+                                        else-> callback?.excute(code, msg)
+                                    }
+                                }else{
+                                    callback?.excute(-2, errmsg)
+                                }
                             }
-                        }else{
-                            callback?.excute(-2, errmsg)
+                            _OkHttpUtil.HttpCode503->{
+                                callback?.excute(_OkHttpUtil.HttpCode503, "服务不可用")
+                            }
+                            _OkHttpUtil.HttpCode404->{
+                                callback?.excute(_OkHttpUtil.HttpCode404, "网页不存在")
+                            }
                         }
                     } catch (e: Exception) {
                         callback?.excute(-200, e.message)
@@ -178,22 +201,30 @@ object _CloudUtils {
                 val args: MutableList<PostArgument> = ArrayList()
                 args.add(PostArgument("phone", phone))
                 args.add(PostArgument("startTime", buddha.startTime.timeInMillis))
-                postRequestByJson(url, args, HttpCallback { html ->
+                postRequestByJson(url, args, HttpCallback { code,html ->
                     try {
-                        e(html)
-
-                        val errcode = _JsonUtils.getValueByKey(html, "errcode")
-                        val errmsg = _JsonUtils.getValueByKey(html, "errmsg")
-                        if(errcode=="0"){
-                            val resp_data: Any = _JsonUtils.getValueByKey(html, "resp_data")
-                            val code = _JsonUtils.getValueByKey(resp_data.toString(), "code").toInt()
-                            val msg = _JsonUtils.getValueByKey(resp_data.toString(), "msg")
-                            when (code) {
-                                0 -> callback?.excute(0, msg)
-                                else-> callback?.excute(-1, msg)
+                        when(code){
+                            _OkHttpUtil.HttpCode200->{
+                                val errcode = _JsonUtils.getValueByKey(html, "errcode")
+                                val errmsg = _JsonUtils.getValueByKey(html, "errmsg")
+                                if(errcode=="0"){
+                                    val resp_data: Any = _JsonUtils.getValueByKey(html, "resp_data")
+                                    val code = _JsonUtils.getValueByKey(resp_data.toString(), "code").toInt()
+                                    val msg = _JsonUtils.getValueByKey(resp_data.toString(), "msg")
+                                    when (code) {
+                                        0 -> callback?.excute(0, msg)
+                                        else-> callback?.excute(-1, msg)
+                                    }
+                                }else{
+                                    callback?.excute(-2, errmsg)
+                                }
                             }
-                        }else{
-                            callback?.excute(-2, errmsg)
+                            _OkHttpUtil.HttpCode503->{
+                                callback?.excute(_OkHttpUtil.HttpCode503, "服务不可用")
+                            }
+                            _OkHttpUtil.HttpCode404->{
+                                callback?.excute(_OkHttpUtil.HttpCode404, "网页不存在")
+                            }
                         }
                     } catch (e: Exception) {
                         callback?.excute(-1, e.message)
@@ -232,21 +263,31 @@ object _CloudUtils {
 
                 // 通过accessToken，env，云函数名，args 在微信小程序云端获取数据
                 val url = "https://api.weixin.qq.com/tcb/invokecloudfunction?access_token=$accessToken&env=$env&name=addBuddhaRange"
-                postRequestByJsonStr(url, json.toString(), HttpCallback { html ->
+                postRequestByJsonStr(url, json.toString(), HttpCallback { code,html ->
                     try {
-                        e("add buddha list html: "+html)
-                        val errcode = _JsonUtils.getValueByKey(html, "errcode")
-                        val errmsg = _JsonUtils.getValueByKey(html, "errmsg")
-                        if(errcode=="0"){
-                            val resp_data: Any = _JsonUtils.getValueByKey(html, "resp_data")
-                            val code = _JsonUtils.getValueByKey(resp_data.toString(), "code").toInt()
-                            val msg = _JsonUtils.getValueByKey(resp_data.toString(), "msg")
-                            when (code) {
-                                0 -> callback?.excute(0, msg)
-                                else-> callback?.excute(-1, msg)
+                        when(code){
+                            _OkHttpUtil.HttpCode200->{
+                                e("add buddha list html: "+html)
+                                val errcode = _JsonUtils.getValueByKey(html, "errcode")
+                                val errmsg = _JsonUtils.getValueByKey(html, "errmsg")
+                                if(errcode=="0"){
+                                    val resp_data: Any = _JsonUtils.getValueByKey(html, "resp_data")
+                                    val code = _JsonUtils.getValueByKey(resp_data.toString(), "code").toInt()
+                                    val msg = _JsonUtils.getValueByKey(resp_data.toString(), "msg")
+                                    when (code) {
+                                        0 -> callback?.excute(0, msg)
+                                        else-> callback?.excute(-1, msg)
+                                    }
+                                }else{
+                                    callback?.excute(-2, errmsg)
+                                }
                             }
-                        }else{
-                            callback?.excute(-2, errmsg)
+                            _OkHttpUtil.HttpCode503->{
+                                callback?.excute(_OkHttpUtil.HttpCode503, "服务不可用")
+                            }
+                            _OkHttpUtil.HttpCode404->{
+                                callback?.excute(_OkHttpUtil.HttpCode404, "网页不存在")
+                            }
                         }
                     } catch (e: Exception) {
                         callback?.excute(-3, e.message)
@@ -289,21 +330,31 @@ object _CloudUtils {
                 e("addIntegrateBuddhas json : "+json.toString())
                 // 通过accessToken，env，云函数名，args 在微信小程序云端获取数据
                 val url = "https://api.weixin.qq.com/tcb/invokecloudfunction?access_token=$accessToken&env=$env&name=addIntegrateBuddhaRange"
-                postRequestByJsonStr(url, json.toString(), HttpCallback { html ->
+                postRequestByJsonStr(url, json.toString(), HttpCallback {code, html ->
                     try {
-                        e("addIntegrateBuddhas html: "+html)
-                        val errcode = _JsonUtils.getValueByKey(html, "errcode")
-                        val errmsg = _JsonUtils.getValueByKey(html, "errmsg")
-                        if(errcode=="0"){
-                            val resp_data: Any = _JsonUtils.getValueByKey(html, "resp_data")
-                            val code = _JsonUtils.getValueByKey(resp_data.toString(), "code").toInt()
-                            val msg = _JsonUtils.getValueByKey(resp_data.toString(), "msg")
-                            when (code) {
-                                0 -> callback?.excute(0, msg)
-                                else-> callback?.excute(-1, msg)
+                        when(code){
+                            _OkHttpUtil.HttpCode200->{
+                                e("addIntegrateBuddhas html: "+html)
+                                val errcode = _JsonUtils.getValueByKey(html, "errcode")
+                                val errmsg = _JsonUtils.getValueByKey(html, "errmsg")
+                                if(errcode=="0"){
+                                    val resp_data: Any = _JsonUtils.getValueByKey(html, "resp_data")
+                                    val code = _JsonUtils.getValueByKey(resp_data.toString(), "code").toInt()
+                                    val msg = _JsonUtils.getValueByKey(resp_data.toString(), "msg")
+                                    when (code) {
+                                        0 -> callback?.excute(0, msg)
+                                        else-> callback?.excute(-1, msg)
+                                    }
+                                }else{
+                                    callback?.excute(-1, errmsg)
+                                }
                             }
-                        }else{
-                            callback?.excute(-1, errmsg)
+                            _OkHttpUtil.HttpCode503->{
+                                callback?.excute(_OkHttpUtil.HttpCode503, "服务不可用")
+                            }
+                            _OkHttpUtil.HttpCode404->{
+                                callback?.excute(_OkHttpUtil.HttpCode404, "网页不存在")
+                            }
                         }
                     } catch (e: Exception) {
                         callback?.excute(-2, e.message)
@@ -329,10 +380,20 @@ object _CloudUtils {
                 val args: MutableList<PostArgument> = ArrayList()
                 args.add(PostArgument("phone", phone))
                 args.add(PostArgument("startTime", startTime.timeInMillis))
-                postRequestByJson(url, args, HttpCallback { html ->
+                postRequestByJson(url, args, HttpCallback { code,html ->
                     try {
-                        val resp_data = _JsonUtils.getValueByKey(html, "resp_data")
-                        callback?.excute(0, resp_data)
+                        when(code){
+                            _OkHttpUtil.HttpCode200->{
+                                val resp_data = _JsonUtils.getValueByKey(html, "resp_data")
+                                callback?.excute(0, resp_data)
+                            }
+                            _OkHttpUtil.HttpCode503->{
+                                callback?.excute(_OkHttpUtil.HttpCode503, "服务不可用")
+                            }
+                            _OkHttpUtil.HttpCode404->{
+                                callback?.excute(_OkHttpUtil.HttpCode404, "网页不存在")
+                            }
+                        }
                     } catch (e: Exception) {
                         callback?.excute(-1, e.message)
                     }
@@ -354,18 +415,27 @@ object _CloudUtils {
                 args.add(PostArgument("phone", phone))
                 args.add(PostArgument("name", name))
                 args.add(PostArgument("value", value.toString()))
-                postRequestByJson(url, args, HttpCallback { html ->
+                postRequestByJson(url, args, HttpCallback { code,html ->
                     try {
-                        e(html)
-                        val resp_data: Any = _JsonUtils.getValueByKey(html, "resp_data")
-                        if (_JsonUtils.isContainsKey(resp_data, "success")) {
-                            val code = _JsonUtils.getValueByKey(resp_data.toString(), "code").toInt()
-                            when (code) {
-                                0 -> callback?.excute(0, "修改完毕")
-                                1 -> callback?.excute(1, "添加成功")
+                        when(code){
+                            _OkHttpUtil.HttpCode200->{
+                                val resp_data: Any = _JsonUtils.getValueByKey(html, "resp_data")
+                                if (_JsonUtils.isContainsKey(resp_data, "success")) {
+                                    val code = _JsonUtils.getValueByKey(resp_data.toString(), "code").toInt()
+                                    when (code) {
+                                        0 -> callback?.excute(0, "修改完毕")
+                                        1 -> callback?.excute(1, "添加成功")
+                                    }
+                                } else if (_JsonUtils.isContainsKey(resp_data, "msg")) {
+                                    callback?.excute(-1, "访问码错误")
+                                }
                             }
-                        } else if (_JsonUtils.isContainsKey(resp_data, "msg")) {
-                            callback?.excute(-1, "访问码错误")
+                            _OkHttpUtil.HttpCode503->{
+                                callback?.excute(_OkHttpUtil.HttpCode503, "服务不可用")
+                            }
+                            _OkHttpUtil.HttpCode404->{
+                                callback?.excute(_OkHttpUtil.HttpCode404, "网页不存在")
+                            }
                         }
                     } catch (e: Exception) {
                         callback?.excute(-2, e.message)
@@ -388,26 +458,34 @@ object _CloudUtils {
                 val args: MutableList<PostArgument> = ArrayList()
                 args.add(PostArgument("phone", phone))
                 args.add(PostArgument("name", name))
-                postRequestByJson(url, args, object : HttpCallback {
-                    override fun excute(html: String) {
+                postRequestByJson(url, args){code, html->
                         try {
-                            e(html)
-                            val resp_data: Any = _JsonUtils.getValueByKey(html, "resp_data")
-                            if (_JsonUtils.isContainsKey(resp_data, "value")) {
-                                val value = _JsonUtils.getValueByKey(resp_data, "value")
-                                callback.excute(0, value)
-                            } else if (_JsonUtils.isContainsKey(resp_data, "msg")) {
-                                val code = _JsonUtils.getValueByKey(resp_data, "code").toInt()
-                                when (code) {
-                                    0 -> callback.excute(-3, "操作码错误")
-                                    1 -> callback.excute(-4, "不存在配置信息")
+                            when(code){
+                                _OkHttpUtil.HttpCode200->{
+                                    val resp_data: Any = _JsonUtils.getValueByKey(html, "resp_data")
+                                    if (_JsonUtils.isContainsKey(resp_data, "value")) {
+                                        val value = _JsonUtils.getValueByKey(resp_data, "value")
+                                        callback.excute(0, value)
+                                    } else if (_JsonUtils.isContainsKey(resp_data, "msg")) {
+                                        val code = _JsonUtils.getValueByKey(resp_data, "code").toInt()
+                                        when (code) {
+                                            0 -> callback.excute(-3, "操作码错误")
+                                            1 -> callback.excute(-4, "不存在配置信息")
+                                        }
+                                    }
+                                }
+                                _OkHttpUtil.HttpCode503->{
+                                    callback.excute(_OkHttpUtil.HttpCode503, "服务不可用")
+                                }
+                                _OkHttpUtil.HttpCode404->{
+                                    callback.excute(_OkHttpUtil.HttpCode404, "网页不存在")
                                 }
                             }
                         } catch (e: Exception) {
                             callback.excute(-2, e.message!!)
                         }
                     }
-                })
+
             } catch (e: Exception) {
                 callback.excute(-1, e.message!!)
             }
@@ -424,25 +502,33 @@ object _CloudUtils {
                 val url = "https://api.weixin.qq.com/tcb/invokecloudfunction?access_token=$accessToken&env=$env&name=getSettingList"
                 val args: MutableList<PostArgument> = ArrayList()
                 args.add(PostArgument("phone", phone))
-                postRequestByJson(url, args, object : HttpCallback {
-                    override fun excute(html: String) {
+                postRequestByJson(url, args){code,html->
                         try {
-                            val resp_data: Any = _JsonUtils.getValueByKey(html, "resp_data")
-                            val data = _JsonUtils.getValueByKey(resp_data.toString(), "data")
-                            val jsonArray = JSONArray(data)
-                            var result = StringBuffer()
-                            for(i in 0..jsonArray.length()-1){
-                                val jsonObject = jsonArray.getString(i)
-                                val name = _JsonUtils.getValueByKey(jsonObject, "name")
-                                val value = _JsonUtils.getValueByKey(jsonObject, "value")
-                                result.append("name : ${name} , value : ${value}\n")
+                            when(code){
+                                _OkHttpUtil.HttpCode200->{
+                                    val resp_data: Any = _JsonUtils.getValueByKey(html, "resp_data")
+                                    val data = _JsonUtils.getValueByKey(resp_data.toString(), "data")
+                                    val jsonArray = JSONArray(data)
+                                    var result = StringBuffer()
+                                    for(i in 0..jsonArray.length()-1){
+                                        val jsonObject = jsonArray.getString(i)
+                                        val name = _JsonUtils.getValueByKey(jsonObject, "name")
+                                        val value = _JsonUtils.getValueByKey(jsonObject, "value")
+                                        result.append("name : ${name} , value : ${value}\n")
+                                    }
+                                    callback.excute(0,result.toString())
+                                }
+                                _OkHttpUtil.HttpCode503->{
+                                    callback.excute(_OkHttpUtil.HttpCode503, "服务不可用")
+                                }
+                                _OkHttpUtil.HttpCode404->{
+                                    callback.excute(_OkHttpUtil.HttpCode404, "网页不存在")
+                                }
                             }
-                            callback.excute(0,result.toString())
                         } catch (e: Exception) {
                             callback.excute(-2, e.message!!)
                         }
-                    }
-                })
+                }
             } catch (e: Exception) {
                 callback.excute(-1, e.message!!)
             }
@@ -462,28 +548,38 @@ object _CloudUtils {
                 val url = "https://api.weixin.qq.com/tcb/invokecloudfunction?access_token=$accessToken&env=$env&name=getNewMsg"
                 val args: MutableList<PostArgument> = ArrayList()
                 args.add(PostArgument("phone", phone))
-                postRequestByJson(url, args, HttpCallback { html ->
+                postRequestByJson(url, args, HttpCallback { code,html ->
                     try {
-                        e(html)
-                        val errcode = _JsonUtils.getValueByKey(html, "errcode")
-                        val errmsg = _JsonUtils.getValueByKey(html, "errmsg")
+                        when(code){
+                            _OkHttpUtil.HttpCode200->{
+                                val errcode = _JsonUtils.getValueByKey(html, "errcode")
+                                val errmsg = _JsonUtils.getValueByKey(html, "errmsg")
 
-                        when (errcode) {
-                            "0" -> {
-                                val resp_data: Any = _JsonUtils.getValueByKey(html, "resp_data")
+                                when (errcode) {
+                                    "0" -> {
+                                        val resp_data: Any = _JsonUtils.getValueByKey(html, "resp_data")
 
-                                if (_JsonUtils.isContainsKey(resp_data.toString(), "lt")) {
-                                    val count = _JsonUtils.getValueByKey(resp_data.toString(), "ct").toString().toInt()
-                                    if (count > 0) {
-                                        val date = _JsonUtils.getValueByKey(resp_data.toString(), "lt").toString().toLong()
-                                        callback.excute(1, DateTime(date).toOffset2() + "  +" + count)
-                                    } else {
-                                        callback.excute(0, "")
+                                        if (_JsonUtils.isContainsKey(resp_data.toString(), "lt")) {
+                                            val count = _JsonUtils.getValueByKey(resp_data.toString(), "ct").toString().toInt()
+                                            if (count > 0) {
+                                                val date = _JsonUtils.getValueByKey(resp_data.toString(), "lt").toString().toLong()
+                                                callback.excute(1, DateTime(date).toOffset2() + "  +" + count)
+                                            } else {
+                                                callback.excute(0, "")
+                                            }
+                                        }
+                                    }
+                                    else -> {
+                                        callback.excute(-2, errmsg.toString())
                                     }
                                 }
+
                             }
-                            else -> {
-                                callback.excute(-2, errmsg.toString())
+                            _OkHttpUtil.HttpCode503->{
+                                callback.excute(_OkHttpUtil.HttpCode503, "服务不可用")
+                            }
+                            _OkHttpUtil.HttpCode404->{
+                                callback.excute(_OkHttpUtil.HttpCode404, "网页不存在")
                             }
                         }
 
@@ -507,17 +603,28 @@ object _CloudUtils {
                 val url = "https://api.weixin.qq.com/tcb/invokecloudfunction?access_token=$accessToken&env=$env&name=getUser"
                 val args: MutableList<PostArgument> = ArrayList()
                 args.add(PostArgument("phone", phone))
-                postRequestByJson(url, args, HttpCallback { html ->
+                postRequestByJson(url, args, HttpCallback {code, html ->
                     try {
-                        val resp_data: Any = _JsonUtils.getValueByKey(html, "resp_data")
-                        val data = _JsonUtils.getValueByKey(resp_data.toString(), "data")
-                        val jsonArray = JSONArray(data)
-                        if (jsonArray.length() > 0) {
-                            val jsonObject = jsonArray.getString(0)
-                            val name = _JsonUtils.getValueByKey(jsonObject, "name").toString()
-                            callback?.excute(0, name)
-                        } else {
-                            callback?.excute(1, "访问码有误")
+                        when(code){
+                            _OkHttpUtil.HttpCode200->{
+                                val resp_data: Any = _JsonUtils.getValueByKey(html, "resp_data")
+                                val data = _JsonUtils.getValueByKey(resp_data.toString(), "data")
+                                val jsonArray = JSONArray(data)
+                                if (jsonArray.length() > 0) {
+                                    val jsonObject = jsonArray.getString(0)
+                                    val name = _JsonUtils.getValueByKey(jsonObject, "name").toString()
+                                    callback?.excute(0, name)
+                                } else {
+                                    callback?.excute(1, "访问码有误")
+                                }
+
+                            }
+                            _OkHttpUtil.HttpCode503->{
+                                callback?.excute(_OkHttpUtil.HttpCode503, "服务不可用")
+                            }
+                            _OkHttpUtil.HttpCode404->{
+                                callback?.excute(_OkHttpUtil.HttpCode404, "网页不存在")
+                            }
                         }
                     } catch (e: Exception) {
                         callback?.excute(-2, e.message)
@@ -544,10 +651,20 @@ object _CloudUtils {
                 args.add(PostArgument("longitude", longitude))
                 args.add(PostArgument("speed", speed))
                 args.add(PostArgument("address", address))
-                postRequestByJson(url, args, HttpCallback { html ->
+                postRequestByJson(url, args, HttpCallback { code,html ->
                     try {
-                        e(html)
-                        callback?.excute(0, html)
+                        when(code){
+                            _OkHttpUtil.HttpCode200->{
+                                callback?.excute(0, html)
+
+                            }
+                            _OkHttpUtil.HttpCode503->{
+                                callback?.excute(_OkHttpUtil.HttpCode503, "服务不可用")
+                            }
+                            _OkHttpUtil.HttpCode404->{
+                                callback?.excute(_OkHttpUtil.HttpCode404, "网页不存在")
+                            }
+                        }
                     } catch (e: Exception) {
                         callback?.excute(-2, e.message)
                     }
@@ -567,17 +684,27 @@ object _CloudUtils {
                 // 通过accessToken，env，云函数名，args 在微信小程序云端获取数据
                 val url = "https://api.weixin.qq.com/tcb/invokecloudfunction?access_token=$accessToken&env=$env&name=getLocations"
                 val args: List<PostArgument> = ArrayList()
-                postRequestByJson(url, args, HttpCallback { html ->
+                postRequestByJson(url, args, HttpCallback {code, html ->
                     try {
-                        e(html)
-                        val resp_data: Any = _JsonUtils.getValueByKey(html, "resp_data")
-                        val data = _JsonUtils.getValueByKey(resp_data.toString(), "data").toString()
-                        val jsonArray = JSONArray(data)
-                        for (i in jsonArray.length() - 1 downTo 0) {
-                            val jsonObject = jsonArray.getString(i)
-                            val address = _JsonUtils.getValueByKey(jsonObject, "address").toString()
-                            val dateTime = _JsonUtils.getValueByKey(jsonObject, "dateTime").toString()
-                            e(dateTime)
+                        when(code){
+                            _OkHttpUtil.HttpCode200->{
+                                val resp_data: Any = _JsonUtils.getValueByKey(html, "resp_data")
+                                val data = _JsonUtils.getValueByKey(resp_data.toString(), "data").toString()
+                                val jsonArray = JSONArray(data)
+                                for (i in jsonArray.length() - 1 downTo 0) {
+                                    val jsonObject = jsonArray.getString(i)
+                                    val address = _JsonUtils.getValueByKey(jsonObject, "address").toString()
+                                    val dateTime = _JsonUtils.getValueByKey(jsonObject, "dateTime").toString()
+                                    e(dateTime)
+                                }
+
+                            }
+                            _OkHttpUtil.HttpCode503->{
+                                callback?.excute(_OkHttpUtil.HttpCode503, "服务不可用")
+                            }
+                            _OkHttpUtil.HttpCode404->{
+                                callback?.excute(_OkHttpUtil.HttpCode404, "网页不存在")
+                            }
                         }
                     } catch (e: Exception) {
                         callback?.excute(-2, e.message)
@@ -600,10 +727,19 @@ object _CloudUtils {
                 val args: MutableList<PostArgument> = ArrayList()
                 args.add(PostArgument("phone", phone))
                 args.add(PostArgument("positions", positoinsJson))
-                postRequestByJson(url, args, HttpCallback { html ->
+                postRequestByJson(url, args, HttpCallback {code, html ->
                     try {
-                        e(html)
-                        callback?.excute(0, html)
+                        when(code){
+                            _OkHttpUtil.HttpCode200->{
+                                callback?.excute(0, html)
+                            }
+                            _OkHttpUtil.HttpCode503->{
+                                callback?.excute(_OkHttpUtil.HttpCode503, "服务不可用")
+                            }
+                            _OkHttpUtil.HttpCode404->{
+                                callback?.excute(_OkHttpUtil.HttpCode404, "网页不存在")
+                            }
+                        }
                     } catch (e: Exception) {
                         callback?.excute(-2, e.message)
                     }
@@ -623,31 +759,39 @@ object _CloudUtils {
             val url = "https://api.weixin.qq.com/tcb/invokecloudfunction?access_token=$accessToken&env=yipinshangdu-4wk7z&name=getPositions"
             val args: MutableList<PostArgument> = ArrayList()
             args.add(PostArgument("phone", phone))
-            postRequestByJson(url, args, object : HttpCallback {
-                override fun excute(html: String) {
+            postRequestByJson(url, args){code,html->
                     try {
-                        val resp_data: Any? = _JsonUtils.getValueByKey(html, "resp_data")
-                        e("get positions : $resp_data")
-                        val data = _JsonUtils.getValueByKey(resp_data.toString(), "data")
-                        val jsonArray = JSONArray(data)
-                        for (i in 0 until jsonArray.length()) {
+                        when(code){
+                            _OkHttpUtil.HttpCode200->{
+                                val resp_data: Any? = _JsonUtils.getValueByKey(html, "resp_data")
+                                e("get positions : $resp_data")
+                                val data = _JsonUtils.getValueByKey(resp_data.toString(), "data")
+                                val jsonArray = JSONArray(data)
+                                for (i in 0 until jsonArray.length()) {
 
-                            val jsonObject = jsonArray.getString(i)
+                                    val jsonObject = jsonArray.getString(i)
 
-                            val position = Position(_JsonUtils.getValueByKey(jsonObject, "code"),
-                                _JsonUtils.getValueByKey(jsonObject, "name"),
-                                _JsonUtils.getValueByKey(jsonObject, "cost").toBigDecimal(),
-                            0,
-                                _JsonUtils.getValueByKey(jsonObject, "amount").toInt(),
-                                _JsonUtils.getValueByKey(jsonObject, "exchange"),0.toBigDecimal())
-                            if (position.amount > 0) result.add(position)
+                                    val position = Position(_JsonUtils.getValueByKey(jsonObject, "code"),
+                                        _JsonUtils.getValueByKey(jsonObject, "name"),
+                                        _JsonUtils.getValueByKey(jsonObject, "cost").toBigDecimal(),
+                                        0,
+                                        _JsonUtils.getValueByKey(jsonObject, "amount").toInt(),
+                                        _JsonUtils.getValueByKey(jsonObject, "exchange"),0.toBigDecimal())
+                                    if (position.amount > 0) result.add(position)
+                                }
+                                callback.excute(0, result)
+                            }
+                            _OkHttpUtil.HttpCode503->{
+                                callback.excute(_OkHttpUtil.HttpCode503, "服务不可用")
+                            }
+                            _OkHttpUtil.HttpCode404->{
+                                callback.excute(_OkHttpUtil.HttpCode404, "网页不存在")
+                            }
                         }
-                        callback.excute(0, result)
                     } catch (e: Exception) {
                         callback.excute(-2, e.message ?: "")
                     }
-                }
-            })
+            }
         }.start()
     }
 

@@ -321,12 +321,8 @@ class OperationFragment : Fragment() {
 
     fun download(){
         val url = "http://openapi.baidu.com/oauth/2.0/authorize?response_type=token&client_id=In28xdlKbsW13MiS86QOc8AEilUREQxb&redirect_uri=oob&scope=basic,netdisk&display=mobile&state=xxx"
-        _OkHttpUtil.getRequest(url,object : HttpCallback{
-            override fun excute(html: String?) {
-
-
-            }
-        })
+        _OkHttpUtil.getRequest(url){code,html->
+        }
     }
 
     private fun passwordLoginSms() {

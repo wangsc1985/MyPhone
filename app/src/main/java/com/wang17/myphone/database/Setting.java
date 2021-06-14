@@ -78,7 +78,7 @@ public class Setting{
         念佛最佳音量,
         muyu_period,yq_period,muyu_count,
 
-        main_start_page_index,wisdom,
+        main_start_page_index, 戒期wisdom,
         地图搜索半径_米, 地图搜索周期_天,足迹展示哪一年,
 
         buddha_music_name,

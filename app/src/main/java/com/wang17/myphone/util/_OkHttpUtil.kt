@@ -17,6 +17,11 @@ import java.io.IOException
  */
 object _OkHttpUtil {
 
+    @JvmStatic
+    val HttpCode404=404 // 请求网页不存在
+    val HttpCode503=503 // 服务不可用
+    val HttpCode200=200 // 成功返回网页
+
     @JvmField
     var client: OkHttpClient
     init {
@@ -44,17 +49,17 @@ object _OkHttpUtil {
             //请求加入调度
             call.enqueue(object : Callback {
                 override fun onFailure(call: Call, e: IOException) {
-                    callback.excute("........  ${e.message} ........")
+                    callback.excute(HttpCode503,"${e.message}")
                 }
 
                 @Throws(IOException::class)
                 override fun onResponse(call: Call, response: Response) {
+                    val htmlStr = response.body!!.string()
                     if (response.isSuccessful) {
                         //回调的方法执行在子线程。
-                        val htmlStr = response.body!!.string()
-                        callback.excute(htmlStr)
+                        callback.excute(HttpCode200,htmlStr)
                     }else{
-                        callback.excute("........  response请求失败 ......")
+                        callback.excute(HttpCode404,htmlStr)
                     }
                 }
             })
@@ -75,17 +80,17 @@ object _OkHttpUtil {
         //请求加入调度
         call.enqueue(object : Callback {
             override fun onFailure(call: Call, e: IOException) {
-                callback.excute("........  ${e.message} ........")
+                callback.excute(HttpCode503,"${e.message}")
             }
 
             @Throws(IOException::class)
             override fun onResponse(call: Call, response: Response) {
+                val htmlStr = response.body!!.string()
                 if (response.isSuccessful) {
                     //回调的方法执行在子线程。
-                    val htmlStr = response.body!!.string()
-                    callback.excute(htmlStr)
+                    callback.excute(HttpCode200,htmlStr)
                 }else{
-                    callback.excute("........  response请求失败 ......")
+                    callback.excute(HttpCode404,htmlStr)
                 }
             }
         })
@@ -109,17 +114,17 @@ object _OkHttpUtil {
         //请求加入调度
         call.enqueue(object : Callback {
             override fun onFailure(call: Call, e: IOException) {
-                callback.excute("........  ${e.message} ........")
+                callback.excute(HttpCode503,"${e.message}")
             }
 
             @Throws(IOException::class)
             override fun onResponse(call: Call, response: Response) {
+                val htmlStr = response.body!!.string()
                 if (response.isSuccessful) {
                     //回调的方法执行在子线程。
-                    val htmlStr = response.body!!.string()
-                    callback.excute(htmlStr)
+                    callback.excute(HttpCode200,htmlStr)
                 }else{
-                    callback.excute("........  response请求失败 ......")
+                    callback.excute(HttpCode404,htmlStr)
                 }
             }
         })
@@ -139,17 +144,17 @@ object _OkHttpUtil {
         //请求加入调度
         call.enqueue(object : Callback {
             override fun onFailure(call: Call, e: IOException) {
-                    callback.excute("........  ${e.message} ........")
+                    callback.excute(HttpCode503,"........  ${e.message} ........")
             }
 
             @Throws(IOException::class)
             override fun onResponse(call: Call, response: Response) {
+                val htmlStr = response.body!!.string()
                 if (response.isSuccessful) {
                     //回调的方法执行在子线程。
-                    val htmlStr = response.body!!.string()
-                    callback.excute(htmlStr)
+                    callback.excute(HttpCode200,htmlStr)
                 }else{
-                    callback.excute("........  response请求失败 ......")
+                    callback.excute(HttpCode404,htmlStr)
                 }
             }
         })

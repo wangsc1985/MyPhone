@@ -222,8 +222,9 @@ class BuddhaService : Service() {
             override fun run() {
                 try {
                     val now = DateTime()
-                    if(now.minite==0&&now.second==0&&dc.getSetting(Setting.KEYS.is开启整点报时,true).boolean){
-                        _Utils.speaker(applicationContext,"${now.minite}点")
+//                    e("${now.toTimeString()}")
+                    if(now.minite==0&&now.second==0&&now.hour>6&&now.hour<=23&&dc.getSetting(Setting.KEYS.is开启整点报时,true).boolean){
+                        _Utils.speaker(applicationContext,"${now.hour}点")
                     }
 
 //                    e("${notificationCount}  ${notificationTime}  ${notificationCountDay}  ${notificationTimeDay}  ${now.toTimeString()}")
@@ -271,7 +272,6 @@ class BuddhaService : Service() {
                         }
 
                     } else {
-                        e("${DateTime().toTimeString()}  cloud saved : ${cloudSaved}")
                         if (now.second == 1) {
                             if (dayOfYear != prvDayOfYear) {
                                 if (setting_duration / 1000 / circleSecond >= 1) {

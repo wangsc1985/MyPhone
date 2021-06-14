@@ -233,17 +233,19 @@ object _SinaStockUtils {
 //      http://money.finance.sina.com.cn/quotes_service/api/json_v2.php/CN_MarketData.getKLineData?symbol=sh600123&scale=240&ma=5&datalen=3000
         val url = "http://money.finance.sina.com.cn/quotes_service/api/json_v2.php/CN_MarketData.getKLineData?symbol=${if(code.startsWith("6")) "sh" else "sz"}${code}&scale=240&ma=5&datalen=${days}"
         val countDownLatch = CountDownLatch(1)
-        _OkHttpUtil.getRequest(url){html->
-            val arr = JSONArray.parse(html) as JSONArray
-            arr.forEach {
-                val obj = JSONObject.parse(it.toString()) as JSONObject
-                val dateStr = obj["day"].toString()
-                val close = obj["close"].toString().toBigDecimal()
+        _OkHttpUtil.getRequest(url){httpCode,html->
+            if(httpCode==_OkHttpUtil.HttpCode200){
+                val arr = JSONArray.parse(html) as JSONArray
+                arr.forEach {
+                    val obj = JSONObject.parse(it.toString()) as JSONObject
+                    val dateStr = obj["day"].toString()
+                    val close = obj["close"].toString().toBigDecimal()
 
-                val dateArr = dateStr.split("-")
-                var date = DateTime(dateArr[0].toInt(),dateArr[1].toInt()-1,dateArr[2].toInt())
-                if(date.timeInMillis>=startDate.timeInMillis){
-                    result.add(Stock(code,date,close))
+                    val dateArr = dateStr.split("-")
+                    var date = DateTime(dateArr[0].toInt(),dateArr[1].toInt()-1,dateArr[2].toInt())
+                    if(date.timeInMillis>=startDate.timeInMillis){
+                        result.add(Stock(code,date,close))
+                    }
                 }
             }
             countDownLatch.countDown()

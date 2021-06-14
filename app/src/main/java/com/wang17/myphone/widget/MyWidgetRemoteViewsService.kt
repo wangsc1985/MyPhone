@@ -372,7 +372,7 @@ class MyWidgetRemoteViewsService : RemoteViewsService() {
                 }
 
                 if (list_religious.isEmpty()) {
-                    list_religious = dc.getSetting(Setting.KEYS.wisdom, "南无阿弥陀佛").string
+                    list_religious = dc.getSetting(Setting.KEYS.戒期wisdom, "南无阿弥陀佛").string
                     mToDoList.add(ToDo(list_religious, "", "", Color.WHITE, false))
                 }
 
