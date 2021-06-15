@@ -214,6 +214,7 @@ class BuddhaService : Service() {
     }
 
     var prvDayOfYear = DateTime().get(Calendar.DAY_OF_YEAR)
+    var tellTimeHour = -1
     fun startTimer() {
         timer?.cancel()
         timer = null
@@ -223,8 +224,14 @@ class BuddhaService : Service() {
                 try {
                     val now = DateTime()
 //                    e("${now.toTimeString()}")
-                    if(now.minite==0&&now.second==0&&now.hour>6&&now.hour<=23&&dc.getSetting(Setting.KEYS.is开启整点报时,true).boolean){
-                        _Utils.speaker(applicationContext,"${now.hour}点")
+
+                    if (now.minite == 0 && now.second < 5
+                        && now.hour > 6 && now.hour < 24
+                        && now.hour != tellTimeHour
+                        && dc.getSetting(Setting.KEYS.is开启整点报时, true).boolean
+                    ) {
+                        _Utils.speaker(applicationContext, "${now.hour}点")
+                        tellTimeHour = now.hour
                     }
 
 //                    e("${notificationCount}  ${notificationTime}  ${notificationCountDay}  ${notificationTimeDay}  ${now.toTimeString()}")
@@ -243,7 +250,6 @@ class BuddhaService : Service() {
                         tv_duration?.setText(notificationTime)
 
                         if (prvCount < notificationCount) {
-                            // TODO: 2021/6/8 如果隔天 初始化总数，并自动保存昨天已经count的数据
                             if (dayOfYear != prvDayOfYear) {
                                 checkSectionOnRunning()
                                 guSound.play(1, 1.0f, 1.0f, 0, 0, 1.0f)
@@ -288,7 +294,7 @@ class BuddhaService : Service() {
 
                                 prvDayOfYear = dayOfYear
 
-                            } else if (cloudSaved<5) {
+                            } else if (cloudSaved < 5) {
                                 checkSectionOnPause()
                             }
                         }
@@ -480,7 +486,7 @@ class BuddhaService : Service() {
                             loadDb()
 
                             guSound.play(1, 1.0f, 1.0f, 0, 0, 1.0f)
-                            cloudSaved=5
+                            cloudSaved = 5
                         }
                         else -> {
                             dc.addRunLog("err", "云储存buddha失败", "${code}   ${result}")
@@ -540,6 +546,7 @@ class BuddhaService : Service() {
             dc.addRunLog("err", "BuddhaService.saveSection", e.message)
         }
     }
+
     private fun checkSectionBeforeRestart() {
         try {
             val now = System.currentTimeMillis()
@@ -879,13 +886,6 @@ class BuddhaService : Service() {
                             }
                         }
                         ACTION_BUDDHA_PLAYE_AUTO -> {
-                            if (!isTimerRuning) {
-                                if (requestFocus()) {
-                                    chantBuddhaRestart()
-                                    floatingWinButState(false)
-                                    dc.addRunLog("BuddhaService", "开始念佛", "")
-                                }
-                            }
                             isAutoPause = !isAutoPause
                         }
                         ACTION_BUDDHA_PAUSE -> {

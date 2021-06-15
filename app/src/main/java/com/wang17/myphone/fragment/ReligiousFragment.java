@@ -737,7 +737,7 @@ public class ReligiousFragment extends Fragment {
         dialog.setTitle("选择月份");
 
 
-        final NumberPicker npYear = (NumberPicker) view.findViewById(R.id.npYear);
+        final NumberPicker npYear = (NumberPicker) view.findViewById(R.id.np_target_tap);
         final NumberPicker npMonth = (NumberPicker) view.findViewById(R.id.npMonth);
 
 

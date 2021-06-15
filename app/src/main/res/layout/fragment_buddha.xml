@@ -295,6 +295,15 @@
         app:layout_constraintTop_toTopOf="@+id/fab_buddha"
         app:srcCompat="@drawable/stock" />
 
+<!--    <NumberPicker-->
+<!--        android:id="@+id/np_target_tap"-->
+<!--        android:layout_width="wrap_content"-->
+<!--        android:layout_height="wrap_content"-->
+<!--        android:layout_weight="1"-->
+<!--        app:layout_constraintBottom_toBottomOf="parent"-->
+<!--        app:layout_constraintEnd_toEndOf="parent"-->
+<!--        app:layout_constraintStart_toEndOf="@+id/fab_stock"-->
+<!--        app:layout_constraintTop_toTopOf="@+id/guideline1" />-->
     <TextView
         android:id="@+id/tv_msg"
         android:layout_width="40dp"

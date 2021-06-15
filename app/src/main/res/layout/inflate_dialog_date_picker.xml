@@ -13,7 +13,7 @@
         android:orientation="horizontal">
 
         <NumberPicker
-            android:id="@+id/npYear"
+            android:id="@+id/np_target_tap"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_weight="1" />

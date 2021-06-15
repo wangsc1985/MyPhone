@@ -269,7 +269,7 @@ public class ActionBarFragment extends Fragment {
             for (int i = 0; i < 24; i++) {
                 hourNumbers[i] = i + "点";
             }
-            final NumberPicker npYear = (NumberPicker) view.findViewById(R.id.npYear);
+            final NumberPicker npYear = (NumberPicker) view.findViewById(R.id.np_target_tap);
             final NumberPicker npMonth = (NumberPicker) view.findViewById(R.id.npMonth);
             final NumberPicker npDay = (NumberPicker) view.findViewById(R.id.npDay);
             final NumberPicker npHour = (NumberPicker) view.findViewById(R.id.npHour);

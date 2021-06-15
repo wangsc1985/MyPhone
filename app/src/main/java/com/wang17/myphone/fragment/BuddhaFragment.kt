@@ -202,6 +202,13 @@ class BuddhaFragment : Fragment() {
             }
         }
 
+
+//        np_target_tap.minValue = 2
+//        np_target_tap.maxValue = 24
+//        np_target_tap.displayedValues = arrayOf("2","3","4","5","6","7","8","9","10","11","12","13","14","15","16","17","18","19","20","21","22","23","24")
+//        np_target_tap.value = dc.getSetting(Setting.KEYS.几圈后自动结束念佛,12).int
+//        np_target_tap.descendantFocusability = NumberPicker.FOCUS_BLOCK_DESCENDANTS // 禁止对话框打开后数字选择框被选中
+
         iv_speed_add.setOnClickListener {
             try {
                 val bf = getBuddhaConfig()

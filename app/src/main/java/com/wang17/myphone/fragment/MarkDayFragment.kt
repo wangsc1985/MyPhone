@@ -278,7 +278,7 @@ class MarkDayFragment : Fragment() {
             for (i in 0..23) {
                 hourNumbers[i] = i.toString() + "点"
             }
-            val npYear = view.findViewById<View>(R.id.npYear) as NumberPicker
+            val npYear = view.findViewById<View>(R.id.np_target_tap) as NumberPicker
             val npMonth = view.findViewById<View>(R.id.npMonth) as NumberPicker
             val npDay = view.findViewById<View>(R.id.npDay) as NumberPicker
             val npHour = view.findViewById<View>(R.id.npHour) as NumberPicker

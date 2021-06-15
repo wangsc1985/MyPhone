@@ -9,7 +9,7 @@
     android:paddingRight="30dp">
 
     <NumberPicker
-        android:id="@+id/npYear"
+        android:id="@+id/np_target_tap"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_weight="1" />
