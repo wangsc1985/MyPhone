@@ -84,6 +84,7 @@ class BuddhaService : Service() {
 
     var topTitle = ""
     var bottomTitle = ""
+    var system_volumn=10
 
     override fun onBind(intent: Intent): IBinder? {
         return null
@@ -130,12 +131,9 @@ class BuddhaService : Service() {
                 setting_duration = setting.long
             }
             yq_period = dc.getSetting(Setting.KEYS.yq_period, 1000).long
-            val volume = dc.getSetting(Setting.KEYS.念佛最佳音量)
-            volume?.let {
-                setMediaVolume(it.int)
-            }
             mAm = getSystemService(AUDIO_SERVICE) as AudioManager
             startTimeInMillis = System.currentTimeMillis()
+            setBuddhaVolume()
 
             val musicName = dc.getSetting(Setting.KEYS.buddha_music_name)
             if (musicName == null)
@@ -160,6 +158,15 @@ class BuddhaService : Service() {
             EventBus.getDefault().register(this)
         } catch (e: Exception) {
             dc.addRunLog("BuddhaService", "Buddha.onCreate", e.message ?: "")
+        }
+    }
+
+    @Throws(Exception::class)
+    fun setBuddhaVolume(){
+        val volume = dc.getSetting(Setting.KEYS.念佛最佳音量)
+        volume?.let {
+            system_volumn = getMediaVolume()
+            setMediaVolume(it.int)
         }
     }
 
@@ -204,6 +211,8 @@ class BuddhaService : Service() {
             }
             EventBus.getDefault().unregister(this)
 
+            dc.deleteSetting(Setting.KEYS.tmp_tt)
+
         } catch (e: Exception) {
             dc.addRunLog("BuddhaService", "Buddha.onDestroy", e.message ?: "")
         }
@@ -234,8 +243,10 @@ class BuddhaService : Service() {
                 try {
                     val now = DateTime()
                     if (tmpCC == -1L) {
-                        tmpCC = dc.getSetting(Setting.KEYS.tmp_tt, now.timeInMillis).long
-                        dc.addRunLog(BuddhaService.toString(), "超时", durationToTimeString(now.timeInMillis - tmpCC))
+                        val set = dc.getSetting(Setting.KEYS.tmp_tt)
+                        set?.let {
+                            dc.addRunLog(BuddhaService.toString(), "超时", durationToTimeString(now.timeInMillis - it.long))
+                        }
                     }
 
                     tmpCC = now.timeInMillis
@@ -288,7 +299,10 @@ class BuddhaService : Service() {
                                 floatingWinButState(true)
                                 mAm.abandonAudioFocus(afChangeListener)
                                 dc.addRunLog("BuddhaService", "暂停念佛", "auto pause")
-                                setMediaVolume(13)
+                                Thread{
+                                    Thread.sleep(3000)
+                                    setMediaVolume(system_volumn)
+                                }.start()
                             }
                         }
 
@@ -327,14 +341,17 @@ class BuddhaService : Service() {
         }, 0, 1000)
     }
 
+    @Throws(Exception::class)
     fun restartTimer() {
         isTimerRuning = true
     }
 
+    @Throws(Exception::class)
     fun pauseTimer() {
         isTimerRuning = false
     }
 
+    @Throws(Exception::class)
     fun stopTimer() {
         timer?.cancel()
     }
@@ -343,6 +360,12 @@ class BuddhaService : Service() {
     fun setMediaVolume(volume: Int) {
         val audio = getSystemService(AUDIO_SERVICE) as AudioManager
         audio.setStreamVolume(AudioManager.STREAM_MUSIC, volume, AudioManager.FLAG_PLAY_SOUND or AudioManager.FLAG_SHOW_UI)
+    }
+
+    @Throws(Exception::class)
+    fun getMediaVolume():Int{
+        val audio = getSystemService(AUDIO_SERVICE) as AudioManager
+        return audio.getStreamVolume(AudioManager.STREAM_MUSIC)
     }
 
     private var mPlayer: MediaPlayer? = null
@@ -818,9 +841,10 @@ class BuddhaService : Service() {
                             floatingWinButState(true)
                             mAm.abandonAudioFocus(afChangeListener)
                             dc.addRunLog("BuddhaService", "暂停念佛", "float window")
-                            setMediaVolume(13)
+                            setMediaVolume(system_volumn)
                         } else {
                             if (requestFocus()) {
+                                setBuddhaVolume()
                                 chantBuddhaRestart()
                                 floatingWinButState(false)
                                 dc.addRunLog("BuddhaService", "开始念佛", "float window")
@@ -910,6 +934,7 @@ class BuddhaService : Service() {
                         }
                         ACTION_BUDDHA_PLAYE -> {
                             if (requestFocus()) {
+                                setBuddhaVolume()
                                 chantBuddhaRestart()
                                 floatingWinButState(false)
                                 dc.addRunLog("BuddhaService", "开始念佛", "buddha receiver ACTION_BUDDHA_PLAYE")
@@ -923,7 +948,7 @@ class BuddhaService : Service() {
                             floatingWinButState(true)
                             mAm.abandonAudioFocus(afChangeListener)
                             dc.addRunLog("BuddhaService", "暂停念佛", "buddha receiver ACTION_BUDDHA_PAUSE")
-                            setMediaVolume(13)
+                            setMediaVolume(system_volumn)
                         }
                         BluetoothHeadset.ACTION_CONNECTION_STATE_CHANGED -> {
                             val adapter = BluetoothAdapter.getDefaultAdapter()
