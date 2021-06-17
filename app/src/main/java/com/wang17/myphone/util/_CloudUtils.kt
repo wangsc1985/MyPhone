@@ -73,10 +73,10 @@ object _CloudUtils {
                         }
                     }
                     _OkHttpUtil.HttpCode503->{
-                        throw Exception("服务不可用")
+                        throw Exception("503 服务器不可用")
                     }
                     _OkHttpUtil.HttpCode404->{
-                        throw Exception("网页不存在")
+                        throw Exception("404 网页不存在")
                     }
                 }
             } catch (e: Exception) {
@@ -125,10 +125,10 @@ object _CloudUtils {
                                 }
                             }
                             _OkHttpUtil.HttpCode503->{
-                                callback?.excute(_OkHttpUtil.HttpCode503, "服务不可用")
+                                callback?.excute(_OkHttpUtil.HttpCode503, "503 服务器不可用")
                             }
                             _OkHttpUtil.HttpCode404->{
-                                callback?.excute(_OkHttpUtil.HttpCode404, "网页不存在")
+                                callback?.excute(_OkHttpUtil.HttpCode404, "404 网页不存在")
                             }
                         }
                     } catch (e: Exception) {
@@ -175,10 +175,10 @@ object _CloudUtils {
                                 }
                             }
                             _OkHttpUtil.HttpCode503->{
-                                callback?.excute(_OkHttpUtil.HttpCode503, "服务不可用")
+                                callback?.excute(_OkHttpUtil.HttpCode503, "503 服务器不可用")
                             }
                             _OkHttpUtil.HttpCode404->{
-                                callback?.excute(_OkHttpUtil.HttpCode404, "网页不存在")
+                                callback?.excute(_OkHttpUtil.HttpCode404, "404 网页不存在")
                             }
                         }
                     } catch (e: Exception) {
@@ -220,10 +220,10 @@ object _CloudUtils {
                                 }
                             }
                             _OkHttpUtil.HttpCode503->{
-                                callback?.excute(_OkHttpUtil.HttpCode503, "服务不可用")
+                                callback?.excute(_OkHttpUtil.HttpCode503, "503 服务器不可用")
                             }
                             _OkHttpUtil.HttpCode404->{
-                                callback?.excute(_OkHttpUtil.HttpCode404, "网页不存在")
+                                callback?.excute(_OkHttpUtil.HttpCode404, "404 网页不存在")
                             }
                         }
                     } catch (e: Exception) {
@@ -283,10 +283,10 @@ object _CloudUtils {
                                 }
                             }
                             _OkHttpUtil.HttpCode503->{
-                                callback?.excute(_OkHttpUtil.HttpCode503, "服务不可用")
+                                callback?.excute(_OkHttpUtil.HttpCode503, "503 服务器不可用")
                             }
                             _OkHttpUtil.HttpCode404->{
-                                callback?.excute(_OkHttpUtil.HttpCode404, "网页不存在")
+                                callback?.excute(_OkHttpUtil.HttpCode404, "404 网页不存在")
                             }
                         }
                     } catch (e: Exception) {
@@ -350,10 +350,10 @@ object _CloudUtils {
                                 }
                             }
                             _OkHttpUtil.HttpCode503->{
-                                callback?.excute(_OkHttpUtil.HttpCode503, "服务不可用")
+                                callback?.excute(_OkHttpUtil.HttpCode503, "503 服务器不可用")
                             }
                             _OkHttpUtil.HttpCode404->{
-                                callback?.excute(_OkHttpUtil.HttpCode404, "网页不存在")
+                                callback?.excute(_OkHttpUtil.HttpCode404, "404 网页不存在")
                             }
                         }
                     } catch (e: Exception) {
@@ -388,10 +388,10 @@ object _CloudUtils {
                                 callback?.excute(0, resp_data)
                             }
                             _OkHttpUtil.HttpCode503->{
-                                callback?.excute(_OkHttpUtil.HttpCode503, "服务不可用")
+                                callback?.excute(_OkHttpUtil.HttpCode503, "503 服务器不可用")
                             }
                             _OkHttpUtil.HttpCode404->{
-                                callback?.excute(_OkHttpUtil.HttpCode404, "网页不存在")
+                                callback?.excute(_OkHttpUtil.HttpCode404, "404 网页不存在")
                             }
                         }
                     } catch (e: Exception) {
@@ -431,10 +431,10 @@ object _CloudUtils {
                                 }
                             }
                             _OkHttpUtil.HttpCode503->{
-                                callback?.excute(_OkHttpUtil.HttpCode503, "服务不可用")
+                                callback?.excute(_OkHttpUtil.HttpCode503, "503 服务器不可用")
                             }
                             _OkHttpUtil.HttpCode404->{
-                                callback?.excute(_OkHttpUtil.HttpCode404, "网页不存在")
+                                callback?.excute(_OkHttpUtil.HttpCode404, "404 网页不存在")
                             }
                         }
                     } catch (e: Exception) {
@@ -475,10 +475,10 @@ object _CloudUtils {
                                     }
                                 }
                                 _OkHttpUtil.HttpCode503->{
-                                    callback.excute(_OkHttpUtil.HttpCode503, "服务不可用")
+                                    callback.excute(_OkHttpUtil.HttpCode503, "503 服务器不可用")
                                 }
                                 _OkHttpUtil.HttpCode404->{
-                                    callback.excute(_OkHttpUtil.HttpCode404, "网页不存在")
+                                    callback.excute(_OkHttpUtil.HttpCode404, "404 网页不存在")
                                 }
                             }
                         } catch (e: Exception) {
@@ -519,10 +519,10 @@ object _CloudUtils {
                                     callback.excute(0,result.toString())
                                 }
                                 _OkHttpUtil.HttpCode503->{
-                                    callback.excute(_OkHttpUtil.HttpCode503, "服务不可用")
+                                    callback.excute(_OkHttpUtil.HttpCode503, "503 服务器不可用")
                                 }
                                 _OkHttpUtil.HttpCode404->{
-                                    callback.excute(_OkHttpUtil.HttpCode404, "网页不存在")
+                                    callback.excute(_OkHttpUtil.HttpCode404, "404 网页不存在")
                                 }
                             }
                         } catch (e: Exception) {
@@ -576,10 +576,10 @@ object _CloudUtils {
 
                             }
                             _OkHttpUtil.HttpCode503->{
-                                callback.excute(_OkHttpUtil.HttpCode503, "服务不可用")
+                                callback.excute(_OkHttpUtil.HttpCode503, "503 服务器不可用")
                             }
                             _OkHttpUtil.HttpCode404->{
-                                callback.excute(_OkHttpUtil.HttpCode404, "网页不存在")
+                                callback.excute(_OkHttpUtil.HttpCode404, "404 网页不存在")
                             }
                         }
 
@@ -620,10 +620,10 @@ object _CloudUtils {
 
                             }
                             _OkHttpUtil.HttpCode503->{
-                                callback?.excute(_OkHttpUtil.HttpCode503, "服务不可用")
+                                callback?.excute(_OkHttpUtil.HttpCode503, "503 服务器不可用")
                             }
                             _OkHttpUtil.HttpCode404->{
-                                callback?.excute(_OkHttpUtil.HttpCode404, "网页不存在")
+                                callback?.excute(_OkHttpUtil.HttpCode404, "404 网页不存在")
                             }
                         }
                     } catch (e: Exception) {
@@ -659,10 +659,10 @@ object _CloudUtils {
 
                             }
                             _OkHttpUtil.HttpCode503->{
-                                callback?.excute(_OkHttpUtil.HttpCode503, "服务不可用")
+                                callback?.excute(_OkHttpUtil.HttpCode503, "503 服务器不可用")
                             }
                             _OkHttpUtil.HttpCode404->{
-                                callback?.excute(_OkHttpUtil.HttpCode404, "网页不存在")
+                                callback?.excute(_OkHttpUtil.HttpCode404, "404 网页不存在")
                             }
                         }
                     } catch (e: Exception) {
@@ -700,10 +700,10 @@ object _CloudUtils {
 
                             }
                             _OkHttpUtil.HttpCode503->{
-                                callback?.excute(_OkHttpUtil.HttpCode503, "服务不可用")
+                                callback?.excute(_OkHttpUtil.HttpCode503, "503 服务器不可用")
                             }
                             _OkHttpUtil.HttpCode404->{
-                                callback?.excute(_OkHttpUtil.HttpCode404, "网页不存在")
+                                callback?.excute(_OkHttpUtil.HttpCode404, "404 网页不存在")
                             }
                         }
                     } catch (e: Exception) {
@@ -734,10 +734,10 @@ object _CloudUtils {
                                 callback?.excute(0, html)
                             }
                             _OkHttpUtil.HttpCode503->{
-                                callback?.excute(_OkHttpUtil.HttpCode503, "服务不可用")
+                                callback?.excute(_OkHttpUtil.HttpCode503, "503 服务器不可用")
                             }
                             _OkHttpUtil.HttpCode404->{
-                                callback?.excute(_OkHttpUtil.HttpCode404, "网页不存在")
+                                callback?.excute(_OkHttpUtil.HttpCode404, "404 网页不存在")
                             }
                         }
                     } catch (e: Exception) {
@@ -782,10 +782,10 @@ object _CloudUtils {
                                 callback.excute(0, result)
                             }
                             _OkHttpUtil.HttpCode503->{
-                                callback.excute(_OkHttpUtil.HttpCode503, "服务不可用")
+                                callback.excute(_OkHttpUtil.HttpCode503, "503 服务器不可用")
                             }
                             _OkHttpUtil.HttpCode404->{
-                                callback.excute(_OkHttpUtil.HttpCode404, "网页不存在")
+                                callback.excute(_OkHttpUtil.HttpCode404, "404 网页不存在")
                             }
                         }
                     } catch (e: Exception) {

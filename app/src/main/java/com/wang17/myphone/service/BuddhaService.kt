@@ -44,6 +44,7 @@ import java.io.File
 import java.math.BigDecimal
 import java.util.*
 import java.util.concurrent.CountDownLatch
+import kotlin.jvm.Throws
 
 
 class BuddhaService : Service() {
@@ -91,9 +92,10 @@ class BuddhaService : Service() {
 
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
         return super.onStartCommand(intent, flags, startId)
-        e("buddha service onStartCommand")
+        dc.addRunLog("BuddhaService", "启动念佛服务", "onStartCommand")
     }
 
+    @Throws(Exception::class)
     fun loadDb() {
         dbCount = 0
         dbDuration = 0
@@ -108,9 +110,9 @@ class BuddhaService : Service() {
     @RequiresApi(Build.VERSION_CODES.M)
     override fun onCreate() {
         super.onCreate()
-        e("buddha service onCreate")
         try {
             dc = DataContext(applicationContext)
+            dc.addRunLog("BuddhaService", "启动念佛服务", "onCreate")
             dc.deleteRunLog("BuddhaService", DateTime.today.addDays(-1))
 
             loadDb()
@@ -157,10 +159,11 @@ class BuddhaService : Service() {
 
             EventBus.getDefault().register(this)
         } catch (e: Exception) {
-            e("buddha service onCreate" + e.message)
+            dc.addRunLog("BuddhaService", "Buddha.onCreate", e.message ?: "")
         }
     }
 
+    @Throws(Exception::class)
     private fun loadBuddhaConfig() {
         val musicName = dc.getSetting(Setting.KEYS.buddha_music_name)
         musicName?.let {
@@ -181,30 +184,36 @@ class BuddhaService : Service() {
     }
 
     override fun onDestroy() {
-        super.onDestroy()
-        stopMediaPlayer()
-        stopTimer()
+        try {
+            dc.addRunLog("BuddhaService", "结束念佛服务", "onDestroy")
+            super.onDestroy()
+            stopMediaPlayer()
+            stopTimer()
 //        stopTimerMy()
 
-        _NotificationUtils.closeNotification(applicationContext, ID)
+            _NotificationUtils.closeNotification(applicationContext, ID)
 
-        //
+            //
 
-        mAm.abandonAudioFocus(afChangeListener)
-        unregisterReceiver(buddhaReceiver)
-        e("------------- 销毁完毕 ---------------")
-        EventBus.getDefault().post(EventBusMessage.getInstance(FromBuddhaServiceDestroy(), "buddha service destroyed"))
-        //region 悬浮窗
-        if (isShowFloatWindow) {
-            windowManager.removeView(floatingWindowView)
+            mAm.abandonAudioFocus(afChangeListener)
+            unregisterReceiver(buddhaReceiver)
+            EventBus.getDefault().post(EventBusMessage.getInstance(FromBuddhaServiceDestroy(), "buddha service destroyed"))
+            //region 悬浮窗
+            if (isShowFloatWindow) {
+                windowManager.removeView(floatingWindowView)
+            }
+            EventBus.getDefault().unregister(this)
+
+        } catch (e: Exception) {
+            dc.addRunLog("BuddhaService", "Buddha.onDestroy", e.message ?: "")
         }
-        EventBus.getDefault().unregister(this)
     }
 
     var prvCount = 0
     var isTimerRuning = true
     var timer: Timer? = null
 
+    @Throws(Exception::class)
     fun durationToTimeString(duration: Long): String {
         val second = duration % 60000 / 1000
         val miniteT = duration / 60000
@@ -215,6 +224,7 @@ class BuddhaService : Service() {
 
     var prvDayOfYear = DateTime().get(Calendar.DAY_OF_YEAR)
     var tellTimeHour = -1
+    var tmpCC = -1L
     fun startTimer() {
         timer?.cancel()
         timer = null
@@ -223,6 +233,13 @@ class BuddhaService : Service() {
             override fun run() {
                 try {
                     val now = DateTime()
+                    if (tmpCC == -1L) {
+                        tmpCC = dc.getSetting(Setting.KEYS.tmp_tt, now.timeInMillis).long
+                        dc.addRunLog(BuddhaService.toString(), "超时", durationToTimeString(now.timeInMillis - tmpCC))
+                    }
+
+                    tmpCC = now.timeInMillis
+                    dc.editSetting(Setting.KEYS.tmp_tt, now.timeInMillis)
 //                    e("${now.toTimeString()}")
 
                     if (now.minite == 0 && now.second < 5
@@ -253,6 +270,7 @@ class BuddhaService : Service() {
                             if (dayOfYear != prvDayOfYear) {
                                 checkSectionOnRunning()
                                 guSound.play(1, 1.0f, 1.0f, 0, 0, 1.0f)
+                                dc.deleteRunLog("BuddhaService", DateTime.today.addDays(-1))
                                 prvDayOfYear = dayOfYear
                             }
 
@@ -269,7 +287,8 @@ class BuddhaService : Service() {
                                 chantBuddhaPause()
                                 floatingWinButState(true)
                                 mAm.abandonAudioFocus(afChangeListener)
-                                dc.addRunLog("BuddhaService", "暂停念佛", "")
+                                dc.addRunLog("BuddhaService", "暂停念佛", "auto pause")
+                                setMediaVolume(13)
                             }
                         }
 
@@ -320,6 +339,7 @@ class BuddhaService : Service() {
         timer?.cancel()
     }
 
+    @Throws(Exception::class)
     fun setMediaVolume(volume: Int) {
         val audio = getSystemService(AUDIO_SERVICE) as AudioManager
         audio.setStreamVolume(AudioManager.STREAM_MUSIC, volume, AudioManager.FLAG_PLAY_SOUND or AudioManager.FLAG_SHOW_UI)
@@ -346,7 +366,6 @@ class BuddhaService : Service() {
                 mPlayer?.playbackParams = params
             }
             chantBuddhaStart()
-            dc.addRunLog("BuddhaService", "开始念佛", "")
 
 
             mBackgroundPlayer = MediaPlayer.create(applicationContext, R.raw.second_60)
@@ -354,8 +373,6 @@ class BuddhaService : Service() {
             mBackgroundPlayer?.setLooping(true)
             mBackgroundPlayer?.start()
         } catch (e: Exception) {
-            e("start media player error : " + e.message!!)
-            _Utils.printException(applicationContext, e)
         }
     }
 
@@ -370,62 +387,67 @@ class BuddhaService : Service() {
         val result = try {
             mAm.requestAudioFocus(afChangeListener, AudioManager.STREAM_MUSIC, AudioManager.AUDIOFOCUS_GAIN)
         } catch (e: Exception) {
-            e("BuddhaService.requestFocus" + e.message!!)
+            dc.addRunLog("BuddhaService", "requestFocus", e.message)
         }
         return result == AudioManager.AUDIOFOCUS_REQUEST_GRANTED
     }
 
     //region 声音焦点
     var afChangeListener = AudioManager.OnAudioFocusChangeListener { focusChange ->
-        when (focusChange) {
 
-            /**
-             * 当其他应用申请焦点之后又释放焦点会触发此回调
-             * 可重新播放音乐
-             */
-            AudioManager.AUDIOFOCUS_GAIN -> {
-                e("获取永久焦点")
-                if (!AUDIOFOCUS_LOSS_TRANSIENT_CAN_DUCK) {
-                    chantBuddhaRestart()
-                } else {
-                    AUDIOFOCUS_LOSS_TRANSIENT_CAN_DUCK = false
+        try {
+            when (focusChange) {
+
+                /**
+                 * 当其他应用申请焦点之后又释放焦点会触发此回调
+                 * 可重新播放音乐
+                 */
+                AudioManager.AUDIOFOCUS_GAIN -> {
+                    e("获取永久焦点")
+                    if (!AUDIOFOCUS_LOSS_TRANSIENT_CAN_DUCK) {
+                        chantBuddhaRestart()
+                    } else {
+                        AUDIOFOCUS_LOSS_TRANSIENT_CAN_DUCK = false
+                    }
+                    mPlayer?.setVolume(volume.toFloat(), volume.toFloat())
+                    floatingWinButState(false)
+                    sendNotification(notificationCount, notificationCountDay, notificationTime, notificationTimeDay)
                 }
-                mPlayer?.setVolume(volume.toFloat(), volume.toFloat())
-                floatingWinButState(false)
-                sendNotification(notificationCount, notificationCountDay, notificationTime, notificationTimeDay)
+                /**
+                 * 长时间丢失焦点,当其他应用申请的焦点为AUDIOFOCUS_GAIN时，
+                 * 会触发此回调事件，例如播放QQ音乐，网易云音乐等
+                 * 通常需要暂停音乐播放，若没有暂停播放就会出现和其他音乐同时输出声音
+                 */
+                AudioManager.AUDIOFOCUS_LOSS -> {
+                    e("永久失去焦点")
+                    chantBuddhaPause()
+                    floatingWinButState(true)
+                    sendNotification(notificationCount, notificationCountDay, notificationTime, notificationTimeDay)
+                }
+                /**
+                 * 短暂性丢失焦点，当其他应用申请AUDIOFOCUS_GAIN_TRANSIENT或AUDIOFOCUS_GAIN_TRANSIENT_EXCLUSIVE时，
+                 * 会触发此回调事件，例如播放短视频，拨打电话等。
+                 * 通常需要暂停音乐播放
+                 */
+                AudioManager.AUDIOFOCUS_LOSS_TRANSIENT -> {
+                    e("暂时失去焦点")
+                    chantBuddhaPause()
+                    floatingWinButState(true)
+                    sendNotification(notificationCount, notificationCountDay, notificationTime, notificationTimeDay)
+                }
+                /**
+                 * 短暂性丢失焦点并作降音处理
+                 */
+                AudioManager.AUDIOFOCUS_LOSS_TRANSIENT_CAN_DUCK -> {
+                    e("暂时失去焦点并降音")
+                    mPlayer?.setVolume(0.3f, 0.3f)
+                    AUDIOFOCUS_LOSS_TRANSIENT_CAN_DUCK = true
+                    //                pauseTimer()
+                    //                pauseOrStopData()
+                }
             }
-            /**
-             * 长时间丢失焦点,当其他应用申请的焦点为AUDIOFOCUS_GAIN时，
-             * 会触发此回调事件，例如播放QQ音乐，网易云音乐等
-             * 通常需要暂停音乐播放，若没有暂停播放就会出现和其他音乐同时输出声音
-             */
-            AudioManager.AUDIOFOCUS_LOSS -> {
-                e("永久失去焦点")
-                chantBuddhaPause()
-                floatingWinButState(true)
-                sendNotification(notificationCount, notificationCountDay, notificationTime, notificationTimeDay)
-            }
-            /**
-             * 短暂性丢失焦点，当其他应用申请AUDIOFOCUS_GAIN_TRANSIENT或AUDIOFOCUS_GAIN_TRANSIENT_EXCLUSIVE时，
-             * 会触发此回调事件，例如播放短视频，拨打电话等。
-             * 通常需要暂停音乐播放
-             */
-            AudioManager.AUDIOFOCUS_LOSS_TRANSIENT -> {
-                e("暂时失去焦点")
-                chantBuddhaPause()
-                floatingWinButState(true)
-                sendNotification(notificationCount, notificationCountDay, notificationTime, notificationTimeDay)
-            }
-            /**
-             * 短暂性丢失焦点并作降音处理
-             */
-            AudioManager.AUDIOFOCUS_LOSS_TRANSIENT_CAN_DUCK -> {
-                e("暂时失去焦点并降音")
-                mPlayer?.setVolume(0.3f, 0.3f)
-                AUDIOFOCUS_LOSS_TRANSIENT_CAN_DUCK = true
-//                pauseTimer()
-//                pauseOrStopData()
-            }
+        } catch (e: Exception) {
+            dc.addRunLog("BuddhaService", "afChangeListener", e.message)
         }
     }
     //endregion
@@ -449,7 +471,7 @@ class BuddhaService : Service() {
             checkSectionBeforeRestart()
 
         } catch (e: Exception) {
-            dc.addRunLog("err", "reOrStartData", e.message)
+            dc.addRunLog("BuddhaService", "reOrStartData", e.message)
         }
     }
 
@@ -462,7 +484,6 @@ class BuddhaService : Service() {
             if (setting_stoptime > 0 && setting_duration / 1000 / circleSecond >= 1 && now - setting_stoptime > circleSecond * 1000) {
                 cloudSaved++
                 e("自动保存section${cloudSaved}")
-                dc.addRunLog("BuddhaService", "自动保存section", "")
                 val startTime = DateTime(setting_stoptime - setting_duration)
                 val tap = (setting_duration / 1000 / circleSecond).toInt()
                 val durationWhole = circleSecond * tap * 1000.toLong()
@@ -474,7 +495,7 @@ class BuddhaService : Service() {
                 _CloudUtils.addBuddha(applicationContext!!, buddha) { code, result ->
                     when (code) {
                         0 -> {
-                            dc.addRunLog("BuddhaService", "云储存buddha成功", "${code}   ${result}")
+                            dc.addRunLog("BuddhaService", "自动保存section，云储存buddha成功", "${code}   ${result}")
                             dc.addBuddha(buddha)
                             prvCount = 0
 
@@ -489,7 +510,7 @@ class BuddhaService : Service() {
                             cloudSaved = 5
                         }
                         else -> {
-                            dc.addRunLog("err", "云储存buddha失败", "${code}   ${result}")
+                            dc.addRunLog("err", "自动保存section，云储存buddha失败", "${code}   ${result}")
                             e("code : $code , result : $result")
                         }
                     }
@@ -498,7 +519,7 @@ class BuddhaService : Service() {
                 latch.await()
             }
         } catch (e: Exception) {
-            dc.addRunLog("err", "BuddhaService.checkSection", e.message)
+            dc.addRunLog("BuddhaService", "checkSection", e.message)
         }
     }
 
@@ -510,7 +531,6 @@ class BuddhaService : Service() {
             notificationCount = (duration / 1000 / circleSecond).toInt()
             if (notificationCount >= 1) {
 
-                dc.addRunLog("BuddhaService", "自动保存昨天section", "")
                 val startTime = DateTime(now - duration)
                 val tap = (duration / 1000 / circleSecond).toInt()
                 val durationWhole = circleSecond * tap * 1000.toLong()
@@ -522,7 +542,7 @@ class BuddhaService : Service() {
                     when (code) {
                         0 -> {
 
-                            dc.addRunLog("BuddhaService", "云储存buddha成功", "${code}   ${result}")
+                            dc.addRunLog("BuddhaService", "自动保存昨天section，云储存buddha成功", "${code}   ${result}")
                             dc.addBuddha(buddha)
                             startTimeInMillis = System.currentTimeMillis() - durationOdd
                             dc.editSetting(Setting.KEYS.buddha_startime, startTimeInMillis)
@@ -536,14 +556,14 @@ class BuddhaService : Service() {
                             Looper.loop()
                         }
                         else -> {
-                            dc.addRunLog("err", "云储存buddha失败", "${code}   ${result}")
+                            dc.addRunLog("err", "自动保存昨天section，云储存buddha失败", "${code}   ${result}")
                             e("code : $code , result : $result")
                         }
                     }
                 }
             }
         } catch (e: Exception) {
-            dc.addRunLog("err", "BuddhaService.saveSection", e.message)
+            dc.addRunLog("BuddhaService", "saveSection", e.message)
         }
     }
 
@@ -567,7 +587,7 @@ class BuddhaService : Service() {
                     when (code) {
                         0 -> {
 
-                            dc.addRunLog("BuddhaService", "云储存buddha成功", "${code}   ${result}")
+                            dc.addRunLog("BuddhaService", "重启前保存section，云储存buddha成功", "${code}   ${result}")
                             dc.addBuddha(buddha)
                             startTimeInMillis = System.currentTimeMillis() - durationOdd
                             dc.editSetting(Setting.KEYS.buddha_startime, startTimeInMillis)
@@ -581,14 +601,14 @@ class BuddhaService : Service() {
                             Looper.loop()
                         }
                         else -> {
-                            dc.addRunLog("err", "云储存buddha失败", "${code}   ${result}")
+                            dc.addRunLog("err", "重启前保存section云储存buddha失败", "${code}   ${result}")
                             e("code : $code , result : $result")
                         }
                     }
                 }
             }
         } catch (e: Exception) {
-            dc.addRunLog("err", "BuddhaService.saveSection", e.message)
+            dc.addRunLog("BuddhaService", "saveSection", e.message)
         }
     }
 
@@ -615,28 +635,32 @@ class BuddhaService : Service() {
                 dc.deleteSetting(Setting.KEYS.buddha_startime)
             }
         } catch (e: Exception) {
-            dc.addRunLog("err", "pauseOrStopData", e.message)
+            dc.addRunLog("BuddhaService", "pauseOrStopData", e.message)
         }
     }
 
+    @Throws(Exception::class)
     fun chantBuddhaStart() {
         mPlayer?.start()
         reOrStartData()
         restartTimer()
     }
 
+    @Throws(Exception::class)
     fun chantBuddhaRestart() {
         mPlayer?.start()
         reOrStartData()
         restartTimer()
     }
 
+    @Throws(Exception::class)
     fun chantBuddhaPause() {
         pauseTimer()
         mPlayer?.pause()
         pauseOrStopData()
     }
 
+    @Throws(Exception::class)
     fun chantBuddhaStop() {
         pauseTimer()
         mPlayer?.pause()
@@ -645,48 +669,52 @@ class BuddhaService : Service() {
 
     private fun sendNotification(count: Int, totalCount: Int, time: String, totalTime: String) {
         _NotificationUtils.sendNotification(applicationContext, ChannelName.老实念佛, ID, R.layout.notification_nf) { remoteViews ->
-            remoteViews.setTextViewText(R.id.tv_count, if (buddhaType > 9) "${count}" else "")
-            remoteViews.setTextViewText(R.id.tv_time, time)
-            remoteViews.setTextViewText(R.id.tv_countTotal, if (buddhaType > 9) "${totalCount}" else "")
-            remoteViews.setTextViewText(R.id.tv_timeTotal, totalTime)
-            remoteViews.setTextViewText(R.id.tv_topTitle, topTitle)
-            remoteViews.setTextViewText(R.id.tv_bottomTitle, bottomTitle)
+            try {
+                remoteViews.setTextViewText(R.id.tv_count, if (buddhaType > 9) "${count}" else "")
+                remoteViews.setTextViewText(R.id.tv_time, time)
+                remoteViews.setTextViewText(R.id.tv_countTotal, if (buddhaType > 9) "${totalCount}" else "")
+                remoteViews.setTextViewText(R.id.tv_timeTotal, totalTime)
+                remoteViews.setTextViewText(R.id.tv_topTitle, topTitle)
+                remoteViews.setTextViewText(R.id.tv_bottomTitle, bottomTitle)
 
-            if (mPlayer?.isPlaying ?: false) {
-                remoteViews.setImageViewResource(R.id.image_control, R.drawable.pause)
-                val intentRootClick = Intent(ACTION_BUDDHA_PAUSE)
-                val pendingIntent = PendingIntent.getBroadcast(applicationContext, 0, intentRootClick, PendingIntent.FLAG_UPDATE_CURRENT)
-                remoteViews.setOnClickPendingIntent(R.id.image_control, pendingIntent)
-            } else {
-                remoteViews.setImageViewResource(R.id.image_control, R.drawable.play)
-                val intentRootClick = Intent(ACTION_BUDDHA_PLAYE)
-                val pendingIntent = PendingIntent.getBroadcast(applicationContext, 0, intentRootClick, PendingIntent.FLAG_UPDATE_CURRENT)
-                remoteViews.setOnClickPendingIntent(R.id.image_control, pendingIntent)
-            }
-            val intentRootClick1 = Intent(ACTION_BUDDHA_PLAYE_AUTO)
-            val pendingIntent1 = PendingIntent.getBroadcast(applicationContext, 0, intentRootClick1, PendingIntent.FLAG_UPDATE_CURRENT)
-            remoteViews.setOnClickPendingIntent(R.id.tv_time, pendingIntent1)
-            remoteViews.setOnClickPendingIntent(R.id.tv_count, pendingIntent1)
+                if (mPlayer?.isPlaying ?: false) {
+                    remoteViews.setImageViewResource(R.id.image_control, R.drawable.pause)
+                    val intentRootClick = Intent(ACTION_BUDDHA_PAUSE)
+                    val pendingIntent = PendingIntent.getBroadcast(applicationContext, 0, intentRootClick, PendingIntent.FLAG_UPDATE_CURRENT)
+                    remoteViews.setOnClickPendingIntent(R.id.image_control, pendingIntent)
+                } else {
+                    remoteViews.setImageViewResource(R.id.image_control, R.drawable.play)
+                    val intentRootClick = Intent(ACTION_BUDDHA_PLAYE)
+                    val pendingIntent = PendingIntent.getBroadcast(applicationContext, 0, intentRootClick, PendingIntent.FLAG_UPDATE_CURRENT)
+                    remoteViews.setOnClickPendingIntent(R.id.image_control, pendingIntent)
+                }
+                val intentRootClick1 = Intent(ACTION_BUDDHA_PLAYE_AUTO)
+                val pendingIntent1 = PendingIntent.getBroadcast(applicationContext, 0, intentRootClick1, PendingIntent.FLAG_UPDATE_CURRENT)
+                remoteViews.setOnClickPendingIntent(R.id.tv_time, pendingIntent1)
+                remoteViews.setOnClickPendingIntent(R.id.tv_count, pendingIntent1)
 
-            val intentRootClick2 = Intent(ACTION_BUDDHA_VOLUME_MINUS)
-            val pendingIntent2 = PendingIntent.getBroadcast(applicationContext, 0, intentRootClick2, PendingIntent.FLAG_UPDATE_CURRENT)
-            remoteViews.setOnClickPendingIntent(R.id.tv_timeTotal, pendingIntent2)
+                val intentRootClick2 = Intent(ACTION_BUDDHA_VOLUME_MINUS)
+                val pendingIntent2 = PendingIntent.getBroadcast(applicationContext, 0, intentRootClick2, PendingIntent.FLAG_UPDATE_CURRENT)
+                remoteViews.setOnClickPendingIntent(R.id.tv_timeTotal, pendingIntent2)
 
-            val intentRootClick3 = Intent(ACTION_BUDDHA_VOLUME_ADD)
-            val pendingIntent3 = PendingIntent.getBroadcast(applicationContext, 0, intentRootClick3, PendingIntent.FLAG_UPDATE_CURRENT)
-            remoteViews.setOnClickPendingIntent(R.id.tv_countTotal, pendingIntent3)
-            val autoPauseColor = resources.getColor(R.color.a, null)
-            val normalColor = resources.getColor(R.color.cardview_dark_background, null)
-            if (isAutoPause) {
-                remoteViews.setTextColor(R.id.tv_count, autoPauseColor)
-                remoteViews.setTextColor(R.id.tv_time, autoPauseColor)
-                remoteViews.setTextColor(R.id.tv_countTotal, autoPauseColor)
-                remoteViews.setTextColor(R.id.tv_timeTotal, autoPauseColor)
-            } else {
-                remoteViews.setTextColor(R.id.tv_count, normalColor)
-                remoteViews.setTextColor(R.id.tv_time, normalColor)
-                remoteViews.setTextColor(R.id.tv_countTotal, normalColor)
-                remoteViews.setTextColor(R.id.tv_timeTotal, normalColor)
+                val intentRootClick3 = Intent(ACTION_BUDDHA_VOLUME_ADD)
+                val pendingIntent3 = PendingIntent.getBroadcast(applicationContext, 0, intentRootClick3, PendingIntent.FLAG_UPDATE_CURRENT)
+                remoteViews.setOnClickPendingIntent(R.id.tv_countTotal, pendingIntent3)
+                val autoPauseColor = resources.getColor(R.color.a, null)
+                val normalColor = resources.getColor(R.color.cardview_dark_background, null)
+                if (isAutoPause) {
+                    remoteViews.setTextColor(R.id.tv_count, autoPauseColor)
+                    remoteViews.setTextColor(R.id.tv_time, autoPauseColor)
+                    remoteViews.setTextColor(R.id.tv_countTotal, autoPauseColor)
+                    remoteViews.setTextColor(R.id.tv_timeTotal, autoPauseColor)
+                } else {
+                    remoteViews.setTextColor(R.id.tv_count, normalColor)
+                    remoteViews.setTextColor(R.id.tv_time, normalColor)
+                    remoteViews.setTextColor(R.id.tv_countTotal, normalColor)
+                    remoteViews.setTextColor(R.id.tv_timeTotal, normalColor)
+                }
+            } catch (e: Exception) {
+                dc.addRunLog("BuddhaService", "sendNotification", e.message)
             }
         }
     }
@@ -742,6 +770,7 @@ class BuddhaService : Service() {
 
     //endregion
     //region 悬浮窗
+    @Throws(Exception::class)
     private fun floatingWinButState(sate: Boolean) {
         floatingWindowView?.let {
             val iv_control = it.findViewById<ImageView>(R.id.iv_control)
@@ -788,12 +817,13 @@ class BuddhaService : Service() {
                             chantBuddhaPause()
                             floatingWinButState(true)
                             mAm.abandonAudioFocus(afChangeListener)
-                            dc.addRunLog("BuddhaService", "暂停念佛", "")
+                            dc.addRunLog("BuddhaService", "暂停念佛", "float window")
+                            setMediaVolume(13)
                         } else {
                             if (requestFocus()) {
                                 chantBuddhaRestart()
                                 floatingWinButState(false)
-                                dc.addRunLog("BuddhaService", "开始念佛", "")
+                                dc.addRunLog("BuddhaService", "开始念佛", "float window")
                             }
                         }
                         sendNotification(notificationCount, notificationCountDay, notificationTime, notificationTimeDay)
@@ -803,7 +833,7 @@ class BuddhaService : Service() {
                 windowManager.addView(floatingWindowView, layoutParams)
             }
         } catch (e: Exception) {
-            e("xxxxxxxxxxxxxxxxxxxxxxx ${e.message!!}")
+            dc.addRunLog("BuddhaService", "showFloatingWindow", e.message)
         }
     }
 
@@ -882,7 +912,7 @@ class BuddhaService : Service() {
                             if (requestFocus()) {
                                 chantBuddhaRestart()
                                 floatingWinButState(false)
-                                dc.addRunLog("BuddhaService", "开始念佛", "")
+                                dc.addRunLog("BuddhaService", "开始念佛", "buddha receiver ACTION_BUDDHA_PLAYE")
                             }
                         }
                         ACTION_BUDDHA_PLAYE_AUTO -> {
@@ -892,7 +922,8 @@ class BuddhaService : Service() {
                             chantBuddhaPause()
                             floatingWinButState(true)
                             mAm.abandonAudioFocus(afChangeListener)
-                            dc.addRunLog("BuddhaService", "暂停念佛", "")
+                            dc.addRunLog("BuddhaService", "暂停念佛", "buddha receiver ACTION_BUDDHA_PAUSE")
+                            setMediaVolume(13)
                         }
                         BluetoothHeadset.ACTION_CONNECTION_STATE_CHANGED -> {
                             val adapter = BluetoothAdapter.getDefaultAdapter()
@@ -916,7 +947,7 @@ class BuddhaService : Service() {
                     sendNotification(notificationCount, notificationCountDay, notificationTime, notificationTimeDay)
                 }
             } catch (e: Exception) {
-                e("eeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee" + e.message ?: "")
+                dc.addRunLog("BuddhaService", "BuddhaReceiver ", e.message)
             }
         }
     }

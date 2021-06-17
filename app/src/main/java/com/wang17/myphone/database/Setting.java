@@ -62,6 +62,7 @@ public class Setting{
     }
 
     public enum KEYS{
+        tmp_tt,
         is_setting_verify,is开启整点报时,
         top_title,bottom_title,
         几圈后自动结束念佛, is念佛自动暂停,
