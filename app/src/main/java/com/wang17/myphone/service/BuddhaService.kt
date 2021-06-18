@@ -94,6 +94,8 @@ class BuddhaService : Service() {
             try {
                 dc.addRunLog("BuddhaService", "启动念佛服务", "onStartCommand")
                 dc.deleteRunLog("BuddhaService", DateTime.today.addDays(-1))
+                topTitle = dc.getSetting(Setting.KEYS.top_title, "南无阿弥陀佛").string
+                bottomTitle = dc.getSetting(Setting.KEYS.bottom_title, "一门深入 长时薰修").string
 
                 loadDb()
 
@@ -112,7 +114,6 @@ class BuddhaService : Service() {
                 yq_period = dc.getSetting(Setting.KEYS.yq_period, 1000).long
                 mAm = getSystemService(AUDIO_SERVICE) as AudioManager
                 startTimeInMillis = System.currentTimeMillis()
-                setBuddhaVolume()
 
                 val musicName = dc.getSetting(Setting.KEYS.buddha_music_name)
                 if (musicName == null)
@@ -126,7 +127,7 @@ class BuddhaService : Service() {
                 showFloatingWindow()
 
             } catch (e: Exception) {
-                dc.addRunLog("BuddhaService", "Buddha.onCreate()", e.message ?: "")
+                dc.addRunLog("BuddhaService", "onCreate()", e.message ?: "")
             }
         }
         return super.onStartCommand(intent, flags, startId)
@@ -486,7 +487,7 @@ class BuddhaService : Service() {
             checkSectionBeforeRestart()
 
         } catch (e: Exception) {
-            dc.addRunLog("BuddhaService", "reOrStartData()", e.message ?: "")
+            dc.addRunLog("BuddhaService", "dataReOrStart()", e.message ?: "")
         }
     }
 
@@ -650,7 +651,7 @@ class BuddhaService : Service() {
                 dc.deleteSetting(Setting.KEYS.buddha_startime)
             }
         } catch (e: Exception) {
-            dc.addRunLog("BuddhaService", "pauseOrStopData()", e.message ?: "")
+            dc.addRunLog("BuddhaService", "dataPauseOrStop()", e.message ?: "")
         }
     }
 
@@ -659,29 +660,36 @@ class BuddhaService : Service() {
         val set_running = dc.getSetting(Setting.KEYS.buddha_service_running)
         if (set_running != null) {
             // 说明服务被异常结束，因为正常结束时，这个标志已经被删除了
-            dc.addRunLog("BuddhaService", "chantBuddhaStart()", "服务被异常销毁后再次启动")
             val set_startime = dc.getSetting(Setting.KEYS.buddha_startime)
+            dc.addRunLog("BuddhaService", "buddhaStart()", "服务被异常销毁后再次启动，上次播放状态： ${if(set_startime!=null) "念佛" else "暂停"}")
             if (set_startime != null) {
                 // 说明服务被异常结束时，程序正是念佛时。因为在正常结束时，这个标记已经被删除了。
-                topTitle = dc.getSetting(Setting.KEYS.top_title, "南无阿弥陀佛").string
-                bottomTitle = dc.getSetting(Setting.KEYS.bottom_title, "一门深入 长时薰修").string
                 cloudSaved = 0
 
                 mPlayer?.start()
-                startTimeInMillis = set_running.long
+                startTimeInMillis = set_startime.long
                 restartTimer()
-                checkSectionOnRunning()
+                setBuddhaVolume()
             } else {
                 // 说明服务被异常结束时，程序正是暂停时。
+                mPlayer?.pause()
                 pauseTimer()
-                checkSectionOnPause()
+                //
+                val durationSection = setting_duration
+                notificationCount = (durationSection / 1000 / circleSecond).toInt()
+                notificationTime = durationToTimeString(durationSection)
+                val durationDay = dbDuration + setting_duration
+                notificationCountDay = dbCount + notificationCount
+                notificationTimeDay = durationToTimeString(durationDay)
             }
 
         } else {
             mPlayer?.start()
             dataReOrStart()
             restartTimer()
+            setBuddhaVolume()
         }
+        dc.editSetting(Setting.KEYS.buddha_service_running, true)
     }
 
     @Throws(Exception::class)

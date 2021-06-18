@@ -3268,7 +3268,7 @@ public class DataContext {
         ContentValues values = new ContentValues();
         values.put("value", value.toString());
         if (db.update("setting", values, "name=?", new String[]{name.toString()}) == 0) {
-            this.addSetting(name, value.toString());
+            this.addSetting(name.toString(), value.toString());
         }
         db.close();
     }
@@ -3296,7 +3296,7 @@ public class DataContext {
     public void deleteSetting(String name) {
         //获取数据库对象
         SQLiteDatabase db = dbHelper.getWritableDatabase();
-        db.delete("setting", "name=?", new String[]{name});
+        db.delete("setting", "name=?", new String[]{name.toString()});
 //        String sql = "DELETE FROM setting WHERE userId="+userId.toString()+" AND name="+name;
 //        addLog(new Log(sql,userId),db);
         //关闭SQLiteDatabase对象
