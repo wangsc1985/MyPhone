@@ -33,10 +33,7 @@ import com.wang17.myphone.eventbus.*
 import com.wang17.myphone.model.DateTime
 import com.wang17.myphone.model.ChannelName
 import com.wang17.myphone.toBuddhaType
-import com.wang17.myphone.util._CloudUtils
-import com.wang17.myphone.util._NotificationUtils
-import com.wang17.myphone.util._Session
-import com.wang17.myphone.util._Utils
+import com.wang17.myphone.util.*
 import org.greenrobot.eventbus.EventBus
 import org.greenrobot.eventbus.Subscribe
 import org.greenrobot.eventbus.ThreadMode
@@ -124,11 +121,12 @@ class BuddhaService : Service() {
                 loadBuddhaConfig()
 
                 startMediaPlayer(musicName.string)
+                buddhaStart()
                 startTimer()
                 showFloatingWindow()
 
             } catch (e: Exception) {
-                dc.addRunLog("BuddhaService", "Buddha.onCreate", e.message ?: "")
+                dc.addRunLog("BuddhaService", "Buddha.onCreate()", e.message ?: "")
             }
         }
         return super.onStartCommand(intent, flags, startId)
@@ -165,7 +163,7 @@ class BuddhaService : Service() {
             //
             EventBus.getDefault().register(this)
         } catch (e: Exception) {
-            dc.addRunLog("BuddhaService", "Buddha.onCreate", e.message ?: "")
+            dc.addRunLog("BuddhaService", "Buddha.onCreate()", e.message ?: "")
         }
     }
 
@@ -201,15 +199,15 @@ class BuddhaService : Service() {
     override fun onDestroy() {
         try {
             dc.addRunLog("BuddhaService", "结束念佛服务", "onDestroy")
+            dc.deleteSetting(Setting.KEYS.buddha_service_running)
             super.onDestroy()
             stopMediaPlayer()
-            stopTimer()
+            cancelTimer()
 //        stopTimerMy()
 
             _NotificationUtils.closeNotification(applicationContext, ID)
 
             //
-
             mAm.abandonAudioFocus(afChangeListener)
             unregisterReceiver(buddhaReceiver)
             EventBus.getDefault().post(EventBusMessage.getInstance(FromBuddhaServiceDestroy(), "buddha service destroyed"))
@@ -219,10 +217,9 @@ class BuddhaService : Service() {
             }
             EventBus.getDefault().unregister(this)
 
-            dc.deleteSetting(Setting.KEYS.tmp_tt)
-
+//            dc.deleteSetting(Setting.KEYS.tmp_tt)
         } catch (e: Exception) {
-            dc.addRunLog("BuddhaService", "Buddha.onDestroy", e.message ?: "")
+            dc.addRunLog("BuddhaService", "Buddha.onDestroy()", e.message ?: "")
         }
     }
 
@@ -241,7 +238,8 @@ class BuddhaService : Service() {
 
     var prvDayOfYear = DateTime().get(Calendar.DAY_OF_YEAR)
     var tellTimeHour = -1
-    var tmpCC = -1L
+
+    //    var tmpCC = -1L
     fun startTimer() {
         timer?.cancel()
         timer = null
@@ -250,16 +248,6 @@ class BuddhaService : Service() {
             override fun run() {
                 try {
                     val now = DateTime()
-                    if (tmpCC == -1L) {
-                        val set = dc.getSetting(Setting.KEYS.tmp_tt)
-                        set?.let {
-                            dc.addRunLog("BuddhaService", "超时", durationToTimeString(now.timeInMillis - it.long))
-                        }
-                    }
-
-                    tmpCC = now.timeInMillis
-                    dc.editSetting(Setting.KEYS.tmp_tt, now.timeInMillis)
-//                    e("${now.toTimeString()}")
 
                     if (now.minite == 0 && now.second < 5
                         && now.hour > 6 && now.hour < 24
@@ -270,14 +258,11 @@ class BuddhaService : Service() {
                         tellTimeHour = now.hour
                     }
 
-//                    e("${notificationCount}  ${notificationTime}  ${notificationCountDay}  ${notificationTimeDay}  ${now.toTimeString()}")
                     val dayOfYear = now.get(Calendar.DAY_OF_YEAR)
                     if (isTimerRuning) {
-                        //                    e("缓存duration : ${savedDuration/1000}秒  此段duration : ${(System.currentTimeMillis() - startTimeInMillis)/1000}秒   此段起始时间 : ${DateTime(startTimeInMillis).toTimeString()}")
                         val durationSection = setting_duration + System.currentTimeMillis() - startTimeInMillis
                         notificationCount = (durationSection / 1000 / circleSecond).toInt()
                         notificationTime = durationToTimeString(durationSection)
-                        //                    e("db duration: ${durationToTimeString(dbDuration)} ; save duration: ${durationToTimeString(setting_duration)}  section duration:${durationToTimeString(System.currentTimeMillis() - startTimeInMillis)}")
                         val durationDay = dbDuration + setting_duration + System.currentTimeMillis() - startTimeInMillis
                         notificationCountDay = dbCount + notificationCount
                         notificationTimeDay = durationToTimeString(durationDay)
@@ -303,7 +288,7 @@ class BuddhaService : Service() {
                                 }
                             }
                             if (isAutoPause) {
-                                chantBuddhaPause()
+                                buddhaPause()
                                 floatingWinButState(true)
                                 mAm.abandonAudioFocus(afChangeListener)
                                 dc.addRunLog("BuddhaService", "暂停念佛", "auto pause")
@@ -343,7 +328,7 @@ class BuddhaService : Service() {
 
                     sendNotification(notificationCount, notificationCountDay, notificationTime, notificationTimeDay)
                 } catch (e: Exception) {
-                    dc.addRunLog("BuddhaService", "timer err", e.message)
+                    dc.addRunLog("BuddhaService", "timer err", e.message ?: "")
                 }
             }
         }, 0, 1000)
@@ -360,7 +345,7 @@ class BuddhaService : Service() {
     }
 
     @Throws(Exception::class)
-    fun stopTimer() {
+    fun cancelTimer() {
         timer?.cancel()
     }
 
@@ -396,7 +381,6 @@ class BuddhaService : Service() {
                 params.setSpeed(speed)
                 mPlayer?.playbackParams = params
             }
-            chantBuddhaStart()
 
 
             mBackgroundPlayer = MediaPlayer.create(applicationContext, R.raw.second_60)
@@ -409,7 +393,7 @@ class BuddhaService : Service() {
 
     fun stopMediaPlayer() {
         mBackgroundPlayer?.stop()
-        chantBuddhaStop()
+        buddhaStop()
         mPlayer?.stop()
     }
 
@@ -418,7 +402,7 @@ class BuddhaService : Service() {
         val result = try {
             mAm.requestAudioFocus(afChangeListener, AudioManager.STREAM_MUSIC, AudioManager.AUDIOFOCUS_GAIN)
         } catch (e: Exception) {
-            dc.addRunLog("BuddhaService", "requestFocus", e.message)
+            dc.addRunLog("BuddhaService", "requestFocus()", e.message ?: "")
         }
         return result == AudioManager.AUDIOFOCUS_REQUEST_GRANTED
     }
@@ -436,7 +420,7 @@ class BuddhaService : Service() {
                 AudioManager.AUDIOFOCUS_GAIN -> {
                     e("获取永久焦点")
                     if (!AUDIOFOCUS_LOSS_TRANSIENT_CAN_DUCK) {
-                        chantBuddhaRestart()
+                        buddhaRestart()
                     } else {
                         AUDIOFOCUS_LOSS_TRANSIENT_CAN_DUCK = false
                     }
@@ -451,7 +435,7 @@ class BuddhaService : Service() {
                  */
                 AudioManager.AUDIOFOCUS_LOSS -> {
                     e("永久失去焦点")
-                    chantBuddhaPause()
+                    buddhaPause()
                     floatingWinButState(true)
                     sendNotification(notificationCount, notificationCountDay, notificationTime, notificationTimeDay)
                 }
@@ -462,7 +446,7 @@ class BuddhaService : Service() {
                  */
                 AudioManager.AUDIOFOCUS_LOSS_TRANSIENT -> {
                     e("暂时失去焦点")
-                    chantBuddhaPause()
+                    buddhaPause()
                     floatingWinButState(true)
                     sendNotification(notificationCount, notificationCountDay, notificationTime, notificationTimeDay)
                 }
@@ -478,7 +462,7 @@ class BuddhaService : Service() {
                 }
             }
         } catch (e: Exception) {
-            dc.addRunLog("BuddhaService", "afChangeListener", e.message)
+            dc.addRunLog("BuddhaService", "afChangeListener()", e.message ?: "")
         }
     }
     //endregion
@@ -489,7 +473,7 @@ class BuddhaService : Service() {
      * 开始或重新开始要做的：
      * 1、记录当前section的startime
      */
-    fun reOrStartData() {
+    fun dataReOrStart() {
         try {
 
             topTitle = dc.getSetting(Setting.KEYS.top_title, "南无阿弥陀佛").string
@@ -502,7 +486,7 @@ class BuddhaService : Service() {
             checkSectionBeforeRestart()
 
         } catch (e: Exception) {
-            dc.addRunLog("BuddhaService", "reOrStartData", e.message)
+            dc.addRunLog("BuddhaService", "reOrStartData()", e.message ?: "")
         }
     }
 
@@ -550,7 +534,7 @@ class BuddhaService : Service() {
                 latch.await()
             }
         } catch (e: Exception) {
-            dc.addRunLog("BuddhaService", "checkSection", e.message)
+            dc.addRunLog("BuddhaService", "checkSection()", e.message ?: "")
         }
     }
 
@@ -594,7 +578,7 @@ class BuddhaService : Service() {
                 }
             }
         } catch (e: Exception) {
-            dc.addRunLog("BuddhaService", "saveSection", e.message)
+            dc.addRunLog("BuddhaService", "saveSection()", e.message ?: "")
         }
     }
 
@@ -639,7 +623,7 @@ class BuddhaService : Service() {
                 }
             }
         } catch (e: Exception) {
-            dc.addRunLog("BuddhaService", "saveSection", e.message)
+            dc.addRunLog("BuddhaService", "saveSection()", e.message ?: "")
         }
     }
 
@@ -649,7 +633,7 @@ class BuddhaService : Service() {
      * 2、删除section的startime
      */
     var setting_stoptime: Long = 0
-    fun pauseOrStopData() {
+    fun dataPauseOrStop() {
         try {
 //            e("---------------- pauseOrStopData --------------------")
             val now = System.currentTimeMillis()
@@ -666,36 +650,59 @@ class BuddhaService : Service() {
                 dc.deleteSetting(Setting.KEYS.buddha_startime)
             }
         } catch (e: Exception) {
-            dc.addRunLog("BuddhaService", "pauseOrStopData", e.message)
+            dc.addRunLog("BuddhaService", "pauseOrStopData()", e.message ?: "")
         }
     }
 
     @Throws(Exception::class)
-    fun chantBuddhaStart() {
+    fun buddhaStart() {
+        val set_running = dc.getSetting(Setting.KEYS.buddha_service_running)
+        if (set_running != null) {
+            // 说明服务被异常结束，因为正常结束时，这个标志已经被删除了
+            dc.addRunLog("BuddhaService", "chantBuddhaStart()", "服务被异常销毁后再次启动")
+            val set_startime = dc.getSetting(Setting.KEYS.buddha_startime)
+            if (set_startime != null) {
+                // 说明服务被异常结束时，程序正是念佛时。因为在正常结束时，这个标记已经被删除了。
+                topTitle = dc.getSetting(Setting.KEYS.top_title, "南无阿弥陀佛").string
+                bottomTitle = dc.getSetting(Setting.KEYS.bottom_title, "一门深入 长时薰修").string
+                cloudSaved = 0
+
+                mPlayer?.start()
+                startTimeInMillis = set_running.long
+                restartTimer()
+                checkSectionOnRunning()
+            } else {
+                // 说明服务被异常结束时，程序正是暂停时。
+                pauseTimer()
+                checkSectionOnPause()
+            }
+
+        } else {
+            mPlayer?.start()
+            dataReOrStart()
+            restartTimer()
+        }
+    }
+
+    @Throws(Exception::class)
+    fun buddhaRestart() {
         mPlayer?.start()
-        reOrStartData()
+        dataReOrStart()
         restartTimer()
     }
 
     @Throws(Exception::class)
-    fun chantBuddhaRestart() {
-        mPlayer?.start()
-        reOrStartData()
-        restartTimer()
+    fun buddhaPause() {
+        pauseTimer()
+        mPlayer?.pause()
+        dataPauseOrStop()
     }
 
     @Throws(Exception::class)
-    fun chantBuddhaPause() {
+    fun buddhaStop() {
         pauseTimer()
         mPlayer?.pause()
-        pauseOrStopData()
-    }
-
-    @Throws(Exception::class)
-    fun chantBuddhaStop() {
-        pauseTimer()
-        mPlayer?.pause()
-        pauseOrStopData()
+        dataPauseOrStop()
     }
 
     private fun sendNotification(count: Int, totalCount: Int, time: String, totalTime: String) {
@@ -745,7 +752,7 @@ class BuddhaService : Service() {
                     remoteViews.setTextColor(R.id.tv_timeTotal, normalColor)
                 }
             } catch (e: Exception) {
-                dc.addRunLog("BuddhaService", "sendNotification", e.message)
+                dc.addRunLog("BuddhaService", "sendNotification()", e.message ?: "")
             }
         }
     }
@@ -795,7 +802,7 @@ class BuddhaService : Service() {
                 }
             }
         } catch (e: Exception) {
-            dc.addRunLog("BuddhaService", "EventBus", e.message)
+            dc.addRunLog("BuddhaService", "onGetMessage()", e.message ?: "")
         }
     }
 
@@ -845,7 +852,7 @@ class BuddhaService : Service() {
                 iv_control?.setOnClickListener {
                     if (Math.abs(changeX) < 10 && Math.abs(changeY) < 10) {
                         if (mPlayer?.isPlaying ?: false) {
-                            chantBuddhaPause()
+                            buddhaPause()
                             floatingWinButState(true)
                             mAm.abandonAudioFocus(afChangeListener)
                             dc.addRunLog("BuddhaService", "暂停念佛", "float window")
@@ -853,7 +860,7 @@ class BuddhaService : Service() {
                         } else {
                             if (requestFocus()) {
                                 setBuddhaVolume()
-                                chantBuddhaRestart()
+                                buddhaRestart()
                                 floatingWinButState(false)
                                 dc.addRunLog("BuddhaService", "开始念佛", "float window")
                             }
@@ -865,7 +872,7 @@ class BuddhaService : Service() {
                 windowManager.addView(floatingWindowView, layoutParams)
             }
         } catch (e: Exception) {
-            dc.addRunLog("BuddhaService", "showFloatingWindow", e.message)
+            dc.addRunLog("BuddhaService", "showFloatingWindow()", e.message ?: "")
         }
     }
 
@@ -927,6 +934,7 @@ class BuddhaService : Service() {
                                 volume += "0.1".toBigDecimal()
                                 e("声音加" + volume)
                                 mPlayer?.setVolume(volume.toFloat(), volume.toFloat())
+                                _SoundUtils.play(context!!, R.raw.bi, 0.1f)
                                 _Utils.zhendong70(context!!)
 //                            Toast.makeText(context,volume.setScale(1,BigDecimal.ROUND_DOWN).toString(),Toast.LENGTH_SHORT).show()
                             }
@@ -936,6 +944,7 @@ class BuddhaService : Service() {
                                 volume -= "0.1".toBigDecimal()
                                 e("声音减" + volume)
                                 mPlayer?.setVolume(volume.toFloat(), volume.toFloat())
+                                _SoundUtils.play(context!!, R.raw.bi, 0.1f)
                                 _Utils.zhendong70(context!!)
 //                            Toast.makeText(context,volume.setScale(1,BigDecimal.ROUND_DOWN).toString(),Toast.LENGTH_SHORT).show()
                             }
@@ -943,7 +952,7 @@ class BuddhaService : Service() {
                         ACTION_BUDDHA_PLAYE -> {
                             if (requestFocus()) {
                                 setBuddhaVolume()
-                                chantBuddhaRestart()
+                                buddhaRestart()
                                 floatingWinButState(false)
                                 dc.addRunLog("BuddhaService", "开始念佛", "buddha receiver ACTION_BUDDHA_PLAYE")
                             }
@@ -952,7 +961,7 @@ class BuddhaService : Service() {
                             isAutoPause = !isAutoPause
                         }
                         ACTION_BUDDHA_PAUSE -> {
-                            chantBuddhaPause()
+                            buddhaPause()
                             floatingWinButState(true)
                             mAm.abandonAudioFocus(afChangeListener)
                             dc.addRunLog("BuddhaService", "暂停念佛", "buddha receiver ACTION_BUDDHA_PAUSE")
@@ -963,14 +972,14 @@ class BuddhaService : Service() {
                             e("接收到蓝牙广播")
                             if (BluetoothProfile.STATE_DISCONNECTED == adapter.getProfileConnectionState(BluetoothProfile.HEADSET)) {
                                 e("蓝牙耳机断开")
-                                chantBuddhaPause()
+                                buddhaPause()
                                 floatingWinButState(true)
                                 mAm.abandonAudioFocus(afChangeListener)
                                 dc.addRunLog("BuddhaService", "耳机断开1", "")
                             }
                         }
                         AudioManager.ACTION_AUDIO_BECOMING_NOISY -> {
-                            chantBuddhaPause()
+                            buddhaPause()
                             floatingWinButState(true)
                             mAm.abandonAudioFocus(afChangeListener)
                             dc.addRunLog("BuddhaService", "耳机断开2", "")
@@ -980,7 +989,7 @@ class BuddhaService : Service() {
                     sendNotification(notificationCount, notificationCountDay, notificationTime, notificationTimeDay)
                 }
             } catch (e: Exception) {
-                dc.addRunLog("BuddhaService", "BuddhaReceiver ", e.message)
+                dc.addRunLog("BuddhaService", "BuddhaReceiver ()", e.message ?: "")
             }
         }
     }

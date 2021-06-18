@@ -65,6 +65,7 @@ public class Setting{
         tmp_tt,
         is_setting_verify,is开启整点报时,
         top_title,bottom_title,
+        buddha_service_running,
         几圈后自动结束念佛, is念佛自动暂停,
         muyu_duration,muyu_startime,muyu_stoptime,muyu_type,
         is填充图表区域, 图表开始日期,
