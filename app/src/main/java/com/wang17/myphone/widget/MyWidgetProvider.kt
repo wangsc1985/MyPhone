@@ -347,7 +347,7 @@ class MyWidgetProvider : AppWidgetProvider() {
                          */
                         if (sms.body.contains("验证码") || sms.body.contains("动态密码")) {
 
-                            var str = ""
+                            var str = sms.body
                             while (true) {
                                 var matcher = Pattern.compile("(?<=验证码.{0,2})([0-9]{6})(?![0-9])").matcher(sms.body)
                                 if (matcher.find()) {

@@ -84,16 +84,54 @@ class BuddhaService : Service() {
 
     var topTitle = ""
     var bottomTitle = ""
-    var system_volumn=10
+    var system_volumn = 10
 
     override fun onBind(intent: Intent): IBinder? {
         return null
     }
 
-
+    @RequiresApi(Build.VERSION_CODES.M)
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
+
+        kotlin.run aaa@{
+            try {
+                dc.addRunLog("BuddhaService", "启动念佛服务", "onStartCommand")
+                dc.deleteRunLog("BuddhaService", DateTime.today.addDays(-1))
+
+                loadDb()
+
+                isShowFloatWindow = dc.getSetting(Setting.KEYS.is显示念佛悬浮窗, false).boolean
+                isAutoPause = dc.getSetting(Setting.KEYS.is念佛自动暂停, false).boolean
+                targetTap = dc.getSetting(Setting.KEYS.几圈后自动结束念佛, 12).int
+
+                yqSound = SoundPool(100, AudioManager.STREAM_MUSIC, 0)
+                yqSound.load(this, R.raw.yq, 1)
+                guSound = SoundPool(100, AudioManager.STREAM_MUSIC, 0)
+                guSound.load(this, R.raw.gu, 1)
+                val set = dc.getSetting(Setting.KEYS.buddha_duration)
+                set?.let {
+                    setting_duration = set.long
+                }
+                yq_period = dc.getSetting(Setting.KEYS.yq_period, 1000).long
+                mAm = getSystemService(AUDIO_SERVICE) as AudioManager
+                startTimeInMillis = System.currentTimeMillis()
+                setBuddhaVolume()
+
+                val musicName = dc.getSetting(Setting.KEYS.buddha_music_name)
+                if (musicName == null)
+                    return@aaa
+
+                loadBuddhaConfig()
+
+                startMediaPlayer(musicName.string)
+                startTimer()
+                showFloatingWindow()
+
+            } catch (e: Exception) {
+                dc.addRunLog("BuddhaService", "Buddha.onCreate", e.message ?: "")
+            }
+        }
         return super.onStartCommand(intent, flags, startId)
-        dc.addRunLog("BuddhaService", "启动念佛服务", "onStartCommand")
     }
 
     @Throws(Exception::class)
@@ -114,36 +152,6 @@ class BuddhaService : Service() {
         try {
             dc = DataContext(applicationContext)
             dc.addRunLog("BuddhaService", "启动念佛服务", "onCreate")
-            dc.deleteRunLog("BuddhaService", DateTime.today.addDays(-1))
-
-            loadDb()
-
-            isShowFloatWindow = dc.getSetting(Setting.KEYS.is显示念佛悬浮窗, false).boolean
-            isAutoPause = dc.getSetting(Setting.KEYS.is念佛自动暂停, false).boolean
-            targetTap = dc.getSetting(Setting.KEYS.几圈后自动结束念佛, 12).int
-
-            yqSound = SoundPool(100, AudioManager.STREAM_MUSIC, 0)
-            yqSound.load(this, R.raw.yq, 1)
-            guSound = SoundPool(100, AudioManager.STREAM_MUSIC, 0)
-            guSound.load(this, R.raw.gu, 1)
-            val setting = dc.getSetting(Setting.KEYS.buddha_duration)
-            setting?.let {
-                setting_duration = setting.long
-            }
-            yq_period = dc.getSetting(Setting.KEYS.yq_period, 1000).long
-            mAm = getSystemService(AUDIO_SERVICE) as AudioManager
-            startTimeInMillis = System.currentTimeMillis()
-            setBuddhaVolume()
-
-            val musicName = dc.getSetting(Setting.KEYS.buddha_music_name)
-            if (musicName == null)
-                return
-
-            loadBuddhaConfig()
-
-            startMediaPlayer(musicName.string)
-            startTimer()
-            showFloatingWindow()
             //
             val filter = IntentFilter()
             filter.addAction(ACTION_BUDDHA_PLAYE)
@@ -154,7 +162,7 @@ class BuddhaService : Service() {
             filter.addAction(BluetoothHeadset.ACTION_CONNECTION_STATE_CHANGED)
             filter.addAction(AudioManager.ACTION_AUDIO_BECOMING_NOISY)
             registerReceiver(buddhaReceiver, filter)
-
+            //
             EventBus.getDefault().register(this)
         } catch (e: Exception) {
             dc.addRunLog("BuddhaService", "Buddha.onCreate", e.message ?: "")
@@ -162,7 +170,7 @@ class BuddhaService : Service() {
     }
 
     @Throws(Exception::class)
-    fun setBuddhaVolume(){
+    fun setBuddhaVolume() {
         val volume = dc.getSetting(Setting.KEYS.念佛最佳音量)
         volume?.let {
             system_volumn = getMediaVolume()
@@ -245,7 +253,7 @@ class BuddhaService : Service() {
                     if (tmpCC == -1L) {
                         val set = dc.getSetting(Setting.KEYS.tmp_tt)
                         set?.let {
-                            dc.addRunLog(BuddhaService.toString(), "超时", durationToTimeString(now.timeInMillis - it.long))
+                            dc.addRunLog("BuddhaService", "超时", durationToTimeString(now.timeInMillis - it.long))
                         }
                     }
 
@@ -299,7 +307,7 @@ class BuddhaService : Service() {
                                 floatingWinButState(true)
                                 mAm.abandonAudioFocus(afChangeListener)
                                 dc.addRunLog("BuddhaService", "暂停念佛", "auto pause")
-                                Thread{
+                                Thread {
                                     Thread.sleep(3000)
                                     setMediaVolume(system_volumn)
                                 }.start()
@@ -363,7 +371,7 @@ class BuddhaService : Service() {
     }
 
     @Throws(Exception::class)
-    fun getMediaVolume():Int{
+    fun getMediaVolume(): Int {
         val audio = getSystemService(AUDIO_SERVICE) as AudioManager
         return audio.getStreamVolume(AudioManager.STREAM_MUSIC)
     }

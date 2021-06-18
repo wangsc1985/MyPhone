@@ -100,7 +100,6 @@ public class MainActivity extends AppCompatActivity implements BackupTask.OnFini
     @Override
     protected void onResume() {
         super.onResume();
-        EventBus.getDefault().register(this);
 //        e("main activity on resume");
     }
 
@@ -113,6 +112,7 @@ public class MainActivity extends AppCompatActivity implements BackupTask.OnFini
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         uiHandler = new Handler();
+        EventBus.getDefault().register(this);
 
         rorateAnimation = AnimationUtils.loadAnimation(this, R.anim.rotate_animation);
         LinearInterpolator lin = new LinearInterpolator();

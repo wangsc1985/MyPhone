@@ -51,10 +51,7 @@
             android:screenOrientation="portrait"
             android:theme="@style/Theme.AppCompat.Dialog" />
 
-        <service
-            android:name=".service.MuyuService"
-            android:enabled="true"
-            android:exported="true" />
+        <service android:name=".service.MuyuService"  />
 
         <activity
             android:name=".activity.KnockerActivity"
@@ -62,15 +59,7 @@
             android:label="@string/title_activity_knocker"
             android:theme="@style/Theme.AppCompat.Light.NoActionBar.Fullscreen" />
 
-        <service
-            android:name=".service.BuddhaService"
-            android:enabled="true"
-            android:exported="true">
-            <intent-filter>
-                <action android:name="com.wang17.myphone.buddha.play" />
-                <action android:name="com.wang17.myphone.buddha.pause" />
-            </intent-filter>
-        </service>
+        <service android:name=".service.BuddhaService" />
 
         <activity android:name=".activity.TradesActivity" />
         <activity android:name=".activity.StockPositionHistoryActivity" />
