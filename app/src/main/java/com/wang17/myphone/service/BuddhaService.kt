@@ -1,5 +1,6 @@
 package com.wang17.myphone.service
 
+import android.app.Notification
 import android.app.PendingIntent
 import android.app.Service
 import android.bluetooth.BluetoothAdapter
@@ -163,6 +164,7 @@ class BuddhaService : Service() {
             registerReceiver(buddhaReceiver, filter)
             //
             EventBus.getDefault().register(this)
+
         } catch (e: Exception) {
             dc.addRunLog("BuddhaService", "Buddha.onCreate()", e.message ?: "")
         }
@@ -218,6 +220,7 @@ class BuddhaService : Service() {
             }
             EventBus.getDefault().unregister(this)
 
+            stopForeground(true)
 //            dc.deleteSetting(Setting.KEYS.tmp_tt)
         } catch (e: Exception) {
             dc.addRunLog("BuddhaService", "Buddha.onDestroy()", e.message ?: "")
@@ -290,7 +293,7 @@ class BuddhaService : Service() {
                             }
                             if (isAutoPause) {
                                 buddhaPause()
-                                floatingWinButState(true)
+                                floatingWinButState(WinBtnState.点击播放)
                                 mAm.abandonAudioFocus(afChangeListener)
                                 dc.addRunLog("BuddhaService", "暂停念佛", "auto pause")
                                 Thread {
@@ -426,7 +429,7 @@ class BuddhaService : Service() {
                         AUDIOFOCUS_LOSS_TRANSIENT_CAN_DUCK = false
                     }
                     mPlayer?.setVolume(volume.toFloat(), volume.toFloat())
-                    floatingWinButState(false)
+                    floatingWinButState(WinBtnState.点击暂停)
                     sendNotification(notificationCount, notificationCountDay, notificationTime, notificationTimeDay)
                 }
                 /**
@@ -437,7 +440,7 @@ class BuddhaService : Service() {
                 AudioManager.AUDIOFOCUS_LOSS -> {
                     e("永久失去焦点")
                     buddhaPause()
-                    floatingWinButState(true)
+                    floatingWinButState(WinBtnState.点击播放)
                     sendNotification(notificationCount, notificationCountDay, notificationTime, notificationTimeDay)
                 }
                 /**
@@ -448,7 +451,7 @@ class BuddhaService : Service() {
                 AudioManager.AUDIOFOCUS_LOSS_TRANSIENT -> {
                     e("暂时失去焦点")
                     buddhaPause()
-                    floatingWinButState(true)
+                    floatingWinButState(WinBtnState.点击播放)
                     sendNotification(notificationCount, notificationCountDay, notificationTime, notificationTimeDay)
                 }
                 /**
@@ -661,19 +664,27 @@ class BuddhaService : Service() {
         if (set_running != null) {
             // 说明服务被异常结束，因为正常结束时，这个标志已经被删除了
             val set_startime = dc.getSetting(Setting.KEYS.buddha_startime)
-            dc.addRunLog("BuddhaService", "buddhaStart()", "服务被异常销毁后再次启动，上次播放状态： ${if(set_startime!=null) "念佛" else "暂停"}")
             if (set_startime != null) {
                 // 说明服务被异常结束时，程序正是念佛时。因为在正常结束时，这个标记已经被删除了。
-                cloudSaved = 0
-
-                mPlayer?.start()
-                startTimeInMillis = set_startime.long
-                restartTimer()
-                setBuddhaVolume()
+                if (requestFocus()) {
+                    dc.addRunLog("BuddhaService", "buddhaStart()", "服务被异常销毁后再次启动，并延续念佛状态")
+                    cloudSaved = 0
+                    //
+                    mPlayer?.start()
+                    startTimeInMillis = set_startime.long
+                    //
+                    restartTimer()
+                    setBuddhaVolume()
+                }
             } else {
                 // 说明服务被异常结束时，程序正是暂停时。
+                dc.addRunLog("BuddhaService", "buddhaStart()", "服务被异常销毁后再次启动，并继续保持暂停状态")
+                //
                 mPlayer?.pause()
                 pauseTimer()
+                //
+                mAm.abandonAudioFocus(afChangeListener)
+                floatingWinButState(WinBtnState.点击播放)
                 //
                 val durationSection = setting_duration
                 notificationCount = (durationSection / 1000 / circleSecond).toInt()
@@ -714,7 +725,7 @@ class BuddhaService : Service() {
     }
 
     private fun sendNotification(count: Int, totalCount: Int, time: String, totalTime: String) {
-        _NotificationUtils.sendNotification(applicationContext, ChannelName.老实念佛, ID, R.layout.notification_nf) { remoteViews ->
+        val notification = _NotificationUtils.sendNotification(applicationContext, ChannelName.老实念佛, ID, R.layout.notification_nf) { remoteViews ->
             try {
                 remoteViews.setTextViewText(R.id.tv_count, if (buddhaType > 9) "${count}" else "")
                 remoteViews.setTextViewText(R.id.tv_time, time)
@@ -763,6 +774,7 @@ class BuddhaService : Service() {
                 dc.addRunLog("BuddhaService", "sendNotification()", e.message ?: "")
             }
         }
+        startForeground(0,notification)
     }
 
     //region 消息处理
@@ -817,10 +829,11 @@ class BuddhaService : Service() {
     //endregion
     //region 悬浮窗
     @Throws(Exception::class)
-    private fun floatingWinButState(sate: Boolean) {
+    private fun floatingWinButState(sate: WinBtnState) {
         floatingWindowView?.let {
             val iv_control = it.findViewById<ImageView>(R.id.iv_control)
-            if (sate) {
+
+            if (sate==WinBtnState.点击播放) {
                 iv_control.setImageResource(R.drawable.play)
             } else {
                 iv_control.setImageResource(R.drawable.pause)
@@ -828,6 +841,9 @@ class BuddhaService : Service() {
         }
     }
 
+    enum class WinBtnState{
+        点击播放,点击暂停
+    }
     var tv_duration: TextView? = null
 
     @RequiresApi(api = Build.VERSION_CODES.M)
@@ -861,7 +877,7 @@ class BuddhaService : Service() {
                     if (Math.abs(changeX) < 10 && Math.abs(changeY) < 10) {
                         if (mPlayer?.isPlaying ?: false) {
                             buddhaPause()
-                            floatingWinButState(true)
+                            floatingWinButState(WinBtnState.点击播放)
                             mAm.abandonAudioFocus(afChangeListener)
                             dc.addRunLog("BuddhaService", "暂停念佛", "float window")
                             setMediaVolume(system_volumn)
@@ -869,7 +885,7 @@ class BuddhaService : Service() {
                             if (requestFocus()) {
                                 setBuddhaVolume()
                                 buddhaRestart()
-                                floatingWinButState(false)
+                                floatingWinButState(WinBtnState.点击暂停)
                                 dc.addRunLog("BuddhaService", "开始念佛", "float window")
                             }
                         }
@@ -961,7 +977,7 @@ class BuddhaService : Service() {
                             if (requestFocus()) {
                                 setBuddhaVolume()
                                 buddhaRestart()
-                                floatingWinButState(false)
+                                floatingWinButState(WinBtnState.点击暂停)
                                 dc.addRunLog("BuddhaService", "开始念佛", "buddha receiver ACTION_BUDDHA_PLAYE")
                             }
                         }
@@ -970,7 +986,7 @@ class BuddhaService : Service() {
                         }
                         ACTION_BUDDHA_PAUSE -> {
                             buddhaPause()
-                            floatingWinButState(true)
+                            floatingWinButState(WinBtnState.点击播放)
                             mAm.abandonAudioFocus(afChangeListener)
                             dc.addRunLog("BuddhaService", "暂停念佛", "buddha receiver ACTION_BUDDHA_PAUSE")
                             setMediaVolume(system_volumn)
@@ -981,14 +997,14 @@ class BuddhaService : Service() {
                             if (BluetoothProfile.STATE_DISCONNECTED == adapter.getProfileConnectionState(BluetoothProfile.HEADSET)) {
                                 e("蓝牙耳机断开")
                                 buddhaPause()
-                                floatingWinButState(true)
+                                floatingWinButState(WinBtnState.点击播放)
                                 mAm.abandonAudioFocus(afChangeListener)
                                 dc.addRunLog("BuddhaService", "耳机断开1", "")
                             }
                         }
                         AudioManager.ACTION_AUDIO_BECOMING_NOISY -> {
                             buddhaPause()
-                            floatingWinButState(true)
+                            floatingWinButState(WinBtnState.点击播放)
                             mAm.abandonAudioFocus(afChangeListener)
                             dc.addRunLog("BuddhaService", "耳机断开2", "")
                         }

@@ -14,7 +14,8 @@ import com.wang17.myphone.model.ChannelName
 import com.wang17.myphone.util._Utils.saveException
 
 object _NotificationUtils {
-    fun sendNotification(context: Context, channelName: ChannelName, notificationId: Int, layoutId: Int, setNotificationViews: SetNotificationViews) {
+    fun sendNotification(context: Context, channelName: ChannelName, notificationId: Int, layoutId: Int, setNotificationViews: SetNotificationViews):Notification? {
+        var notification:Notification?=null
         try {
             val notificationManager = context.getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
             val remoteViews = RemoteViews(context.packageName, layoutId)
@@ -24,7 +25,7 @@ object _NotificationUtils {
                 channel.enableLights(true)
                 channel.enableVibration(true)
                 notificationManager.createNotificationChannel(channel)
-                val notification = Notification.Builder(context, channelName.toString()).setSmallIcon(R.mipmap.ic_launcher) //通知的构建过程基本与默认相同
+                notification = Notification.Builder(context, channelName.toString()).setSmallIcon(R.mipmap.ic_launcher) //通知的构建过程基本与默认相同
                         //                .setTicker("hello world")
                         //                .setWhen(System.currentTimeMillis())
                         .setAutoCancel(false)
@@ -34,7 +35,7 @@ object _NotificationUtils {
                 notification.flags = Notification.FLAG_ONGOING_EVENT
                 notificationManager.notify(notificationId, notification)
             } else {
-                val notification = NotificationCompat.Builder(context).setSmallIcon(R.mipmap.ic_launcher) //通知的构建过程基本与默认相同
+                notification = NotificationCompat.Builder(context).setSmallIcon(R.mipmap.ic_launcher) //通知的构建过程基本与默认相同
                         //                .setTicker("hello world")
                         //                .setWhen(System.currentTimeMillis())
                         .setAutoCancel(false)
@@ -47,14 +48,15 @@ object _NotificationUtils {
         } catch (e: NotFoundException) {
             saveException(context, e)
         }
+        return notification
     }
 
 //    fun sendNotification(context: Context, notificationId: Int, layoutId: Int, channel: MyChannel, setNotificationViews: SetNotificationViews) {
 //        sendNotification(context, notificationId, channel, layoutId, setNotificationViews)
 //    }
 
-    fun alertNotificationTop(context: Context, channelName: ChannelName, msg:String) {
-
+    fun alertNotificationTop(context: Context, channelName: ChannelName, msg:String):Notification? {
+        var notification:Notification?=null
         try {
             val notificationManager = context.getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
             val remoteViews = RemoteViews(context.packageName, R.layout.notification_top_alert)
@@ -64,7 +66,7 @@ object _NotificationUtils {
                 channel.enableLights(true)
                 channel.enableVibration(true)
                 notificationManager.createNotificationChannel(channel)
-                val notification = Notification.Builder(context, channelName.toString()).setSmallIcon(R.mipmap.ic_launcher) //通知的构建过程基本与默认相同
+                notification = Notification.Builder(context, channelName.toString()).setSmallIcon(R.mipmap.ic_launcher) //通知的构建过程基本与默认相同
 //                                        .setTicker(msg+"123")
                         .setAutoCancel(false)
                         .setWhen(System.currentTimeMillis())
@@ -74,7 +76,7 @@ object _NotificationUtils {
                 notification.flags = Notification.FLAG_AUTO_CANCEL
                 notificationManager.notify(0, notification)
             } else {
-                val notification = NotificationCompat.Builder(context).setSmallIcon(R.mipmap.ic_launcher) //通知的构建过程基本与默认相同
+                notification = NotificationCompat.Builder(context).setSmallIcon(R.mipmap.ic_launcher) //通知的构建过程基本与默认相同
 //                        .setTicker(msg+"123")
                         .setAutoCancel(false)
                         .setWhen(System.currentTimeMillis())
@@ -87,6 +89,7 @@ object _NotificationUtils {
         } catch (e: NotFoundException) {
             saveException(context, e)
         }
+        return notification
     }
 
     fun closeNotification(context: Context, notificationId: Int) {
