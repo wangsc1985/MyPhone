@@ -1,6 +1,5 @@
 package com.wang17.myphone.service
 
-import android.app.Notification
 import android.app.PendingIntent
 import android.app.Service
 import android.bluetooth.BluetoothAdapter
@@ -74,7 +73,6 @@ class BuddhaService : Service() {
     var yq_period = 1000L
 
     lateinit var yqSound: SoundPool
-    lateinit var guSound: SoundPool
     var targetTap = 12
 
     var isShowFloatWindow = false
@@ -83,6 +81,8 @@ class BuddhaService : Service() {
     var topTitle = ""
     var bottomTitle = ""
     var system_volumn = 10
+
+    var setting_music_name:Setting? = null
 
     override fun onBind(intent: Intent): IBinder? {
         return null
@@ -106,8 +106,8 @@ class BuddhaService : Service() {
 
                 yqSound = SoundPool(100, AudioManager.STREAM_MUSIC, 0)
                 yqSound.load(this, R.raw.yq, 1)
-                guSound = SoundPool(100, AudioManager.STREAM_MUSIC, 0)
-                guSound.load(this, R.raw.gu, 1)
+                _SoundUtils.play(applicationContext,R.raw.gu,_SoundUtils.SoundType.MUSIC)
+
                 val set = dc.getSetting(Setting.KEYS.buddha_duration)
                 set?.let {
                     setting_duration = set.long
@@ -116,16 +116,14 @@ class BuddhaService : Service() {
                 mAm = getSystemService(AUDIO_SERVICE) as AudioManager
                 startTimeInMillis = System.currentTimeMillis()
 
-                val musicName = dc.getSetting(Setting.KEYS.buddha_music_name)
-                if (musicName == null)
+                setting_music_name = dc.getSetting(Setting.KEYS.buddha_music_name)
+                if (setting_music_name == null)
                     return@aaa
 
                 loadBuddhaConfig()
 
-                startMediaPlayer(musicName.string)
+                startBackgroundMediaPlayer()
                 buddhaStart()
-                startTimer()
-                showFloatingWindow()
 
             } catch (e: Exception) {
                 dc.addRunLog("BuddhaService", "onCreate()", e.message ?: "")
@@ -277,7 +275,7 @@ class BuddhaService : Service() {
                         if (prvCount < notificationCount) {
                             if (dayOfYear != prvDayOfYear) {
                                 checkSectionOnRunning()
-                                guSound.play(1, 1.0f, 1.0f, 0, 0, 1.0f)
+                                _SoundUtils.play(applicationContext,R.raw.gu,_SoundUtils.SoundType.MUSIC)
                                 dc.deleteRunLog("BuddhaService", DateTime.today.addDays(-1))
                                 prvDayOfYear = dayOfYear
                             }
@@ -369,30 +367,29 @@ class BuddhaService : Service() {
     private var mBackgroundPlayer: MediaPlayer? = null
 
     @RequiresApi(Build.VERSION_CODES.M)
+    @Throws(Exception::class)
     fun startMediaPlayer(musicName: String) {
-        try {
-            requestFocus()
-            mPlayer = MediaPlayer()
-            var url = File(_Session.ROOT_DIR, musicName)
-            mPlayer?.reset() //把各项参数恢复到初始状态
-            mPlayer?.setDataSource(url.path)
-            mPlayer?.prepare() //进行缓冲
-            mPlayer?.setVolume(volume.toFloat(), volume.toFloat())
-            mPlayer?.setLooping(true)
-            val params = mPlayer?.playbackParams
-            params?.let {
-                params.setPitch(pitch)
-                params.setSpeed(speed)
-                mPlayer?.playbackParams = params
-            }
-
-
-            mBackgroundPlayer = MediaPlayer.create(applicationContext, R.raw.second_60)
-            mBackgroundPlayer?.setVolume(0.01f, 0.01f)
-            mBackgroundPlayer?.setLooping(true)
-            mBackgroundPlayer?.start()
-        } catch (e: Exception) {
+        mPlayer = MediaPlayer()
+        var url = File(_Session.ROOT_DIR, musicName)
+        mPlayer?.reset() //把各项参数恢复到初始状态
+        mPlayer?.setDataSource(url.path)
+        mPlayer?.prepare() //进行缓冲
+        mPlayer?.setVolume(volume.toFloat(), volume.toFloat())
+        mPlayer?.setLooping(true)
+        val params = mPlayer?.playbackParams
+        params?.let {
+            params.setPitch(pitch)
+            params.setSpeed(speed)
+            mPlayer?.playbackParams = params
         }
+    }
+
+    @Throws(Exception::class)
+    fun startBackgroundMediaPlayer() {
+        mBackgroundPlayer = MediaPlayer.create(applicationContext, R.raw.second_60)
+        mBackgroundPlayer?.setVolume(0.01f, 0.01f)
+        mBackgroundPlayer?.setLooping(true)
+        mBackgroundPlayer?.start()
     }
 
     fun stopMediaPlayer() {
@@ -525,7 +522,7 @@ class BuddhaService : Service() {
 
                             loadDb()
 
-                            guSound.play(1, 1.0f, 1.0f, 0, 0, 1.0f)
+                            _SoundUtils.play(applicationContext,R.raw.gu,_SoundUtils.SoundType.MUSIC)
                             cloudSaved = 5
                         }
                         else -> {
@@ -569,7 +566,7 @@ class BuddhaService : Service() {
                             prvCount = 0
                             loadDb()
 
-                            guSound.play(1, 1.0f, 1.0f, 0, 0, 1.0f)
+                            _SoundUtils.play(applicationContext,R.raw.gu,_SoundUtils.SoundType.MUSIC)
                             Looper.prepare()
                             Toast.makeText(applicationContext, result.toString(), Toast.LENGTH_LONG).show()
                             Looper.loop()
@@ -614,7 +611,7 @@ class BuddhaService : Service() {
                             prvCount = 0
                             loadDb()
 
-                            guSound.play(1, 1.0f, 1.0f, 0, 0, 1.0f)
+                            _SoundUtils.play(applicationContext,R.raw.gu,_SoundUtils.SoundType.MUSIC)
                             Looper.prepare()
                             Toast.makeText(applicationContext, result.toString(), Toast.LENGTH_LONG).show()
                             Looper.loop()
@@ -667,10 +664,12 @@ class BuddhaService : Service() {
             if (set_startime != null) {
                 // 说明服务被异常结束时，程序正是念佛时。因为在正常结束时，这个标记已经被删除了。
                 if (requestFocus()) {
+                    startMediaPlayer(setting_music_name!!.string)
+                    mPlayer?.start()
+
                     dc.addRunLog("BuddhaService", "buddhaStart()", "服务被异常销毁后再次启动，并延续念佛状态")
                     cloudSaved = 0
                     //
-                    mPlayer?.start()
                     startTimeInMillis = set_startime.long
                     //
                     restartTimer()
@@ -680,7 +679,6 @@ class BuddhaService : Service() {
                 // 说明服务被异常结束时，程序正是暂停时。
                 dc.addRunLog("BuddhaService", "buddhaStart()", "服务被异常销毁后再次启动，并继续保持暂停状态")
                 //
-                mPlayer?.pause()
                 pauseTimer()
                 //
                 mAm.abandonAudioFocus(afChangeListener)
@@ -695,11 +693,16 @@ class BuddhaService : Service() {
             }
 
         } else {
-            mPlayer?.start()
-            dataReOrStart()
-            restartTimer()
-            setBuddhaVolume()
+            if (requestFocus()) {
+                startMediaPlayer(setting_music_name!!.string)
+                mPlayer?.start()
+                dataReOrStart()
+                restartTimer()
+                setBuddhaVolume()
+            }
         }
+        startTimer()
+        showFloatingWindow()
         dc.editSetting(Setting.KEYS.buddha_service_running, true)
     }
 
@@ -774,10 +777,10 @@ class BuddhaService : Service() {
                 dc.addRunLog("BuddhaService", "sendNotification()", e.message ?: "")
             }
         }
-        startForeground(0,notification)
+        startForeground(0, notification)
     }
 
-    //region 消息处理
+    //region 消息处理-EventBus
     @Subscribe(threadMode = ThreadMode.BACKGROUND)
     fun onGetMessage(msg: EventBusMessage) {
         try {
@@ -833,7 +836,7 @@ class BuddhaService : Service() {
         floatingWindowView?.let {
             val iv_control = it.findViewById<ImageView>(R.id.iv_control)
 
-            if (sate==WinBtnState.点击播放) {
+            if (sate == WinBtnState.点击播放) {
                 iv_control.setImageResource(R.drawable.play)
             } else {
                 iv_control.setImageResource(R.drawable.pause)
@@ -841,9 +844,10 @@ class BuddhaService : Service() {
         }
     }
 
-    enum class WinBtnState{
-        点击播放,点击暂停
+    enum class WinBtnState {
+        点击播放, 点击暂停
     }
+
     var tv_duration: TextView? = null
 
     @RequiresApi(api = Build.VERSION_CODES.M)
@@ -947,7 +951,7 @@ class BuddhaService : Service() {
     }
     //endregion
 
-    //region 接收器
+    //region 接收器-Receiver
     inner class BuddhaReceiver : BroadcastReceiver() {
         override fun onReceive(context: Context?, intent: Intent?) {
             try {
@@ -958,7 +962,7 @@ class BuddhaService : Service() {
                                 volume += "0.1".toBigDecimal()
                                 e("声音加" + volume)
                                 mPlayer?.setVolume(volume.toFloat(), volume.toFloat())
-                                _SoundUtils.play(context!!, R.raw.bi, 0.1f)
+                                _SoundUtils.play(context!!, R.raw.bi, 1.0f,_SoundUtils.SoundType.MUSIC)
                                 _Utils.zhendong70(context!!)
 //                            Toast.makeText(context,volume.setScale(1,BigDecimal.ROUND_DOWN).toString(),Toast.LENGTH_SHORT).show()
                             }
@@ -968,7 +972,7 @@ class BuddhaService : Service() {
                                 volume -= "0.1".toBigDecimal()
                                 e("声音减" + volume)
                                 mPlayer?.setVolume(volume.toFloat(), volume.toFloat())
-                                _SoundUtils.play(context!!, R.raw.bi, 0.1f)
+                                _SoundUtils.play(context!!, R.raw.bi, 1.0f,_SoundUtils.SoundType.MUSIC)
                                 _Utils.zhendong70(context!!)
 //                            Toast.makeText(context,volume.setScale(1,BigDecimal.ROUND_DOWN).toString(),Toast.LENGTH_SHORT).show()
                             }
@@ -983,6 +987,7 @@ class BuddhaService : Service() {
                         }
                         ACTION_BUDDHA_PLAYE_AUTO -> {
                             isAutoPause = !isAutoPause
+                            dc.editSetting(Setting.KEYS.is念佛自动暂停,isAutoPause)
                         }
                         ACTION_BUDDHA_PAUSE -> {
                             buddhaPause()

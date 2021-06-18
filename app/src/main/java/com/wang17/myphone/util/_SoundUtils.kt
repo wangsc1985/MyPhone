@@ -1,36 +1,32 @@
-package com.wang17.myphone.util;
+package com.wang17.myphone.util
 
-import android.content.Context;
-import android.media.AudioManager;
-import android.media.MediaPlayer;
-import android.media.SoundPool;
+import android.content.Context
+import android.media.AudioManager
+import android.media.MediaPlayer
+import android.media.SoundPool
 
-public class _SoundUtils {
-    public static void play(Context context, int soundRawId) {
-        SoundPool soundPool = new SoundPool(10, AudioManager.STREAM_SYSTEM, 5);
-        soundPool.load(context, soundRawId, 1);
-        soundPool.setOnLoadCompleteListener(new SoundPool.OnLoadCompleteListener() {
-            @Override
-            public void onLoadComplete(SoundPool soundPool, int sampleId, int status) {
-                soundPool.play(1, 1, 1, 0, 0, 1);
-            }
-        });
+object _SoundUtils {
+    enum class SoundType{
+        SYSTEM,MUSIC
     }
-    public static void play(Context context, int soundRawId,float volume) {
-        SoundPool soundPool = new SoundPool(10, AudioManager.STREAM_SYSTEM, 5);
-        soundPool.load(context, soundRawId, 1);
-        soundPool.setOnLoadCompleteListener(new SoundPool.OnLoadCompleteListener() {
-            @Override
-            public void onLoadComplete(SoundPool soundPool, int sampleId, int status) {
-                soundPool.play(1, volume, volume, 0, 0, 1);
-            }
-        });
+    fun play(context: Context?, soundRawId: Int,soundType: SoundType) {
+        val streamType = if(soundType==SoundType.MUSIC) AudioManager.STREAM_MUSIC else AudioManager.STREAM_SYSTEM
+        val soundPool = SoundPool(10, streamType, 5)
+        soundPool.load(context, soundRawId, 1)
+        soundPool.setOnLoadCompleteListener { soundPool, sampleId, status -> soundPool.play(1, 1f, 1f, 0, 0, 1f) }
     }
 
-    public static void mediaPlay(Context context, int soundRawId) {
-        MediaPlayer mPlayer = MediaPlayer.create(context, soundRawId);
-        mPlayer.setVolume(1f, 1f);
-        mPlayer.setLooping(false);
-        mPlayer.start();
+    fun play(context: Context?, soundRawId: Int, volume: Float,soundType: SoundType) {
+        val streamType = if(soundType==SoundType.MUSIC) AudioManager.STREAM_MUSIC else AudioManager.STREAM_SYSTEM
+        val soundPool = SoundPool(10,streamType, 5)
+        soundPool.load(context, soundRawId, 1)
+        soundPool.setOnLoadCompleteListener { soundPool, sampleId, status -> soundPool.play(1, volume, volume, 0, 0, 1f) }
+    }
+
+    fun mediaPlay(context: Context?, soundRawId: Int) {
+        val mPlayer = MediaPlayer.create(context, soundRawId)
+        mPlayer.setVolume(1f, 1f)
+        mPlayer.isLooping = false
+        mPlayer.start()
     }
 }

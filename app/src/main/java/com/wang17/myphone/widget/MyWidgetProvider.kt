@@ -373,10 +373,10 @@ class MyWidgetProvider : AppWidgetProvider() {
                             val clipManager = context.getSystemService(Context.CLIPBOARD_SERVICE) as ClipboardManager
                             val clip = ClipData.newPlainText("text", str)
                             clipManager.setPrimaryClip(clip)
-                            _SoundUtils.play(context, R.raw.maopao)
+                            _SoundUtils.play(context, R.raw.maopao,_SoundUtils.SoundType.SYSTEM)
                             _NotificationUtils.alertNotificationTop(context,ChannelName.顶部弹窗, str)
                         }else if(sms.body.contains("【有钱花】恭喜您借款已成功放款至指定银行卡") ){
-                            _SoundUtils.play(context, R.raw.ding)
+                            _SoundUtils.play(context, R.raw.ding,_SoundUtils.SoundType.SYSTEM)
                             _NotificationUtils.alertNotificationTop(context,ChannelName.顶部弹窗, "umoney")
                         }
 
@@ -391,7 +391,7 @@ class MyWidgetProvider : AppWidgetProvider() {
                                     balanceStr = format.format(bankBill.balance)
                                 }
                                 if (balanceStr != null) {
-                                    _SoundUtils.play(context, R.raw.maopao)
+                                    _SoundUtils.play(context, R.raw.maopao,_SoundUtils.SoundType.SYSTEM)
                                     remoteViews.setTextViewText(R.id.tv_balanceABC, balanceStr)
                                     appWidgetManager.updateAppWidget(myComponentName, remoteViews)
                                     dc.editSetting(Setting.KEYS.balanceABC, balanceStr)
@@ -410,7 +410,7 @@ class MyWidgetProvider : AppWidgetProvider() {
                                     balanceStr = format.format(bankBill.balance)
                                 }
                                 if (balanceStr != null) {
-                                    _SoundUtils.play(context, R.raw.maopao)
+                                    _SoundUtils.play(context, R.raw.maopao,_SoundUtils.SoundType.SYSTEM)
                                     remoteViews.setTextViewText(R.id.tv_balanceICBC, balanceStr)
                                     appWidgetManager.updateAppWidget(myComponentName, remoteViews)
                                     dc.editSetting(Setting.KEYS.balanceICBC, balanceStr)
