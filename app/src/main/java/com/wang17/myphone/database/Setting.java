@@ -62,7 +62,7 @@ public class Setting{
     }
 
     public enum KEYS{
-        tmp_tt,
+        tmp_tt,is保持念佛服务,
         is开启整点报时,
         top_title,bottom_title,
         buddha_service_running,

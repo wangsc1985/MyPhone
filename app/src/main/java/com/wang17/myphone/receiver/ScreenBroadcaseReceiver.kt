@@ -11,11 +11,9 @@ import com.wang17.myphone.callback.CloudCallback
 import com.wang17.myphone.database.DataContext
 import com.wang17.myphone.database.Setting
 import com.wang17.myphone.model.DateTime
-import com.wang17.myphone.util.AMapUtil
-import com.wang17.myphone.util._CloudUtils
+import com.wang17.myphone.service.BuddhaService
+import com.wang17.myphone.util.*
 import com.wang17.myphone.util._CloudUtils.addLocation
-import com.wang17.myphone.util._Session
-import com.wang17.myphone.util._SoundUtils
 import com.wang17.myphone.widget.MyWidgetProvider
 
 class ScreenBroadcaseReceiver : BroadcastReceiver() {
@@ -46,7 +44,7 @@ class ScreenBroadcaseReceiver : BroadcastReceiver() {
                                     dc.addLocation(newLocation)
 
                                     // 记录到云数据库
-                                    addLocation(context,newLocation.Speed, newLocation.Latitude, newLocation.Longitude, newLocation.Address) { code, result ->
+                                    addLocation(context, newLocation.Speed, newLocation.Latitude, newLocation.Longitude, newLocation.Address) { code, result ->
                                     }
                                 }
                             }
@@ -60,13 +58,13 @@ class ScreenBroadcaseReceiver : BroadcastReceiver() {
                             _CloudUtils.getNewMsg(context, object : CloudCallback {
                                 override fun excute(code: Int, msg: Any?) {
                                     when (code) {
-                                        0->{
+                                        0 -> {
                                             dc.deleteSetting(Setting.KEYS.wx_new_msg)
                                         }
                                         1 -> {
                                             dc.editSetting(Setting.KEYS.wx_new_msg, msg.toString())
                                         }
-                                        else->{
+                                        else -> {
 
                                         }
                                     }
@@ -74,6 +72,17 @@ class ScreenBroadcaseReceiver : BroadcastReceiver() {
                                 }
                             })
                         }.start()
+
+                        /**
+                         * 启动buddhaservice
+                         */
+                        if (dc.getSetting(Setting.KEYS.is保持念佛服务, true).boolean) {
+                            if (!_Utils.isServiceRunning(context, BuddhaService::class.qualifiedName!!)) {
+                                dc.addRunLog("解锁","启动念佛服务","")
+                                dc.editSetting(Setting.KEYS.buddha_service_running, true)
+                                context.startService(Intent(context, BuddhaService::class.java))
+                            }
+                        }
                     } catch (e: Exception) {
                         DataContext(context).addRunLog("err", "运行错误", e.message)
                     } finally {

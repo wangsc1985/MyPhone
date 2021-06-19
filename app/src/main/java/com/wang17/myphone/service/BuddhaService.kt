@@ -100,9 +100,10 @@ class BuddhaService : Service() {
                 bottomTitle = dc.getSetting(Setting.KEYS.bottom_title, "一门深入 长时薰修").string
 
                 loadDb()
-
+//
                 isShowFloatWindow = dc.getSetting(Setting.KEYS.is显示念佛悬浮窗, false).boolean
                 isAutoPause = dc.getSetting(Setting.KEYS.is念佛自动暂停, false).boolean
+
                 targetTap = dc.getSetting(Setting.KEYS.几圈后自动结束念佛, 12).int
 
                 yqSound = SoundPool(100, AudioManager.STREAM_MUSIC, 0)
@@ -306,7 +307,6 @@ class BuddhaService : Service() {
                         }
 
                     } else {
-                        e("cloud saved : $cloudSaved")
                         if (now.second == 1) {
                             if (dayOfYear != prvDayOfYear) {
                                 if (setting_duration / 1000 / circleSecond >= 1) {
@@ -382,6 +382,7 @@ class BuddhaService : Service() {
             params.setPitch(pitch)
             params.setSpeed(speed)
             mPlayer?.playbackParams = params
+            mPlayer?.pause()
         }
     }
 
@@ -657,6 +658,7 @@ class BuddhaService : Service() {
 
     @Throws(Exception::class)
     fun buddhaStart() {
+        startMediaPlayer(setting_music_name!!.string)
         val set_running = dc.getSetting(Setting.KEYS.buddha_service_running)
         if (set_running != null) {
             _SoundUtils.play(applicationContext,R.raw.piu,_SoundUtils.SoundType.MUSIC)
@@ -665,11 +667,10 @@ class BuddhaService : Service() {
             if (set_startime != null) {
                 // 说明服务被异常结束时，程序正是念佛时。因为在正常结束时，这个标记已经被删除了。
                 if (requestFocus()) {
-                    startMediaPlayer(setting_music_name!!.string)
-                    mPlayer?.start()
 
                     dc.addRunLog("BuddhaService", "buddhaStart()", "服务被异常销毁后再次启动，并延续念佛状态")
                     //
+                    mPlayer?.start()
                     startTimeInMillis = set_startime.long
                     //
                     restartTimer()
@@ -679,6 +680,7 @@ class BuddhaService : Service() {
                 // 说明服务被异常结束时，程序正是暂停时。
                 dc.addRunLog("BuddhaService", "buddhaStart()", "服务被异常销毁后再次启动，并继续保持暂停状态")
                 //
+                mPlayer?.pause()
                 pauseTimer()
                 //
                 mAm.abandonAudioFocus(afChangeListener)
@@ -701,8 +703,8 @@ class BuddhaService : Service() {
 
         } else {
             if (requestFocus()) {
-                startMediaPlayer(setting_music_name!!.string)
                 mPlayer?.start()
+                dc.addRunLog("BuddhaService", "buddhaStart()", "------- 1")
                 dataReOrStart()
                 restartTimer()
                 setBuddhaVolume()
@@ -890,14 +892,14 @@ class BuddhaService : Service() {
                             buddhaPause()
                             floatingWinButState(WinBtnState.点击播放)
                             mAm.abandonAudioFocus(afChangeListener)
-                            dc.addRunLog("BuddhaService", "暂停念佛", "float window")
+                            dc.addRunLog("BuddhaService", "暂停念佛", "通知栏-暂停")
                             setMediaVolume(system_volumn)
                         } else {
                             if (requestFocus()) {
                                 setBuddhaVolume()
                                 buddhaRestart()
                                 floatingWinButState(WinBtnState.点击暂停)
-                                dc.addRunLog("BuddhaService", "开始念佛", "float window")
+                                dc.addRunLog("BuddhaService", "开始念佛", "通知栏-开始")
                             }
                         }
                         sendNotification(notificationCount, notificationCountDay, notificationTime, notificationTimeDay)
@@ -989,7 +991,7 @@ class BuddhaService : Service() {
                                 setBuddhaVolume()
                                 buddhaRestart()
                                 floatingWinButState(WinBtnState.点击暂停)
-                                dc.addRunLog("BuddhaService", "开始念佛", "buddha receiver ACTION_BUDDHA_PLAYE")
+                                dc.addRunLog("BuddhaService", "开始念佛", "通知栏-开始")
                             }
                         }
                         ACTION_BUDDHA_PLAYE_AUTO -> {
@@ -1000,7 +1002,7 @@ class BuddhaService : Service() {
                             buddhaPause()
                             floatingWinButState(WinBtnState.点击播放)
                             mAm.abandonAudioFocus(afChangeListener)
-                            dc.addRunLog("BuddhaService", "暂停念佛", "buddha receiver ACTION_BUDDHA_PAUSE")
+                            dc.addRunLog("BuddhaService", "暂停念佛", "通知栏-暂停")
                             setMediaVolume(system_volumn)
                         }
                         BluetoothHeadset.ACTION_CONNECTION_STATE_CHANGED -> {
@@ -1011,14 +1013,12 @@ class BuddhaService : Service() {
                                 buddhaPause()
                                 floatingWinButState(WinBtnState.点击播放)
                                 mAm.abandonAudioFocus(afChangeListener)
-                                dc.addRunLog("BuddhaService", "耳机断开1", "")
                             }
                         }
                         AudioManager.ACTION_AUDIO_BECOMING_NOISY -> {
                             buddhaPause()
                             floatingWinButState(WinBtnState.点击播放)
                             mAm.abandonAudioFocus(afChangeListener)
-                            dc.addRunLog("BuddhaService", "耳机断开2", "")
                         }
                     }
 
