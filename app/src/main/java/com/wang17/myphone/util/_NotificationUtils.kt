@@ -14,6 +14,42 @@ import com.wang17.myphone.model.ChannelName
 import com.wang17.myphone.util._Utils.saveException
 
 object _NotificationUtils {
+    fun getForegroundNotification(context: Context, channelName: ChannelName, notificationId: Int, layoutId: Int, setNotificationViews: SetNotificationViews):Notification? {
+        var notification:Notification?=null
+        try {
+//            val notificationManager = context.getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
+            val remoteViews = RemoteViews(context.packageName, layoutId)
+            setNotificationViews.setNotificationViews(remoteViews)
+            if (Build.VERSION.SDK_INT >= 26) {
+//                val channel = NotificationChannel(channelName.toString(), channelName.toString(), NotificationManager.IMPORTANCE_HIGH)
+//                channel.enableLights(true)
+//                channel.enableVibration(true)
+//                notificationManager.createNotificationChannel(channel)
+                notification = Notification.Builder(context, channelName.toString()).setSmallIcon(R.mipmap.ic_launcher) //通知的构建过程基本与默认相同
+                    //                .setTicker("hello world")
+                    //                .setWhen(System.currentTimeMillis())
+                    .setAutoCancel(false)
+                    .setWhen(System.currentTimeMillis()) //                 Notification.FLAG_ONGOING_EVENT;
+                    .setContent(remoteViews) //在这里设置自定义通知的内容
+                    .build()
+                notification.flags = Notification.FLAG_ONGOING_EVENT
+//                notificationManager.notify(notificationId, notification)
+            } else {
+                notification = NotificationCompat.Builder(context).setSmallIcon(R.mipmap.ic_launcher) //通知的构建过程基本与默认相同
+                    //                .setTicker("hello world")
+                    //                .setWhen(System.currentTimeMillis())
+                    .setAutoCancel(false)
+                    .setWhen(System.currentTimeMillis()) //                 Notification.FLAG_ONGOING_EVENT;
+                    .setContent(remoteViews) //在这里设置自定义通知的内容
+                    .build()
+                notification.flags = Notification.FLAG_ONGOING_EVENT
+//                notificationManager.notify(notificationId, notification)
+            }
+        } catch (e: NotFoundException) {
+            saveException(context, e)
+        }
+        return notification
+    }
     fun sendNotification(context: Context, channelName: ChannelName, notificationId: Int, layoutId: Int, setNotificationViews: SetNotificationViews):Notification? {
         var notification:Notification?=null
         try {

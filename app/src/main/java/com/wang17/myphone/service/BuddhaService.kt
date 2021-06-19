@@ -83,6 +83,7 @@ class BuddhaService : Service() {
     var system_volumn = 10
 
     var setting_music_name:Setting? = null
+    var cloudSaved = 0
 
     override fun onBind(intent: Intent): IBinder? {
         return null
@@ -106,7 +107,6 @@ class BuddhaService : Service() {
 
                 yqSound = SoundPool(100, AudioManager.STREAM_MUSIC, 0)
                 yqSound.load(this, R.raw.yq, 1)
-                _SoundUtils.play(applicationContext,R.raw.gu,_SoundUtils.SoundType.MUSIC)
 
                 val set = dc.getSetting(Setting.KEYS.buddha_duration)
                 set?.let {
@@ -306,6 +306,7 @@ class BuddhaService : Service() {
                         }
 
                     } else {
+                        e("cloud saved : $cloudSaved")
                         if (now.second == 1) {
                             if (dayOfYear != prvDayOfYear) {
                                 if (setting_duration / 1000 / circleSecond >= 1) {
@@ -491,7 +492,6 @@ class BuddhaService : Service() {
         }
     }
 
-    var cloudSaved = 0
     private fun checkSectionOnPause() {
         try {
             val now = System.currentTimeMillis()
@@ -659,6 +659,7 @@ class BuddhaService : Service() {
     fun buddhaStart() {
         val set_running = dc.getSetting(Setting.KEYS.buddha_service_running)
         if (set_running != null) {
+            _SoundUtils.play(applicationContext,R.raw.piu,_SoundUtils.SoundType.MUSIC)
             // 说明服务被异常结束，因为正常结束时，这个标志已经被删除了
             val set_startime = dc.getSetting(Setting.KEYS.buddha_startime)
             if (set_startime != null) {
@@ -668,7 +669,6 @@ class BuddhaService : Service() {
                     mPlayer?.start()
 
                     dc.addRunLog("BuddhaService", "buddhaStart()", "服务被异常销毁后再次启动，并延续念佛状态")
-                    cloudSaved = 0
                     //
                     startTimeInMillis = set_startime.long
                     //
@@ -690,6 +690,13 @@ class BuddhaService : Service() {
                 val durationDay = dbDuration + setting_duration
                 notificationCountDay = dbCount + notificationCount
                 notificationTimeDay = durationToTimeString(durationDay)
+                //
+                dc.getSetting(Setting.KEYS.buddha_duration)?.let {
+                    setting_duration = it.long
+                }
+                dc.getSetting(Setting.KEYS.buddha_stoptime)?.let {
+                    setting_stoptime = it.long
+                }
             }
 
         } else {
@@ -728,7 +735,7 @@ class BuddhaService : Service() {
     }
 
     private fun sendNotification(count: Int, totalCount: Int, time: String, totalTime: String) {
-        val notification = _NotificationUtils.sendNotification(applicationContext, ChannelName.老实念佛, ID, R.layout.notification_nf) { remoteViews ->
+        val notification = _NotificationUtils.getForegroundNotification(applicationContext, ChannelName.老实念佛, ID, R.layout.notification_nf) { remoteViews ->
             try {
                 remoteViews.setTextViewText(R.id.tv_count, if (buddhaType > 9) "${count}" else "")
                 remoteViews.setTextViewText(R.id.tv_time, time)
@@ -777,7 +784,7 @@ class BuddhaService : Service() {
                 dc.addRunLog("BuddhaService", "sendNotification()", e.message ?: "")
             }
         }
-        startForeground(0, notification)
+        startForeground(1, notification)
     }
 
     //region 消息处理-EventBus
@@ -958,23 +965,23 @@ class BuddhaService : Service() {
                 intent?.let {
                     when (it.action) {
                         ACTION_BUDDHA_VOLUME_ADD -> {
-                            if (volume.toFloat() < 1.0) {
-                                volume += "0.1".toBigDecimal()
-                                e("声音加" + volume)
-                                mPlayer?.setVolume(volume.toFloat(), volume.toFloat())
-                                _SoundUtils.play(context!!, R.raw.bi, 1.0f,_SoundUtils.SoundType.MUSIC)
-                                _Utils.zhendong70(context!!)
-//                            Toast.makeText(context,volume.setScale(1,BigDecimal.ROUND_DOWN).toString(),Toast.LENGTH_SHORT).show()
+                            mPlayer?.let { player ->
+                                if (player.isPlaying && volume.toFloat() < 1.0) {
+                                    volume += "0.1".toBigDecimal()
+                                    e("声音加" + volume)
+                                    player.setVolume(volume.toFloat(), volume.toFloat())
+                                    _SoundUtils.play(context!!, R.raw.bi, 1.0f, _SoundUtils.SoundType.MUSIC)
+                                }
                             }
                         }
                         ACTION_BUDDHA_VOLUME_MINUS -> {
-                            if (volume.toFloat() > 0.2) {
-                                volume -= "0.1".toBigDecimal()
-                                e("声音减" + volume)
-                                mPlayer?.setVolume(volume.toFloat(), volume.toFloat())
-                                _SoundUtils.play(context!!, R.raw.bi, 1.0f,_SoundUtils.SoundType.MUSIC)
-                                _Utils.zhendong70(context!!)
-//                            Toast.makeText(context,volume.setScale(1,BigDecimal.ROUND_DOWN).toString(),Toast.LENGTH_SHORT).show()
+                            mPlayer?.let {player->
+                                if (player.isPlaying && volume.toFloat() > 0.2) {
+                                    volume -= "0.1".toBigDecimal()
+                                    e("声音减" + volume)
+                                    player.setVolume(volume.toFloat(), volume.toFloat())
+                                    _SoundUtils.play(context!!, R.raw.bi, 1.0f,_SoundUtils.SoundType.MUSIC)
+                                }
                             }
                         }
                         ACTION_BUDDHA_PLAYE -> {
