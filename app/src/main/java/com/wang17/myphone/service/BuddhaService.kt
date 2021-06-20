@@ -671,7 +671,7 @@ class BuddhaService : Service() {
                 // 说明服务被异常结束时，程序正是念佛时。因为在正常结束时，这个标记已经被删除了。
                 if (requestFocus()) {
 
-                    dc.addRunLog("BuddhaService", "buddhaStart()", "服务被异常销毁$tt 后再次启动，并延续念佛状态")
+                    dc.addRunLog("BuddhaService", "buddhaStart()", "服务被异常销毁${tt}后再次启动，并延续念佛状态")
                     //
                     mPlayer?.start()
                     startTimeInMillis = set_startime.long
@@ -681,7 +681,7 @@ class BuddhaService : Service() {
                 }
             } else {
                 // 说明服务被异常结束时，程序正是暂停时。
-                dc.addRunLog("BuddhaService", "buddhaStart()", "服务被异常销毁$tt 后再次启动，并继续保持暂停状态")
+                dc.addRunLog("BuddhaService", "buddhaStart()", "服务被异常销毁${tt}后再次启动，并继续保持暂停状态")
                 //
                 mPlayer?.pause()
                 pauseTimer()
@@ -707,7 +707,6 @@ class BuddhaService : Service() {
         } else {
             if (requestFocus()) {
                 mPlayer?.start()
-                dc.addRunLog("BuddhaService", "buddhaStart()", "------- 1")
                 dataReOrStart()
                 restartTimer()
                 setBuddhaVolume()
