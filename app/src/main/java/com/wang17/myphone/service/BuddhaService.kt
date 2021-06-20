@@ -30,6 +30,7 @@ import com.wang17.myphone.database.*
 import com.wang17.myphone.e
 import com.wang17.myphone.event.ResetTimeEvent
 import com.wang17.myphone.eventbus.*
+import com.wang17.myphone.format
 import com.wang17.myphone.model.DateTime
 import com.wang17.myphone.model.ChannelName
 import com.wang17.myphone.toBuddhaType
@@ -251,6 +252,7 @@ class BuddhaService : Service() {
             override fun run() {
                 try {
                     val now = DateTime()
+                    dc.editSetting(Setting.KEYS.tmp_tt,now.timeInMillis)
 
                     if (now.minite == 0 && now.second < 5
                         && now.hour > 6 && now.hour < 24
@@ -661,6 +663,7 @@ class BuddhaService : Service() {
         startMediaPlayer(setting_music_name!!.string)
         val set_running = dc.getSetting(Setting.KEYS.buddha_service_running)
         if (set_running != null) {
+            val tt = ((System.currentTimeMillis()-dc.getSetting(Setting.KEYS.tmp_tt,System.currentTimeMillis()).long).toFloat()/1000).format(3)+"秒"
             _SoundUtils.play(applicationContext,R.raw.piu,_SoundUtils.SoundType.MUSIC)
             // 说明服务被异常结束，因为正常结束时，这个标志已经被删除了
             val set_startime = dc.getSetting(Setting.KEYS.buddha_startime)
@@ -668,7 +671,7 @@ class BuddhaService : Service() {
                 // 说明服务被异常结束时，程序正是念佛时。因为在正常结束时，这个标记已经被删除了。
                 if (requestFocus()) {
 
-                    dc.addRunLog("BuddhaService", "buddhaStart()", "服务被异常销毁后再次启动，并延续念佛状态")
+                    dc.addRunLog("BuddhaService", "buddhaStart()", "服务被异常销毁$tt 后再次启动，并延续念佛状态")
                     //
                     mPlayer?.start()
                     startTimeInMillis = set_startime.long
@@ -678,7 +681,7 @@ class BuddhaService : Service() {
                 }
             } else {
                 // 说明服务被异常结束时，程序正是暂停时。
-                dc.addRunLog("BuddhaService", "buddhaStart()", "服务被异常销毁后再次启动，并继续保持暂停状态")
+                dc.addRunLog("BuddhaService", "buddhaStart()", "服务被异常销毁$tt 后再次启动，并继续保持暂停状态")
                 //
                 mPlayer?.pause()
                 pauseTimer()
