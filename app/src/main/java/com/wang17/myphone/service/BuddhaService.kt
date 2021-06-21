@@ -739,7 +739,7 @@ class BuddhaService : Service() {
     }
 
     private fun sendNotification(count: Int, totalCount: Int, time: String, totalTime: String) {
-        val notification = _NotificationUtils.getForegroundNotification(applicationContext, ChannelName.老实念佛, ID, R.layout.notification_nf) { remoteViews ->
+        val notification = _NotificationUtils.sendNotification(applicationContext, ChannelName.老实念佛,ID, R.layout.notification_nf) { remoteViews ->
             try {
                 remoteViews.setTextViewText(R.id.tv_count, if (buddhaType > 9) "${count}" else "")
                 remoteViews.setTextViewText(R.id.tv_time, time)
@@ -788,7 +788,7 @@ class BuddhaService : Service() {
                 dc.addRunLog("BuddhaService", "sendNotification()", e.message ?: "")
             }
         }
-        startForeground(1, notification)
+//        startForeground(1, notification)
     }
 
     //region 消息处理-EventBus

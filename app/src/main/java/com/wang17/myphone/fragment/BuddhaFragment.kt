@@ -48,81 +48,81 @@ class BuddhaFragment : Fragment() {
     override fun onResume() {
         super.onResume()
 
-        refreshTotalView()
-        val size = dc.getPhoneMessages(dc.getSetting(Setting.KEYS.sms_last_time,  DateTime.today.timeInMillis).long).size
+        try {
+            refreshTotalView()
+            val size = dc.getPhoneMessages(dc.getSetting(Setting.KEYS.sms_last_time,  DateTime.today.timeInMillis).long).size
 //        val dateTime = DateTime(dc.getSetting(Setting.KEYS.sms_last_time, DateTime.today.timeInMillis).long)
 
 //        val sms = SmsHelper.getSMS(context,SmsType.接收到,dateTime)
 //        var size = sms.size
-        if (size > 0) {
-            uiHandler.post {
-                tv_msg.visibility = View.VISIBLE
-            }
-            _Utils.zhendong(context!!, 100)
-            EventBus.getDefault().post(EventBusMessage.getInstance(ChangeFragmentTab(),"2"))
-        } else {
-            uiHandler.post {
-                tv_msg.visibility = View.GONE
-            }
-        }
-
-        uiHandler.post {
-            tv_msg.setText(size.toString())
-        }
-
-
-        if (_Utils.isServiceRunning(context!!, StockService::class.qualifiedName!!)) {
-            animatorSuofang(abtn_stockAnimator)
-        } else {
-            stopAnimatorSuofang(abtn_stockAnimator)
-        }
-        if (_Utils.isServiceRunning(context!!, BuddhaService::class.qualifiedName!!)) {
-            animatorSuofang(btn_buddha_animator)
-        } else {
-            stopAnimatorSuofang(btn_buddha_animator)
-        }
-
-        if (_Utils.isServiceRunning(context!!, MuyuService::class.qualifiedName!!)) {
-            animatorSuofang(fab_muyu_animator)
-        } else {
-            stopAnimatorSuofang(fab_muyu_animator)
-        }
-
-        loadBuddhaName()
-
-        val buddha = dc.latestBuddha
-        var time = DateTime(1970, 1, 1)
-        if (buddha != null) {
-            time = buddha.startTime
-        }
-        _CloudUtils.loadBuddha(context!!, time) { code, result ->
-            try {
-                if (code == 0) {
-                    e(result)
-                    val jsonArray = JSON.parseArray(result.toString())
-                    var buddhaS = ArrayList<BuddhaRecord>()
-                    for (i in jsonArray.indices) {
-                        val startTime = _JsonUtils.getValueByKey(jsonArray[i], "startTime").toLong()
-                        val duration = _JsonUtils.getValueByKey(jsonArray[i], "duration").toLong()
-                        val count = _JsonUtils.getValueByKey(jsonArray[i], "count").toInt()
-                        val summary = _JsonUtils.getValueByKey(jsonArray[i], "summary")
-                        val type = _JsonUtils.getValueByKey(jsonArray[i], "type").toInt()
-                        buddhaS.add(BuddhaRecord(DateTime(startTime), duration, count, type.toBuddhaType(), summary))
-                    }
-
-                    dc.addBuddhas(buddhaS)
-
-                    uiHandler.post {
-                        if (buddhaS.size > 0) {
-                            Toast.makeText(context, "新增${buddhaS.size}条记录", Toast.LENGTH_LONG).show()
-//                            AlertDialog.Builder(context).setMessage("新增${buddhaS.size}条记录").show()
-                        }
-                    }
-                    refreshTotalView()
+            if (size > 0) {
+                uiHandler.post {
+                    tv_msg.visibility = View.VISIBLE
                 }
-            } catch (e: Exception) {
-                e("BuddhaFragment.onResume  "+e.message!!)
+                _Utils.zhendong(context!!, 100)
+                EventBus.getDefault().post(EventBusMessage.getInstance(ChangeFragmentTab(),"2"))
+            } else {
+                uiHandler.post {
+                    tv_msg.visibility = View.GONE
+                }
             }
+
+            uiHandler.post {
+                tv_msg.setText(size.toString())
+            }
+
+
+            if (_Utils.isServiceRunning(context!!, StockService::class.qualifiedName!!)) {
+                animatorSuofang(abtn_stockAnimator)
+            } else {
+                stopAnimatorSuofang(abtn_stockAnimator)
+            }
+            if (_Utils.isServiceRunning(context!!, BuddhaService::class.qualifiedName!!)) {
+                animatorSuofang(btn_buddha_animator)
+            } else {
+                stopAnimatorSuofang(btn_buddha_animator)
+            }
+
+            if (_Utils.isServiceRunning(context!!, MuyuService::class.qualifiedName!!)) {
+                animatorSuofang(fab_muyu_animator)
+            } else {
+                stopAnimatorSuofang(fab_muyu_animator)
+            }
+
+            loadBuddhaName()
+
+            val buddha = dc.latestBuddha
+            var time = DateTime(1970, 1, 1)
+            if (buddha != null) {
+                time = buddha.startTime
+            }
+            _CloudUtils.loadBuddha(context!!, time) { code, result ->
+                    if (code == 0) {
+                        e(result)
+                        val jsonArray = JSON.parseArray(result.toString())
+                        var buddhaS = ArrayList<BuddhaRecord>()
+                        for (i in jsonArray.indices) {
+                            val startTime = _JsonUtils.getValueByKey(jsonArray[i], "startTime").toLong()
+                            val duration = _JsonUtils.getValueByKey(jsonArray[i], "duration").toLong()
+                            val count = _JsonUtils.getValueByKey(jsonArray[i], "count").toInt()
+                            val summary = _JsonUtils.getValueByKey(jsonArray[i], "summary")
+                            val type = _JsonUtils.getValueByKey(jsonArray[i], "type").toInt()
+                            buddhaS.add(BuddhaRecord(DateTime(startTime), duration, count, type.toBuddhaType(), summary))
+                        }
+
+                        dc.addBuddhas(buddhaS)
+
+                        uiHandler.post {
+                            if (buddhaS.size > 0) {
+                                Toast.makeText(context, "新增${buddhaS.size}条记录", Toast.LENGTH_LONG).show()
+    //                            AlertDialog.Builder(context).setMessage("新增${buddhaS.size}条记录").show()
+                            }
+                        }
+                        refreshTotalView()
+                    }
+            }
+        } catch (e: Exception) {
+            dc.addRunLog("BuddhaFragment","onResume",e.message!!)
         }
     }
 

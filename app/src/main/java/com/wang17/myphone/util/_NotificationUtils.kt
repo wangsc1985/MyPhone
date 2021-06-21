@@ -14,7 +14,7 @@ import com.wang17.myphone.model.ChannelName
 import com.wang17.myphone.util._Utils.saveException
 
 object _NotificationUtils {
-    fun getForegroundNotification(context: Context, channelName: ChannelName, notificationId: Int, layoutId: Int, setNotificationViews: SetNotificationViews):Notification? {
+    fun getForegroundNotification(context: Context, channelName: ChannelName, layoutId: Int, setNotificationViews: SetNotificationViews):Notification? {
         var notification:Notification?=null
         try {
 //            val notificationManager = context.getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
