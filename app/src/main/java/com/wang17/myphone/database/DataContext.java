@@ -48,7 +48,7 @@ public class DataContext {
             //调用方法插入数据
             db.insert("statement", "id", values);
             //关闭SQLiteDatabase对象
-            db.close();
+            //db.close();
         } catch (Exception e) {
             _Utils.printException(context, e);
         }
@@ -70,7 +70,7 @@ public class DataContext {
                 db.insert("statement", "id", values);
             }
             //关闭SQLiteDatabase对象
-            db.close();
+            //db.close();
         } catch (Exception e) {
             _Utils.printException(context, e);
         }
@@ -93,7 +93,7 @@ public class DataContext {
                 result.add(model);
             }
             cursor.close();
-            db.close();
+            //db.close();
         } catch (Exception e) {
             _Utils.printException(context, e);
         }
@@ -117,7 +117,7 @@ public class DataContext {
                 result.add(model);
             }
             cursor.close();
-            db.close();
+            //db.close();
         } catch (Exception e) {
             _Utils.printException(context, e);
         }
@@ -139,7 +139,7 @@ public class DataContext {
                 return model;
             }
             cursor.close();
-            db.close();
+            //db.close();
         } catch (Exception e) {
             _Utils.printException(context, e);
         }
@@ -161,7 +161,7 @@ public class DataContext {
             values.put("totalProfit", model.getTotalProfit().toString());
             //调用方法插入数据
             db.update("statement", values, "id=?", new String[]{model.getId().toString()});
-            db.close();
+            //db.close();
         } catch (Exception e) {
             _Utils.printException(context, e);
         }
@@ -173,7 +173,7 @@ public class DataContext {
             SQLiteDatabase db = dbHelper.getWritableDatabase();
             db.delete("statement", null, null);
             //关闭SQLiteDatabase对象
-            db.close();
+            //db.close();
         } catch (Exception e) {
             _Utils.printException(context, e);
         }
@@ -184,7 +184,7 @@ public class DataContext {
             SQLiteDatabase db = dbHelper.getWritableDatabase();
             db.delete("statement", "date>=?", new String[]{date.getTimeInMillis()+""});
             //关闭SQLiteDatabase对象
-            db.close();
+            //db.close();
         } catch (Exception e) {
             _Utils.printException(context, e);
         }
@@ -208,7 +208,7 @@ public class DataContext {
             //调用方法插入数据
             db.insert("loan", "id", values);
             //关闭SQLiteDatabase对象
-            db.close();
+            //db.close();
         } catch (Exception e) {
             _Utils.printException(context, e);
         }
@@ -231,7 +231,7 @@ public class DataContext {
                 return model;
             }
             cursor.close();
-            db.close();
+            //db.close();
         } catch (Exception e) {
             _Utils.printException(context, e);
         }
@@ -254,7 +254,7 @@ public class DataContext {
                 return model;
             }
             cursor.close();
-            db.close();
+            //db.close();
         } catch (Exception e) {
             _Utils.printException(context, e);
         }
@@ -279,7 +279,7 @@ public class DataContext {
                 result.add(model);
             }
             cursor.close();
-            db.close();
+            //db.close();
         } catch (Exception e) {
             _Utils.printException(context, e);
         }
@@ -301,7 +301,7 @@ public class DataContext {
             values.put("interest", model.getInterest().toString());
             //调用方法插入数据
             db.update("loan", values, "id=?", new String[]{model.getId().toString()});
-            db.close();
+            //db.close();
         } catch (Exception e) {
             _Utils.printException(context, e);
         }
@@ -313,7 +313,7 @@ public class DataContext {
             SQLiteDatabase db = dbHelper.getWritableDatabase();
             db.delete("loan", "id=?", new String[]{id.toString()});
             //关闭SQLiteDatabase对象
-            db.close();
+            //db.close();
         } catch (Exception e) {
             _Utils.printException(context, e);
         }
@@ -336,7 +336,7 @@ public class DataContext {
             //调用方法插入数据
             db.insert("loanRecord", "id", values);
             //关闭SQLiteDatabase对象
-            db.close();
+            //db.close();
         } catch (Exception e) {
             _Utils.printException(context, e);
         }
@@ -360,7 +360,7 @@ public class DataContext {
                 result.add(model);
             }
             cursor.close();
-            db.close();
+            //db.close();
         } catch (Exception e) {
             _Utils.printException(context, e);
         }
@@ -382,7 +382,7 @@ public class DataContext {
                 return model;
             }
             cursor.close();
-            db.close();
+            //db.close();
         } catch (Exception e) {
             _Utils.printException(context, e);
         }
@@ -396,7 +396,7 @@ public class DataContext {
             SQLiteDatabase db = dbHelper.getWritableDatabase();
             db.delete("loanRecord", "id=?", new String[]{id.toString()});
             //关闭SQLiteDatabase对象
-            db.close();
+            //db.close();
         } catch (Exception e) {
             _Utils.printException(context, e);
         }
@@ -407,7 +407,7 @@ public class DataContext {
             SQLiteDatabase db = dbHelper.getWritableDatabase();
             db.delete("loanRecord", "loanId=?", new String[]{loanId.toString()});
             //关闭SQLiteDatabase对象
-            db.close();
+            //db.close();
         } catch (Exception e) {
             _Utils.printException(context, e);
         }
@@ -439,7 +439,7 @@ public class DataContext {
             //调用方法插入数据
             db.insert("buddhaConfig", "id", values);
             //关闭SQLiteDatabase对象
-            db.close();
+            //db.close();
         } catch (Exception e) {
             _Utils.printException(context, e);
         }
@@ -466,7 +466,7 @@ public class DataContext {
                 result.add(model);
             }
             cursor.close();
-            db.close();
+            //db.close();
         } catch (Exception e) {
             _Utils.printException(context, e);
         }
@@ -492,7 +492,7 @@ public class DataContext {
                         cursor.getInt(7));
                 model.setId(UUID.fromString(cursor.getString(0)));
                 cursor.close();
-                db.close();
+                //db.close();
                 return model;
             }
         } catch (Exception e) {
@@ -518,7 +518,7 @@ public class DataContext {
             values.put("duration", model.getCircleSecond());
             //调用方法插入数据
             db.update("buddhaConfig", values, "id=?", new String[]{model.getId().toString()});
-            db.close();
+            //db.close();
         } catch (Exception e) {
             _Utils.printException(context, e);
         }
@@ -532,7 +532,7 @@ public class DataContext {
                 db.delete("buddhaConfig", "id=?", new String[]{list.get(i).getId().toString()});
             }
             //关闭SQLiteDatabase对象
-            db.close();
+            //db.close();
         } catch (Exception e) {
             _Utils.printException(context, e);
         }
@@ -563,7 +563,7 @@ public class DataContext {
             //调用方法插入数据
             db.insert("buddha", "id", values);
             //关闭SQLiteDatabase对象
-            db.close();
+            //db.close();
         } catch (Exception e) {
             _Utils.printException(context, e);
         }
@@ -591,7 +591,7 @@ public class DataContext {
                 db.insert("buddha", "id", values);
             }
             //关闭SQLiteDatabase对象
-            db.close();
+            //db.close();
         } catch (Exception e) {
             _Utils.printException(context, e);
         }
@@ -619,7 +619,7 @@ public class DataContext {
                         BuddhaType.Companion.fromInt(cursor.getInt(4)),
                         cursor.getString(5));
                 cursor.close();
-                db.close();
+                //db.close();
                 return model;
             }
         } catch (Exception e) {
@@ -636,7 +636,7 @@ public class DataContext {
             //查询获得游标
             db.delete("buddha", "type=?", new String[]{"11"});
             //判断游标是否为空
-            db.close();
+            //db.close();
         } catch (Exception e) {
             _Utils.printException(context, e);
         }
@@ -658,7 +658,7 @@ public class DataContext {
                         BuddhaType.Companion.fromInt(cursor.getInt(4)),
                         cursor.getString(5));
                 cursor.close();
-                db.close();
+                //db.close();
                 return model;
             }
         } catch (Exception e) {
@@ -683,7 +683,7 @@ public class DataContext {
                         BuddhaType.Companion.fromInt(cursor.getInt(4)),
                         cursor.getString(5));
                 cursor.close();
-                db.close();
+                //db.close();
                 return model;
             }
         } catch (Exception e) {
@@ -719,7 +719,7 @@ public class DataContext {
                 result.add(model);
             }
             cursor.close();
-            db.close();
+            //db.close();
         } catch (Exception e) {
             _Utils.printException(context, e);
         }
@@ -746,7 +746,7 @@ public class DataContext {
                 result.add(model);
             }
             cursor.close();
-            db.close();
+            //db.close();
         } catch (Exception e) {
             _Utils.printException(context, e);
         }
@@ -775,7 +775,7 @@ public class DataContext {
                         BuddhaType.Companion.fromInt(cursor.getInt(4)),
                         cursor.getString(5));
                 cursor.close();
-                db.close();
+                //db.close();
                 return model;
             }
         } catch (Exception e) {
@@ -802,7 +802,7 @@ public class DataContext {
                 result.add(model);
             }
             cursor.close();
-            db.close();
+            //db.close();
         } catch (Exception e) {
             _Utils.printException(context, e);
         }
@@ -834,7 +834,7 @@ public class DataContext {
                 result.add(model);
             }
             cursor.close();
-            db.close();
+            //db.close();
         } catch (Exception e) {
             _Utils.printException(context, e);
         }
@@ -859,7 +859,7 @@ public class DataContext {
                 result.add(model);
             }
             cursor.close();
-            db.close();
+            //db.close();
         } catch (Exception e) {
             _Utils.printException(context, e);
         }
@@ -887,7 +887,7 @@ public class DataContext {
                 result.add(model);
             }
             cursor.close();
-            db.close();
+            //db.close();
         } catch (Exception e) {
             _Utils.printException(context, e);
         }
@@ -909,7 +909,7 @@ public class DataContext {
             values.put("summary", model.getSummary());
 
             db.update("buddha", values, "id=?", new String[]{model.getId().toString()});
-            db.close();
+            //db.close();
         } catch (Exception e) {
             _Utils.printException(context, e);
         }
@@ -926,7 +926,7 @@ public class DataContext {
             SQLiteDatabase db = dbHelper.getWritableDatabase();
             db.delete("buddha", "id=?", new String[]{id.toString()});
             //关闭SQLiteDatabase对象
-            db.close();
+            //db.close();
         } catch (Exception e) {
             _Utils.printException(context, e);
         }
@@ -940,7 +940,7 @@ public class DataContext {
                 db.delete("buddha", "id=?", new String[]{buddhaList.get(i).getId().toString()});
             }
             //关闭SQLiteDatabase对象
-            db.close();
+            //db.close();
         } catch (Exception e) {
             _Utils.printException(context, e);
         }
@@ -967,7 +967,7 @@ public class DataContext {
             //调用方法插入数据
             db.insert("position", "id", values);
             //关闭SQLiteDatabase对象
-            db.close();
+            //db.close();
         } catch (Exception e) {
             _Utils.printException(context, e);
         }
@@ -992,7 +992,7 @@ public class DataContext {
             }
 
             //关闭SQLiteDatabase对象
-            db.close();
+            //db.close();
         } catch (Exception e) {
             _Utils.printException(context, e);
         }
@@ -1015,7 +1015,7 @@ public class DataContext {
                         new BigDecimal(cursor.getString(7)));
                 model.setId(UUID.fromString(cursor.getString(0)));
                 cursor.close();
-                db.close();
+                //db.close();
                 return model;
             }
         } catch (Exception e) {
@@ -1044,7 +1044,7 @@ public class DataContext {
                 result.add(model);
             }
             cursor.close();
-            db.close();
+            //db.close();
         } catch (Exception e) {
             _Utils.printException(context, e);
         }
@@ -1071,7 +1071,7 @@ public class DataContext {
                 result.add(model);
             }
             cursor.close();
-            db.close();
+            //db.close();
         } catch (Exception e) {
             _Utils.printException(context, e);
         }
@@ -1103,7 +1103,7 @@ public class DataContext {
                 result.add(model);
             }
             cursor.close();
-            db.close();
+            //db.close();
         } catch (Exception e) {
             _Utils.printException(context, e);
         }
@@ -1116,7 +1116,7 @@ public class DataContext {
             SQLiteDatabase db = dbHelper.getWritableDatabase();
             db.delete("position", "id=?", new String[]{id.toString()});
             //关闭SQLiteDatabase对象
-            db.close();
+            //db.close();
         } catch (Exception e) {
             _Utils.printException(context, e);
         }
@@ -1141,7 +1141,7 @@ public class DataContext {
             //调用方法插入数据
             db.insert("bankToDo", "id", values);
             //关闭SQLiteDatabase对象
-            db.close();
+            //db.close();
         } catch (Exception e) {
             _Utils.printException(context, e);
         }
@@ -1164,7 +1164,7 @@ public class DataContext {
         if (db.update("bankToDo", values, "id=?", new String[]{bankToDo.getId().toString()}) == 0) {
             this.addBankToDo(bankToDo);
         }
-        db.close();
+        //db.close();
     }
 
     public BankToDo getBankToDo(String bankName, String cardNumber) {
@@ -1178,7 +1178,7 @@ public class DataContext {
                 BankToDo model = new BankToDo(new DateTime(cursor.getLong(1)), cursor.getString(2), cursor.getString(3), cursor.getDouble(4));
                 model.setId(UUID.fromString(cursor.getString(0)));
                 cursor.close();
-                db.close();
+                //db.close();
                 return model;
             }
         } catch (Exception e) {
@@ -1201,7 +1201,7 @@ public class DataContext {
                 result.add(model);
             }
             cursor.close();
-            db.close();
+            //db.close();
         } catch (Exception e) {
             _Utils.printException(context, e);
         }
@@ -1222,7 +1222,7 @@ public class DataContext {
                 result.add(model);
             }
             cursor.close();
-            db.close();
+            //db.close();
         } catch (Exception e) {
             _Utils.printException(context, e);
         }
@@ -1242,7 +1242,7 @@ public class DataContext {
                 result.add(model);
             }
             cursor.close();
-            db.close();
+            //db.close();
         } catch (Exception e) {
             _Utils.printException(context, e);
         }
@@ -1257,7 +1257,7 @@ public class DataContext {
             else
                 db.delete("bankToDo", "bankName like ? AND cardNumber like ?", new String[]{bankName, cardNumber});
             //关闭SQLiteDatabase对象
-            db.close();
+            //db.close();
         } catch (Exception e) {
             _Utils.printException(context, e);
         }
@@ -1269,7 +1269,7 @@ public class DataContext {
             SQLiteDatabase db = dbHelper.getWritableDatabase();
             db.delete("bankToDo", "id=?", new String[]{id.toString()});
             //关闭SQLiteDatabase对象
-            db.close();
+            //db.close();
         } catch (Exception e) {
             _Utils.printException(context, e);
         }
@@ -1281,7 +1281,7 @@ public class DataContext {
             SQLiteDatabase db = dbHelper.getWritableDatabase();
             db.delete("bankToDo", null, null);
             //关闭SQLiteDatabase对象
-            db.close();
+            //db.close();
         } catch (Exception e) {
             _Utils.printException(context, e);
         }
@@ -1310,7 +1310,7 @@ public class DataContext {
             //调用方法插入数据
             db.insert("trade", "id", values);
             //关闭SQLiteDatabase对象
-            db.close();
+            //db.close();
         } catch (Exception e) {
             _Utils.printException(context, e);
         }
@@ -1336,7 +1336,7 @@ public class DataContext {
                         cursor.getInt(8));
                 model.setId(UUID.fromString(cursor.getString(0)));
                 cursor.close();
-                db.close();
+                //db.close();
                 return model;
             }
         } catch (Exception e) {
@@ -1367,7 +1367,7 @@ public class DataContext {
                 result.add(model);
             }
             cursor.close();
-            db.close();
+            //db.close();
         } catch (Exception e) {
             _Utils.printException(context, e);
         }
@@ -1398,7 +1398,7 @@ public class DataContext {
                 result.add(model);
             }
             cursor.close();
-            db.close();
+            //db.close();
         } catch (Exception e) {
             _Utils.printException(context, e);
         }
@@ -1439,7 +1439,7 @@ public class DataContext {
                 result.add(model);
             }
             cursor.close();
-            db.close();
+            //db.close();
         } catch (Exception e) {
             _Utils.printException(context, e);
         }
@@ -1468,7 +1468,7 @@ public class DataContext {
                 result.add(model);
             }
             cursor.close();
-            db.close();
+            //db.close();
         } catch (Exception e) {
             _Utils.printException(context, e);
         }
@@ -1497,7 +1497,7 @@ public class DataContext {
                 result.add(model);
             }
             cursor.close();
-            db.close();
+            //db.close();
         } catch (Exception e) {
             _Utils.printException(context, e);
         }
@@ -1521,7 +1521,7 @@ public class DataContext {
             //调用方法插入数据
             db.update("trade", values, "id=?", new String[]{model.getId().toString()});
             //关闭SQLiteDatabase对象
-            db.close();
+            //db.close();
         } catch (Exception e) {
             _Utils.printException(context, e);
         }
@@ -1533,7 +1533,7 @@ public class DataContext {
             SQLiteDatabase db = dbHelper.getWritableDatabase();
             db.delete("trade", "id=?", new String[]{id.toString()});
             //关闭SQLiteDatabase对象
-            db.close();
+            //db.close();
         } catch (Exception e) {
             _Utils.printException(context, e);
         }
@@ -1562,7 +1562,7 @@ public class DataContext {
             //调用方法插入数据
             db.insert("tallyPlan", "id", values);
             //关闭SQLiteDatabase对象
-            db.close();
+            //db.close();
         } catch (Exception e) {
             _Utils.printException(context, e);
         }
@@ -1590,7 +1590,7 @@ public class DataContext {
                 result.add(model);
             }
             cursor.close();
-            db.close();
+            //db.close();
         } catch (Exception e) {
             _Utils.printException(context, e);
         }
@@ -1615,7 +1615,7 @@ public class DataContext {
             values.put("summary", model.getSummary());
 
             db.update("tallyPlan", values, "id=?", new String[]{model.getId().toString()});
-            db.close();
+            //db.close();
         } catch (Exception e) {
             _Utils.printException(context, e);
         }
@@ -1632,7 +1632,7 @@ public class DataContext {
             SQLiteDatabase db = dbHelper.getWritableDatabase();
             db.delete("tallyPlan", "id=?", new String[]{id.toString()});
             //关闭SQLiteDatabase对象
-            db.close();
+            //db.close();
         } catch (Exception e) {
             _Utils.printException(context, e);
         }
@@ -1670,7 +1670,7 @@ public class DataContext {
             //调用方法插入数据
             db.insert("location", "id", values);
             //关闭SQLiteDatabase对象
-            db.close();
+            //db.close();
         } catch (Exception e) {
             _Utils.printException(context, e);
         }
@@ -1709,7 +1709,7 @@ public class DataContext {
                 result.add(model);
             }
             cursor.close();
-            db.close();
+            //db.close();
         } catch (Exception e) {
             _Utils.printException(context, e);
         }
@@ -1748,7 +1748,7 @@ public class DataContext {
                 break;
             }
             cursor.close();
-            db.close();
+            //db.close();
         } catch (Exception e) {
             _Utils.printException(context, e);
         }
@@ -1789,7 +1789,7 @@ public class DataContext {
                 result.add(model);
             }
             cursor.close();
-            db.close();
+            //db.close();
         } catch (Exception e) {
             _Utils.printException(context, e);
         }
@@ -1830,7 +1830,7 @@ public class DataContext {
                 result.add(model);
             }
             cursor.close();
-            db.close();
+            //db.close();
         } catch (Exception e) {
             _Utils.printException(context, e);
         }
@@ -1873,7 +1873,7 @@ public class DataContext {
                 result.add(model);
             }
             cursor.close();
-            db.close();
+            //db.close();
         } catch (Exception e) {
             _Utils.printException(context, e);
         }
@@ -1886,7 +1886,7 @@ public class DataContext {
             SQLiteDatabase db = dbHelper.getWritableDatabase();
             db.delete("location", "accuracy>?", new String[]{accuracy + ""});
             //关闭SQLiteDatabase对象
-            db.close();
+            //db.close();
         } catch (Exception e) {
             _Utils.printException(context, e);
         }
@@ -1898,7 +1898,7 @@ public class DataContext {
             SQLiteDatabase db = dbHelper.getWritableDatabase();
             db.delete("location", "id=?", new String[]{id + ""});
             //关闭SQLiteDatabase对象
-            db.close();
+            //db.close();
         } catch (Exception e) {
             _Utils.printException(context, e);
         }
@@ -1928,7 +1928,7 @@ public class DataContext {
             //调用方法插入数据
             db.insert("song", "id", values);
             //关闭SQLiteDatabase对象
-            db.close();
+            //db.close();
         } catch (Exception e) {
             _Utils.printException(context, e);
         }
@@ -1958,7 +1958,7 @@ public class DataContext {
             }
 
             //关闭SQLiteDatabase对象
-            db.close();
+            //db.close();
         } catch (Exception e) {
             _Utils.printException(context, e);
         }
@@ -1985,7 +1985,7 @@ public class DataContext {
                 model.setSize(cursor.getString(9));
                 model.setFileUrl(cursor.getString(10));
                 cursor.close();
-                db.close();
+                //db.close();
                 return model;
             }
         } catch (Exception e) {
@@ -2017,7 +2017,7 @@ public class DataContext {
                 result.add(model);
             }
             cursor.close();
-            db.close();
+            //db.close();
         } catch (Exception e) {
             _Utils.printException(context, e);
         }
@@ -2030,7 +2030,7 @@ public class DataContext {
             SQLiteDatabase db = dbHelper.getWritableDatabase();
             db.delete("song", "playListId=?", new String[]{playListId.toString() + ""});
             //关闭SQLiteDatabase对象
-            db.close();
+            //db.close();
         } catch (Exception e) {
             _Utils.printException(context, e);
         }
@@ -2052,7 +2052,7 @@ public class DataContext {
             //调用方法插入数据
             db.insert("playList", "id", values);
             //关闭SQLiteDatabase对象
-            db.close();
+            //db.close();
         } catch (Exception e) {
             _Utils.printException(context, e);
         }
@@ -2072,7 +2072,7 @@ public class DataContext {
                 model.setCurrentSongPosition((cursor.getInt(3)));
                 model.setDefault(Boolean.parseBoolean(cursor.getString(4)));
                 cursor.close();
-                db.close();
+                //db.close();
                 return model;
             }
         } catch (Exception e) {
@@ -2098,7 +2098,7 @@ public class DataContext {
                 result.add(model);
             }
             cursor.close();
-            db.close();
+            //db.close();
         } catch (Exception e) {
             _Utils.printException(context, e);
         }
@@ -2120,7 +2120,7 @@ public class DataContext {
             values.put("isDefault", playList.isDefault());
 
             db.update("playList", values, "id=?", new String[]{playList.getId().toString()});
-            db.close();
+            //db.close();
         } catch (Exception e) {
             _Utils.printException(context, e);
         }
@@ -2151,7 +2151,7 @@ public class DataContext {
             //调用方法插入数据
             db.insert("sms", "id", values);
             //关闭SQLiteDatabase对象
-            db.close();
+            //db.close();
         } catch (Exception e) {
             _Utils.printException(context, e);
         }
@@ -2172,7 +2172,7 @@ public class DataContext {
             values.put("createTime", phoneMessage.getCreateTime().getTimeInMillis());
             //调用方法插入数据
             db.update("sms", values, "id=?", new String[]{phoneMessage.getId().toString()});
-            db.close();
+            //db.close();
         } catch (Exception e) {
             _Utils.printException(context, e);
         }
@@ -2207,8 +2207,8 @@ public class DataContext {
         } finally {
             if (cursor != null)
                 cursor.close();
-            if (db != null)
-                db.close();
+//            if (db != null)
+                //db.close();
         }
         return null;
     }
@@ -2239,8 +2239,8 @@ public class DataContext {
         } finally {
             if (cursor != null)
                 cursor.close();
-            if (db != null)
-                db.close();
+//            if (db != null)
+                //db.close();
         }
         return null;
     }
@@ -2273,8 +2273,8 @@ public class DataContext {
         } finally {
             if (cursor != null)
                 cursor.close();
-            if (db != null)
-                db.close();
+//            if (db != null)
+                //db.close();
         }
         return null;
     }
@@ -2308,8 +2308,8 @@ public class DataContext {
         } finally {
             if (cursor != null)
                 cursor.close();
-            if (db != null)
-                db.close();
+//            if (db != null)
+                //db.close();
         }
         return null;
     }
@@ -2325,7 +2325,7 @@ public class DataContext {
             SQLiteDatabase db = dbHelper.getWritableDatabase();
             db.delete("sms", null, null);
             //关闭SQLiteDatabase对象
-            db.close();
+            //db.close();
         } catch (Exception e) {
             _Utils.printException(context, e);
         }
@@ -2337,7 +2337,7 @@ public class DataContext {
             SQLiteDatabase db = dbHelper.getWritableDatabase();
             db.delete("sms", "id=?", new String[]{id.toString()});
             //关闭SQLiteDatabase对象
-            db.close();
+            //db.close();
         } catch (Exception e) {
             _Utils.printException(context, e);
         }
@@ -2351,7 +2351,7 @@ public class DataContext {
                 db.delete("sms", "id=?", new String[]{list.get(i).getId().toString()});
             }
             //关闭SQLiteDatabase对象
-            db.close();
+            //db.close();
         } catch (Exception e) {
             _Utils.printException(context, e);
         }
@@ -2363,7 +2363,7 @@ public class DataContext {
             SQLiteDatabase db = dbHelper.getWritableDatabase();
             db.delete("sms", "createTime < ?", new String[]{timeInMillis + ""});
             //关闭SQLiteDatabase对象
-            db.close();
+            //db.close();
         } catch (Exception e) {
             _Utils.printException(context, e);
         }
@@ -2385,7 +2385,7 @@ public class DataContext {
             //调用方法插入数据
             db.insert("dayItem", "id", values);
             //关闭SQLiteDatabase对象
-            db.close();
+            //db.close();
         } catch (Exception e) {
             _Utils.printException(context, e);
         }
@@ -2411,7 +2411,7 @@ public class DataContext {
                 model.setSummary(cursor.getString(2));
                 model.setTargetInHour(cursor.getInt(3));
                 cursor.close();
-                db.close();
+                //db.close();
                 return model;
             }
         } catch (Exception e) {
@@ -2439,7 +2439,7 @@ public class DataContext {
                 result.add(model);
             }
             cursor.close();
-            db.close();
+            //db.close();
         } catch (Exception e) {
             _Utils.printException(context, e);
         }
@@ -2465,7 +2465,7 @@ public class DataContext {
             values.put("targetInHour", dayItem.getTargetInHour());
 
             db.update("dayItem", values, "id=?", new String[]{dayItem.getId().toString()});
-            db.close();
+            //db.close();
         } catch (Exception e) {
             _Utils.printException(context, e);
         }
@@ -2482,7 +2482,7 @@ public class DataContext {
             SQLiteDatabase db = dbHelper.getWritableDatabase();
             db.delete("dayItem", "id=?", new String[]{id.toString()});
             //关闭SQLiteDatabase对象
-            db.close();
+            //db.close();
         } catch (Exception e) {
             _Utils.printException(context, e);
         }
@@ -2511,7 +2511,7 @@ public class DataContext {
             //调用方法插入数据
             db.insert("markDay", "id", values);
             //关闭SQLiteDatabase对象
-            db.close();
+            //db.close();
         } catch (Exception e) {
             _Utils.printException(context, e);
         }
@@ -2536,7 +2536,7 @@ public class DataContext {
                 model.setItem(UUID.fromString(cursor.getString(2)));
                 model.setSummary(cursor.getString(3));
                 cursor.close();
-                db.close();
+                //db.close();
                 return model;
             }
         } catch (Exception e) {
@@ -2567,7 +2567,7 @@ public class DataContext {
                 result.add(model);
             }
             cursor.close();
-            db.close();
+            //db.close();
         } catch (Exception e) {
             _Utils.printException(context, e);
         }
@@ -2592,7 +2592,7 @@ public class DataContext {
             values.put("summary", markDay.getSummary());
 
             db.update("markDay", values, "id=?", new String[]{markDay.getId().toString()});
-            db.close();
+            //db.close();
         } catch (Exception e) {
             _Utils.printException(context, e);
         }
@@ -2611,7 +2611,7 @@ public class DataContext {
             SQLiteDatabase db = dbHelper.getWritableDatabase();
             db.execSQL("update markDay set summary='hide' where item='" + item + "' and dateTime<=" + dateTime.getTimeInMillis());
             Log.e("wangsc", "update markDay set summary='hide' where item='" + item + "' and dateTime<=" + dateTime.getTimeInMillis());
-            db.close();
+            //db.close();
         } catch (Exception e) {
             _Utils.printException(context, e);
         }
@@ -2628,7 +2628,7 @@ public class DataContext {
             SQLiteDatabase db = dbHelper.getWritableDatabase();
             db.delete("markDay", "item=?", new String[]{itemId.toString()});
             //关闭SQLiteDatabase对象
-            db.close();
+            //db.close();
         } catch (Exception e) {
             _Utils.printException(context, e);
         }
@@ -2645,7 +2645,7 @@ public class DataContext {
             SQLiteDatabase db = dbHelper.getWritableDatabase();
             db.delete("markDay", "id=?", new String[]{id.toString()});
             //关闭SQLiteDatabase对象
-            db.close();
+            //db.close();
         } catch (Exception e) {
             _Utils.printException(context, e);
         }
@@ -2679,7 +2679,7 @@ public class DataContext {
             //调用方法插入数据
             db.insert("creditCard", "id", values);
             //关闭SQLiteDatabase对象
-            db.close();
+            //db.close();
         } catch (Exception e) {
             _Utils.printException(context, e);
         }
@@ -2701,7 +2701,7 @@ public class DataContext {
                 creditCardList.add(model);
             }
             cursor.close();
-            db.close();
+            //db.close();
         } catch (IllegalArgumentException e) {
             _Utils.printException(context, e);
         }
@@ -2721,7 +2721,7 @@ public class DataContext {
                         cursor.getInt(7),new BigDecimal(cursor.getString(8)),Boolean.parseBoolean(cursor.getString(9)));
                 model.setId(UUID.fromString(cursor.getString(0)));
                 cursor.close();
-                db.close();
+                //db.close();
                 return model;
             }
         } catch (IllegalArgumentException e) {
@@ -2749,7 +2749,7 @@ public class DataContext {
             values.put("isVisible", creditCard.isVisible() + "");
 
             db.update("creditCard", values, "id=?", new String[]{creditCard.getId().toString()});
-            db.close();
+            //db.close();
         } catch (Exception e) {
             _Utils.printException(context, e);
         }
@@ -2766,7 +2766,7 @@ public class DataContext {
             SQLiteDatabase db = dbHelper.getWritableDatabase();
             db.delete("creditCard", "cardNumber=?", new String[]{cardNumber});
             //关闭SQLiteDatabase对象
-            db.close();
+            //db.close();
         } catch (Exception e) {
             _Utils.printException(context, e);
         }
@@ -2778,7 +2778,7 @@ public class DataContext {
             SQLiteDatabase db = dbHelper.getWritableDatabase();
             db.delete("creditCard", null, null);
             //关闭SQLiteDatabase对象
-            db.close();
+            //db.close();
         } catch (Exception e) {
             _Utils.printException(context, e);
         }
@@ -2807,7 +2807,7 @@ public class DataContext {
             //调用方法插入数据
             db.insert("record", "id", values);
             //关闭SQLiteDatabase对象
-            db.close();
+            //db.close();
         } catch (Exception e) {
             _Utils.printException(context, e);
         }
@@ -2834,7 +2834,7 @@ public class DataContext {
                 model.setItem(cursor.getString(3));
                 model.setSummary(cursor.getString(4));
                 cursor.close();
-                db.close();
+                //db.close();
                 return model;
             }
         } catch (Exception e) {
@@ -2870,7 +2870,7 @@ public class DataContext {
                 result.add(model);
             }
             cursor.close();
-            db.close();
+            //db.close();
         } catch (Exception e) {
             _Utils.printException(context, e);
         }
@@ -2898,7 +2898,7 @@ public class DataContext {
                 model.setItem(cursor.getString(3));
                 model.setSummary(cursor.getString(4));
                 cursor.close();
-                db.close();
+                //db.close();
                 return model;
             }
         } catch (Exception e) {
@@ -2932,7 +2932,7 @@ public class DataContext {
                 result.add(model);
             }
             cursor.close();
-            db.close();
+            //db.close();
         } catch (Exception e) {
             _Utils.printException(context, e);
         }
@@ -2953,7 +2953,7 @@ public class DataContext {
             values.put("summary", tallyRecord.getSummary());
 
             db.update("record", values, "id=?", new String[]{tallyRecord.getId().toString()});
-            db.close();
+            //db.close();
         } catch (Exception e) {
             _Utils.printException(context, e);
         }
@@ -2970,7 +2970,7 @@ public class DataContext {
             SQLiteDatabase db = dbHelper.getWritableDatabase();
             db.delete("record", "id=?", new String[]{id.toString()});
             //关闭SQLiteDatabase对象
-            db.close();
+            //db.close();
         } catch (Exception e) {
             _Utils.printException(context, e);
         }
@@ -2995,7 +2995,7 @@ public class DataContext {
                 result.add(model);
             }
             cursor.close();
-            db.close();
+            //db.close();
         } catch (Exception e) {
             _Utils.printException(context, e);
         }
@@ -3020,7 +3020,7 @@ public class DataContext {
                 result.add(model);
             }
             cursor.close();
-            db.close();
+            //db.close();
         } catch (Exception e) {
             _Utils.printException(context, e);
         }
@@ -3044,7 +3044,7 @@ public class DataContext {
                 result.add(model);
             }
             cursor.close();
-            db.close();
+            //db.close();
         } catch (Exception e) {
             _Utils.printException(context, e);
         }
@@ -3080,7 +3080,7 @@ public class DataContext {
                 result.add(model);
             }
             cursor.close();
-            db.close();
+            //db.close();
         } catch (Exception e) {
             _Utils.printException(context, e);
         }
@@ -3110,7 +3110,7 @@ public class DataContext {
             //调用方法插入数据
             db.insert("runLog", "id", values);
             //关闭SQLiteDatabase对象
-            db.close();
+            //db.close();
         } catch (Exception e) {
             _Utils.printException(context, e);
         }
@@ -3130,7 +3130,7 @@ public class DataContext {
             //调用方法插入数据
             db.insert("runLog", "id", values);
             //关闭SQLiteDatabase对象
-            db.close();
+            //db.close();
         } catch (Exception e) {
             _Utils.printException(context, e);
         }
@@ -3150,7 +3150,7 @@ public class DataContext {
             values.put("message", runLog.getMessage());
 
             db.update("runLog", values, "id=?", new String[]{runLog.getId().toString()});
-            db.close();
+            //db.close();
         } catch (Exception e) {
             _Utils.printException(context, e);
         }
@@ -3162,7 +3162,7 @@ public class DataContext {
             SQLiteDatabase db = dbHelper.getWritableDatabase();
             db.delete("runLog", null, null);
             //关闭SQLiteDatabase对象
-            db.close();
+            //db.close();
         } catch (Exception e) {
             _Utils.printException(context, e);
         }
@@ -3174,7 +3174,7 @@ public class DataContext {
             SQLiteDatabase db = dbHelper.getWritableDatabase();
             db.delete("runLog", "tag like ? and runTime < ?", new String[]{tag, dateTime.getTimeInMillis()+""});
             //关闭SQLiteDatabase对象
-            db.close();
+            //db.close();
         } catch (Exception e) {
             _Utils.printException(context, e);
         }
@@ -3186,7 +3186,7 @@ public class DataContext {
             SQLiteDatabase db = dbHelper.getWritableDatabase();
             db.delete("runLog", "tag like ?", new String[]{tag});
             //关闭SQLiteDatabase对象
-            db.close();
+            //db.close();
         } catch (Exception e) {
             _Utils.printException(context, e);
         }
@@ -3197,7 +3197,7 @@ public class DataContext {
             SQLiteDatabase db = dbHelper.getWritableDatabase();
             db.delete("runLog", "item like ?", new String[]{"%" + item + "%"});
             //关闭SQLiteDatabase对象
-            db.close();
+            //db.close();
         } catch (Exception e) {
             _Utils.printException(context, e);
         }
@@ -3209,7 +3209,7 @@ public class DataContext {
             SQLiteDatabase db = dbHelper.getWritableDatabase();
             db.delete("runLog", "item like ?", new String[]{"%" + itemLike + "%"});
             //关闭SQLiteDatabase对象
-            db.close();
+            //db.close();
         } catch (Exception e) {
             _Utils.printException(context, e);
         }
@@ -3221,7 +3221,7 @@ public class DataContext {
             SQLiteDatabase db = dbHelper.getWritableDatabase();
             db.delete("runLog", "id = ?", new String[]{id.toString()});
             //关闭SQLiteDatabase对象
-            db.close();
+            //db.close();
         } catch (Exception e) {
             _Utils.printException(context, e);
         }
@@ -3239,7 +3239,7 @@ public class DataContext {
         while (cursor.moveToNext()) {
             Setting setting = new Setting(name.toString(), cursor.getString(1), cursor.getInt(2));
             cursor.close();
-            db.close();
+            //db.close();
             return setting;
         }
         return null;
@@ -3270,7 +3270,7 @@ public class DataContext {
         if (db.update("setting", values, "name=?", new String[]{name.toString()}) == 0) {
             this.addSetting(name.toString(), value.toString());
         }
-        db.close();
+        //db.close();
     }
 
     public void editSettingLevel(Object name, int level) {
@@ -3280,7 +3280,7 @@ public class DataContext {
         ContentValues values = new ContentValues();
         values.put("level", level + "");
         db.update("setting", values, "name=?", new String[]{name.toString()});
-        db.close();
+        //db.close();
     }
 
     public void deleteSetting(Object name) {
@@ -3290,7 +3290,7 @@ public class DataContext {
 //        String sql = "DELETE FROM setting WHERE userId="+userId.toString()+" AND name="+name;
 //        addLog(new Log(sql,userId),db);
         //关闭SQLiteDatabase对象
-        db.close();
+        //db.close();
     }
 
     public void deleteSetting(String name) {
@@ -3300,7 +3300,7 @@ public class DataContext {
 //        String sql = "DELETE FROM setting WHERE userId="+userId.toString()+" AND name="+name;
 //        addLog(new Log(sql,userId),db);
         //关闭SQLiteDatabase对象
-        db.close();
+        //db.close();
     }
 
     public void addSetting(Object name, Object value) {
@@ -3313,7 +3313,7 @@ public class DataContext {
         //调用方法插入数据
         db.insert("setting", "name", values);
         //关闭SQLiteDatabase对象
-        db.close();
+        //db.close();
     }
 
     public List<Setting> getSettings() {
@@ -3328,7 +3328,7 @@ public class DataContext {
             result.add(setting);
         }
         cursor.close();
-        db.close();
+        //db.close();
         return result;
     }
 
@@ -3339,7 +3339,7 @@ public class DataContext {
         //        String sql = "DELETE FROM setting WHERE userId="+userId.toString()+" AND key="+key;
 //        addLog(new Log(sql,userId),db);
         //关闭SQLiteDatabase对象
-        db.close();
+        //db.close();
     }
 
     //endregion

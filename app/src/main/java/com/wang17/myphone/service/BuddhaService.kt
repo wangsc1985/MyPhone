@@ -151,7 +151,7 @@ class BuddhaService : Service() {
         super.onCreate()
         try {
             dc = DataContext(applicationContext)
-            dc.addRunLog("BuddhaService", "启动念佛服务", "onCreate")
+//            dc.addRunLog("BuddhaService", "启动念佛服务", "onCreate")
             //
             val filter = IntentFilter()
             filter.addAction(ACTION_BUDDHA_PLAYE)
@@ -276,6 +276,7 @@ class BuddhaService : Service() {
                         tv_duration?.setText(notificationTime)
 
                         if (prvCount < notificationCount) {
+                            dc.editSetting(Setting.KEYS.buddha_prv_count,notificationCount)
                             if (dayOfYear != prvDayOfYear) {
                                 checkSectionOnRunning()
                                 _SoundUtils.play(applicationContext,R.raw.gu,_SoundUtils.SoundType.MUSIC)
@@ -517,6 +518,7 @@ class BuddhaService : Service() {
                             dc.addRunLog("BuddhaService", "自动保存section，云储存buddha成功", "${code}   ${result}")
                             dc.addBuddha(buddha)
                             prvCount = 0
+                            dc.editSetting(Setting.KEYS.buddha_prv_count,0)
 
                             setting_duration = durationOdd
                             notificationCount = 0
@@ -567,6 +569,7 @@ class BuddhaService : Service() {
                             dc.editSetting(Setting.KEYS.buddha_startime, startTimeInMillis)
 
                             prvCount = 0
+                            dc.editSetting(Setting.KEYS.buddha_prv_count,0)
                             loadDb()
 
                             _SoundUtils.play(applicationContext,R.raw.gu,_SoundUtils.SoundType.MUSIC)
@@ -612,6 +615,7 @@ class BuddhaService : Service() {
                             dc.editSetting(Setting.KEYS.buddha_startime, startTimeInMillis)
 
                             prvCount = 0
+                            dc.editSetting(Setting.KEYS.buddha_prv_count,0)
                             loadDb()
 
                             _SoundUtils.play(applicationContext,R.raw.gu,_SoundUtils.SoundType.MUSIC)
@@ -663,6 +667,7 @@ class BuddhaService : Service() {
         startMediaPlayer(setting_music_name!!.string)
         val set_running = dc.getSetting(Setting.KEYS.buddha_service_running)
         if (set_running != null) {
+            prvCount = dc.getSetting(Setting.KEYS.buddha_prv_count,0).int
             val tt = ((System.currentTimeMillis()-dc.getSetting(Setting.KEYS.tmp_tt,System.currentTimeMillis()).long).toFloat()/1000).format(3)+"秒"
             _SoundUtils.play(applicationContext,R.raw.piu,_SoundUtils.SoundType.MUSIC)
             // 说明服务被异常结束，因为正常结束时，这个标志已经被删除了
@@ -706,6 +711,7 @@ class BuddhaService : Service() {
 
         } else {
             if (requestFocus()) {
+                dc.editSetting(Setting.KEYS.buddha_prv_count,0)
                 mPlayer?.start()
                 dataReOrStart()
                 restartTimer()
