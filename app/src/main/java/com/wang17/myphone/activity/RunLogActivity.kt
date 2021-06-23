@@ -1,6 +1,7 @@
 package com.wang17.myphone.activity
 
 import android.app.AlertDialog
+import android.content.DialogInterface
 import android.os.Bundle
 import android.support.v4.app.FragmentActivity
 import android.util.Log
@@ -15,13 +16,14 @@ import com.wang17.myphone.database.RunLog
 import com.wang17.myphone.util._Utils
 import com.wang17.myphone.util._Utils.e
 import kotlinx.android.synthetic.main.activity_runlog.*
+import kotlinx.android.synthetic.main.fragment_item_list.*
 import kotlinx.android.synthetic.main.fragment_to_do.*
 import java.util.*
 
 class RunLogActivity : FragmentActivity() {
     private lateinit var mDataContext: DataContext
     private var currentRunLogs: MutableList<RunLog> = ArrayList()
-    private lateinit var allRunLogs:MutableList<RunLog>
+    private lateinit var allRunLogs: MutableList<RunLog>
     private lateinit var listAdapter: RunlogListAdapter
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -29,20 +31,20 @@ class RunLogActivity : FragmentActivity() {
         setContentView(R.layout.activity_runlog)
         try {
             mDataContext = DataContext(this)
-            allRunLogs = mDataContext.runLogs
-            currentRunLogs = allRunLogs
+//            allRunLogs = mDataContext.runLogs
+//            currentRunLogs = allRunLogs
 
             listView_runlog.setOnItemClickListener(OnItemClickListener { parent, view, position, id ->
                 AlertDialog.Builder(this@RunLogActivity).setMessage("要删除当前日志吗？").setNegativeButton("确定") { dialog, which ->
                     mDataContext.deleteRunLog(currentRunLogs.get(position).id)
-                    val tag = spinner_logTag.selectedItem.toString()
+                    val tag = spinner_logTag.text.toString()
                     currentRunLogs = mDataContext.getRunLogsByTag(tag)
                     listAdapter.notifyDataSetChanged()
                 }.show()
             })
             listView_runlog.setOnItemLongClickListener(OnItemLongClickListener { parent, view, position, id ->
                 AlertDialog.Builder(this@RunLogActivity).setMessage("要删除所有日志吗？").setNegativeButton("确定") { dialog, which ->
-                    val tag = spinner_logTag.selectedItem.toString()
+                    val tag = spinner_logTag.text.toString()
                     mDataContext.deleteRunLogByTag(tag)
                     currentRunLogs = mDataContext.getRunLogsByTag(tag)
                     listAdapter.notifyDataSetChanged()
@@ -51,40 +53,57 @@ class RunLogActivity : FragmentActivity() {
             })
 
             initLocationGear()
-            spinner_logTag.onItemSelectedListener = object:AdapterView.OnItemSelectedListener{
-                override fun onItemSelected(parent: AdapterView<*>?, view: View?, position: Int, id: Long) {
-                    val tag = spinner_logTag.selectedItem.toString()
-                    currentRunLogs = mDataContext.getRunLogsByTag(tag)
-                    e("xxxxxxxxxxxxxxxxxxxxxxxxxxx run log size : "+currentRunLogs.size)
-                    listAdapter.notifyDataSetChanged()
-                    e(1)
-                }
-
-                override fun onNothingSelected(parent: AdapterView<*>?) {
-                }
+            showAlertDialog()
+            spinner_logTag.setOnClickListener {
+                showAlertDialog()
             }
+//            spinner_logTag.onItemSelectedListener = object : AdapterView.OnItemSelectedListener {
+//                override fun onItemSelected(parent: AdapterView<*>?, view: View?, position: Int, id: Long) {
+//                    val tag = spinner_logTag.selectedItem.toString()
+//                    currentRunLogs = mDataContext.getRunLogsByTag(tag)
+//                    e("xxxxxxxxxxxxxxxxxxxxxxxxxxx run log size : " + currentRunLogs.size)
+//                    listAdapter.notifyDataSetChanged()
+//                    e(1)
+//                }
+//
+//                override fun onNothingSelected(parent: AdapterView<*>?) {
+//                }
+//            }
+//            spinner_logTag.performClick()
+
             listAdapter = RunlogListAdapter()
             listView_runlog.setAdapter(listAdapter)
         } catch (e: Exception) {
-            mDataContext.addRunLog("err","运行错误",e.message)
-            e("RunLogActivity.onCreate  "+e.message!!)
+            mDataContext.addRunLog("err", "运行错误", e.message)
+            e("RunLogActivity.onCreate  " + e.message!!)
         }
     }
 
+    fun showAlertDialog() {
+        initLocationGear()
+        AlertDialog.Builder(this).setItems(list.toTypedArray(), DialogInterface.OnClickListener { dialog, which ->
+            val tag = list[which]
+            spinner_logTag.text = tag
+            currentRunLogs = mDataContext.getRunLogsByTag(tag)
+            listAdapter.notifyDataSetChanged()
+        }).show()
+    }
+
+    lateinit var list: ArrayList<String>
     private fun initLocationGear() {
-        val list: MutableList<String> = ArrayList()
+        list = ArrayList()
         val logs = mDataContext.runLogs
         for (i in 0 until logs.size) {
             val tag = logs[i].tag
-            if(!list.contains(tag)){
+            if (!list.contains(tag)) {
                 list.add(tag)
             }
         }
-        if(list.size>0) {
+
+        if (list.size > 0) {
             spinner_logTag.visibility = View.VISIBLE
-            this.fillSpinner(spinner_logTag, list)
-        }
-            else{
+//            spinner_logTag.text = list[0]
+        } else {
             spinner_logTag.visibility = View.INVISIBLE
         }
     }
