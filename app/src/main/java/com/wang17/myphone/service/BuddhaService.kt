@@ -26,6 +26,7 @@ import android.widget.ImageView
 import android.widget.TextView
 import android.widget.Toast
 import com.wang17.myphone.R
+import com.wang17.myphone.dao.DataContext
 import com.wang17.myphone.database.*
 import com.wang17.myphone.e
 import com.wang17.myphone.event.ResetTimeEvent
@@ -128,7 +129,7 @@ class BuddhaService : Service() {
                 buddhaStart()
 
             } catch (e: Exception) {
-                dc.addRunLog("BuddhaService", "onCreate()", e.message ?: "")
+                _Utils.printException(applicationContext,e)
             }
         }
         return super.onStartCommand(intent, flags, startId)
@@ -166,7 +167,7 @@ class BuddhaService : Service() {
             EventBus.getDefault().register(this)
 
         } catch (e: Exception) {
-            dc.addRunLog("BuddhaService", "Buddha.onCreate()", e.message ?: "")
+            _Utils.printException(applicationContext,e)
         }
     }
 
@@ -223,7 +224,7 @@ class BuddhaService : Service() {
             stopForeground(true)
 //            dc.deleteSetting(Setting.KEYS.tmp_tt)
         } catch (e: Exception) {
-            dc.addRunLog("BuddhaService", "Buddha.onDestroy()", e.message ?: "")
+            _Utils.printException(applicationContext,e)
         }
     }
 
@@ -297,7 +298,7 @@ class BuddhaService : Service() {
                                 buddhaPause()
                                 floatingWinButState(WinBtnState.点击播放)
                                 mAm.abandonAudioFocus(afChangeListener)
-                                dc.addRunLog("BuddhaService", "暂停念佛", "auto pause")
+                                dc.addRunLog("BuddhaService", "暂停念佛", "自动结束")
                                 Thread {
                                     Thread.sleep(3000)
                                     setMediaVolume(system_volumn)
@@ -334,7 +335,7 @@ class BuddhaService : Service() {
 
                     sendNotification(notificationCount, notificationCountDay, notificationTime, notificationTimeDay)
                 } catch (e: Exception) {
-                    dc.addRunLog("BuddhaService", "timer err", e.message ?: "")
+                    _Utils.printException(applicationContext,e)
                 }
             }
         }, 0, 1000)
@@ -408,7 +409,7 @@ class BuddhaService : Service() {
         val result = try {
             mAm.requestAudioFocus(afChangeListener, AudioManager.STREAM_MUSIC, AudioManager.AUDIOFOCUS_GAIN)
         } catch (e: Exception) {
-            dc.addRunLog("BuddhaService", "requestFocus()", e.message ?: "")
+            _Utils.printException(applicationContext,e)
         }
         return result == AudioManager.AUDIOFOCUS_REQUEST_GRANTED
     }
@@ -468,7 +469,7 @@ class BuddhaService : Service() {
                 }
             }
         } catch (e: Exception) {
-            dc.addRunLog("BuddhaService", "afChangeListener()", e.message ?: "")
+            _Utils.printException(applicationContext,e)
         }
     }
     //endregion
@@ -492,7 +493,7 @@ class BuddhaService : Service() {
             checkSectionBeforeRestart()
 
         } catch (e: Exception) {
-            dc.addRunLog("BuddhaService", "dataReOrStart()", e.message ?: "")
+            _Utils.printException(applicationContext,e)
         }
     }
 
@@ -540,7 +541,7 @@ class BuddhaService : Service() {
                 latch.await()
             }
         } catch (e: Exception) {
-            dc.addRunLog("BuddhaService", "checkSection()", e.message ?: "")
+            _Utils.printException(applicationContext,e)
         }
     }
 
@@ -585,7 +586,7 @@ class BuddhaService : Service() {
                 }
             }
         } catch (e: Exception) {
-            dc.addRunLog("BuddhaService", "saveSection()", e.message ?: "")
+            _Utils.printException(applicationContext,e)
         }
     }
 
@@ -631,7 +632,7 @@ class BuddhaService : Service() {
                 }
             }
         } catch (e: Exception) {
-            dc.addRunLog("BuddhaService", "saveSection()", e.message ?: "")
+            _Utils.printException(applicationContext,e)
         }
     }
 
@@ -658,7 +659,7 @@ class BuddhaService : Service() {
                 dc.deleteSetting(Setting.KEYS.buddha_startime)
             }
         } catch (e: Exception) {
-            dc.addRunLog("BuddhaService", "dataPauseOrStop()", e.message ?: "")
+            _Utils.printException(applicationContext,e)
         }
     }
 
@@ -791,7 +792,7 @@ class BuddhaService : Service() {
                     remoteViews.setTextColor(R.id.tv_timeTotal, normalColor)
                 }
             } catch (e: Exception) {
-                dc.addRunLog("BuddhaService", "sendNotification()", e.message ?: "")
+                _Utils.printException(applicationContext,e)
             }
         }
 //        startForeground(1, notification)
@@ -842,7 +843,7 @@ class BuddhaService : Service() {
                 }
             }
         } catch (e: Exception) {
-            dc.addRunLog("BuddhaService", "onGetMessage()", e.message ?: "")
+            _Utils.printException(applicationContext,e)
         }
     }
 
@@ -917,7 +918,7 @@ class BuddhaService : Service() {
                 windowManager.addView(floatingWindowView, layoutParams)
             }
         } catch (e: Exception) {
-            dc.addRunLog("BuddhaService", "showFloatingWindow()", e.message ?: "")
+            _Utils.printException(applicationContext,e)
         }
     }
 
@@ -1033,7 +1034,7 @@ class BuddhaService : Service() {
                     sendNotification(notificationCount, notificationCountDay, notificationTime, notificationTimeDay)
                 }
             } catch (e: Exception) {
-                dc.addRunLog("BuddhaService", "BuddhaReceiver ()", e.message ?: "")
+                _Utils.printException(applicationContext,e)
             }
         }
     }

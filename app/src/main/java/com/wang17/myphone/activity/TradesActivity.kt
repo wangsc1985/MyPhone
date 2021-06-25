@@ -12,7 +12,7 @@ import android.view.ViewGroup
 import android.widget.*
 import android.widget.AdapterView.OnItemClickListener
 import com.wang17.myphone.*
-import com.wang17.myphone.database.DataContext
+import com.wang17.myphone.dao.DataContext
 import com.wang17.myphone.database.Loan
 import com.wang17.myphone.database.LoanRecord
 import com.wang17.myphone.model.DateTime

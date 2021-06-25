@@ -20,6 +20,7 @@ import com.wang17.myphone.activity.BuddhaChartActivity
 import com.wang17.myphone.activity.BuddhaDetailActivity
 import com.wang17.myphone.callback.CloudCallback
 import com.wang17.myphone.callback.DialogChoosenCallback
+import com.wang17.myphone.dao.DataContext
 import com.wang17.myphone.database.*
 import com.wang17.myphone.model.DateTime
 import com.wang17.myphone.event.ResetTimeEvent
@@ -122,7 +123,7 @@ class BuddhaFragment : Fragment() {
                     }
             }
         } catch (e: Exception) {
-            dc.addRunLog("BuddhaFragment","onResume",e.message!!)
+            _Utils.printException(context,e)
         }
     }
 
@@ -220,7 +221,7 @@ class BuddhaFragment : Fragment() {
                 EventBus.getDefault().post(EventBusMessage.getInstance(FromBuddhaConfigUpdate(), ""))
                 _Utils.zhendong70(context!!)
             } catch (e: Exception) {
-                dc.addRunLog("BuddhaPlayer", "加速", e.message)
+                _Utils.printException(context,e)
             }
         }
         iv_speed_minus.setOnClickListener {
@@ -234,7 +235,7 @@ class BuddhaFragment : Fragment() {
                 EventBus.getDefault().post(EventBusMessage.getInstance(FromBuddhaConfigUpdate(), ""))
                 _Utils.zhendong70(context!!)
             } catch (e: Exception) {
-                dc.addRunLog("BuddhaPlayer", "减速", e.message)
+                _Utils.printException(context,e)
             }
         }
         iv_pitch_add.setOnClickListener {
@@ -247,7 +248,7 @@ class BuddhaFragment : Fragment() {
                 EventBus.getDefault().post(EventBusMessage.getInstance(FromBuddhaConfigUpdate(), ""))
                 _Utils.zhendong70(context!!)
             } catch (e: Exception) {
-                dc.addRunLog("BuddhaPlayer", "升调", e.message)
+                _Utils.printException(context,e)
             }
         }
         iv_pitch_minus.setOnClickListener {
@@ -260,7 +261,7 @@ class BuddhaFragment : Fragment() {
                 EventBus.getDefault().post(EventBusMessage.getInstance(FromBuddhaConfigUpdate(), ""))
                 _Utils.zhendong70(context!!)
             } catch (e: Exception) {
-                dc.addRunLog("BuddhaPlayer", "降调", e.message)
+                _Utils.printException(context,e)
             }
         }
 
@@ -348,7 +349,7 @@ class BuddhaFragment : Fragment() {
 
                 }.show()
             } catch (e: Exception) {
-                dc.addRunLog("err", "切换music", e.message)
+                _Utils.printException(context,e)
             }
         }
 

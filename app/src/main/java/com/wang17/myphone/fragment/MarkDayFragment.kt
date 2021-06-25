@@ -14,7 +14,7 @@ import android.view.ViewGroup
 import android.widget.*
 import com.wang17.myphone.R
 import com.wang17.myphone.activity.MarkDayRecordActivity
-import com.wang17.myphone.database.DataContext
+import com.wang17.myphone.dao.DataContext
 import com.wang17.myphone.database.DayItem
 import com.wang17.myphone.database.MarkDay
 import com.wang17.myphone.database.Setting

@@ -31,7 +31,7 @@ import com.wang17.myphone.MainActivity
 import com.wang17.myphone.R
 import com.wang17.myphone.activity.StockPositionActivity
 import com.wang17.myphone.callback.CloudCallback
-import com.wang17.myphone.database.DataContext
+import com.wang17.myphone.dao.DataContext
 import com.wang17.myphone.model.Commodity
 import com.wang17.myphone.database.Position
 import com.wang17.myphone.database.Setting
@@ -332,13 +332,11 @@ class StockService : Service() {
                                 totalDiff += diff
 //                                e("${position.name} cost fund : $costFund , profit : $profit")
                             } catch (e: Exception) {
-                                Log.e("wangsc", "数据错误...")
-                                mDataContext.addRunLog("StockMediaTimerServic", "数据错误...", "")
+                                _Utils.printException(applicationContext,e)
                                 return@Runnable
                             }
                         } else {
-                            Log.e("wangsc", "数据错误...")
-                            mDataContext.addRunLog("StockMediaTimerServic", "数据错误...", "")
+                            mDataContext.addRunLog("StockMediaTimerServic", "fillStockInfoList() 连接失败...", "")
                         }
                     } else {
                         /**
@@ -474,8 +472,10 @@ class StockService : Service() {
                 }
                 //endregion
             } catch (e: Exception) {
-                if (!(e.message?.startsWith("failed to connect to hq.sinajs.cn") ?: false))
+                val msg = e.message?:""
+                if (!msg.startsWith("Failed to connect to")&&!msg.startsWith("timeout")){
                     _Utils.printException(applicationContext, e)
+                }
             }
         }).start()
     }

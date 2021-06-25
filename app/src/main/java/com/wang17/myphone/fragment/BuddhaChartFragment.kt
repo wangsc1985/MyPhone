@@ -10,6 +10,7 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.Toast
 import com.wang17.myphone.*
+import com.wang17.myphone.dao.DataContext
 import com.wang17.myphone.database.*
 import com.wang17.myphone.model.DateTime
 import com.wang17.myphone.model.Stock
@@ -17,8 +18,6 @@ import com.wang17.myphone.util.TradeUtils
 import com.wang17.myphone.util._SinaStockUtils
 import kotlinx.android.synthetic.main.fragment_chart_buddha.*
 import lecho.lib.hellocharts.model.*
-import lecho.lib.hellocharts.util.ChartUtils
-import lecho.lib.hellocharts.view.ColumnChartView
 import java.util.*
 import kotlin.collections.ArrayList
 

@@ -18,6 +18,7 @@ import android.widget.CalendarView.OnDateChangeListener
 import com.alibaba.fastjson.JSON
 import com.wang17.myphone.*
 import com.wang17.myphone.callback.CloudCallback
+import com.wang17.myphone.dao.DataContext
 import com.wang17.myphone.database.*
 import com.wang17.myphone.model.DateTime
 import com.wang17.myphone.model.StockInfo
@@ -621,7 +622,7 @@ class StockPositionHistoryActivity() : AppCompatActivity() {
                             return
                         }
                     } else {
-                        dc.addRunLog("StockPositionHistoryActivity", "获取数据失败...", "")
+                        dc.addRunLog("StockPositionHistoryActivity", "fillStockInfo.获取数据失败...", "")
                     }
                 } catch (e: Exception) {
                 }

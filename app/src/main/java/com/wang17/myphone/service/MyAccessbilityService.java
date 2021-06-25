@@ -9,7 +9,7 @@ import android.util.Log;
 import android.view.accessibility.AccessibilityEvent;
 import android.view.accessibility.AccessibilityNodeInfo;
 
-import com.wang17.myphone.database.DataContext;
+import com.wang17.myphone.dao.DataContext;
 import com.wang17.myphone.util._Utils;
 import com.wang17.myphone.database.Setting;
 import com.wang17.myphone.receiver.HeadsetPlugReceiver;

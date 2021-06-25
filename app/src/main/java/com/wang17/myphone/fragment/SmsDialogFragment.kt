@@ -1,8 +1,6 @@
 package com.wang17.myphone.fragment
 
-import android.content.Context
 import android.content.DialogInterface
-import android.graphics.Color
 import android.os.Bundle
 import android.support.v4.app.DialogFragment
 import android.support.v7.app.AlertDialog
@@ -11,19 +9,14 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.BaseAdapter
 import android.widget.LinearLayout
-import android.widget.ListView
 import android.widget.TextView
 import com.wang17.myphone.R
-import com.wang17.myphone.activity.SmsActivity
-import com.wang17.myphone.database.DataContext
+import com.wang17.myphone.dao.DataContext
 import com.wang17.myphone.database.PhoneMessage
 import com.wang17.myphone.database.Setting
 import com.wang17.myphone.model.DateTime
-import com.wang17.myphone.structure.SmsType
-import com.wang17.myphone.util.SmsHelper
 import com.wang17.myphone.util._Utils
 import kotlinx.android.synthetic.main.fragment_sms.*
-import java.util.regex.Pattern
 
 class SmsDialogFragment: DialogFragment() {
     private var smsList: List<PhoneMessage> = ArrayList()

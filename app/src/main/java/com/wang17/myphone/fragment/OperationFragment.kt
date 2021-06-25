@@ -18,11 +18,9 @@ import com.alibaba.fastjson.JSONArray
 import com.wang17.myphone.R
 import com.wang17.myphone.activity.*
 import com.wang17.myphone.callback.CloudCallback
-import com.wang17.myphone.callback.HttpCallback
-import com.wang17.myphone.database.DataContext
+import com.wang17.myphone.dao.DataContext
 import com.wang17.myphone.database.Setting
 import com.wang17.myphone.model.Lottery
-import com.wang17.myphone.service.StockService
 import com.wang17.myphone.util.*
 import com.wang17.myphone.view._Button
 import kotlinx.android.synthetic.main.fragment_button.*

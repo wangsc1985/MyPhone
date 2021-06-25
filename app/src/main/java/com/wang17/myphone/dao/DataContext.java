@@ -1,4 +1,4 @@
-package com.wang17.myphone.database;
+package com.wang17.myphone.dao;
 
 import android.content.ContentValues;
 import android.content.Context;
@@ -6,6 +6,27 @@ import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.util.Log;
 
+import com.wang17.myphone.dao.DatabaseHelper;
+import com.wang17.myphone.database.BankToDo;
+import com.wang17.myphone.database.BuddhaConfig;
+import com.wang17.myphone.database.BuddhaRecord;
+import com.wang17.myphone.database.BuddhaType;
+import com.wang17.myphone.database.CreditCard;
+import com.wang17.myphone.database.DayItem;
+import com.wang17.myphone.database.Loan;
+import com.wang17.myphone.database.LoanRecord;
+import com.wang17.myphone.database.Location;
+import com.wang17.myphone.database.MarkDay;
+import com.wang17.myphone.database.PhoneMessage;
+import com.wang17.myphone.database.PlayList;
+import com.wang17.myphone.database.Position;
+import com.wang17.myphone.database.RunLog;
+import com.wang17.myphone.database.Setting;
+import com.wang17.myphone.database.Song;
+import com.wang17.myphone.database.Statement;
+import com.wang17.myphone.database.TallyPlan;
+import com.wang17.myphone.database.TallyRecord;
+import com.wang17.myphone.database.Trade;
 import com.wang17.myphone.model.DateTime;
 import com.wang17.myphone.structure.SmsStatus;
 import com.wang17.myphone.structure.SmsType;

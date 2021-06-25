@@ -6,9 +6,8 @@ import android.content.Intent
 import android.util.Log
 import com.amap.api.maps.AMapUtils
 import com.amap.api.maps.model.LatLng
-import com.wang17.myphone.R
 import com.wang17.myphone.callback.CloudCallback
-import com.wang17.myphone.database.DataContext
+import com.wang17.myphone.dao.DataContext
 import com.wang17.myphone.database.Setting
 import com.wang17.myphone.model.DateTime
 import com.wang17.myphone.service.BuddhaService
@@ -84,7 +83,7 @@ class ScreenBroadcaseReceiver : BroadcastReceiver() {
                             }
                         }
                     } catch (e: Exception) {
-                        DataContext(context).addRunLog("err", "运行错误", e.message)
+                        _Utils.printException(context,e)
                     } finally {
                         preDateTime = now
                     }

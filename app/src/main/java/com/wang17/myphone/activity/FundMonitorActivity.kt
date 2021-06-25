@@ -17,7 +17,7 @@ import android.view.KeyEvent
 import android.view.Window
 import android.view.WindowManager
 import com.wang17.myphone.R
-import com.wang17.myphone.database.DataContext
+import com.wang17.myphone.dao.DataContext
 import com.wang17.myphone.model.StockInfo
 import com.wang17.myphone.database.Position
 import com.wang17.myphone.database.Setting

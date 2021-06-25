@@ -2,23 +2,18 @@ package com.wang17.myphone.activity
 
 import android.annotation.SuppressLint
 import android.content.DialogInterface
-import android.content.Intent
-import android.graphics.Color
 import android.os.Bundle
 import android.support.v7.app.AlertDialog
 import android.support.v7.app.AppCompatActivity
 import android.util.Log
-import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.*
 import com.wang17.myphone.R
-import com.wang17.myphone.database.DataContext
+import com.wang17.myphone.dao.DataContext
 import com.wang17.myphone.database.PhoneMessage
-import com.wang17.myphone.database.Setting
 import com.wang17.myphone.model.DateTime
 import com.wang17.myphone.util._Utils.printException
-import com.wang17.myphone.widget.MyWidgetProvider
 import kotlinx.android.synthetic.main.activity_sms.*
 import kotlinx.android.synthetic.main.widget_timer.*
 import java.util.*

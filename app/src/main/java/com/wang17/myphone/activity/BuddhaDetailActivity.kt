@@ -14,11 +14,12 @@ import com.wang17.myphone.model.DateTime
 import com.wang17.myphone.model.DateTime.Companion.toSpanString
 import com.wang17.myphone.database.BuddhaRecord
 import com.wang17.myphone.database.BuddhaType
-import com.wang17.myphone.database.DataContext
+import com.wang17.myphone.dao.DataContext
 import com.wang17.myphone.eventbus.EventBusMessage
 import com.wang17.myphone.eventbus.FromTotalCount
 import com.wang17.myphone.format
 import com.wang17.myphone.util._CloudUtils
+import com.wang17.myphone.util._Utils
 import com.wang17.myphone.util._Utils.printException
 import kotlinx.android.synthetic.main.activity_buddha_detail.*
 import kotlinx.android.synthetic.main.widget_timer.*
@@ -91,7 +92,7 @@ class BuddhaDetailActivity : AppCompatActivity(), OnActionFragmentBackListener {
                     }
                 }.show()
             } catch (e: Exception) {
-                dataContext.addRunLog("err", "修改buddha错误", e.message)
+                _Utils.printException(this,e)
             }
         }
         listView_records.onItemLongClickListener = OnItemLongClickListener { parent, view, position, id ->

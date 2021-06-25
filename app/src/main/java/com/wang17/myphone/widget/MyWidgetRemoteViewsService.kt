@@ -21,7 +21,7 @@ import java.io.EOFException
 import java.text.DecimalFormat
 import java.util.*
 import android.os.Handler
-import com.wang17.myphone.database.DataContext
+import com.wang17.myphone.dao.DataContext
 import kotlin.collections.ArrayList
 
 class MyWidgetRemoteViewsService : RemoteViewsService() {

@@ -24,7 +24,7 @@ import android.view.WindowManager
 import android.widget.ImageView
 import android.widget.TextView
 import com.wang17.myphone.R
-import com.wang17.myphone.database.DataContext
+import com.wang17.myphone.dao.DataContext
 import com.wang17.myphone.database.Setting
 import com.wang17.myphone.e
 import com.wang17.myphone.eventbus.EventBusMessage
@@ -322,7 +322,7 @@ class MuyuService : Service() {
             startTimeInMillis = System.currentTimeMillis()
             dc.editSetting(Setting.KEYS.muyu_startime, startTimeInMillis)
         } catch (e: Exception) {
-            dc.addRunLog("err", "pause or stop", e.message)
+            _Utils.printException(applicationContext,e)
         }
     }
 
@@ -351,7 +351,7 @@ class MuyuService : Service() {
                 dc.deleteSetting(Setting.KEYS.muyu_startime)
             }
         } catch (e: Exception) {
-            dc.addRunLog("err", "pause or stop", e.message)
+            _Utils.printException(applicationContext,e)
         }
     }
 

@@ -26,7 +26,8 @@ import android.view.View
 import android.widget.Toast
 import com.ta.utdid2.android.utils.AESUtils
 import com.wang17.myphone.MainActivity
-import com.wang17.myphone.database.DataContext
+import com.wang17.myphone.R
+import com.wang17.myphone.dao.DataContext
 import com.wang17.myphone.model.DateTime
 import com.wang17.myphone.receiver.LockReceiver
 import com.wang17.myphone.service.MyAccessbilityService
@@ -248,8 +249,9 @@ object _Utils {
     @JvmStatic
     fun printException(context: Context?, e: Exception) {
         try {
-            val msg = saveException(context, e)
-            AlertDialog.Builder(context!!).setMessage(msg).setCancelable(false).setPositiveButton("知道了", null).show()
+            saveException(context, e)
+            _SoundUtils.play(context, R.raw.bi,_SoundUtils.SoundType.SYSTEM)
+            Toast.makeText(context,e.message?:"运行错误",Toast.LENGTH_LONG).show()
         } catch (e1: Exception) {
         }
     }
@@ -389,7 +391,7 @@ object _Utils {
      * 释放设备电源锁
      */
     @JvmStatic
-    fun releaseWakeLock(context: Context?, wakeLock: WakeLock?) {
+    fun releaseWakeLock(context: Context, wakeLock: WakeLock?) {
         var wakeLock = wakeLock
         try {
             Log.e("wangsc", "解除唤醒锁: $wakeLock")

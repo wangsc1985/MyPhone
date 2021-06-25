@@ -30,7 +30,7 @@ import android.widget.TextView;
 
 import com.wang17.myphone.R;
 import com.wang17.myphone.callback.ReligiousCallBack;
-import com.wang17.myphone.database.DataContext;
+import com.wang17.myphone.dao.DataContext;
 import com.wang17.myphone.util._AnimationUtils;
 import com.wang17.myphone.util.CalendarHelper;
 import com.wang17.myphone.util.GanZhi;
@@ -40,6 +40,7 @@ import com.wang17.myphone.util._String;
 import com.wang17.myphone.model.CalendarItem;
 import com.wang17.myphone.model.DateTime;
 import com.wang17.myphone.model.SolarTerm;
+import com.wang17.myphone.util._Utils;
 
 import java.io.DataInputStream;
 import java.io.EOFException;
@@ -468,8 +469,7 @@ public class ReligiousFragment extends Fragment {
         catch (NumberFormatException e) {
         }
         catch (Exception e){
-            DataContext dc = new DataContext(getContext());
-            dc.addRunLog("err","运行错误",e.getMessage());
+            _Utils.printException(getContext(),e);
         }
     }
 

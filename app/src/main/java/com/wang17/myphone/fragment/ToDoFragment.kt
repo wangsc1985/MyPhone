@@ -15,9 +15,8 @@ import android.widget.BaseAdapter
 import android.widget.TextView
 import com.wang17.myphone.R
 import com.wang17.myphone.activity.SmsActivity
-import com.wang17.myphone.activity.ToDoActivity
 import com.wang17.myphone.database.BankToDo
-import com.wang17.myphone.database.DataContext
+import com.wang17.myphone.dao.DataContext
 import com.wang17.myphone.model.DateTime
 import com.wang17.myphone.util._DialogUtils
 import com.wang17.myphone.util._Utils

@@ -44,7 +44,7 @@ import com.wang17.myphone.R;
 import com.wang17.myphone.model.DateTime;
 import com.wang17.myphone.database.Location;
 import com.wang17.myphone.database.Setting;
-import com.wang17.myphone.database.DataContext;
+import com.wang17.myphone.dao.DataContext;
 import com.wang17.myphone.util._Session;
 import com.wang17.myphone.util._Utils;
 

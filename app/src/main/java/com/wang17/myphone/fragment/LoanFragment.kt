@@ -13,12 +13,11 @@ import android.widget.CalendarView
 import android.widget.EditText
 import android.widget.TextView
 import com.wang17.myphone.R
-import com.wang17.myphone.database.DataContext
+import com.wang17.myphone.dao.DataContext
 import com.wang17.myphone.database.Loan
 import com.wang17.myphone.database.LoanRecord
 import com.wang17.myphone.e
 import com.wang17.myphone.model.DateTime
-import com.wang17.myphone.toMyDecimal
 import kotlinx.android.synthetic.main.fragment_loan.*
 import java.lang.Exception
 import java.math.BigDecimal

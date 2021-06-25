@@ -1,28 +1,8 @@
 package com.wang17.myphone.activity
 
-import android.content.Intent
-import android.graphics.Color
 import android.os.Bundle
-import android.support.constraint.ConstraintLayout
-import android.support.design.widget.FloatingActionButton
 import android.support.v4.app.FragmentActivity
-import android.support.v7.app.AlertDialog
-import android.util.Log
-import android.view.View
-import android.view.ViewGroup
-import android.widget.BaseAdapter
-import android.widget.TextView
 import com.wang17.myphone.R
-import com.wang17.myphone.model.DateTime
-import com.wang17.myphone.model.DateTime.Companion.dayOffset
-import com.wang17.myphone.database.BankToDo
-import com.wang17.myphone.database.DataContext
-import com.wang17.myphone.util._DialogUtils
-import com.wang17.myphone.util._Utils
-import com.wang17.myphone.widget.MyWidgetProvider
-import kotlinx.android.synthetic.main.fragment_to_do.*
-import java.text.DecimalFormat
-import java.util.*
 
 class ToDoActivity : FragmentActivity() {
 //    private lateinit var dc: DataContext

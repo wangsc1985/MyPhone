@@ -11,7 +11,7 @@ import android.widget.*
 import android.widget.AdapterView.OnItemClickListener
 import android.widget.AdapterView.OnItemLongClickListener
 import com.wang17.myphone.R
-import com.wang17.myphone.database.DataContext
+import com.wang17.myphone.dao.DataContext
 import com.wang17.myphone.database.RunLog
 import com.wang17.myphone.util._Utils
 import com.wang17.myphone.util._Utils.e
@@ -74,8 +74,7 @@ class RunLogActivity : FragmentActivity() {
             listAdapter = RunlogListAdapter()
             listView_runlog.setAdapter(listAdapter)
         } catch (e: Exception) {
-            mDataContext.addRunLog("err", "运行错误", e.message)
-            e("RunLogActivity.onCreate  " + e.message!!)
+            _Utils.printException(this,e)
         }
     }
 

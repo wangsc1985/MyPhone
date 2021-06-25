@@ -5,8 +5,6 @@ import android.app.PendingIntent;
 import android.content.Intent;
 import android.media.MediaPlayer;
 import android.media.RingtoneManager;
-import android.os.PowerManager;
-import android.os.Vibrator;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
@@ -19,7 +17,7 @@ import android.widget.TextView;
 
 import com.wang17.myphone.R;
 import com.wang17.myphone.database.Setting;
-import com.wang17.myphone.database.DataContext;
+import com.wang17.myphone.dao.DataContext;
 import com.wang17.myphone.util._Session;
 import com.wang17.myphone.util._Utils;
 

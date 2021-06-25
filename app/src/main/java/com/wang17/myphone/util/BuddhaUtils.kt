@@ -3,7 +3,7 @@ package com.wang17.myphone.util
 import android.content.Context
 import com.wang17.myphone.model.DateTime
 import com.wang17.myphone.database.BuddhaRecord
-import com.wang17.myphone.database.DataContext
+import com.wang17.myphone.dao.DataContext
 import java.util.*
 import kotlin.collections.ArrayList
 

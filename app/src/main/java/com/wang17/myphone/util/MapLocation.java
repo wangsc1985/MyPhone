@@ -1,13 +1,9 @@
 package com.wang17.myphone.util;
 
-import android.content.Context;
-
 import com.amap.api.location.AMapLocation;
 import com.amap.api.location.AMapLocationClient;
 import com.amap.api.location.AMapLocationClientOption;
 import com.amap.api.location.AMapLocationListener;
-import com.wang17.myphone.database.DataContext;
-import com.wang17.myphone.database.Setting;
 
 /**
  * Created by Administrator on 2017/6/27.

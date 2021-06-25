@@ -14,7 +14,7 @@ import android.widget.RemoteViews
 import com.wang17.myphone.MainActivity
 import com.wang17.myphone.R
 import com.wang17.myphone.activity.ToDoActivity
-import com.wang17.myphone.database.DataContext
+import com.wang17.myphone.dao.DataContext
 import com.wang17.myphone.database.PhoneMessage
 import com.wang17.myphone.database.Setting
 import com.wang17.myphone.model.BankBill
