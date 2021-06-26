@@ -42,6 +42,7 @@
         <activity android:name=".activity.BuddhaChartActivity" />
         <activity android:name=".activity.ChartActivity" />
         <activity android:name=".activity.LoanActivity" />
+        <activity android:name=".activity.NianfoDarkRunActivity" />
         <activity
             android:name=".activity.DesktopDialogActivity"
             android:alwaysRetainTaskState="true"

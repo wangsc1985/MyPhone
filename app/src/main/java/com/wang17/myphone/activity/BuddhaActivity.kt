@@ -221,7 +221,7 @@ class BuddhaActivity : AppCompatActivity(), OnActionFragmentBackListener {
             try {
                 convertView = View.inflate(this@BuddhaActivity, R.layout.inflate_list_item_buddha_group, null)
                 val tvDate = convertView.findViewById<TextView>(R.id.tv_att_date)
-                val tvDuration = convertView.findViewById<TextView>(R.id.textView_monthDuration)
+                val tvDuration = convertView.findViewById<TextView>(R.id.tv_duration)
                 val tvTap = convertView.findViewById<TextView>(R.id.textView_monthTap)
                 val tvCount = convertView.findViewById<TextView>(R.id.textView_monthCount)
                 val groupInfo = groupList[groupPosition]
@@ -249,7 +249,7 @@ class BuddhaActivity : AppCompatActivity(), OnActionFragmentBackListener {
             try {
                 convertView = View.inflate(this@BuddhaActivity, R.layout.inflate_list_item_buddha_child, null)
                 val tvDate = convertView.findViewById<TextView>(R.id.tv_att_date)
-                val tvDuration = convertView.findViewById<TextView>(R.id.textView_monthDuration)
+                val tvDuration = convertView.findViewById<TextView>(R.id.tv_duration)
                 val tvTap = convertView.findViewById<TextView>(R.id.textView_monthTap)
                 val tvCount = convertView.findViewById<TextView>(R.id.textView_monthCount)
                 val tvItem = convertView.findViewById<TextView>(R.id.tv_item)

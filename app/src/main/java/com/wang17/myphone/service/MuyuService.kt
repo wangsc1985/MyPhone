@@ -73,27 +73,13 @@ class MuyuService : Service() {
     }
 
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
-        return super.onStartCommand(intent, flags, startId)
-        e("buddha service onStartCommand")
-    }
 
-    @RequiresApi(Build.VERSION_CODES.M)
-    override fun onCreate() {
-        super.onCreate()
-        e("buddha service onCreate")
         try {
-            dc = DataContext(applicationContext)
             isShowFloatWindow = false
             circleSecond = (dc.getSetting(Setting.KEYS.muyu_period,666).int*1.080).toInt()*4
             muyu_count = dc.getSetting(Setting.KEYS.muyu_count,20).int
-            type = dc.getSetting(Setting.KEYS.muyu_type,0).int
+            type = intent?.getIntExtra("type",0)?:0
 
-            guSound = SoundPool(100, AudioManager.STREAM_MUSIC, 0)
-            guSound.load(this, R.raw.gu, 1)
-            muyuSound = SoundPool(100, AudioManager.STREAM_MUSIC, 0)
-            muyuSound.load(this, R.raw.muyu, 1)
-            yqSound = SoundPool(100, AudioManager.STREAM_MUSIC,0)
-            yqSound.load(this,R.raw.yq,1)
             val setting = dc.getSetting(Setting.KEYS.muyu_duration)
             setting?.let {
                 savedDuration = setting.long
@@ -104,7 +90,6 @@ class MuyuService : Service() {
             volume?.let {
                 setMediaVolume(it.int)
             }
-            mAm = getSystemService(AUDIO_SERVICE) as AudioManager
             startTimeInMillis = System.currentTimeMillis()
 
             startBackgroundMediaPlayer()
@@ -118,7 +103,35 @@ class MuyuService : Service() {
             filter.addAction(AudioManager.ACTION_AUDIO_BECOMING_NOISY)
             registerReceiver(buddhaReceiver, filter)
         } catch (e: Exception) {
-            e("buddha service onCreate" + e.message)
+            _Utils.printException(applicationContext,e)
+        }
+
+        return super.onStartCommand(intent, flags, startId)
+    }
+
+    @RequiresApi(Build.VERSION_CODES.M)
+    override fun onCreate() {
+        super.onCreate()
+        e("buddha service onCreate")
+        try {
+            dc = DataContext(applicationContext)
+
+            guSound = SoundPool(100, AudioManager.STREAM_MUSIC, 0)
+            guSound.load(this, R.raw.gu, 1)
+            muyuSound = SoundPool(100, AudioManager.STREAM_MUSIC, 0)
+            muyuSound.load(this, R.raw.muyu, 1)
+            yqSound = SoundPool(100, AudioManager.STREAM_MUSIC,0)
+            yqSound.load(this,R.raw.yq,1)
+            mAm = getSystemService(AUDIO_SERVICE) as AudioManager
+            //
+            val filter = IntentFilter()
+            filter.addAction(ACTION_BUDDHA_PLAYE)
+            filter.addAction(ACTION_BUDDHA_PAUSE)
+            filter.addAction(BluetoothHeadset.ACTION_CONNECTION_STATE_CHANGED)
+            filter.addAction(AudioManager.ACTION_AUDIO_BECOMING_NOISY)
+            registerReceiver(buddhaReceiver, filter)
+        } catch (e: Exception) {
+            _Utils.printException(applicationContext,e)
         }
     }
 
@@ -164,6 +177,9 @@ class MuyuService : Service() {
                                     isDaKnock=true
                                 }
                             }
+                            2->{
+                                _Utils.zhendong(applicationContext,50)
+                            }
                         }
                         count++
                     }else if(count++/muyu_count%2==0) {
@@ -179,6 +195,9 @@ class MuyuService : Service() {
                                 }else{
                                     isDaKnock=true
                                 }
+                            }
+                            2->{
+                                _Utils.zhendong(applicationContext,50)
                             }
                         }
                     }

@@ -218,7 +218,7 @@ class BuddhaService : Service() {
             }
             EventBus.getDefault().unregister(this)
 
-            stopForeground(true)
+//            stopForeground(true)
 //            dc.deleteSetting(Setting.KEYS.tmp_tt)
         } catch (e: Exception) {
             _Utils.printException(applicationContext,e)

@@ -68,11 +68,11 @@ public class Setting{
         top_title,bottom_title,
         buddha_service_running,
         几圈后自动结束念佛, is念佛自动暂停,
-        muyu_duration,muyu_startime,muyu_stoptime,muyu_type,
+        muyu_duration,muyu_startime,muyu_stoptime,
         is填充图表区域, 图表开始日期,
         sms_last_time,
         is查看念佛记录需要验证,
-        buddha_float_window_x, buddha_float_window_y,buddha_float_window_width, buddha_float_window_size, is显示念佛悬浮窗,
+        buddha_float_window_x, buddha_float_window_y,buddha_float_window_width, buddha_float_window_size, is显示念佛悬浮窗, is暂存处理对话框,
          彩票, is念佛整圈响引罄, is账户超额提醒,
 
         balanceABC, balanceICBC,balanceLowABC,balanceLowICBC,

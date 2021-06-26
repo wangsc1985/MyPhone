@@ -31,7 +31,7 @@
             app:layout_constraintTop_toTopOf="parent" />
 
         <TextView
-            android:id="@+id/textView_monthDuration"
+            android:id="@+id/tv_duration"
             android:layout_width="60dp"
             android:layout_height="wrap_content"
             android:layout_weight="1"
@@ -72,7 +72,7 @@
             android:textSize="12sp"
             android:textStyle="bold"
             app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintEnd_toStartOf="@+id/textView_monthDuration"
+            app:layout_constraintEnd_toStartOf="@+id/tv_duration"
             app:layout_constraintTop_toTopOf="parent" />
 
     </android.support.constraint.ConstraintLayout>

@@ -18,6 +18,7 @@ import com.wang17.myphone.*
 import com.wang17.myphone.activity.BuddhaActivity
 import com.wang17.myphone.activity.BuddhaChartActivity
 import com.wang17.myphone.activity.BuddhaDetailActivity
+import com.wang17.myphone.activity.NianfoDarkRunActivity
 import com.wang17.myphone.callback.CloudCallback
 import com.wang17.myphone.callback.DialogChoosenCallback
 import com.wang17.myphone.dao.DataContext
@@ -507,9 +508,19 @@ class BuddhaFragment : Fragment() {
                 dc.deleteSetting(Setting.KEYS.muyu_startime)
                 dc.deleteSetting(Setting.KEYS.muyu_stoptime)
             } else {
-                AlertDialog.Builder(context).setItems(arrayOf("木鱼", "木鱼+引擎"), DialogInterface.OnClickListener { dialog, which ->
-                    dc.editSetting(Setting.KEYS.muyu_type, which)
-                    context?.startService(Intent(context!!, MuyuService::class.java))
+                AlertDialog.Builder(context).setItems(arrayOf("木鱼", "木鱼+引擎", "震动"), DialogInterface.OnClickListener { dialog, which ->
+                    when (which) {
+                        0, 1 -> {
+                            val intent = Intent(context!!, MuyuService::class.java)
+                            intent.putExtra("type", which)
+                            context?.startService(intent)
+                        }
+                        2 -> {
+                            val intent = Intent(context!!, NianfoDarkRunActivity::class.java)
+                            intent.putExtra("period", which)
+                            context?.startActivity(intent)
+                        }
+                    }
                     animatorSuofang(fab_muyu_animator)
                 }).show()
             }
@@ -529,7 +540,22 @@ class BuddhaFragment : Fragment() {
                 if (_Utils.isServiceRunning(context!!, MuyuService::class.qualifiedName!!)) {
                     isFromConfigChanged = true
                     context!!.stopService(Intent(context!!, MuyuService::class.java))
-                    context!!.startService(Intent(context!!, MuyuService::class.java))
+
+                    AlertDialog.Builder(context).setItems(arrayOf("木鱼", "木鱼+引擎", "震动"), DialogInterface.OnClickListener { dialog, which ->
+                        when (which) {
+                            0, 1 -> {
+                                val intent = Intent(context!!, MuyuService::class.java)
+                                intent.putExtra("type", which)
+                                context?.startService(intent)
+                            }
+                            2 -> {
+                                val intent = Intent(context!!, NianfoDarkRunActivity::class.java)
+                                intent.putExtra("period", which)
+                                context?.startActivity(intent)
+                            }
+                        }
+                        animatorSuofang(fab_muyu_animator)
+                    }).show()
                 }
             }.show()
 
@@ -546,6 +572,32 @@ class BuddhaFragment : Fragment() {
             startOrStopBuddha()
             true
         }
+
+//        fab_list.setOnClickListener {
+//
+//            if (dc.getSetting(Setting.KEYS.is查看念佛记录需要验证, false).boolean) {
+//                _FingerUtils.showFingerPrintDialog(activity!!) {
+//                    val intent = Intent(context, BuddhaDetailActivity::class.java)
+//                    intent.putExtra("start", System.currentTimeMillis())
+//                    startActivity(intent)
+//                }
+//            } else {
+//                val intent = Intent(context, BuddhaDetailActivity::class.java)
+//                intent.putExtra("start", System.currentTimeMillis())
+//                startActivity(intent)
+//            }
+//        }
+//        fab_list.setOnLongClickListener {
+//
+//            if (dc.getSetting(Setting.KEYS.is查看念佛记录需要验证, false).boolean) {
+//                _FingerUtils.showFingerPrintDialog(activity!!) {
+//                    startActivity(Intent(context, BuddhaActivity::class.java))
+//                }
+//            } else {
+//                startActivity(Intent(context, BuddhaActivity::class.java))
+//            }
+//            true
+//        }
         super.onViewCreated(view, savedInstanceState)
     }
 
@@ -785,7 +837,6 @@ class BuddhaFragment : Fragment() {
                     } else {
                         uiHandler.post {
                             Toast.makeText(context, result.toString(), Toast.LENGTH_LONG).show()
-//                            AlertDialog.Builder(context).setMessage(result.toString()).show()
                         }
                     }
                 }
@@ -849,34 +900,39 @@ class BuddhaFragment : Fragment() {
                         }
                         return@post
                     }
-                    val dialog = AlertDialog.Builder(context).setMessage("缓存中存在念佛记录\n[ ${msg} ]\n是否存档？")
-                    dialog.setNegativeButton("存档") { dialog, which ->
-                        buildBuddhaAndSave(tap.toInt() * 1080, duration, stoptimeInMillis, buddhaType.toBuddhaType()) { code, result ->
-                            if (code == 0) {
-                                dc.deleteSetting(Setting.KEYS.buddha_duration)
-                                dc.deleteSetting(Setting.KEYS.buddha_stoptime)
-                                refreshTotalView()
-                                uiHandler.post {
-                                    tv_time.text = ""
-                                    Toast.makeText(context, result.toString(), Toast.LENGTH_LONG).show()
+
+                    if (dc.getSetting(Setting.KEYS.is暂存处理对话框, true).boolean) {
+                        val dialog = AlertDialog.Builder(context).setMessage("缓存中存在念佛记录\n[ ${msg} ]\n是否存档？")
+                        dialog.setNegativeButton("存档") { dialog, which ->
+                            buildBuddhaAndSave(tap.toInt() * 1080, duration, stoptimeInMillis, buddhaType.toBuddhaType()) { code, result ->
+                                if (code == 0) {
+                                    dc.deleteSetting(Setting.KEYS.buddha_duration)
+                                    dc.deleteSetting(Setting.KEYS.buddha_stoptime)
+                                    refreshTotalView()
+                                    uiHandler.post {
+                                        tv_time.text = ""
+                                        Toast.makeText(context, result.toString(), Toast.LENGTH_LONG).show()
 //                                    AlertDialog.Builder(context).setMessage(result.toString()).show()
+                                    }
                                 }
+                                callback?.excute(code, result)
                             }
-                            callback?.excute(code, result)
                         }
+                        dialog.setNeutralButton("丢弃") { dialog, which ->
+                            dc.deleteSetting(Setting.KEYS.buddha_duration)
+                            dc.deleteSetting(Setting.KEYS.buddha_stoptime)
+                            tv_time.text = ""
+                            callback?.excute(0, "丢弃完毕！")
+                        }
+                        if (source == BuddhaSource.点击开始按钮) {
+                            dialog.setPositiveButton("使用") { dialog, which ->
+                                callback?.excute(0, "")
+                            }.setCancelable(false)
+                        }
+                        dialog.show()
+                    } else {
+                        callback?.excute(0, "继续使用")
                     }
-                    dialog.setNeutralButton("丢弃") { dialog, which ->
-                        dc.deleteSetting(Setting.KEYS.buddha_duration)
-                        dc.deleteSetting(Setting.KEYS.buddha_stoptime)
-                        tv_time.text = ""
-                        callback?.excute(0, "丢弃完毕！")
-                    }
-                    if (source == BuddhaSource.点击开始按钮) {
-                        dialog.setPositiveButton("使用") { dialog, which ->
-                            callback?.excute(0, "")
-                        }.setCancelable(false)
-                    }
-                    dialog.show()
 
                 } else {
                     dc.deleteSetting(Setting.KEYS.buddha_duration)
@@ -885,6 +941,7 @@ class BuddhaFragment : Fragment() {
                     uiHandler.post {
                         tv_time.text = ""
                     }
+                    callback?.excute(0, "重置完毕！")
                 }
             }
         } else {

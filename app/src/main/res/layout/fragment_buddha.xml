@@ -247,55 +247,11 @@
         android:id="@+id/sw_float_window"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        app:layout_constraintBottom_toTopOf="@+id/fab_buddha"
-        app:layout_constraintEnd_toEndOf="@+id/fab_buddha"
-        app:layout_constraintStart_toStartOf="@+id/fab_buddha" />
+        app:layout_constraintBottom_toTopOf="@+id/layout_operation"
+        app:layout_constraintEnd_toEndOf="@+id/layout_operation"
+        app:layout_constraintStart_toStartOf="@+id/layout_operation" />
 
-    <android.support.design.widget.FloatingActionButton
-        android:id="@+id/fab_muyu"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_margin="10dp"
-        android:layout_marginEnd="24dp"
-        android:layout_weight="1"
-        android:clickable="true"
-        app:elevation="3dp"
-        app:fabSize="normal"
-        app:layout_constraintBottom_toBottomOf="@+id/fab_buddha"
-        app:layout_constraintEnd_toStartOf="@+id/fab_buddha"
-        app:layout_constraintTop_toTopOf="@+id/fab_buddha"
-        app:srcCompat="@drawable/muyu" />
-
-    <android.support.design.widget.FloatingActionButton
-        android:id="@+id/fab_buddha"
-        android:layout_width="55dp"
-        android:layout_height="wrap_content"
-        android:layout_margin="10dp"
-        android:clickable="true"
-        android:src="@drawable/ic_nf"
-        app:backgroundTint="@color/colorAccent"
-        app:elevation="3dp"
-        app:fabSize="normal"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="@+id/guideline1" />
-
-    <android.support.design.widget.FloatingActionButton
-        android:id="@+id/fab_stock"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_margin="10dp"
-        android:clickable="true"
-        app:backgroundTint="@android:color/holo_orange_light"
-        app:elevation="3dp"
-        app:fabSize="normal"
-        app:layout_constraintBottom_toBottomOf="@+id/fab_buddha"
-        app:layout_constraintStart_toEndOf="@+id/fab_buddha"
-        app:layout_constraintTop_toTopOf="@+id/fab_buddha"
-        app:srcCompat="@drawable/stock" />
-
-<!--    <NumberPicker-->
+    <!--    <NumberPicker-->
 <!--        android:id="@+id/np_target_tap"-->
 <!--        android:layout_width="wrap_content"-->
 <!--        android:layout_height="wrap_content"-->
@@ -304,6 +260,51 @@
 <!--        app:layout_constraintEnd_toEndOf="parent"-->
 <!--        app:layout_constraintStart_toEndOf="@+id/fab_stock"-->
 <!--        app:layout_constraintTop_toTopOf="@+id/guideline1" />-->
+    <LinearLayout
+        android:id="@+id/layout_operation"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/frameLayout7">
+
+        <android.support.design.widget.FloatingActionButton
+            android:id="@+id/fab_muyu"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_margin="10dp"
+            android:layout_weight="1"
+            android:clickable="true"
+            android:visibility="visible"
+            app:elevation="3dp"
+            app:fabSize="normal"
+            app:srcCompat="@drawable/muyu" />
+
+        <android.support.design.widget.FloatingActionButton
+            android:id="@+id/fab_buddha"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_margin="10dp"
+            android:clickable="true"
+            android:src="@drawable/ic_nf"
+            app:backgroundTint="@color/colorAccent"
+            app:elevation="3dp"
+            app:fabSize="normal" />
+
+        <android.support.design.widget.FloatingActionButton
+            android:id="@+id/fab_stock"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_margin="10dp"
+            android:clickable="true"
+            app:backgroundTint="@android:color/holo_orange_light"
+            app:elevation="3dp"
+            app:fabSize="normal"
+            app:srcCompat="@drawable/stock" />
+    </LinearLayout>
+
     <TextView
         android:id="@+id/tv_msg"
         android:layout_width="40dp"
@@ -315,9 +316,9 @@
         android:textStyle="bold"
         android:visibility="visible"
         app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="@+id/fab_stock"
-        app:layout_constraintStart_toStartOf="@+id/fab_muyu"
-        app:layout_constraintTop_toBottomOf="@+id/fab_buddha" />
+        app:layout_constraintEnd_toEndOf="@+id/layout_operation"
+        app:layout_constraintStart_toStartOf="@+id/layout_operation"
+        app:layout_constraintTop_toBottomOf="@+id/layout_operation" />
 
     <ImageView
         android:id="@+id/iv_volume_minus"

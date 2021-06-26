@@ -205,7 +205,7 @@ class BuddhaDetailActivity : AppCompatActivity(), OnActionFragmentBackListener {
                 val finger = convertView.findViewById<ImageView>(R.id.iv_finger)
                 val tv_date = convertView.findViewById<TextView>(R.id.tv_att_date)
                 val tv_item = convertView.findViewById<TextView>(R.id.tv_item)
-                val tv_duration = convertView.findViewById<TextView>(R.id.textView_monthDuration)
+                val tv_duration = convertView.findViewById<TextView>(R.id.tv_duration)
                 val tv_type = convertView.findViewById<TextView>(R.id.tv_type)
                 val tv_number = convertView.findViewById<TextView>(R.id.textView_monthCount)
                 tv_date.text = "" + buddha.startTime.hourStr + "点" + buddha.startTime.miniteStr + "分"
