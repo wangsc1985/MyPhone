@@ -54,10 +54,6 @@ class BuddhaFragment : Fragment() {
         try {
             refreshTotalView()
             val size = dc.getPhoneMessages(dc.getSetting(Setting.KEYS.sms_last_time, DateTime.today.timeInMillis).long).size
-//        val dateTime = DateTime(dc.getSetting(Setting.KEYS.sms_last_time, DateTime.today.timeInMillis).long)
-
-//        val sms = SmsHelper.getSMS(context,SmsType.接收到,dateTime)
-//        var size = sms.size
             if (size > 0) {
                 uiHandler.post {
                     tv_msg.visibility = View.VISIBLE
@@ -101,7 +97,6 @@ class BuddhaFragment : Fragment() {
             }
             _CloudUtils.loadBuddha(context!!, time) { code, result ->
                 if (code == 0) {
-                    e(result)
                     val jsonArray = JSON.parseArray(result.toString())
                     var buddhaS = ArrayList<BuddhaRecord>()
                     for (i in jsonArray.indices) {
@@ -118,7 +113,6 @@ class BuddhaFragment : Fragment() {
                     uiHandler.post {
                         if (buddhaS.size > 0) {
                             Toast.makeText(context, "新增${buddhaS.size}条记录", Toast.LENGTH_LONG).show()
-                            //                            AlertDialog.Builder(context).setMessage("新增${buddhaS.size}条记录").show()
                         }
                     }
                     refreshTotalView()
@@ -173,15 +167,26 @@ class BuddhaFragment : Fragment() {
 
         EventBus.getDefault().post(EventBusMessage.getInstance(FromTotalCount(), (totalDayCount / 1080).toString()))
 
-        val setting = dc.getSetting(Setting.KEYS.buddha_duration)
-        setting?.let {
-            val duration = it.long
+        var setting = dc.getSetting(Setting.KEYS.buddha_duration)
+        if(setting!=null){
+            val duration = setting.long
             val second = duration % 60000 / 1000
             val miniteT = duration / 60000
             val minite = miniteT % 60
             val hour = miniteT / 60
             var tap = (duration / 1000 / circleSecond).toInt()
-            tv_time.text = "$hour:${if (minite < 10) "0" + minite else minite}:${if (second < 10) "0" + second else second} \t $tap \t "
+            tv_time.text = "$hour:${if (minite < 10) "0" + minite else minite}:${if (second < 10) "0" + second else second}  $tap"
+        }else{
+            setting = dc.getSetting(Setting.KEYS.buddha_startime)
+            setting?.let{
+                val duration = System.currentTimeMillis() - setting.long
+                val second = duration % 60000 / 1000
+                val miniteT = duration / 60000
+                val minite = miniteT % 60
+                val hour = miniteT / 60
+                var tap = (duration / 1000 / circleSecond).toInt()
+                tv_time.text = "$hour:${if (minite < 10) "0" + minite else minite}:${if (second < 10) "0" + second else second}  $tap"
+            }
         }
     }
 
@@ -205,18 +210,10 @@ class BuddhaFragment : Fragment() {
             }
         }
 
-
-//        np_target_tap.minValue = 2
-//        np_target_tap.maxValue = 24
-//        np_target_tap.displayedValues = arrayOf("2","3","4","5","6","7","8","9","10","11","12","13","14","15","16","17","18","19","20","21","22","23","24")
-//        np_target_tap.value = dc.getSetting(Setting.KEYS.几圈后自动结束念佛,12).int
-//        np_target_tap.descendantFocusability = NumberPicker.FOCUS_BLOCK_DESCENDANTS // 禁止对话框打开后数字选择框被选中
-
         iv_speed_add.setOnClickListener {
             try {
                 val bf = getBuddhaConfig()
                 bf.speed = (bf.speed + 0.01).format(2).toFloat()
-//            bf.speed = ( bf.speed.toBigDecimal().setScale(2,BigDecimal.ROUND_HALF_UP) + 0.01.toBigDecimal()).toFloat()
                 dc.editBuddhaConfig(bf)
 
                 loadBuddhaName()
@@ -230,7 +227,6 @@ class BuddhaFragment : Fragment() {
             try {
                 val bf = getBuddhaConfig()
                 bf.speed = (bf.speed - 0.01).format(2).toFloat()
-//            bf.speed = ( bf.speed.toBigDecimal().setScale(2,BigDecimal.ROUND_HALF_UP) - 0.01.toBigDecimal()).toFloat()
                 dc.editBuddhaConfig(bf)
 
                 loadBuddhaName()
@@ -517,7 +513,7 @@ class BuddhaFragment : Fragment() {
                         }
                         2 -> {
                             val intent = Intent(context!!, NianfoDarkRunActivity::class.java)
-                            intent.putExtra("period", which)
+                            intent.putExtra("period", dc.getSetting(Setting.KEYS.muyu_period,1000).int)
                             context?.startActivity(intent)
                         }
                     }
@@ -550,7 +546,7 @@ class BuddhaFragment : Fragment() {
                             }
                             2 -> {
                                 val intent = Intent(context!!, NianfoDarkRunActivity::class.java)
-                                intent.putExtra("period", which)
+                                intent.putExtra("period", dc.getSetting(Setting.KEYS.muyu_period,1000).int)
                                 context?.startActivity(intent)
                             }
                         }

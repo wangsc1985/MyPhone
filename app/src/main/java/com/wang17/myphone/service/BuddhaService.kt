@@ -108,10 +108,10 @@ class BuddhaService : Service() {
                 yqSound = SoundPool(100, AudioManager.STREAM_MUSIC, 0)
                 yqSound.load(this, R.raw.yq, 1)
 
-                val set = dc.getSetting(Setting.KEYS.buddha_duration)
-                set?.let {
-                    setting_duration = set.long
-                }
+//                val set = dc.getSetting(Setting.KEYS.buddha_duration)
+//                set?.let {
+//                    setting_duration = set.long
+//                }
                 yq_period = dc.getSetting(Setting.KEYS.yq_period, 1000).long
                 mAm = getSystemService(AUDIO_SERVICE) as AudioManager
                 startTimeInMillis = System.currentTimeMillis()
@@ -701,13 +701,6 @@ class BuddhaService : Service() {
                 val durationDay = dbDuration + setting_duration
                 notificationCountDay = dbCount + notificationCount
                 notificationTimeDay = durationToTimeString(durationDay)
-                //
-                dc.getSetting(Setting.KEYS.buddha_duration)?.let {
-                    setting_duration = it.long
-                }
-                dc.getSetting(Setting.KEYS.buddha_stoptime)?.let {
-                    setting_stoptime = it.long
-                }
             }
 
         } else {
@@ -718,6 +711,15 @@ class BuddhaService : Service() {
                 restartTimer()
                 setBuddhaVolume()
             }
+        }
+        //
+        dc.getSetting(Setting.KEYS.buddha_duration)?.let {
+            setting_duration = it.long
+            dc.deleteSetting(Setting.KEYS.buddha_duration)
+        }
+        dc.getSetting(Setting.KEYS.buddha_stoptime)?.let {
+            setting_stoptime = it.long
+            dc.deleteSetting(Setting.KEYS.buddha_stoptime)
         }
         startTimer()
         showFloatingWindow()

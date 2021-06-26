@@ -49,7 +49,7 @@ class NianfoDarkRunActivity : AppCompatActivity() {
         val batteryManager = getSystemService(BATTERY_SERVICE) as BatteryManager
         val battery = batteryManager.getIntProperty(BatteryManager.BATTERY_PROPERTY_CAPACITY)
         dc.editSetting(Setting.KEYS.battery, battery)
-        muyu_period = intent.getLongExtra("period",1000)
+        muyu_period = intent.getIntExtra("period",1000).toLong()
         /**
          * 监听
          */
