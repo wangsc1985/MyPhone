@@ -36,6 +36,7 @@ import org.greenrobot.eventbus.Subscribe
 import org.greenrobot.eventbus.ThreadMode
 import java.text.DecimalFormat
 import java.util.*
+import kotlin.collections.ArrayList
 
 class BuddhaFragment : Fragment() {
 
@@ -51,7 +52,7 @@ class BuddhaFragment : Fragment() {
 
         try {
             refreshTotalView()
-            val size = dc.getPhoneMessages(dc.getSetting(Setting.KEYS.sms_last_time,  DateTime.today.timeInMillis).long).size
+            val size = dc.getPhoneMessages(dc.getSetting(Setting.KEYS.sms_last_time, DateTime.today.timeInMillis).long).size
 //        val dateTime = DateTime(dc.getSetting(Setting.KEYS.sms_last_time, DateTime.today.timeInMillis).long)
 
 //        val sms = SmsHelper.getSMS(context,SmsType.接收到,dateTime)
@@ -61,7 +62,7 @@ class BuddhaFragment : Fragment() {
                     tv_msg.visibility = View.VISIBLE
                 }
                 _Utils.zhendong(context!!, 100)
-                EventBus.getDefault().post(EventBusMessage.getInstance(ChangeFragmentTab(),"2"))
+                EventBus.getDefault().post(EventBusMessage.getInstance(ChangeFragmentTab(), "2"))
             } else {
                 uiHandler.post {
                     tv_msg.visibility = View.GONE
@@ -98,32 +99,32 @@ class BuddhaFragment : Fragment() {
                 time = buddha.startTime
             }
             _CloudUtils.loadBuddha(context!!, time) { code, result ->
-                    if (code == 0) {
-                        e(result)
-                        val jsonArray = JSON.parseArray(result.toString())
-                        var buddhaS = ArrayList<BuddhaRecord>()
-                        for (i in jsonArray.indices) {
-                            val startTime = _JsonUtils.getValueByKey(jsonArray[i], "startTime").toLong()
-                            val duration = _JsonUtils.getValueByKey(jsonArray[i], "duration").toLong()
-                            val count = _JsonUtils.getValueByKey(jsonArray[i], "count").toInt()
-                            val summary = _JsonUtils.getValueByKey(jsonArray[i], "summary")
-                            val type = _JsonUtils.getValueByKey(jsonArray[i], "type").toInt()
-                            buddhaS.add(BuddhaRecord(DateTime(startTime), duration, count, type.toBuddhaType(), summary))
-                        }
-
-                        dc.addBuddhas(buddhaS)
-
-                        uiHandler.post {
-                            if (buddhaS.size > 0) {
-                                Toast.makeText(context, "新增${buddhaS.size}条记录", Toast.LENGTH_LONG).show()
-    //                            AlertDialog.Builder(context).setMessage("新增${buddhaS.size}条记录").show()
-                            }
-                        }
-                        refreshTotalView()
+                if (code == 0) {
+                    e(result)
+                    val jsonArray = JSON.parseArray(result.toString())
+                    var buddhaS = ArrayList<BuddhaRecord>()
+                    for (i in jsonArray.indices) {
+                        val startTime = _JsonUtils.getValueByKey(jsonArray[i], "startTime").toLong()
+                        val duration = _JsonUtils.getValueByKey(jsonArray[i], "duration").toLong()
+                        val count = _JsonUtils.getValueByKey(jsonArray[i], "count").toInt()
+                        val summary = _JsonUtils.getValueByKey(jsonArray[i], "summary")
+                        val type = _JsonUtils.getValueByKey(jsonArray[i], "type").toInt()
+                        buddhaS.add(BuddhaRecord(DateTime(startTime), duration, count, type.toBuddhaType(), summary))
                     }
+
+                    dc.addBuddhas(buddhaS)
+
+                    uiHandler.post {
+                        if (buddhaS.size > 0) {
+                            Toast.makeText(context, "新增${buddhaS.size}条记录", Toast.LENGTH_LONG).show()
+                            //                            AlertDialog.Builder(context).setMessage("新增${buddhaS.size}条记录").show()
+                        }
+                    }
+                    refreshTotalView()
+                }
             }
         } catch (e: Exception) {
-            _Utils.printException(context,e)
+            _Utils.printException(context, e)
         }
     }
 
@@ -169,7 +170,7 @@ class BuddhaFragment : Fragment() {
             tv_dayTotal.setText("${hourS1}${miniteS1}  ${formatter.format(totalDayCount)}  ${totalDayCount / 1080}圈")
         }
 
-        EventBus.getDefault().post(EventBusMessage.getInstance(FromTotalCount(),(totalDayCount/1080).toString()))
+        EventBus.getDefault().post(EventBusMessage.getInstance(FromTotalCount(), (totalDayCount / 1080).toString()))
 
         val setting = dc.getSetting(Setting.KEYS.buddha_duration)
         setting?.let {
@@ -198,7 +199,7 @@ class BuddhaFragment : Fragment() {
         tv_msg.setOnClickListener {
             _FingerUtils.showFingerPrintDialog(activity!!) {
                 val dialog = SmsDialogFragment()
-                dialog.show(activity!!.supportFragmentManager,"sms")
+                dialog.show(activity!!.supportFragmentManager, "sms")
                 tv_msg.visibility = View.GONE
             }
         }
@@ -221,7 +222,7 @@ class BuddhaFragment : Fragment() {
                 EventBus.getDefault().post(EventBusMessage.getInstance(FromBuddhaConfigUpdate(), ""))
                 _Utils.zhendong70(context!!)
             } catch (e: Exception) {
-                _Utils.printException(context,e)
+                _Utils.printException(context, e)
             }
         }
         iv_speed_minus.setOnClickListener {
@@ -235,7 +236,7 @@ class BuddhaFragment : Fragment() {
                 EventBus.getDefault().post(EventBusMessage.getInstance(FromBuddhaConfigUpdate(), ""))
                 _Utils.zhendong70(context!!)
             } catch (e: Exception) {
-                _Utils.printException(context,e)
+                _Utils.printException(context, e)
             }
         }
         iv_pitch_add.setOnClickListener {
@@ -248,7 +249,7 @@ class BuddhaFragment : Fragment() {
                 EventBus.getDefault().post(EventBusMessage.getInstance(FromBuddhaConfigUpdate(), ""))
                 _Utils.zhendong70(context!!)
             } catch (e: Exception) {
-                _Utils.printException(context,e)
+                _Utils.printException(context, e)
             }
         }
         iv_pitch_minus.setOnClickListener {
@@ -261,7 +262,7 @@ class BuddhaFragment : Fragment() {
                 EventBus.getDefault().post(EventBusMessage.getInstance(FromBuddhaConfigUpdate(), ""))
                 _Utils.zhendong70(context!!)
             } catch (e: Exception) {
-                _Utils.printException(context,e)
+                _Utils.printException(context, e)
             }
         }
 
@@ -336,7 +337,7 @@ class BuddhaFragment : Fragment() {
                     val bf = dc.getBuddhaConfig(_Session.BUDDHA_MUSIC_NAME_ARR[which], file.length())
 
                     if (bf == null) {
-                        dc.addBuddhaConfig(BuddhaConfig(_Session.BUDDHA_MUSIC_NAME_ARR[which], file.length(), "md5", 1.0f, 1.0f, 11, 600))
+                        dc.addBuddhaConfig(BuddhaConfig(_Session.BUDDHA_MUSIC_NAME_ARR[which], file.length(), "md5", 1.0f, 1.0f, BuddhaType.计数念佛.toInt(), 600))
                         updateConfig()
                     } else {
                         circleSecond = getCurrentCircleSecond()
@@ -349,7 +350,7 @@ class BuddhaFragment : Fragment() {
 
                 }.show()
             } catch (e: Exception) {
-                _Utils.printException(context,e)
+                _Utils.printException(context, e)
             }
         }
 
@@ -378,16 +379,37 @@ class BuddhaFragment : Fragment() {
         }
 
         layout_monthTotal.setOnLongClickListener {
-            startActivity(Intent(context,BuddhaChartActivity::class.java))
+            startActivity(Intent(context, BuddhaChartActivity::class.java))
             true
         }
 
         iv_buddha.setOnLongClickListener {
-            var count=0
+            var count = 0
             val view = View.inflate(context, R.layout.inflate_dialog_add_buddha, null)
             val etCount = view.findViewById<EditText>(R.id.et_count)
             val ivAdd = view.findViewById<ImageView>(R.id.iv_add)
             val ivMinus = view.findViewById<ImageView>(R.id.iv_minus)
+            val spType = view.findViewById<Spinner>(R.id.sp_type)
+
+
+            val aa = BuddhaType.values()
+            val bb: MutableList<String> = ArrayList()
+            aa.forEach {
+                bb.add(it.toString())
+            }
+            fillSpinner(spType, bb)
+            spType.setSelection(dc.getSetting(Setting.KEYS.tmp_selected, 3).int, true)
+
+            spType.onItemSelectedListener = object : AdapterView.OnItemSelectedListener {
+                override fun onItemSelected(parent: AdapterView<*>?, view: View?, position: Int, id: Long) {
+                    e("--------------")
+                    dc.editSetting(Setting.KEYS.tmp_selected, spType.selectedItemPosition)
+                }
+
+                override fun onNothingSelected(parent: AdapterView<*>?) {
+                }
+            }
+
 
             val now = DateTime()
             val hourNumbers = arrayOfNulls<String>(24)
@@ -414,40 +436,16 @@ class BuddhaFragment : Fragment() {
                 etCount.setText((++count).toString())
             }
             ivMinus.setOnClickListener {
-                if (count > 1){
+                if (count > 1) {
                     etCount.setText((--count).toString())
                 }
             }
-            val btnCount = view.findViewById<Button>(R.id.btn_count)
-            val btnTime = view.findViewById<Button>(R.id.btn_time)
-            val btn13 = view.findViewById<Button>(R.id.btn_13)
+            val btnOk = view.findViewById<Button>(R.id.btn_ok)
             val dialog = AlertDialog.Builder(context).setView(view).show()
 
-            btnTime.setOnClickListener {
+            btnOk.setOnClickListener {
                 dialog.dismiss()
-                val tap = etCount.text.toString().toInt()
-                val hour = number_hour.value
-                val min = number_min.value
-                var time = DateTime()
-                time.set(Calendar.HOUR_OF_DAY, hour)
-                time.set(Calendar.MINUTE, min)
-                var stoptimeInMillis = time.timeInMillis
-
-                buildBuddhaAndSave(0, tap * 5 * 60000.toLong(), stoptimeInMillis, BuddhaType.计时念佛) { code, result ->
-                    if (code == 0) {
-                        uiHandler.post {
-                            refreshTotalView()
-                        }
-                    }
-                    uiHandler.post {
-                        Toast.makeText(context, result.toString(), Toast.LENGTH_LONG).show()
-//                        AlertDialog.Builder(context!!).setMessage(result.toString()).show()
-                    }
-                }
-            }
-
-            btn13.setOnClickListener {
-                dialog.dismiss()
+                val type = BuddhaType.valueOf(spType.selectedItem.toString())
                 val tap = etCount.text.toString().toInt()
                 val latestBuddha = dc.latestBuddha
                 val hour = number_hour.value
@@ -461,7 +459,7 @@ class BuddhaFragment : Fragment() {
                 time.set(Calendar.MINUTE, min)
                 var stoptimeInMillis = time.timeInMillis
 
-                buildBuddhaAndSave(tap * 1080, tap * avgDuration, stoptimeInMillis, BuddhaType.散念) { code, result ->
+                buildBuddhaAndSave(tap * 1080, tap * avgDuration, stoptimeInMillis, type) { code, result ->
                     if (code == 0) {
                         uiHandler.post {
                             refreshTotalView()
@@ -472,41 +470,6 @@ class BuddhaFragment : Fragment() {
 //                        AlertDialog.Builder(context!!).setMessage(result.toString()).show()
                     }
                 }
-            }
-
-            btnCount.setOnClickListener {
-                dialog.dismiss()
-                val tap = etCount.text.toString().toInt()
-                val latestBuddha = dc.latestBuddha
-                val hour = number_hour.value
-                val min = number_min.value
-                var avgDuration = (10 * 60000).toLong()
-                if (latestBuddha != null) {
-                    avgDuration = (latestBuddha.duration / (latestBuddha.count.toFloat() / 1080)).toLong()
-                }
-                var time = DateTime()
-                time.set(Calendar.HOUR_OF_DAY, hour)
-                time.set(Calendar.MINUTE, min)
-                var stoptimeInMillis = time.timeInMillis
-
-                buildBuddhaAndSave(tap * 1080, tap * avgDuration, stoptimeInMillis, BuddhaType.计数念佛) { code, result ->
-                    if (code == 0) {
-                        uiHandler.post {
-                            refreshTotalView()
-                        }
-                    }
-                    uiHandler.post {
-                        Toast.makeText(context, result.toString(), Toast.LENGTH_LONG).show()
-//                        AlertDialog.Builder(context!!).setMessage(result.toString()).show()
-                    }
-                }
-            }
-
-//            val ivTo = view.findViewById<ImageView>(R.id.iv_to)
-            val ivTo = view.findViewById<Button>(R.id.btn_to)
-            ivTo.setOnClickListener {
-                dialog.dismiss()
-                addBuddhaRecordDialog()
             }
             true
         }
@@ -544,8 +507,8 @@ class BuddhaFragment : Fragment() {
                 dc.deleteSetting(Setting.KEYS.muyu_startime)
                 dc.deleteSetting(Setting.KEYS.muyu_stoptime)
             } else {
-                AlertDialog.Builder(context).setItems(arrayOf("木鱼","木鱼+引擎"), DialogInterface.OnClickListener { dialog, which ->
-                    dc.editSetting(Setting.KEYS.muyu_type,which)
+                AlertDialog.Builder(context).setItems(arrayOf("木鱼", "木鱼+引擎"), DialogInterface.OnClickListener { dialog, which ->
+                    dc.editSetting(Setting.KEYS.muyu_type, which)
                     context?.startService(Intent(context!!, MuyuService::class.java))
                     animatorSuofang(fab_muyu_animator)
                 }).show()
@@ -570,36 +533,6 @@ class BuddhaFragment : Fragment() {
                 }
             }.show()
 
-//            if (!_Utils.isServiceRunning(context!!, BuddhaService::class.qualifiedName!!)) {
-//                wakeLock = _Utils.acquireWakeLock(context!!, PowerManager.SCREEN_BRIGHT_WAKE_LOCK)
-//                var msg = """
-//                愿将这些功德：
-//
-//                    回向给我今生今世及累生累世冤亲债主、历代宗亲、六亲眷属、一切护法，及一切有缘众生。
-//
-//                    回向给我父、母、子、女、兄、妹，以及他们的冤亲债主。
-//
-//                    回向给法界一切众生，愿所有众生，业障消除，善根增长，脱轮回苦，生极乐国。
-//
-//                    愿我念佛不断，精进不退，早得三昧，速证菩提。
-//
-//                    愿我身心健康，无病无灾。财富丰足，无忧无虑。家庭和睦，无烦无恼。所有恶习，尽除无余。所有冤孽，勿近我身。
-//
-//                    往昔所造诸恶业，皆由无始贪嗔痴。
-//                    从身语意之所生，一切我今皆忏悔。
-//
-//                    愿我临遇命终时，尽除一切诸障碍。
-//                    面见彼佛阿弥陀，既得往生安乐刹。
-//
-//                    弟子惟照，现是生死凡夫，罪障深重，轮回六道，苦不可言。
-//                    今遇知识，得闻弥陀名号，本愿功德，一心称念，求愿往生。
-//                    愿佛慈悲不舍，哀怜摄受。
-//            """.trimIndent()
-//                AlertDialog.Builder(context).setMessage(msg).setCancelable(false).setPositiveButton("圆满") { dialog, which ->
-//                    _Utils.releaseWakeLock(context!!, wakeLock)
-//                }.show()
-//            }
-
             true
         }
 
@@ -614,6 +547,12 @@ class BuddhaFragment : Fragment() {
             true
         }
         super.onViewCreated(view, savedInstanceState)
+    }
+
+    fun fillSpinner(spinner: Spinner, values: MutableList<String>) {
+        val adapter = ArrayAdapter(context!!, R.layout.inflate_spinner, values)
+        adapter.setDropDownViewResource(R.layout.inflate_spinner_dropdown)
+        spinner.adapter = adapter
     }
 
     private fun loadBuddhaName() {
@@ -636,7 +575,7 @@ class BuddhaFragment : Fragment() {
         val file = _Session.getFile(musicName.string)
         var bf = dc.getBuddhaConfig(musicName.string, file.length())
         if (bf == null) {
-            bf = BuddhaConfig(musicName.string, file.length(), "md5", 1.0f, 1.0f, 11, 600)
+            bf = BuddhaConfig(musicName.string, file.length(), "md5", 1.0f, 1.0f, BuddhaType.计数念佛.toInt(), 600)
         }
         return bf
     }
@@ -768,7 +707,7 @@ class BuddhaFragment : Fragment() {
                     var list = ArrayList<BuddhaConfig>()
                     var bfs = dc.allBuddhaConfig
                     bfs.forEach {
-                        if(!(_Session.BUDDHA_MUSIC_NAME_ARR.contains(it.name)&&_Session.getFile(it.name).length()==it.size)){
+                        if (!(_Session.BUDDHA_MUSIC_NAME_ARR.contains(it.name) && _Session.getFile(it.name).length() == it.size)) {
                             e(it.name)
                             list.add(it)
                         }
@@ -855,7 +794,7 @@ class BuddhaFragment : Fragment() {
                 stopAnimatorSuofang(btn_buddha_animator)
             }
         } catch (e: Exception) {
-            e("BuddhaFragment.startOrStopBuddha  "+e.message!!)
+            e("BuddhaFragment.startOrStopBuddha  " + e.message!!)
         }
     }
 
@@ -966,7 +905,7 @@ class BuddhaFragment : Fragment() {
     @Subscribe(threadMode = ThreadMode.MAIN)
     fun onGetMessage(bus: EventBusMessage) {
         when (bus.sender) {
-            is FromBuddhaAutoCloud->{
+            is FromBuddhaAutoCloud -> {
                 val duration = bus.msg.toLong()
                 val second = duration % 60000 / 1000
                 val miniteT = duration / 1000 / 60

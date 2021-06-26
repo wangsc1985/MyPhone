@@ -62,6 +62,7 @@ public class Setting{
     }
 
     public enum KEYS{
+        tmp_selected,
         tmp_tt,is保持念佛服务,buddha_prv_count,
         is开启整点报时,
         top_title,bottom_title,

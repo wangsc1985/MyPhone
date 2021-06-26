@@ -75,7 +75,6 @@ class BuddhaService : Service() {
     var yq_period = 1000L
 
     lateinit var yqSound: SoundPool
-    var targetTap = 12
 
     var isShowFloatWindow = false
     var isAutoPause = false
@@ -105,8 +104,6 @@ class BuddhaService : Service() {
 //
                 isShowFloatWindow = dc.getSetting(Setting.KEYS.is显示念佛悬浮窗, false).boolean
                 isAutoPause = dc.getSetting(Setting.KEYS.is念佛自动暂停, false).boolean
-
-                targetTap = dc.getSetting(Setting.KEYS.几圈后自动结束念佛, 12).int
 
                 yqSound = SoundPool(100, AudioManager.STREAM_MUSIC, 0)
                 yqSound.load(this, R.raw.yq, 1)
@@ -187,7 +184,7 @@ class BuddhaService : Service() {
             val file = _Session.getFile(musicName.string)
             var bf = dc.getBuddhaConfig(musicName.string, file.length())
             if (bf == null) {
-                bf = BuddhaConfig(musicName.string, file.length(), "md5", 1.0f, 1.0f, 11, 600)
+                bf = BuddhaConfig(musicName.string, file.length(), "md5", 1.0f, 1.0f, BuddhaType.计数念佛.toInt(), 600)
             }
 
             buddhaType = bf.type
@@ -304,11 +301,11 @@ class BuddhaService : Service() {
                                     setMediaVolume(system_volumn)
                                 }.start()
                             }
+                            if (notificationCount > dc.getSetting(Setting.KEYS.几圈后自动结束念佛, 12).int) {
+                                stopSelf()
+                            }
                         }
 
-                        if (notificationCount > targetTap) {
-                            stopSelf()
-                        }
 
                     } else {
                         if (now.second == 1) {
@@ -530,6 +527,9 @@ class BuddhaService : Service() {
 
                             _SoundUtils.play(applicationContext,R.raw.gu,_SoundUtils.SoundType.MUSIC)
                             cloudSaved = 5
+                            if(!dc.getSetting(Setting.KEYS.is保持念佛服务,true).boolean){
+                                stopSelf()
+                            }
                         }
                         else -> {
                             dc.addRunLog("err", "自动保存section，云储存buddha失败", "${code}   ${result}")

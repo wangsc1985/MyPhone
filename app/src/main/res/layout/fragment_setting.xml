@@ -8,133 +8,17 @@
     tools:context="com.wang17.myphone.fragment.SettingFragment">
 
 
-    <LinearLayout
-        android:id="@+id/layout_option1"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_centerHorizontal="true"
-        android:layout_centerVertical="true"
-        android:orientation="vertical"
-        android:visibility="gone"
-        app:layout_constraintHorizontal_bias="0.0"
-        app:layout_constraintLeft_toLeftOf="parent"
-        app:layout_constraintRight_toRightOf="parent"
-        app:layout_constraintTop_toTopOf="parent">
-
-        <LinearLayout
-            android:id="@+id/linear_headset"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:orientation="horizontal"
-            android:paddingLeft="10dp"
-            android:paddingRight="10dp">
-
-            <ImageView
-                android:id="@+id/imageView1"
-                android:layout_width="wrap_content"
-                android:layout_height="25dp"
-                android:layout_weight="1"
-                app:srcCompat="@drawable/headset" />
-
-            <SeekBar
-                android:id="@+id/seekBar_headset"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_gravity="center_vertical"
-                android:layout_weight="1" />
-        </LinearLayout>
-
-        <LinearLayout
-            android:id="@+id/linear_volumn"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:orientation="horizontal"
-            android:paddingLeft="10dp"
-            android:paddingRight="10dp">
-
-            <ImageView
-                android:id="@+id/imageView2"
-                android:layout_width="wrap_content"
-                android:layout_height="25dp"
-                android:layout_weight="1"
-                app:srcCompat="@drawable/voice" />
-
-            <SeekBar
-                android:id="@+id/seekBar_volumn"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_gravity="center_vertical"
-                android:layout_weight="1" />
-        </LinearLayout>
-
-    </LinearLayout>
-
     <ListView
         android:id="@+id/listView_setting"
         android:layout_width="0dp"
         android:layout_height="0dp"
-        android:layout_marginBottom="3dp"
         android:background="#FFFFFF"
-        app:layout_constraintBottom_toTopOf="@+id/layout_option2"
+        app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintLeft_toLeftOf="parent"
         app:layout_constraintRight_toRightOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/layout_option1">
+        app:layout_constraintTop_toTopOf="parent">
 
     </ListView>
-
-    <LinearLayout
-        android:id="@+id/layout_option2"
-        android:layout_width="0dp"
-        android:layout_height="wrap_content"
-        android:layout_centerHorizontal="true"
-        android:layout_centerVertical="true"
-        android:background="#FFFFFF"
-        android:orientation="vertical"
-        android:paddingTop="3dp"
-        android:paddingBottom="3dp"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintHorizontal_bias="0.0"
-        app:layout_constraintLeft_toLeftOf="parent"
-        app:layout_constraintRight_toRightOf="parent">
-
-        <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:orientation="horizontal">
-
-            <Spinner
-                android:id="@+id/spinner_locationGear"
-                android:layout_width="wrap_content"
-                android:layout_height="40dp"
-                android:layout_gravity="center_vertical"
-                android:layout_marginLeft="10dp"
-                android:layout_marginRight="10dp"
-                android:layout_weight="1"
-                android:background="@color/credit_card_background"
-                android:visibility="visible" />
-
-            <Spinner
-                android:id="@+id/spinner_musicName"
-                android:layout_width="wrap_content"
-                android:layout_height="40dp"
-                android:layout_gravity="center_vertical"
-                android:layout_marginLeft="10dp"
-                android:layout_weight="1"
-                android:background="@color/credit_card_background" />
-
-            <com.wang17.myphone.model.MySpinner
-                android:id="@+id/spinner_options"
-                android:layout_width="wrap_content"
-                android:layout_height="40dp"
-                android:layout_gravity="center_vertical"
-                android:layout_marginLeft="10dp"
-                android:layout_weight="1"
-                android:background="@color/credit_card_background"
-                android:visibility="gone" />
-
-        </LinearLayout>
-
-    </LinearLayout>
 
 
 </android.support.constraint.ConstraintLayout>

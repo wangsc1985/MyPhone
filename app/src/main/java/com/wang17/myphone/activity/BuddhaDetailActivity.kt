@@ -1,6 +1,7 @@
 package com.wang17.myphone.activity
 
 import android.app.AlertDialog
+import android.content.DialogInterface
 import android.os.Bundle
 import android.support.v7.app.AppCompatActivity
 import android.view.View
@@ -49,8 +50,16 @@ class BuddhaDetailActivity : AppCompatActivity(), OnActionFragmentBackListener {
                 val view = View.inflate(this, R.layout.inflate_dialog_editbox, null)
                 val buddha = buddhaList.get(position)
                 val spType = view.findViewById<Spinner>(R.id.sp_type)
+                val spCount = view.findViewById<Spinner>(R.id.sp_count)
                 val edit = view.findViewById<EditText>(R.id.et_content)
                 edit.setText(buddha.summary)
+                val aa = BuddhaType.values()
+                val bb:MutableList<String> = ArrayList()
+                aa.forEach {
+                    bb.add(it.toString())
+                }
+
+                fillSpinner(spType,bb)
                 when (buddha.type) {
                     0 -> {
                         spType.setSelection(0)
@@ -68,11 +77,24 @@ class BuddhaDetailActivity : AppCompatActivity(), OnActionFragmentBackListener {
                         spType.setSelection(4)
                     }
                 }
+                spCount.setSelection(buddha.count/1080-1)
+                val tapDuration = buddha.duration/(buddha.count/1080)
                 AlertDialog.Builder(this).setView(view).setPositiveButton("修改") { dialog, which ->
-                    val type = spType.selectedItem.toString().toInt()
-                    if(edit.text.toString()!=buddha.summary||type!=buddha.type){
-                        buddha.type = type
-                        buddha.summary = edit.text.toString()
+                    val type = BuddhaType.valueOf(spType.selectedItem.toString()).toInt()
+                    if(edit.text.toString()!=buddha.summary||type!=buddha.type||spCount.selectedItem.toString().toInt()!=buddha.count/1080){
+                        if(edit.text.toString()!=buddha.summary){
+                            buddha.summary = edit.text.toString()
+                        }
+                        if(type!=buddha.type){
+                            buddha.type = type
+                            if(buddha.type == BuddhaType.计时念佛.toInt()){
+                                buddha.count=0
+                            }
+                        }
+                        if(spCount.selectedItem.toString().toInt()!=buddha.count/1080){
+                            buddha.count = spCount.selectedItem.toString().toInt()*1080
+                            buddha.duration = buddha.count/1080*tapDuration
+                        }
                         _CloudUtils.editBuddha(this, buddha) { code, result ->
                             when (code) {
                                 0 -> {
@@ -86,7 +108,25 @@ class BuddhaDetailActivity : AppCompatActivity(), OnActionFragmentBackListener {
                             }
                             runOnUiThread {
                                 Toast.makeText(this,result.toString(),Toast.LENGTH_LONG).show()
+                            }
+                        }
+                    }
+                }.setNeutralButton("删除"){ dialog: DialogInterface, which: Int ->
+                    dataContext.deleteBuddha(buddhaList.get(position).id)
+                    _CloudUtils.delBuddha(this, buddhaList.get(position)) { code, result ->
+                        when (code) {
+                            0 -> {
+                                runOnUiThread {
+                                    isChanged = true
+                                    //
+                                    refreshData()
+                                    recordListdAdapter.notifyDataSetChanged()
+                                    Toast.makeText(this,result.toString(),Toast.LENGTH_LONG).show()
 //                                AlertDialog.Builder(this).setMessage(result.toString()).show()
+                                }
+                            }
+                            else -> {
+                                e("code : $code , result : $result")
                             }
                         }
                     }
@@ -96,30 +136,33 @@ class BuddhaDetailActivity : AppCompatActivity(), OnActionFragmentBackListener {
             }
         }
         listView_records.onItemLongClickListener = OnItemLongClickListener { parent, view, position, id ->
-            AlertDialog.Builder(this).setMessage("确认要删除当前记录吗？").setPositiveButton("确定") { dialog, which ->
-                dataContext.deleteBuddha(buddhaList.get(position).id)
-                _CloudUtils.delBuddha(this, buddhaList.get(position)) { code, result ->
+            val buddha = buddhaList.get(position)
+            if(buddha.type!=BuddhaType.计数念佛.toInt()){
+                buddha.type = BuddhaType.计数念佛.toInt()
+                _CloudUtils.editBuddha(this, buddha) { code, result ->
                     when (code) {
                         0 -> {
+                            dataContext.editBuddha(buddha)
+                            isChanged = true
                             runOnUiThread {
-                                isChanged = true
-                                //
                                 refreshData()
                                 recordListdAdapter.notifyDataSetChanged()
-                                Toast.makeText(this,result.toString(),Toast.LENGTH_LONG).show()
-//                                AlertDialog.Builder(this).setMessage(result.toString()).show()
                             }
                         }
-                        else -> {
-                            e("code : $code , result : $result")
-                        }
+                    }
+                    runOnUiThread {
+                        Toast.makeText(this,result.toString(),Toast.LENGTH_LONG).show()
                     }
                 }
-
-
-            }.setNegativeButton("取消", null).show()
+            }
             true
         }
+    }
+
+    fun fillSpinner(spinner: Spinner, values: MutableList<String>) {
+        val adapter = ArrayAdapter(this, R.layout.inflate_spinner, values)
+        adapter.setDropDownViewResource(R.layout.inflate_spinner_dropdown)
+        spinner.adapter = adapter
     }
 
     private fun refreshData() {
@@ -159,6 +202,7 @@ class BuddhaDetailActivity : AppCompatActivity(), OnActionFragmentBackListener {
             try {
                 convertView = View.inflate(this@BuddhaDetailActivity, R.layout.inflate_list_item_buddha_child, null)
                 val buddha = buddhaList[position]
+                val finger = convertView.findViewById<ImageView>(R.id.iv_finger)
                 val tv_date = convertView.findViewById<TextView>(R.id.tv_att_date)
                 val tv_item = convertView.findViewById<TextView>(R.id.tv_item)
                 val tv_duration = convertView.findViewById<TextView>(R.id.textView_monthDuration)
@@ -167,8 +211,11 @@ class BuddhaDetailActivity : AppCompatActivity(), OnActionFragmentBackListener {
                 tv_date.text = "" + buddha.startTime.hourStr + "点" + buddha.startTime.miniteStr + "分"
                 if (buddha.summary.isNotEmpty())
                     tv_item.text = buddha.summary
-//                else
-//                    tv_item.visibility = View.GONE
+                if(buddha.type==BuddhaType.计数念佛.toInt()){
+                    finger.visibility = View.VISIBLE
+                }else{
+                    finger.visibility = View.GONE
+                }
                 tv_duration.text = "" + toSpanString(buddha.duration, 3, 2)
                 tv_type.visibility=View.VISIBLE
                 tv_type.text=BuddhaType.fromInt(buddha.type).toString()

@@ -27,8 +27,24 @@
             android:layout_height="wrap_content"
             android:layout_weight="1"
             android:background="@drawable/bg_map_btn_pressed"
-            android:entries="@array/type"
             android:popupBackground="@drawable/bg_map_btn_pressed" />
+
+        <TextView
+            android:id="@+id/textView21"
+            android:layout_width="60dp"
+            android:layout_height="wrap_content"
+            android:layout_marginLeft="20dp"
+            android:layout_weight="1"
+            android:text="圈数：" />
+
+            <Spinner
+                android:id="@+id/sp_count"
+                android:layout_width="70dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:background="@drawable/bg_map_btn_pressed"
+                android:entries="@array/count"
+                android:popupBackground="@drawable/bg_map_btn_pressed" />
 
     </LinearLayout>
     <EditText
